@@ -1,6 +1,9 @@
 
+
 export type PriorityLevel = 'High' | 'Medium' | 'Low';
 export type StatusLevel = 'Backlog' | 'In Progress' | 'Done';
+
+export type Page = 'DASHBOARD' | 'MISSIONS' | 'SETTINGS'; // New navigation state
 
 export interface TaskEntry {
   id: string;         // UUID

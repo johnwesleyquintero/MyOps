@@ -1,3 +1,4 @@
+
 import React, { useMemo } from 'react';
 import { TaskEntry, StatusLevel } from '../types';
 import { formatRelativeDate, getProjectStyle, PRIORITY_DOTS } from '../constants';
@@ -8,7 +9,7 @@ interface KanbanBoardProps {
   onStatusUpdate: (entry: TaskEntry) => void;
   onAdd: () => void;
   onFocus: (entry: TaskEntry) => void; 
-  onDuplicate: (entry: TaskEntry) => void; // Added Prop
+  onDuplicate: (entry: TaskEntry) => void; 
   allEntries?: TaskEntry[];
 }
 
@@ -102,6 +103,11 @@ const KanbanColumn: React.FC<KanbanColumnProps> = ({ title, tasks, colorClass, o
       };
   };
 
+  const getTags = (desc: string) => {
+    const matches = desc.match(/#\w+/g);
+    return matches || [];
+  };
+
   return (
     <div className={`flex-1 min-w-[300px] flex flex-col rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden ${colorClass}`}>
       {/* Header */}
@@ -123,6 +129,8 @@ const KanbanColumn: React.FC<KanbanColumnProps> = ({ title, tasks, colorClass, o
       <div className="flex-1 p-3 overflow-y-auto custom-scrollbar space-y-3">
         {tasks.map(task => {
           const depStatus = getDependencyStatus(task);
+          const tags = getTags(task.description);
+          
           return (
             <div 
               key={task.id}
@@ -152,6 +160,16 @@ const KanbanColumn: React.FC<KanbanColumnProps> = ({ title, tasks, colorClass, o
               <p className={`text-sm text-slate-800 dark:text-slate-100 font-medium mb-3 line-clamp-3 ${isDone ? 'line-through text-slate-500' : ''}`}>
                 {task.description}
               </p>
+
+              {tags.length > 0 && (
+                <div className="flex flex-wrap gap-1 mb-2">
+                  {tags.map((tag, i) => (
+                    <span key={i} className="px-1.5 py-0.5 bg-indigo-50 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-300 text-[9px] font-bold rounded border border-indigo-100 dark:border-indigo-800/50">
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              )}
 
               <div className="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-slate-800">
                 <div className="flex items-center gap-1.5">

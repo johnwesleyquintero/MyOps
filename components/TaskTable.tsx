@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -53,6 +54,23 @@ const TableSkeleton = ({ colSpan }: { colSpan: number }) => (
     ))}
   </tbody>
 );
+
+// Helper for parsing text nodes to find hashtags
+const processTextWithTags = (text: string) => {
+  if (typeof text !== 'string') return text;
+  
+  const parts = text.split(/(#\w+)/g);
+  return parts.map((part, index) => {
+    if (part.match(/^#\w+$/)) {
+      return (
+        <span key={index} className="inline-block bg-indigo-50 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-300 px-1.5 py-0 rounded text-[10px] font-bold mx-0.5 border border-indigo-100 dark:border-indigo-800">
+          {part}
+        </span>
+      );
+    }
+    return part;
+  });
+};
 
 export const TaskTable: React.FC<TaskTableProps> = ({ 
   entries, 
@@ -177,14 +195,6 @@ export const TaskTable: React.FC<TaskTableProps> = ({
   const handleChecklistToggle = (entry: TaskEntry, checkboxIndex: number) => {
     if (!onDescriptionUpdate) return;
 
-    const regex = /^(\s*[-*]\s*)\[([ x])\]/gm;
-    let match;
-    let matchIndex = 0;
-    
-    // We need to find the Nth checkbox match in the raw string
-    // and flip it.
-    
-    // Reconstruct string manually to avoid tricky regex replace issues with global flag
     const text = entry.description;
     const lines = text.split('\n');
     let currentCheckbox = 0;
@@ -195,8 +205,6 @@ export const TaskTable: React.FC<TaskTableProps> = ({
             if (currentCheckbox === checkboxIndex) {
                 const isChecked = checkboxMatch[2] === 'x';
                 const newStatus = isChecked ? ' ' : 'x';
-                // Replace only the first occurrence of the bracket part in this line
-                // to avoid messing up if they typed weird stuff later in the line
                 currentCheckbox++;
                 return line.replace(`[${checkboxMatch[2]}]`, `[${newStatus}]`);
             }
@@ -248,8 +256,6 @@ export const TaskTable: React.FC<TaskTableProps> = ({
         return <span className={`font-mono text-xs whitespace-nowrap ${dateInfo.colorClass}`}>{dateInfo.text}</span>;
       case 'description':
         const depStatus = getDependencyStatus(entry);
-        
-        // Counter for checkboxes in this specific cell render
         let checkboxCounter = 0;
 
         return (
@@ -258,11 +264,6 @@ export const TaskTable: React.FC<TaskTableProps> = ({
                 className={`prose prose-sm max-w-none line-clamp-2 overflow-hidden ${entry.status === 'Done' ? 'opacity-50 line-through text-slate-400 dark:text-slate-500' : 'text-slate-700 dark:text-slate-200'} transition-colors relative`}
                 title="Click to edit (or click checkboxes)"
             >
-                {/* 
-                  We handle clicks carefully here. 
-                  Checkboxes stopPropagation to allow toggling.
-                  The background div handles the "Edit" click.
-                */}
                 <div onClick={() => onEdit(entry)} className="absolute inset-0 cursor-pointer z-0"></div>
 
                 <div className="relative z-10 pointer-events-none">
@@ -270,7 +271,16 @@ export const TaskTable: React.FC<TaskTableProps> = ({
                     remarkPlugins={[remarkGfm]}
                     components={{
                         a: ({node, ...props}) => <a {...props} className="text-indigo-600 dark:text-indigo-400 pointer-events-auto cursor-pointer hover:underline" onClick={e => e.stopPropagation()} target="_blank" />,
-                        p: ({node, ...props}) => <span {...props} className="mr-1" />,
+                        p: ({node, children, ...props}) => {
+                          // Custom renderer to handle #hashtags within paragraphs
+                          const processedChildren = React.Children.map(children, child => {
+                            if (typeof child === 'string') {
+                              return processTextWithTags(child);
+                            }
+                            return child;
+                          });
+                          return <span {...props} className="mr-1 block">{processedChildren}</span>;
+                        },
                         strong: ({node, ...props}) => <strong {...props} className="font-bold text-slate-900 dark:text-white" />,
                         em: ({node, ...props}) => <em {...props} className="italic text-slate-600 dark:text-slate-400" />,
                         code: ({node, ...props}) => <code {...props} className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 px-1 py-0.5 rounded text-[10px] font-mono" />,

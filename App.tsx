@@ -15,6 +15,8 @@ import { ConfirmationModal } from './components/ConfirmationModal';
 import { ShortcutsModal } from './components/ShortcutsModal'; 
 import { FocusMode } from './components/FocusMode'; 
 import { CommandPalette } from './components/CommandPalette'; // Import CommandPalette
+import { CashFlowChart } from './components/analytics/CashFlowChart';
+import { ExpenseCategoryList } from './components/analytics/ExpenseCategoryList';
 import { useTasks } from './hooks/useTasks';
 import { useTaskAnalytics } from './hooks/useTaskAnalytics';
 import { useAppConfig } from './hooks/useAppConfig';
@@ -324,11 +326,17 @@ const App: React.FC = () => {
           
           {/* --- DASHBOARD VIEW --- */}
           {activePage === 'DASHBOARD' && (
-            <div className="animate-fade-in space-y-8">
+            <div className="animate-fade-in space-y-6">
                <SummaryCards metrics={metrics} />
+
+               {/* Analytics Grid */}
+               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                  <CashFlowChart entries={entries} />
+                  <ExpenseCategoryList entries={entries} />
+               </div>
                
                <div>
-                  <div className="flex justify-between items-center mb-4">
+                  <div className="flex justify-between items-center mb-4 mt-2">
                      <h3 className="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Immediate Focus</h3>
                      <button 
                        onClick={() => setActivePage('MISSIONS')}

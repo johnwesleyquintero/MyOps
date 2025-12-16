@@ -8,9 +8,10 @@ interface KanbanBoardProps {
   onEdit: (entry: TaskEntry) => void;
   onStatusUpdate: (entry: TaskEntry) => void;
   onAdd: () => void;
+  allEntries?: TaskEntry[];
 }
 
-export const KanbanBoard: React.FC<KanbanBoardProps> = ({ entries, onEdit, onStatusUpdate, onAdd }) => {
+export const KanbanBoard: React.FC<KanbanBoardProps> = ({ entries, onEdit, onStatusUpdate, onAdd, allEntries = [] }) => {
   
   const columns = useMemo(() => {
     const cols: Record<StatusLevel, TaskEntry[]> = {
@@ -38,6 +39,7 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({ entries, onEdit, onSta
         colorClass="border-t-4 border-t-slate-400 bg-slate-50"
         onEdit={onEdit}
         onAdd={onAdd}
+        allEntries={allEntries}
       />
 
       {/* Column 2: In Progress */}
@@ -47,6 +49,7 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({ entries, onEdit, onSta
         colorClass="border-t-4 border-t-indigo-500 bg-indigo-50/30"
         onEdit={onEdit}
         onAdd={onAdd}
+        allEntries={allEntries}
       />
 
       {/* Column 3: Done */}
@@ -57,6 +60,7 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({ entries, onEdit, onSta
         onEdit={onEdit}
         onAdd={onAdd}
         isDone
+        allEntries={allEntries}
       />
     </div>
   );
@@ -69,9 +73,26 @@ interface KanbanColumnProps {
   onEdit: (entry: TaskEntry) => void;
   onAdd: () => void;
   isDone?: boolean;
+  allEntries: TaskEntry[];
 }
 
-const KanbanColumn: React.FC<KanbanColumnProps> = ({ title, tasks, colorClass, onEdit, onAdd, isDone }) => {
+const KanbanColumn: React.FC<KanbanColumnProps> = ({ title, tasks, colorClass, onEdit, onAdd, isDone, allEntries }) => {
+  
+  const getDependencyStatus = (entry: TaskEntry) => {
+      if (!entry.dependencies || entry.dependencies.length === 0) return null;
+      
+      const blockerCount = entry.dependencies.filter(depId => {
+          const depTask = allEntries.find(e => e.id === depId);
+          return depTask && depTask.status !== 'Done';
+      }).length;
+
+      return {
+          count: entry.dependencies.length,
+          blocked: blockerCount > 0,
+          blockerCount
+      };
+  };
+
   return (
     <div className={`flex-1 min-w-[300px] flex flex-col rounded-xl border border-slate-200 shadow-sm overflow-hidden ${colorClass}`}>
       {/* Header */}
@@ -91,37 +112,50 @@ const KanbanColumn: React.FC<KanbanColumnProps> = ({ title, tasks, colorClass, o
 
       {/* Content */}
       <div className="flex-1 p-3 overflow-y-auto custom-scrollbar space-y-3">
-        {tasks.map(task => (
-          <div 
-            key={task.id}
-            onClick={() => onEdit(task)}
-            className={`bg-white p-4 rounded-lg border border-slate-200 shadow-sm hover:shadow-md hover:border-indigo-300 cursor-pointer transition-all group active:scale-[0.98] ${isDone ? 'opacity-70 grayscale hover:grayscale-0 hover:opacity-100' : ''}`}
-          >
-            <div className="flex justify-between items-start mb-2">
-              <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-bold border ${getProjectStyle(task.project)}`}>
-                {task.project}
-              </span>
-              <div 
-                className={`w-2 h-2 rounded-full ${PRIORITY_DOTS[task.priority]}`} 
-                title={`Priority: ${task.priority}`}
-              />
-            </div>
-            
-            <p className={`text-sm text-slate-800 font-medium mb-3 line-clamp-3 ${isDone ? 'line-through text-slate-500' : ''}`}>
-              {task.description}
-            </p>
+        {tasks.map(task => {
+          const depStatus = getDependencyStatus(task);
+          return (
+            <div 
+              key={task.id}
+              onClick={() => onEdit(task)}
+              className={`bg-white p-4 rounded-lg border border-slate-200 shadow-sm hover:shadow-md hover:border-indigo-300 cursor-pointer transition-all group active:scale-[0.98] ${isDone ? 'opacity-70 grayscale hover:grayscale-0 hover:opacity-100' : ''}`}
+            >
+              <div className="flex justify-between items-start mb-2">
+                <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-bold border ${getProjectStyle(task.project)}`}>
+                  {task.project}
+                </span>
+                <div className="flex gap-2 items-center">
+                    {depStatus && (
+                         <div 
+                            className={`flex items-center gap-0.5 px-1 py-0.5 rounded text-[9px] font-bold border ${depStatus.blocked ? 'bg-red-50 text-red-600 border-red-200' : 'bg-slate-100 text-slate-400 border-slate-200'}`}
+                            title={depStatus.blocked ? "Blocked by dependency" : "Dependencies"}
+                        >
+                            <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" /></svg>
+                        </div>
+                    )}
+                    <div 
+                      className={`w-2 h-2 rounded-full ${PRIORITY_DOTS[task.priority]}`} 
+                      title={`Priority: ${task.priority}`}
+                    />
+                </div>
+              </div>
+              
+              <p className={`text-sm text-slate-800 font-medium mb-3 line-clamp-3 ${isDone ? 'line-through text-slate-500' : ''}`}>
+                {task.description}
+              </p>
 
-            <div className="flex items-center justify-between pt-2 border-t border-slate-100">
-               <div className="flex items-center gap-1.5">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" className="text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-                  <span className={`text-[10px] font-mono ${formatRelativeDate(task.date).colorClass}`}>
-                    {formatRelativeDate(task.date).text}
-                  </span>
-               </div>
-               <span className="opacity-0 group-hover:opacity-100 text-[10px] font-bold text-indigo-600 uppercase tracking-wider transition-opacity">Edit</span>
+              <div className="flex items-center justify-between pt-2 border-t border-slate-100">
+                <div className="flex items-center gap-1.5">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" className="text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                    <span className={`text-[10px] font-mono ${formatRelativeDate(task.date).colorClass}`}>
+                      {formatRelativeDate(task.date).text}
+                    </span>
+                </div>
+                <span className="opacity-0 group-hover:opacity-100 text-[10px] font-bold text-indigo-600 uppercase tracking-wider transition-opacity">Edit</span>
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
         {tasks.length === 0 && (
           <button 
              onClick={onAdd}

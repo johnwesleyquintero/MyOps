@@ -1,3 +1,4 @@
+
 export const GAS_BACKEND_CODE = `// --- CONFIGURATION ---
 const API_SECRET = "myops-secret-key"; // <--- CHANGE THIS to your own strong password
 // ---------------------
@@ -20,7 +21,8 @@ function doGet(e) {
 
   const headers = data.shift();
   
-  // Mapping: 0:Date, 1:Description, 2:Project, 3:Priority, 4:Status, 5:CreatedAt, 6:ID
+  // Mapping: 
+  // 0:Date, 1:Desc, 2:Project, 3:Priority, 4:Status, 5:CreatedAt, 6:ID, 7:Dependencies(JSON)
   const entries = data.map(row => {
     let dateVal = row[0];
     if (Object.prototype.toString.call(dateVal) === '[object Date]') {
@@ -30,6 +32,15 @@ function doGet(e) {
         dateVal = new Date().toISOString().split('T')[0];
       }
     }
+
+    let deps = [];
+    try {
+      if (row[7] && row[7] !== "") {
+        deps = JSON.parse(row[7]);
+      }
+    } catch (err) {
+      deps = [];
+    }
     
     return {
       date: dateVal || "", 
@@ -38,7 +49,8 @@ function doGet(e) {
       priority: row[3] || "Medium",
       status: row[4] || "Backlog",
       createdAt: row[5] || "",
-      id: row[6] || "" 
+      id: row[6] || "",
+      dependencies: deps
     };
   }).filter(e => e.description !== "");
 
@@ -65,6 +77,7 @@ function doPost(e) {
     
     const action = payload.action || 'create';
     const entry = payload.entry;
+    const depsString = JSON.stringify(entry.dependencies || []);
 
     if (action === 'create') {
       const id = entry.id || Utilities.getUuid();
@@ -75,7 +88,8 @@ function doPost(e) {
         entry.priority,
         entry.status,
         new Date().toISOString(),
-        id
+        id,
+        depsString
       ];
       sheet.appendRow(newRow);
       return jsonResponse({ status: "success", id: id });
@@ -87,8 +101,10 @@ function doPost(e) {
       // ID is at index 6
       for (let i = 1; i < data.length; i++) {
         if (data[i][6] == entry.id) {
-          const range = sheet.getRange(i + 1, 1, 1, 5); // Update first 5 cols
-          range.setValues([[entry.date, entry.description, entry.project, entry.priority, entry.status]]);
+          // Update columns 1-5 (Basic info)
+          sheet.getRange(i + 1, 1, 1, 5).setValues([[entry.date, entry.description, entry.project, entry.priority, entry.status]]);
+          // Update column 8 (Dependencies)
+          sheet.getRange(i + 1, 8).setValue(depsString);
           return jsonResponse({ status: "updated" });
         }
       }

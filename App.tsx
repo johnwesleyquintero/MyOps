@@ -234,6 +234,7 @@ const App: React.FC = () => {
                         onEdit={handleOpenEdit}
                         onDelete={handleModalDelete}
                         onStatusUpdate={handleStatusUpdate}
+                        allEntries={entries} // Pass all entries for dependency logic
                      />
                      {dashboardTasks.length === 0 && !isLoading && (
                         <div className="p-8 text-center text-slate-400 text-sm">
@@ -311,6 +312,7 @@ const App: React.FC = () => {
                    onEdit={handleOpenEdit}
                    onDelete={handleModalDelete}
                    onStatusUpdate={handleStatusUpdate}
+                   allEntries={entries}
                  />
                )}
 
@@ -320,6 +322,7 @@ const App: React.FC = () => {
                    onEdit={handleOpenEdit}
                    onStatusUpdate={handleStatusUpdate}
                    onAdd={handleOpenCreate}
+                   allEntries={entries}
                  />
                )}
 
@@ -343,6 +346,7 @@ const App: React.FC = () => {
         onDelete={handleModalDelete}
         initialData={editingEntry}
         isSubmitting={isSubmitting}
+        entries={entries} // Pass all entries to allow dependency selection
       />
 
       <SettingsModal 

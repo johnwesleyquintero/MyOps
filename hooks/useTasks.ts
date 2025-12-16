@@ -38,16 +38,32 @@ export const useTasks = (
     setIsSubmitting(true);
     try {
       if (isUpdate) {
+        // Optimistic Update: Update UI immediately before waiting for API
+        setEntries(prev => {
+          const updated = prev.map(e => e.id === entry.id ? entry : e);
+          return updated.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+        });
+
         await updateTask(entry, config);
         showToast('Task updated', 'success');
       } else {
-        await addTask(entry, config);
+        // Wait for ID generation from service (client-side ID gen happens in service)
+        const newEntry = await addTask(entry, config);
+        
+        // Update Local State directly
+        setEntries(prev => {
+           const updated = [...prev, newEntry];
+           return updated.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+        });
         showToast('Task added', 'success');
       }
-      await loadData();
+      
+      // Removed await loadData(); to prevent unnecessary round-trip and UI flicker
       return true;
     } catch (err: any) {
       showToast(`Error saving task: ${err.message}`, 'error');
+      // On error, we might want to revert or reload, simple reload is safest
+      await loadData();
       return false;
     } finally {
       setIsSubmitting(false);
@@ -100,6 +116,10 @@ export const useTasks = (
     if (entriesToDelete.length === 0) return;
     setIsLoading(true);
     try {
+      // Optimistic bulk remove
+      const idsToDelete = new Set(entriesToDelete.map(e => e.id));
+      setEntries(prev => prev.filter(e => !idsToDelete.has(e.id)));
+
       let deletedCount = 0;
       for (const entry of entriesToDelete) {
         if (entry.id) {
@@ -108,10 +128,10 @@ export const useTasks = (
         }
       }
       showToast(`Deleted ${deletedCount} tasks`, 'success');
-      await loadData();
+      // No reload needed if successful
     } catch (err: any) {
       showToast(`Error: ${err.message}`, 'error');
-      await loadData();
+      await loadData(); // Reload on error to ensure sync
     } finally {
       setIsLoading(false);
     }

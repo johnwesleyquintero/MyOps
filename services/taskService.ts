@@ -15,7 +15,6 @@ const postToGas = async (url: string, payload: any) => {
 
 export const fetchTasks = async (config: AppConfig): Promise<TaskEntry[]> => {
   if (config.mode === 'DEMO') {
-    await new Promise(resolve => setTimeout(resolve, 500));
     const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
     if (!stored) {
       const initialData = getMockData();
@@ -54,15 +53,15 @@ export const fetchTasks = async (config: AppConfig): Promise<TaskEntry[]> => {
   }
 };
 
-export const addTask = async (entry: TaskEntry, config: AppConfig): Promise<void> => {
+export const addTask = async (entry: TaskEntry, config: AppConfig): Promise<TaskEntry> => {
   const entryWithId = { ...entry, id: entry.id || crypto.randomUUID() };
 
   if (config.mode === 'DEMO') {
-    await new Promise(resolve => setTimeout(resolve, 600));
     const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
     const current = stored ? JSON.parse(stored) : [];
-    const newEntry = { ...entryWithId, createdAt: new Date().toISOString() };
-    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify([newEntry, ...current]));
+    // Ensure new items are at the top if sorting logic permits, or just append. 
+    // We stick to append here, UI handles sort.
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify([entryWithId, ...current]));
   } else {
     if (!config.gasDeploymentUrl) throw new Error("GAS URL not configured");
     await postToGas(config.gasDeploymentUrl, { 
@@ -71,11 +70,12 @@ export const addTask = async (entry: TaskEntry, config: AppConfig): Promise<void
       token: config.apiToken 
     });
   }
+  
+  return entryWithId;
 };
 
 export const updateTask = async (entry: TaskEntry, config: AppConfig): Promise<void> => {
   if (config.mode === 'DEMO') {
-    await new Promise(resolve => setTimeout(resolve, 600));
     const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
     let current: TaskEntry[] = stored ? JSON.parse(stored) : [];
     current = current.map(e => e.id === entry.id ? entry : e);
@@ -92,7 +92,6 @@ export const updateTask = async (entry: TaskEntry, config: AppConfig): Promise<v
 
 export const deleteTask = async (id: string, config: AppConfig): Promise<void> => {
   if (config.mode === 'DEMO') {
-    await new Promise(resolve => setTimeout(resolve, 600));
     const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
     let current: TaskEntry[] = stored ? JSON.parse(stored) : [];
     current = current.filter(e => e.id !== id);

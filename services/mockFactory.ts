@@ -1,3 +1,4 @@
+
 import { TaskEntry } from '../types';
 
 export const getMockData = (): TaskEntry[] => {
@@ -18,7 +19,8 @@ export const getMockData = (): TaskEntry[] => {
     project: 'Strategy', 
     priority: 'High', 
     status: 'In Progress',
-    createdAt: new Date().toISOString() 
+    createdAt: new Date().toISOString(),
+    dependencies: []
   });
 
   entries.push({ 
@@ -28,7 +30,8 @@ export const getMockData = (): TaskEntry[] => {
     project: 'Content', 
     priority: 'Medium', 
     status: 'Backlog',
-    createdAt: new Date().toISOString() 
+    createdAt: new Date().toISOString(),
+    dependencies: ['t-1'] // Depends on Architecture
   });
 
   entries.push({ 
@@ -38,7 +41,8 @@ export const getMockData = (): TaskEntry[] => {
     project: 'Development', 
     priority: 'High', 
     status: 'Done',
-    createdAt: new Date().toISOString() 
+    createdAt: new Date().toISOString(),
+    dependencies: []
   });
 
   entries.push({ 
@@ -48,7 +52,8 @@ export const getMockData = (): TaskEntry[] => {
     project: 'Operations', 
     priority: 'Low', 
     status: 'Backlog',
-    createdAt: new Date().toISOString() 
+    createdAt: new Date().toISOString(),
+    dependencies: []
   });
 
   entries.push({ 
@@ -58,7 +63,8 @@ export const getMockData = (): TaskEntry[] => {
     project: 'Health', 
     priority: 'Medium', 
     status: 'In Progress',
-    createdAt: new Date().toISOString() 
+    createdAt: new Date().toISOString(),
+    dependencies: [] 
   });
 
   return entries.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());

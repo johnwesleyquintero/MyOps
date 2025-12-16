@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { TaskEntry, PriorityLevel, StatusLevel } from '../types';
 import { DEFAULT_PROJECTS, PRIORITIES, STATUSES, PRIORITY_COLORS, STATUS_COLORS } from '../constants';
 
@@ -10,6 +10,7 @@ interface TaskModalProps {
   onDelete: (entry: TaskEntry) => Promise<void>;
   initialData?: TaskEntry | null;
   isSubmitting: boolean;
+  entries: TaskEntry[]; // Required for dependencies
 }
 
 export const TaskModal: React.FC<TaskModalProps> = ({ 
@@ -18,7 +19,8 @@ export const TaskModal: React.FC<TaskModalProps> = ({
   onSubmit, 
   onDelete,
   initialData, 
-  isSubmitting 
+  isSubmitting,
+  entries 
 }) => {
   const getLocalDate = (offsetDays: number = 0) => {
     const d = new Date();
@@ -32,17 +34,22 @@ export const TaskModal: React.FC<TaskModalProps> = ({
     description: '',
     project: DEFAULT_PROJECTS[0],
     priority: 'Medium',
-    status: 'Backlog'
+    status: 'Backlog',
+    dependencies: []
   });
   
   const [isCustomProject, setIsCustomProject] = useState<boolean>(false);
+  const [showDeps, setShowDeps] = useState<boolean>(false);
 
   useEffect(() => {
     if (isOpen) {
       if (initialData) {
-        setFormData(initialData);
+        setFormData({ ...initialData, dependencies: initialData.dependencies || [] });
         const isStandard = DEFAULT_PROJECTS.includes(initialData.project);
         setIsCustomProject(!isStandard);
+        if (initialData.dependencies && initialData.dependencies.length > 0) {
+            setShowDeps(true);
+        }
       } else {
         resetForm();
       }
@@ -56,9 +63,11 @@ export const TaskModal: React.FC<TaskModalProps> = ({
       description: '',
       project: DEFAULT_PROJECTS[0],
       priority: 'Medium',
-      status: 'Backlog'
+      status: 'Backlog',
+      dependencies: []
     });
     setIsCustomProject(false);
+    setShowDeps(false);
   };
 
   const handleSubmit = async (e?: React.FormEvent) => {
@@ -83,6 +92,22 @@ export const TaskModal: React.FC<TaskModalProps> = ({
       onClose();
     }
   };
+
+  const toggleDependency = (id: string) => {
+    setFormData(prev => {
+        const current = prev.dependencies || [];
+        if (current.includes(id)) {
+            return { ...prev, dependencies: current.filter(d => d !== id) };
+        } else {
+            return { ...prev, dependencies: [...current, id] };
+        }
+    });
+  };
+
+  // Potential dependencies: All tasks except self
+  const potentialDeps = useMemo(() => {
+    return entries.filter(e => e.id !== formData.id && e.status !== 'Done');
+  }, [entries, formData.id]);
 
   if (!isOpen) return null;
 
@@ -118,13 +143,13 @@ export const TaskModal: React.FC<TaskModalProps> = ({
             {/* Description (Main Input) */}
             <div>
               <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 flex justify-between">
-                Description (Markdown Supported)
+                Description
                 <span className="text-[10px] font-normal text-slate-400">⌘+Enter to save</span>
               </label>
               <textarea
                 required
-                rows={5}
-                placeholder="What needs to be done? Use **bold**, `code`, or [links](url)."
+                rows={3}
+                placeholder="What needs to be done?"
                 className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all text-slate-700 placeholder-slate-400 font-sans resize-none"
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
@@ -209,6 +234,43 @@ export const TaskModal: React.FC<TaskModalProps> = ({
                       ))}
                    </div>
                 </div>
+            </div>
+
+            {/* Dependency Section */}
+            <div className="border-t border-slate-100 pt-4">
+                <button 
+                    type="button" 
+                    onClick={() => setShowDeps(!showDeps)}
+                    className="flex items-center gap-2 text-xs font-bold text-slate-500 uppercase tracking-wider hover:text-indigo-600 mb-3"
+                >
+                    <svg className={`w-4 h-4 transition-transform ${showDeps ? 'rotate-90' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" /></svg>
+                    Blocking Tasks ({formData.dependencies?.length || 0})
+                </button>
+                
+                {showDeps && (
+                    <div className="bg-slate-50 border border-slate-200 rounded-lg p-2 max-h-40 overflow-y-auto custom-scrollbar">
+                        {potentialDeps.length === 0 ? (
+                            <div className="text-xs text-slate-400 p-2 italic">No other active tasks available to link.</div>
+                        ) : potentialDeps.map(task => {
+                             const isSelected = formData.dependencies?.includes(task.id);
+                             return (
+                                <div 
+                                    key={task.id} 
+                                    onClick={() => toggleDependency(task.id)}
+                                    className={`flex items-start gap-2 p-2 rounded cursor-pointer transition-colors ${isSelected ? 'bg-white shadow-sm border border-indigo-200' : 'hover:bg-slate-100 border border-transparent'}`}
+                                >
+                                    <div className={`mt-0.5 w-4 h-4 border rounded flex items-center justify-center transition-colors ${isSelected ? 'bg-indigo-600 border-indigo-600' : 'border-slate-300 bg-white'}`}>
+                                        {isSelected && <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" /></svg>}
+                                    </div>
+                                    <div className="flex-1">
+                                        <p className={`text-xs ${isSelected ? 'text-slate-900 font-medium' : 'text-slate-600'}`}>{task.description}</p>
+                                        <p className="text-[10px] text-slate-400">{task.project} • {task.status}</p>
+                                    </div>
+                                </div>
+                             )
+                        })}
+                    </div>
+                )}
             </div>
 
           </div>

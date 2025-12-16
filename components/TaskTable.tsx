@@ -10,6 +10,7 @@ interface TaskTableProps {
   onEdit: (entry: TaskEntry) => void;
   onDelete: (entry: TaskEntry) => void;
   onStatusUpdate?: (entry: TaskEntry) => void;
+  allEntries?: TaskEntry[]; // Needed for calculating blocking status
   currency?: string;
   locale?: string;
 }
@@ -55,7 +56,8 @@ export const TaskTable: React.FC<TaskTableProps> = ({
   isLoading, 
   onEdit, 
   onDelete, 
-  onStatusUpdate 
+  onStatusUpdate,
+  allEntries = []
 }) => {
   // --- Column Management State ---
   const [columns, setColumns] = useState<ColumnConfig[]>(DEFAULT_COLUMNS);
@@ -149,6 +151,22 @@ export const TaskTable: React.FC<TaskTableProps> = ({
     });
   }, [entries, sortConfig]);
 
+  // Dependency Checker
+  const getDependencyStatus = (entry: TaskEntry) => {
+      if (!entry.dependencies || entry.dependencies.length === 0) return null;
+      
+      const blockerCount = entry.dependencies.filter(depId => {
+          const depTask = allEntries.find(e => e.id === depId);
+          return depTask && depTask.status !== 'Done';
+      }).length;
+
+      return {
+          count: entry.dependencies.length,
+          blocked: blockerCount > 0,
+          blockerCount
+      };
+  };
+
   if (!isLoading && entries.length === 0) {
     return (
       <div className="w-full flex flex-col items-center justify-center py-20 bg-white border border-slate-200 rounded-xl border-dashed">
@@ -188,27 +206,39 @@ export const TaskTable: React.FC<TaskTableProps> = ({
         const dateInfo = formatRelativeDate(entry.date);
         return <span className={`font-mono text-xs whitespace-nowrap ${dateInfo.colorClass}`}>{dateInfo.text}</span>;
       case 'description':
+        const depStatus = getDependencyStatus(entry);
         return (
-          <div 
-             className={`prose prose-sm max-w-none line-clamp-2 overflow-hidden ${entry.status === 'Done' ? 'opacity-50 line-through text-slate-400' : 'text-slate-700'} cursor-pointer hover:text-indigo-700 transition-colors`}
-             onClick={() => onEdit(entry)}
-             title="Click to edit"
-          >
-            <ReactMarkdown 
-              components={{
-                a: ({node, ...props}) => <a {...props} className="text-indigo-600 pointer-events-none" />,
-                p: ({node, ...props}) => <span {...props} className="mr-1" />,
-                strong: ({node, ...props}) => <strong {...props} className="font-bold text-slate-900" />,
-                em: ({node, ...props}) => <em {...props} className="italic text-slate-600" />,
-                code: ({node, ...props}) => <code {...props} className="bg-slate-100 text-slate-600 border border-slate-200 px-1 py-0.5 rounded text-[10px] font-mono" />,
-                h1: ({node, ...props}) => <strong {...props} className="block text-slate-900 font-bold" />,
-                h2: ({node, ...props}) => <strong {...props} className="block text-slate-900 font-bold" />,
-                ul: ({node, ...props}) => <span {...props} />,
-                li: ({node, ...props}) => <span {...props} className="after:content-[',_'] last:after:content-none" />,
-              }}
+          <div className="flex items-start gap-2">
+            <div 
+                className={`prose prose-sm max-w-none line-clamp-2 overflow-hidden ${entry.status === 'Done' ? 'opacity-50 line-through text-slate-400' : 'text-slate-700'} cursor-pointer hover:text-indigo-700 transition-colors`}
+                onClick={() => onEdit(entry)}
+                title="Click to edit"
             >
-                {entry.description}
-            </ReactMarkdown>
+                <ReactMarkdown 
+                components={{
+                    a: ({node, ...props}) => <a {...props} className="text-indigo-600 pointer-events-none" />,
+                    p: ({node, ...props}) => <span {...props} className="mr-1" />,
+                    strong: ({node, ...props}) => <strong {...props} className="font-bold text-slate-900" />,
+                    em: ({node, ...props}) => <em {...props} className="italic text-slate-600" />,
+                    code: ({node, ...props}) => <code {...props} className="bg-slate-100 text-slate-600 border border-slate-200 px-1 py-0.5 rounded text-[10px] font-mono" />,
+                    h1: ({node, ...props}) => <strong {...props} className="block text-slate-900 font-bold" />,
+                    h2: ({node, ...props}) => <strong {...props} className="block text-slate-900 font-bold" />,
+                    ul: ({node, ...props}) => <span {...props} />,
+                    li: ({node, ...props}) => <span {...props} className="after:content-[',_'] last:after:content-none" />,
+                }}
+                >
+                    {entry.description}
+                </ReactMarkdown>
+            </div>
+            {depStatus && (
+                <div 
+                    className={`flex-shrink-0 flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-bold border ${depStatus.blocked ? 'bg-red-50 text-red-600 border-red-200' : 'bg-slate-100 text-slate-500 border-slate-200'}`}
+                    title={depStatus.blocked ? `${depStatus.blockerCount} blocking tasks pending` : 'Dependencies cleared'}
+                >
+                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" /></svg>
+                    {depStatus.blocked && <span>{depStatus.blockerCount}</span>}
+                </div>
+            )}
           </div>
         );
       case 'project':

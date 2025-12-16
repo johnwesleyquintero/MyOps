@@ -12,6 +12,7 @@ export interface TaskEntry {
   priority: PriorityLevel;
   status: StatusLevel;
   createdAt?: string; // ISO Timestamp
+  dependencies?: string[]; // Array of IDs blocking this task
 }
 
 export interface TaskState {

@@ -1,5 +1,6 @@
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
+import ReactMarkdown from 'react-markdown';
 import { TaskEntry, PriorityLevel, StatusLevel } from '../types';
 import { DEFAULT_PROJECTS, PRIORITIES, STATUSES, PRIORITY_COLORS, STATUS_COLORS } from '../constants';
 
@@ -22,6 +23,8 @@ export const TaskModal: React.FC<TaskModalProps> = ({
   isSubmitting,
   entries 
 }) => {
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  
   const getLocalDate = (offsetDays: number = 0) => {
     const d = new Date();
     d.setDate(d.getDate() + offsetDays);
@@ -40,6 +43,7 @@ export const TaskModal: React.FC<TaskModalProps> = ({
   
   const [isCustomProject, setIsCustomProject] = useState<boolean>(false);
   const [showDeps, setShowDeps] = useState<boolean>(false);
+  const [isPreviewMode, setIsPreviewMode] = useState<boolean>(false);
 
   useEffect(() => {
     if (isOpen) {
@@ -68,6 +72,7 @@ export const TaskModal: React.FC<TaskModalProps> = ({
     });
     setIsCustomProject(false);
     setShowDeps(false);
+    setIsPreviewMode(false);
   };
 
   const handleSubmit = async (e?: React.FormEvent) => {
@@ -91,6 +96,56 @@ export const TaskModal: React.FC<TaskModalProps> = ({
     if (e.key === 'Escape') {
       onClose();
     }
+  };
+
+  const handleFormat = (type: 'bold' | 'italic' | 'list' | 'link' | 'code') => {
+    if (isPreviewMode) return;
+    
+    const textarea = textareaRef.current;
+    if (!textarea) return;
+
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const text = formData.description;
+    const selection = text.substring(start, end);
+    
+    let before = text.substring(0, start);
+    let after = text.substring(end);
+    let insert = '';
+    let cursorOffset = 0;
+
+    switch (type) {
+      case 'bold':
+        insert = `**${selection || 'bold text'}**`;
+        cursorOffset = 2 + (selection.length || 9);
+        break;
+      case 'italic':
+        insert = `_${selection || 'italic text'}_`;
+        cursorOffset = 1 + (selection.length || 11);
+        break;
+      case 'code':
+        insert = `\`${selection || 'code'}\``;
+        cursorOffset = 1 + (selection.length || 4);
+        break;
+      case 'link':
+        insert = `[${selection || 'link text'}](url)`;
+        cursorOffset = 1 + (selection.length || 9); 
+        break;
+      case 'list':
+        const isStartOfLine = start === 0 || text[start - 1] === '\n';
+        const prefix = isStartOfLine ? '- ' : '\n- ';
+        insert = `${prefix}${selection || 'list item'}`;
+        cursorOffset = prefix.length + (selection.length || 9);
+        break;
+    }
+
+    const newText = before + insert + after;
+    setFormData({ ...formData, description: newText });
+
+    setTimeout(() => {
+      textarea.focus();
+      textarea.setSelectionRange(start + cursorOffset, start + cursorOffset);
+    }, 0);
   };
 
   const toggleDependency = (id: string) => {
@@ -140,22 +195,84 @@ export const TaskModal: React.FC<TaskModalProps> = ({
         <div className="p-6 overflow-y-auto custom-scrollbar flex-1">
           <div className="flex flex-col gap-6">
             
-            {/* Description (Main Input) */}
-            <div>
-              <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 flex justify-between">
-                Description
-                <span className="text-[10px] font-normal text-slate-400">⌘+Enter to save</span>
-              </label>
-              <textarea
-                required
-                rows={3}
-                placeholder="What needs to be done?"
-                className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all text-slate-700 placeholder-slate-400 font-sans resize-none"
-                value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                onKeyDown={handleKeyDown}
-                autoFocus
-              />
+            {/* Description (Main Input with Toolbar) */}
+            <div className="flex flex-col gap-2">
+               <div className="flex justify-between items-center">
+                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-2">
+                    Description
+                    <span className="text-[10px] font-normal text-slate-400 normal-case hidden sm:inline">Markdown supported</span>
+                  </label>
+                  <div className="flex bg-slate-100 rounded-lg p-0.5">
+                     <button 
+                       type="button"
+                       onClick={() => setIsPreviewMode(false)}
+                       className={`px-3 py-1 text-[10px] font-bold rounded-md transition-all ${!isPreviewMode ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                     >
+                       Write
+                     </button>
+                     <button 
+                       type="button"
+                       onClick={() => setIsPreviewMode(true)}
+                       className={`px-3 py-1 text-[10px] font-bold rounded-md transition-all ${isPreviewMode ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                     >
+                       Preview
+                     </button>
+                  </div>
+               </div>
+
+               <div className="border border-slate-200 rounded-lg overflow-hidden bg-slate-50 focus-within:ring-2 focus-within:ring-indigo-500/50 focus-within:border-indigo-500 transition-all">
+                  {/* Toolbar */}
+                  {!isPreviewMode && (
+                    <div className="flex items-center gap-1 p-1.5 border-b border-slate-200 bg-slate-50/50">
+                       <button type="button" onClick={() => handleFormat('bold')} className="p-1.5 text-slate-500 hover:text-slate-800 hover:bg-slate-200 rounded" title="Bold">
+                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 4h8a4 4 0 014 4 4 4 0 01-4 4H6V4zm0 8h9a4 4 0 014 4 4 4 0 01-4 4H6v-8z" /></svg>
+                       </button>
+                       <button type="button" onClick={() => handleFormat('italic')} className="p-1.5 text-slate-500 hover:text-slate-800 hover:bg-slate-200 rounded" title="Italic">
+                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" /></svg> {/* Using Code icon as placeholder for italic logic or generic text icon */}
+                          <span className="sr-only">Italic</span>
+                          <i className="serif font-serif font-bold not-italic">I</i>
+                       </button>
+                       <button type="button" onClick={() => handleFormat('list')} className="p-1.5 text-slate-500 hover:text-slate-800 hover:bg-slate-200 rounded" title="List">
+                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
+                       </button>
+                       <button type="button" onClick={() => handleFormat('code')} className="p-1.5 text-slate-500 hover:text-slate-800 hover:bg-slate-200 rounded" title="Code">
+                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" /></svg>
+                       </button>
+                       <div className="w-px h-4 bg-slate-300 mx-1"></div>
+                       <div className="text-[9px] text-slate-400 px-2">⌘+Enter to save</div>
+                    </div>
+                  )}
+
+                  {isPreviewMode ? (
+                     <div className="w-full h-32 px-4 py-3 bg-white text-sm text-slate-700 overflow-y-auto prose prose-sm max-w-none">
+                        {formData.description ? (
+                          <ReactMarkdown 
+                            components={{
+                              a: ({node, ...props}) => <a {...props} className="text-indigo-600 underline" target="_blank" rel="noopener noreferrer" />,
+                              ul: ({node, ...props}) => <ul {...props} className="list-disc list-inside" />,
+                              ol: ({node, ...props}) => <ol {...props} className="list-decimal list-inside" />,
+                            }}
+                          >
+                             {formData.description}
+                          </ReactMarkdown>
+                        ) : (
+                          <span className="text-slate-400 italic">Nothing to preview...</span>
+                        )}
+                     </div>
+                  ) : (
+                    <textarea
+                      ref={textareaRef}
+                      required
+                      rows={5}
+                      placeholder="Task details, sub-tasks, or notes..."
+                      className="w-full bg-slate-50 border-none px-4 py-3 text-sm focus:ring-0 text-slate-700 placeholder-slate-400 font-sans resize-none"
+                      value={formData.description}
+                      onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                      onKeyDown={handleKeyDown}
+                      autoFocus
+                    />
+                  )}
+               </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

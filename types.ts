@@ -1,3 +1,4 @@
+
 export type PriorityLevel = 'High' | 'Medium' | 'Low';
 export type StatusLevel = 'Backlog' | 'In Progress' | 'Done';
 
@@ -42,8 +43,14 @@ export interface MetricSummary {
   done: number;
 }
 
+export interface NotificationAction {
+  label: string;
+  onClick: () => void;
+}
+
 export interface Notification {
   id: string;
   message: string;
   type: 'success' | 'error' | 'info';
+  action?: NotificationAction;
 }

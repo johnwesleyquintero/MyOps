@@ -1,3 +1,4 @@
+
 import React, { useEffect } from 'react';
 import { Notification } from '../types';
 
@@ -18,11 +19,13 @@ export const ToastContainer: React.FC<ToastContainerProps> = ({ notifications, r
 
 const ToastItem: React.FC<{ note: Notification; onRemove: () => void }> = ({ note, onRemove }) => {
   useEffect(() => {
+    // If there is an action (like Undo), we give the user more time (e.g. 5s) vs standard 4s
+    const duration = note.action ? 5000 : 4000;
     const timer = setTimeout(() => {
       onRemove();
-    }, 4000);
+    }, duration);
     return () => clearTimeout(timer);
-  }, [onRemove]);
+  }, [onRemove, note.action]);
 
   const bgColors = {
     success: 'bg-slate-900 border-slate-700 text-white',
@@ -47,12 +50,26 @@ const ToastItem: React.FC<{ note: Notification; onRemove: () => void }> = ({ not
       <div className="flex-shrink-0">
         {icons[note.type]}
       </div>
-      <div className="flex-1 text-sm font-medium">
-        {note.message}
+      <div className="flex-1 text-sm font-medium flex justify-between items-center gap-4">
+        <span>{note.message}</span>
+        {note.action && (
+          <button 
+            onClick={(e) => {
+              e.stopPropagation();
+              note.action?.onClick();
+              onRemove(); // Close toast after action
+            }}
+            className="px-2 py-1 bg-slate-200/20 hover:bg-slate-200/30 rounded text-xs font-bold uppercase tracking-wider border border-transparent hover:border-current transition-all"
+          >
+            {note.action.label}
+          </button>
+        )}
       </div>
-      <button onClick={onRemove} className="opacity-60 hover:opacity-100 transition-opacity">
-        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
-      </button>
+      {!note.action && (
+        <button onClick={onRemove} className="opacity-60 hover:opacity-100 transition-opacity">
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
+        </button>
+      )}
     </div>
   );
 };

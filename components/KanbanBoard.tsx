@@ -8,11 +8,12 @@ interface KanbanBoardProps {
   onEdit: (entry: TaskEntry) => void;
   onStatusUpdate: (entry: TaskEntry) => void;
   onAdd: () => void;
-  onFocus: (entry: TaskEntry) => void; // Added onFocus
+  onFocus: (entry: TaskEntry) => void; 
+  onDuplicate: (entry: TaskEntry) => void; // Added Prop
   allEntries?: TaskEntry[];
 }
 
-export const KanbanBoard: React.FC<KanbanBoardProps> = ({ entries, onEdit, onStatusUpdate, onAdd, onFocus, allEntries = [] }) => {
+export const KanbanBoard: React.FC<KanbanBoardProps> = ({ entries, onEdit, onStatusUpdate, onAdd, onFocus, onDuplicate, allEntries = [] }) => {
   
   const columns = useMemo(() => {
     const cols: Record<StatusLevel, TaskEntry[]> = {
@@ -41,6 +42,7 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({ entries, onEdit, onSta
         onEdit={onEdit}
         onAdd={onAdd}
         onFocus={onFocus}
+        onDuplicate={onDuplicate}
         allEntries={allEntries}
       />
 
@@ -52,6 +54,7 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({ entries, onEdit, onSta
         onEdit={onEdit}
         onAdd={onAdd}
         onFocus={onFocus}
+        onDuplicate={onDuplicate}
         allEntries={allEntries}
       />
 
@@ -63,6 +66,7 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({ entries, onEdit, onSta
         onEdit={onEdit}
         onAdd={onAdd}
         onFocus={onFocus}
+        onDuplicate={onDuplicate}
         isDone
         allEntries={allEntries}
       />
@@ -77,11 +81,12 @@ interface KanbanColumnProps {
   onEdit: (entry: TaskEntry) => void;
   onAdd: () => void;
   onFocus: (entry: TaskEntry) => void;
+  onDuplicate: (entry: TaskEntry) => void;
   isDone?: boolean;
   allEntries: TaskEntry[];
 }
 
-const KanbanColumn: React.FC<KanbanColumnProps> = ({ title, tasks, colorClass, onEdit, onAdd, onFocus, isDone, allEntries }) => {
+const KanbanColumn: React.FC<KanbanColumnProps> = ({ title, tasks, colorClass, onEdit, onAdd, onFocus, onDuplicate, isDone, allEntries }) => {
   
   const getDependencyStatus = (entry: TaskEntry) => {
       if (!entry.dependencies || entry.dependencies.length === 0) return null;
@@ -157,6 +162,13 @@ const KanbanColumn: React.FC<KanbanColumnProps> = ({ title, tasks, colorClass, o
                     </span>
                 </div>
                 <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button 
+                         onClick={(e) => { e.stopPropagation(); onDuplicate(task); }}
+                         className="p-1 text-slate-400 hover:text-indigo-600 rounded hover:bg-indigo-50"
+                         title="Duplicate"
+                    >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2" /></svg>
+                    </button>
                     {!isDone && (
                         <button 
                             onClick={(e) => { e.stopPropagation(); onFocus(task); }}

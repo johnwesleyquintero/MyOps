@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo, useEffect } from 'react';
 import { TaskEntry, AppConfig, Page } from './types';
 import { SummaryCards } from './components/SummaryCards';
@@ -154,6 +155,18 @@ const App: React.FC = () => {
     setIsTaskModalOpen(true);
   };
 
+  const handleDuplicate = (entry: TaskEntry) => {
+    const copy: TaskEntry = {
+        ...entry,
+        id: '', // Strip ID to ensure it creates new
+        status: 'Backlog', // Reset status
+        date: new Date().toISOString().split('T')[0], // Reset date to today
+        dependencies: [] // Reset dependencies for safety
+    };
+    setEditingEntry(copy);
+    setIsTaskModalOpen(true);
+  };
+
   const handleEnterFocus = (entry: TaskEntry) => {
     setFocusedTask(entry);
     setActivePage('FOCUS');
@@ -165,7 +178,13 @@ const App: React.FC = () => {
   };
 
   const handleModalSubmit = async (entry: TaskEntry) => {
-    const success = await saveTransaction(entry, !!editingEntry);
+    // Check if we are updating existing or creating new based on editingEntry.id
+    // If editingEntry has an ID, we are editing. 
+    // If editingEntry is null, we are creating.
+    // If we duplicated, editingEntry exists but has NO ID.
+    const isUpdate = !!editingEntry?.id;
+    
+    const success = await saveTransaction(entry, isUpdate);
     if (success) {
       setIsTaskModalOpen(false);
       setEditingEntry(null);
@@ -327,6 +346,7 @@ const App: React.FC = () => {
                         onDelete={handleModalDelete}
                         onStatusUpdate={handleStatusUpdate}
                         onFocus={handleEnterFocus}
+                        onDuplicate={handleDuplicate}
                         allEntries={entries} // Pass all entries for dependency logic
                      />
                      {dashboardTasks.length === 0 && !isLoading && (
@@ -406,6 +426,7 @@ const App: React.FC = () => {
                    onDelete={handleModalDelete}
                    onStatusUpdate={handleStatusUpdate}
                    onFocus={handleEnterFocus}
+                   onDuplicate={handleDuplicate}
                    allEntries={entries}
                  />
                )}
@@ -417,6 +438,7 @@ const App: React.FC = () => {
                    onStatusUpdate={handleStatusUpdate}
                    onAdd={handleOpenCreate}
                    onFocus={handleEnterFocus}
+                   onDuplicate={handleDuplicate}
                    allEntries={entries}
                  />
                )}
@@ -439,6 +461,7 @@ const App: React.FC = () => {
         onClose={() => setIsTaskModalOpen(false)}
         onSubmit={handleModalSubmit}
         onDelete={handleModalDelete}
+        onDuplicate={handleDuplicate}
         initialData={editingEntry}
         isSubmitting={isSubmitting}
         entries={entries} // Pass all entries to allow dependency selection

@@ -1,5 +1,5 @@
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { TaskEntry, AppConfig, Page } from './types';
 import { SummaryCards } from './components/SummaryCards';
 import { LedgerTable } from './components/LedgerTable';
@@ -10,7 +10,7 @@ import { SettingsModal } from './components/SettingsModal';
 import { FilterBar } from './components/FilterBar';
 import { ToastContainer } from './components/Toast';
 import { Header } from './components/Header';
-import { Sidebar } from './components/Sidebar'; // New
+import { Sidebar } from './components/Sidebar'; 
 import { ConfirmationModal } from './components/ConfirmationModal';
 import { useLedger } from './hooks/useLedger';
 import { useLedgerAnalytics } from './hooks/useLedgerAnalytics';
@@ -27,7 +27,23 @@ const App: React.FC = () => {
 
   // Navigation State
   const [activePage, setActivePage] = useState<Page>('DASHBOARD');
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false); // Mobile Toggle
+  
+  // Desktop Sidebar Collapse State (Persisted)
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('myops_sidebar_collapsed') === 'true';
+    }
+    return false;
+  });
+
+  const toggleSidebarCollapse = () => {
+    setIsSidebarCollapsed(prev => {
+      const newState = !prev;
+      localStorage.setItem('myops_sidebar_collapsed', String(newState));
+      return newState;
+    });
+  };
 
   const [showSettings, setShowSettings] = useState<boolean>(false);
   const [isTaskModalOpen, setIsTaskModalOpen] = useState<boolean>(false);
@@ -132,11 +148,14 @@ const App: React.FC = () => {
         config={config}
         isOpen={isSidebarOpen}
         setIsOpen={setIsSidebarOpen}
+        isCollapsed={isSidebarCollapsed}
+        toggleCollapse={toggleSidebarCollapse}
       />
 
-      {/* Main Content Layout */}
-      <div className="lg:pl-64 transition-all duration-300">
-        
+      {/* Main Content Layout - Dynamic Padding based on collapse state */}
+      <div 
+        className={`transition-all duration-300 ease-in-out ${isSidebarCollapsed ? 'lg:pl-20' : 'lg:pl-64'}`}
+      >
         <Header 
           activePage={activePage} 
           onMenuToggle={() => setIsSidebarOpen(!isSidebarOpen)}

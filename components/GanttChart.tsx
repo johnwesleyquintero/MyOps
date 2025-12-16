@@ -50,10 +50,10 @@ export const GanttChart: React.FC<GanttChartProps> = ({ entries, onEdit }) => {
   };
 
   return (
-    <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden flex flex-col h-[calc(100vh-250px)]">
+    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm overflow-hidden flex flex-col h-[calc(100vh-250px)] transition-colors">
        {/* Timeline Header */}
-       <div className="flex border-b border-slate-200 bg-slate-50">
-          <div className="w-40 flex-shrink-0 p-4 border-r border-slate-200 font-bold text-xs text-slate-500 uppercase tracking-wider bg-slate-50 sticky left-0 z-10">
+       <div className="flex border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800">
+          <div className="w-40 flex-shrink-0 p-4 border-r border-slate-200 dark:border-slate-800 font-bold text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider bg-slate-50 dark:bg-slate-800 sticky left-0 z-10">
             Project
           </div>
           <div className="flex-1 flex overflow-hidden">
@@ -63,12 +63,12 @@ export const GanttChart: React.FC<GanttChartProps> = ({ entries, onEdit }) => {
                return (
                  <div 
                     key={i} 
-                    className={`flex-1 min-w-[60px] text-center py-3 border-r border-slate-100 flex flex-col justify-center ${isToday ? 'bg-indigo-50' : isWeekend ? 'bg-slate-50/50' : 'bg-white'}`}
+                    className={`flex-1 min-w-[60px] text-center py-3 border-r border-slate-100 dark:border-slate-800 flex flex-col justify-center ${isToday ? 'bg-indigo-50 dark:bg-indigo-900/20' : isWeekend ? 'bg-slate-50/50 dark:bg-slate-800/50' : 'bg-white dark:bg-slate-900'}`}
                  >
-                    <span className={`text-[10px] font-bold uppercase ${isToday ? 'text-indigo-600' : 'text-slate-400'}`}>
+                    <span className={`text-[10px] font-bold uppercase ${isToday ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-400 dark:text-slate-500'}`}>
                       {d.toLocaleDateString('en-US', { weekday: 'short' })}
                     </span>
-                    <span className={`text-xs font-mono font-bold ${isToday ? 'text-indigo-700' : 'text-slate-600'}`}>
+                    <span className={`text-xs font-mono font-bold ${isToday ? 'text-indigo-700 dark:text-indigo-300' : 'text-slate-600 dark:text-slate-400'}`}>
                       {d.getDate()}
                     </span>
                  </div>
@@ -78,14 +78,14 @@ export const GanttChart: React.FC<GanttChartProps> = ({ entries, onEdit }) => {
        </div>
 
        {/* Timeline Body */}
-       <div className="flex-1 overflow-y-auto custom-scrollbar">
+       <div className="flex-1 overflow-y-auto custom-scrollbar bg-white dark:bg-slate-900">
           {projects.length === 0 ? (
              <div className="flex items-center justify-center h-full text-slate-400 text-sm">No active projects in this view</div>
           ) : (
             projects.map(proj => (
-              <div key={proj} className="flex border-b border-slate-100 min-h-[60px]">
+              <div key={proj} className="flex border-b border-slate-100 dark:border-slate-800 min-h-[60px]">
                  {/* Y-Axis Label */}
-                 <div className="w-40 flex-shrink-0 p-3 border-r border-slate-200 flex items-center bg-white sticky left-0 z-10">
+                 <div className="w-40 flex-shrink-0 p-3 border-r border-slate-200 dark:border-slate-800 flex items-center bg-white dark:bg-slate-900 sticky left-0 z-10">
                     <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-bold border ${getProjectStyle(proj)}`}>
                         {proj}
                     </span>
@@ -101,7 +101,7 @@ export const GanttChart: React.FC<GanttChartProps> = ({ entries, onEdit }) => {
                           return (
                             <div 
                                 key={i} 
-                                className={`flex-1 min-w-[60px] border-r border-slate-50 ${isToday ? 'bg-indigo-50/20' : isWeekend ? 'bg-slate-50/30' : ''}`}
+                                className={`flex-1 min-w-[60px] border-r border-slate-50 dark:border-slate-800/50 ${isToday ? 'bg-indigo-50/20 dark:bg-indigo-900/10' : isWeekend ? 'bg-slate-50/30 dark:bg-slate-800/20' : ''}`}
                             />
                           );
                        })}
@@ -118,9 +118,9 @@ export const GanttChart: React.FC<GanttChartProps> = ({ entries, onEdit }) => {
                                      key={task.id}
                                      onClick={() => onEdit(task)}
                                      className={`w-full text-left p-1 rounded border shadow-sm text-[9px] leading-tight truncate hover:z-20 hover:scale-105 transition-all ${
-                                        task.status === 'Done' ? 'bg-emerald-50 border-emerald-200 text-emerald-700 opacity-60' : 
-                                        task.priority === 'High' ? 'bg-rose-50 border-rose-200 text-rose-700' :
-                                        'bg-white border-slate-200 text-slate-700'
+                                        task.status === 'Done' ? 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-400 opacity-60' : 
+                                        task.priority === 'High' ? 'bg-rose-50 dark:bg-rose-900/20 border-rose-200 dark:border-rose-800 text-rose-700 dark:text-rose-400' :
+                                        'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300'
                                      }`}
                                      title={task.description}
                                    >

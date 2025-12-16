@@ -28,9 +28,9 @@ const ToastItem: React.FC<{ note: Notification; onRemove: () => void }> = ({ not
   }, [onRemove, note.action]);
 
   const bgColors = {
-    success: 'bg-slate-900 border-slate-700 text-white',
-    error: 'bg-red-600 border-red-700 text-white',
-    info: 'bg-white border-slate-200 text-slate-800'
+    success: 'bg-slate-900 border-slate-700 text-white dark:bg-slate-800 dark:border-slate-600',
+    error: 'bg-red-600 border-red-700 text-white dark:bg-red-800 dark:border-red-900',
+    info: 'bg-white border-slate-200 text-slate-800 dark:bg-slate-900 dark:border-slate-700 dark:text-slate-100'
   };
 
   const icons = {

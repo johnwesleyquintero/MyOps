@@ -161,43 +161,43 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
   return (
     <div className="fixed inset-0 z-[70] flex items-start justify-center pt-[15vh] px-4 bg-slate-900/60 backdrop-blur-sm transition-opacity" onClick={onClose}>
       <div 
-        className="bg-white w-full max-w-xl rounded-xl shadow-2xl overflow-hidden border border-slate-200 flex flex-col animate-scale-in"
+        className="bg-white dark:bg-slate-900 w-full max-w-xl rounded-xl shadow-2xl overflow-hidden border border-slate-200 dark:border-slate-800 flex flex-col animate-scale-in"
         onClick={e => e.stopPropagation()}
       >
         {/* Input Area */}
-        <div className="flex items-center px-4 py-4 border-b border-slate-100 bg-white">
-          <svg className="w-5 h-5 text-slate-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+        <div className="flex items-center px-4 py-4 border-b border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900">
+          <svg className="w-5 h-5 text-slate-400 dark:text-slate-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
           <input 
             ref={inputRef}
             type="text" 
-            className="flex-1 text-lg text-slate-800 placeholder-slate-400 focus:outline-none bg-transparent"
+            className="flex-1 text-lg text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none bg-transparent"
             placeholder="Type a command or search..."
             value={query}
             onChange={e => setQuery(e.target.value)}
           />
           <div className="flex gap-2">
-             <kbd className="hidden sm:inline-block px-2 py-1 text-[10px] font-bold text-slate-400 bg-slate-100 rounded border border-slate-200 font-mono">ESC</kbd>
+             <kbd className="hidden sm:inline-block px-2 py-1 text-[10px] font-bold text-slate-400 dark:text-slate-500 bg-slate-100 dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 font-mono">ESC</kbd>
           </div>
         </div>
 
         {/* Results List */}
         <div 
             ref={listRef}
-            className="max-h-[60vh] overflow-y-auto custom-scrollbar p-2 bg-slate-50/50"
+            className="max-h-[60vh] overflow-y-auto custom-scrollbar p-2 bg-slate-50/50 dark:bg-slate-900/50"
         >
           {filteredCommands.length === 0 ? (
-            <div className="py-8 text-center text-slate-400 text-sm">No results found.</div>
+            <div className="py-8 text-center text-slate-400 dark:text-slate-500 text-sm">No results found.</div>
           ) : (
             filteredCommands.map((item, index) => (
               <div
                 key={item.id}
                 onClick={() => { item.action(); onClose(); }}
                 className={`flex items-center gap-3 px-4 py-3 rounded-lg cursor-pointer transition-colors group ${
-                  index === selectedIndex ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-700 hover:bg-slate-200/50'
+                  index === selectedIndex ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-200/50 dark:hover:bg-slate-800'
                 }`}
               >
                 {/* Icon Column */}
-                <div className={`flex-shrink-0 ${index === selectedIndex ? 'text-indigo-200' : 'text-slate-400'}`}>
+                <div className={`flex-shrink-0 ${index === selectedIndex ? 'text-indigo-200' : 'text-slate-400 dark:text-slate-500'}`}>
                    {item.type === 'TASK' ? (
                       <div className={`w-2.5 h-2.5 rounded-full ${item.meta ? PRIORITY_DOTS[item.meta.priority] : 'bg-slate-400'} ring-2 ring-white/20`} />
                    ) : (
@@ -207,11 +207,11 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
 
                 {/* Text Column */}
                 <div className="flex-1 min-w-0">
-                   <div className={`text-sm font-medium truncate ${index === selectedIndex ? 'text-white' : 'text-slate-800'}`}>
+                   <div className={`text-sm font-medium truncate ${index === selectedIndex ? 'text-white' : 'text-slate-800 dark:text-slate-200'}`}>
                      {item.label}
                    </div>
                    {item.subLabel && (
-                     <div className={`text-xs truncate ${index === selectedIndex ? 'text-indigo-200' : 'text-slate-400'}`}>
+                     <div className={`text-xs truncate ${index === selectedIndex ? 'text-indigo-200' : 'text-slate-400 dark:text-slate-500'}`}>
                        {item.subLabel}
                      </div>
                    )}
@@ -236,7 +236,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
                         className={`ml-2 p-1.5 rounded transition-all ${
                             index === selectedIndex 
                             ? 'text-indigo-100 hover:bg-indigo-500 hover:text-white' 
-                            : 'text-slate-400 hover:text-indigo-600 hover:bg-slate-200'
+                            : 'text-slate-400 dark:text-slate-500 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-200 dark:hover:bg-slate-700'
                         }`}
                         title="Enter Focus Mode"
                     >
@@ -249,13 +249,13 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
         </div>
         
         {/* Footer */}
-        <div className="bg-slate-50 px-4 py-2 border-t border-slate-200 text-[10px] text-slate-400 flex justify-between">
+        <div className="bg-slate-50 dark:bg-slate-800 px-4 py-2 border-t border-slate-200 dark:border-slate-700 text-[10px] text-slate-400 dark:text-slate-500 flex justify-between">
             <div>
                 <span className="font-bold">ProTip:</span> Type task names to jump directly to edit.
             </div>
             <div className="flex gap-3">
-                <span className="flex items-center gap-1"><kbd className="font-mono bg-white border border-slate-300 rounded px-1">↑↓</kbd> to navigate</span>
-                <span className="flex items-center gap-1"><kbd className="font-mono bg-white border border-slate-300 rounded px-1">↵</kbd> to select</span>
+                <span className="flex items-center gap-1"><kbd className="font-mono bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded px-1">↑↓</kbd> to navigate</span>
+                <span className="flex items-center gap-1"><kbd className="font-mono bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded px-1">↵</kbd> to select</span>
             </div>
         </div>
       </div>

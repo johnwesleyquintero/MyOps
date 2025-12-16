@@ -15,13 +15,14 @@ export const ShortcutsModal: React.FC<ShortcutsModalProps> = ({ isOpen, onClose 
       items: [
         { keys: ["g", "d"], label: "Go to Dashboard" },
         { keys: ["g", "m"], label: "Go to Missions" },
+        { keys: ["⌘", "K"], label: "Command Palette" },
       ]
     },
     {
       title: "Actions",
       items: [
         { keys: ["c"], label: "Create Task" },
-        { keys: ["/"], label: "Search" },
+        { keys: ["/"], label: "Search Missions" },
         { keys: ["?"], label: "Show Help" },
       ]
     },

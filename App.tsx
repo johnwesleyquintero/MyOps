@@ -13,7 +13,8 @@ import { Header } from './components/Header';
 import { Sidebar } from './components/Sidebar'; 
 import { ConfirmationModal } from './components/ConfirmationModal';
 import { ShortcutsModal } from './components/ShortcutsModal'; 
-import { FocusMode } from './components/FocusMode'; // Import FocusMode
+import { FocusMode } from './components/FocusMode'; 
+import { CommandPalette } from './components/CommandPalette'; // Import CommandPalette
 import { useTasks } from './hooks/useTasks';
 import { useTaskAnalytics } from './hooks/useTaskAnalytics';
 import { useAppConfig } from './hooks/useAppConfig';
@@ -51,6 +52,7 @@ const App: React.FC = () => {
   const [showSettings, setShowSettings] = useState<boolean>(false);
   const [showShortcuts, setShowShortcuts] = useState<boolean>(false);
   const [isTaskModalOpen, setIsTaskModalOpen] = useState<boolean>(false);
+  const [isCmdPaletteOpen, setIsCmdPaletteOpen] = useState<boolean>(false); // Command Palette State
   const [editingEntry, setEditingEntry] = useState<TaskEntry | null>(null);
   const [focusedTask, setFocusedTask] = useState<TaskEntry | null>(null); // State for Deep Work
   
@@ -72,7 +74,7 @@ const App: React.FC = () => {
     { 
       key: 'c', 
       action: () => {
-        if (!isTaskModalOpen && activePage !== 'FOCUS') {
+        if (!isTaskModalOpen && activePage !== 'FOCUS' && !isCmdPaletteOpen) {
           setEditingEntry(null);
           setIsTaskModalOpen(true);
         }
@@ -82,10 +84,8 @@ const App: React.FC = () => {
       key: '/', 
       preventDefault: true, 
       action: () => {
-        if (activePage === 'FOCUS') return; // Disable search in focus mode
-        // Switch to Missions view if not there, then focus
+        if (activePage === 'FOCUS' || isCmdPaletteOpen) return; 
         if (activePage !== 'MISSIONS') setActivePage('MISSIONS');
-        // Small timeout to allow render if page changed
         setTimeout(() => {
           const searchInput = document.getElementById('global-search');
           if (searchInput) searchInput.focus();
@@ -94,16 +94,12 @@ const App: React.FC = () => {
     },
     { 
       key: 'k',
-      metaKey: true,
+      metaKey: true, // Cmd+K / Ctrl+K
       preventDefault: true,
       allowInInput: true,
       action: () => {
          if (activePage === 'FOCUS') return;
-         if (activePage !== 'MISSIONS') setActivePage('MISSIONS');
-         setTimeout(() => {
-           const searchInput = document.getElementById('global-search');
-           if (searchInput) searchInput.focus();
-         }, 50);
+         setIsCmdPaletteOpen(prev => !prev);
       }
     },
     { key: '?', action: () => setShowShortcuts(prev => !prev) },
@@ -158,10 +154,10 @@ const App: React.FC = () => {
   const handleDuplicate = (entry: TaskEntry) => {
     const copy: TaskEntry = {
         ...entry,
-        id: '', // Strip ID to ensure it creates new
-        status: 'Backlog', // Reset status
-        date: new Date().toISOString().split('T')[0], // Reset date to today
-        dependencies: [] // Reset dependencies for safety
+        id: '', 
+        status: 'Backlog', 
+        date: new Date().toISOString().split('T')[0], 
+        dependencies: [] 
     };
     setEditingEntry(copy);
     setIsTaskModalOpen(true);
@@ -174,16 +170,11 @@ const App: React.FC = () => {
 
   const handleExitFocus = () => {
     setFocusedTask(null);
-    setActivePage('MISSIONS'); // Return to missions usually
+    setActivePage('MISSIONS'); 
   };
 
   const handleModalSubmit = async (entry: TaskEntry) => {
-    // Check if we are updating existing or creating new based on editingEntry.id
-    // If editingEntry has an ID, we are editing. 
-    // If editingEntry is null, we are creating.
-    // If we duplicated, editingEntry exists but has NO ID.
     const isUpdate = !!editingEntry?.id;
-    
     const success = await saveTransaction(entry, isUpdate);
     if (success) {
       setIsTaskModalOpen(false);
@@ -207,13 +198,11 @@ const App: React.FC = () => {
     await saveTransaction(updatedEntry, true);
 
     // 2. RECURRENCE LOGIC
-    // If we just moved to 'Done' and the task has a recurrence tag
     if (nextStatus === 'Done') {
         const desc = entry.description;
         const recurrenceOpt = RECURRENCE_OPTIONS.find(r => r.tag && desc.includes(r.tag));
         
         if (recurrenceOpt) {
-            // Calculate next date
             const currentDueDate = new Date(entry.date);
             let nextDate = new Date(currentDueDate);
             
@@ -225,19 +214,14 @@ const App: React.FC = () => {
                 nextDate.setMonth(currentDueDate.getMonth() + 1);
             }
 
-            // Create new task object
-            // Note: We strip the ID so the backend generates a new one
             const nextTask: TaskEntry = {
                 ...entry,
-                id: '', // Will trigger create
+                id: '', 
                 date: nextDate.toISOString().split('T')[0],
                 status: 'Backlog',
-                dependencies: [] // Reset dependencies for the new instance? Usually yes.
+                dependencies: [] 
             };
 
-            // Save the next iteration
-            // Small delay to ensure the first one processes? 
-            // Optimistic UI in saveTransaction handles it.
             setTimeout(async () => {
                 await saveTransaction(nextTask, false);
                 showToast(`Recurring task scheduled for ${nextTask.date}`, 'success');
@@ -247,11 +231,9 @@ const App: React.FC = () => {
   };
 
   const handleFocusComplete = async (entry: TaskEntry) => {
-    // Mark as done
     const updatedEntry = { ...entry, status: 'Done' as const };
     await saveTransaction(updatedEntry, true);
     
-    // Check recurrence immediately
     const recurrenceOpt = RECURRENCE_OPTIONS.find(r => r.tag && entry.description.includes(r.tag));
     if (recurrenceOpt) {
          const currentDueDate = new Date(entry.date);
@@ -347,7 +329,7 @@ const App: React.FC = () => {
                         onStatusUpdate={handleStatusUpdate}
                         onFocus={handleEnterFocus}
                         onDuplicate={handleDuplicate}
-                        allEntries={entries} // Pass all entries for dependency logic
+                        allEntries={entries} 
                      />
                      {dashboardTasks.length === 0 && !isLoading && (
                         <div className="p-8 text-center text-slate-400 text-sm">
@@ -455,7 +437,18 @@ const App: React.FC = () => {
         </main>
       </div>
 
-      {/* Modals */}
+      {/* Overlays */}
+      <CommandPalette 
+        isOpen={isCmdPaletteOpen}
+        onClose={() => setIsCmdPaletteOpen(false)}
+        entries={entries}
+        onNavigate={setActivePage}
+        onCreate={handleOpenCreate}
+        onEdit={handleOpenEdit}
+        onSettings={() => setShowSettings(true)}
+        onToggleFocus={handleEnterFocus}
+      />
+
       <TaskModal 
         isOpen={isTaskModalOpen}
         onClose={() => setIsTaskModalOpen(false)}
@@ -464,7 +457,7 @@ const App: React.FC = () => {
         onDuplicate={handleDuplicate}
         initialData={editingEntry}
         isSubmitting={isSubmitting}
-        entries={entries} // Pass all entries to allow dependency selection
+        entries={entries} 
       />
 
       <SettingsModal 

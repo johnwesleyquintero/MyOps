@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { GAS_BACKEND_CODE } from '../../assets/gasSource';
 
@@ -14,7 +15,7 @@ export const BackendCodeView: React.FC = () => {
     <div>
       <div className="bg-amber-50 border border-amber-200 text-amber-800 p-3 rounded mb-4 text-xs">
         <strong>Instruction:</strong> Copy the code below and paste it into <code>Code.gs</code> in your Google Sheet's Apps Script editor. <br/>
-        Don't forget to update the <code>API_SECRET</code> at the top!
+        Don't forget to update the <code>API_SECRET</code> and optionally the <code>SLACK_WEBHOOK_URL</code> at the top!
       </div>
       <div className="relative">
         <button 

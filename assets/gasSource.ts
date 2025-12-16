@@ -1,6 +1,8 @@
 
 export const GAS_BACKEND_CODE = `// --- CONFIGURATION ---
 const API_SECRET = "myops-secret-key"; // <--- CHANGE THIS to your own strong password
+const SLACK_WEBHOOK_URL = ""; // <--- OPTIONAL: Add your Slack Webhook URL here
+const SLACK_BOT_NAME = "MyOps System";
 // ---------------------
 
 function doGet(e) {
@@ -92,6 +94,7 @@ function doPost(e) {
         depsString
       ];
       sheet.appendRow(newRow);
+      notifySlack("create", { ...entry, id: id });
       return jsonResponse({ status: "success", id: id });
     } 
     
@@ -105,6 +108,7 @@ function doPost(e) {
           sheet.getRange(i + 1, 1, 1, 5).setValues([[entry.date, entry.description, entry.project, entry.priority, entry.status]]);
           // Update column 8 (Dependencies)
           sheet.getRange(i + 1, 8).setValue(depsString);
+          notifySlack("update", entry);
           return jsonResponse({ status: "updated" });
         }
       }
@@ -116,7 +120,10 @@ function doPost(e) {
       const data = sheet.getDataRange().getValues();
       for (let i = 1; i < data.length; i++) {
         if (data[i][6] == entry.id) {
+          // Grab description before deleting for the notification
+          const deletedTask = { id: entry.id, description: data[i][1] };
           sheet.deleteRow(i + 1);
+          notifySlack("delete", deletedTask);
           return jsonResponse({ status: "deleted" });
         }
       }
@@ -127,6 +134,61 @@ function doPost(e) {
     return errorResponse(err.toString());
   } finally {
     lock.releaseLock();
+  }
+}
+
+function notifySlack(action, entry) {
+  if (!SLACK_WEBHOOK_URL || SLACK_WEBHOOK_URL === "") return;
+  
+  let title = "";
+  let color = "#334155";
+  let text = "";
+  
+  // Safe defaults
+  const desc = entry.description || "No description";
+  const proj = entry.project || "-";
+  const prio = entry.priority || "-";
+  const stat = entry.status || "-";
+
+  if (action === "create") {
+    title = "🆕 New Mission Initialized";
+    color = "#4f46e5"; // Indigo
+    text = \`*Task:* \${desc}\\n*Project:* \${proj} | *Priority:* \${prio}\`;
+  } else if (action === "update") {
+    if (stat === "Done") {
+      title = "✅ Mission Accomplished";
+      color = "#10b981"; // Emerald
+      text = \`*Task:* \${desc}\\n*Status:* COMPLETED\`;
+    } else {
+      title = "🔄 Mission Update";
+      color = "#f59e0b"; // Amber
+      text = \`*Task:* \${desc}\\n*Status:* \${stat} | *Priority:* \${prio}\`;
+    }
+  } else if (action === "delete") {
+    title = "🗑️ Mission Aborted";
+    color = "#ef4444"; // Red
+    text = \`*Task:* \${desc}\`;
+  }
+
+  const payload = {
+    username: SLACK_BOT_NAME,
+    attachments: [{
+      color: color,
+      title: title,
+      text: text,
+      footer: "MyOps Sovereign System",
+      ts: Math.floor(Date.now() / 1000)
+    }]
+  };
+
+  try {
+    UrlFetchApp.fetch(SLACK_WEBHOOK_URL, {
+      method: "post",
+      contentType: "application/json",
+      payload: JSON.stringify(payload)
+    });
+  } catch (err) {
+    Logger.log("Slack notification failed: " + err);
   }
 }
 

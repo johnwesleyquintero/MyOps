@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { TaskEntry, PriorityLevel, StatusLevel } from '../types';
@@ -171,7 +170,7 @@ export const TaskModal: React.FC<TaskModalProps> = ({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm transition-opacity">
       <div 
-        className="bg-white rounded-xl shadow-2xl w-full max-w-2xl overflow-hidden flex flex-col max-h-[90vh] animate-scale-in"
+        className="bg-white rounded-xl shadow-2xl w-full max-w-3xl overflow-hidden flex flex-col max-h-[90vh] animate-scale-in"
         role="dialog"
         aria-modal="true"
       >
@@ -196,7 +195,7 @@ export const TaskModal: React.FC<TaskModalProps> = ({
           <div className="flex flex-col gap-6">
             
             {/* Description (Main Input with Toolbar) */}
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-2 flex-1">
                <div className="flex justify-between items-center">
                   <label className="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-2">
                     Description
@@ -220,31 +219,30 @@ export const TaskModal: React.FC<TaskModalProps> = ({
                   </div>
                </div>
 
-               <div className="border border-slate-200 rounded-lg overflow-hidden bg-slate-50 focus-within:ring-2 focus-within:ring-indigo-500/50 focus-within:border-indigo-500 transition-all">
+               <div className="border border-slate-200 rounded-lg overflow-hidden bg-white focus-within:ring-2 focus-within:ring-indigo-500/50 focus-within:border-indigo-500 transition-all shadow-sm flex flex-col">
                   {/* Toolbar */}
                   {!isPreviewMode && (
-                    <div className="flex items-center gap-1 p-1.5 border-b border-slate-200 bg-slate-50/50">
+                    <div className="flex items-center gap-1 p-2 border-b border-slate-100 bg-slate-50">
                        <button type="button" onClick={() => handleFormat('bold')} className="p-1.5 text-slate-500 hover:text-slate-800 hover:bg-slate-200 rounded" title="Bold">
-                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 4h8a4 4 0 014 4 4 4 0 01-4 4H6V4zm0 8h9a4 4 0 014 4 4 4 0 01-4 4H6v-8z" /></svg>
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 4h8a4 4 0 014 4 4 4 0 01-4 4H6V4zm0 8h9a4 4 0 014 4 4 4 0 01-4 4H6v-8z" /></svg>
                        </button>
                        <button type="button" onClick={() => handleFormat('italic')} className="p-1.5 text-slate-500 hover:text-slate-800 hover:bg-slate-200 rounded" title="Italic">
-                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" /></svg> {/* Using Code icon as placeholder for italic logic or generic text icon */}
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" /></svg>
                           <span className="sr-only">Italic</span>
-                          <i className="serif font-serif font-bold not-italic">I</i>
                        </button>
                        <button type="button" onClick={() => handleFormat('list')} className="p-1.5 text-slate-500 hover:text-slate-800 hover:bg-slate-200 rounded" title="List">
-                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
                        </button>
                        <button type="button" onClick={() => handleFormat('code')} className="p-1.5 text-slate-500 hover:text-slate-800 hover:bg-slate-200 rounded" title="Code">
-                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" /></svg>
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" /></svg>
                        </button>
-                       <div className="w-px h-4 bg-slate-300 mx-1"></div>
-                       <div className="text-[9px] text-slate-400 px-2">⌘+Enter to save</div>
+                       <div className="w-px h-5 bg-slate-200 mx-1"></div>
+                       <div className="text-[9px] text-slate-400 px-2 font-medium">⌘+Enter to save</div>
                     </div>
                   )}
 
                   {isPreviewMode ? (
-                     <div className="w-full h-32 px-4 py-3 bg-white text-sm text-slate-700 overflow-y-auto prose prose-sm max-w-none">
+                     <div className="w-full min-h-[300px] px-4 py-3 bg-white text-sm text-slate-700 overflow-y-auto prose prose-sm max-w-none">
                         {formData.description ? (
                           <ReactMarkdown 
                             components={{
@@ -263,9 +261,9 @@ export const TaskModal: React.FC<TaskModalProps> = ({
                     <textarea
                       ref={textareaRef}
                       required
-                      rows={5}
+                      rows={12}
                       placeholder="Task details, sub-tasks, or notes..."
-                      className="w-full bg-slate-50 border-none px-4 py-3 text-sm focus:ring-0 text-slate-700 placeholder-slate-400 font-sans resize-none"
+                      className="w-full bg-white border-none px-4 py-3 text-sm focus:ring-0 text-slate-800 placeholder-slate-400 font-sans resize-y min-h-[300px] leading-relaxed"
                       value={formData.description}
                       onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                       onKeyDown={handleKeyDown}
@@ -282,7 +280,7 @@ export const TaskModal: React.FC<TaskModalProps> = ({
                  <input
                     type="date"
                     required
-                    className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-slate-700"
+                    className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-slate-700 shadow-sm"
                     value={formData.date}
                     onChange={(e) => setFormData({ ...formData, date: e.target.value })}
                   />
@@ -301,13 +299,13 @@ export const TaskModal: React.FC<TaskModalProps> = ({
                           type="text"
                           required
                           placeholder="Project Name..."
-                          className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-slate-700"
+                          className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-slate-700 shadow-sm"
                           value={formData.project}
                           onChange={(e) => setFormData({ ...formData, project: e.target.value })}
                       />
                   ) : (
                       <select
-                          className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-slate-700"
+                          className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-slate-700 shadow-sm"
                           value={formData.project}
                           onChange={(e) => setFormData({ ...formData, project: e.target.value })}
                       >

@@ -1,3 +1,4 @@
+
 import React, { useMemo } from 'react';
 import { TaskEntry } from '../../types';
 import { calculateDailyTrend, generateSVGPoints, generateAreaPath } from '../../utils/analyticsUtils';
@@ -18,10 +19,10 @@ export const CashFlowChart: React.FC<CashFlowChartProps> = ({ entries }) => {
   const areaPath = useMemo(() => generateAreaPath(points, width, height, padding), [points]);
 
   return (
-    <div className="lg:col-span-2 bg-white border border-slate-200 rounded p-5 shadow-sm flex flex-col justify-between">
+    <div className="lg:col-span-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 shadow-sm flex flex-col justify-between transition-colors duration-300">
        <div className="flex justify-between items-center mb-4">
-           <h3 className="text-slate-500 text-xs font-semibold uppercase tracking-wider">Task Volume Trend</h3>
-           <span className="text-xs text-slate-400 font-mono">Daily Activity</span>
+           <h3 className="text-slate-500 dark:text-slate-400 text-xs font-semibold uppercase tracking-wider">Task Volume Trend</h3>
+           <span className="text-xs text-slate-400 dark:text-slate-500 font-mono">Daily Activity</span>
        </div>
        
        <div className="relative w-full h-[150px] overflow-hidden">
@@ -46,7 +47,7 @@ export const CashFlowChart: React.FC<CashFlowChartProps> = ({ entries }) => {
                />
            </svg>
        </div>
-       <div className="flex justify-between mt-2 text-[10px] text-slate-400 font-mono">
+       <div className="flex justify-between mt-2 text-[10px] text-slate-400 dark:text-slate-500 font-mono">
           <span>{chartData[0]?.date || '-'}</span>
           <span>{chartData[chartData.length-1]?.date || '-'}</span>
        </div>

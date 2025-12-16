@@ -1,7 +1,8 @@
+
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import ReactMarkdown from 'react-markdown';
-import { TaskEntry, PriorityLevel, StatusLevel } from '../types';
-import { DEFAULT_PROJECTS, PRIORITIES, STATUSES, PRIORITY_COLORS, STATUS_COLORS } from '../constants';
+import { TaskEntry, TaskTemplate } from '../types';
+import { DEFAULT_PROJECTS, PRIORITIES, STATUSES, PRIORITY_COLORS, STATUS_COLORS, RECURRENCE_OPTIONS, TEMPLATE_STORAGE_KEY } from '../constants';
 
 interface TaskModalProps {
   isOpen: boolean;
@@ -10,7 +11,7 @@ interface TaskModalProps {
   onDelete: (entry: TaskEntry) => Promise<void>;
   initialData?: TaskEntry | null;
   isSubmitting: boolean;
-  entries: TaskEntry[]; // Required for dependencies
+  entries: TaskEntry[]; 
 }
 
 export const TaskModal: React.FC<TaskModalProps> = ({ 
@@ -43,6 +44,18 @@ export const TaskModal: React.FC<TaskModalProps> = ({
   const [isCustomProject, setIsCustomProject] = useState<boolean>(false);
   const [showDeps, setShowDeps] = useState<boolean>(false);
   const [isPreviewMode, setIsPreviewMode] = useState<boolean>(false);
+  
+  // Template State
+  const [templates, setTemplates] = useState<TaskTemplate[]>([]);
+  const [showTemplates, setShowTemplates] = useState<boolean>(false);
+
+  // Load templates on mount
+  useEffect(() => {
+    const stored = localStorage.getItem(TEMPLATE_STORAGE_KEY);
+    if (stored) {
+      setTemplates(JSON.parse(stored));
+    }
+  }, []);
 
   useEffect(() => {
     if (isOpen) {
@@ -96,6 +109,70 @@ export const TaskModal: React.FC<TaskModalProps> = ({
       onClose();
     }
   };
+
+  // --- Template Logic ---
+  const saveAsTemplate = () => {
+    const name = prompt("Template Name:", formData.description.slice(0, 30));
+    if (!name) return;
+    
+    const newTemplate: TaskTemplate = {
+      id: crypto.randomUUID(),
+      name,
+      description: formData.description,
+      project: formData.project,
+      priority: formData.priority
+    };
+    
+    const updated = [...templates, newTemplate];
+    setTemplates(updated);
+    localStorage.setItem(TEMPLATE_STORAGE_KEY, JSON.stringify(updated));
+    alert("Template Saved!");
+  };
+
+  const loadTemplate = (template: TaskTemplate) => {
+    setFormData(prev => ({
+      ...prev,
+      description: template.description,
+      project: template.project,
+      priority: template.priority
+    }));
+    setShowTemplates(false);
+  };
+
+  const deleteTemplate = (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!window.confirm("Delete this template?")) return;
+    const updated = templates.filter(t => t.id !== id);
+    setTemplates(updated);
+    localStorage.setItem(TEMPLATE_STORAGE_KEY, JSON.stringify(updated));
+  };
+  // -----------------------
+
+  // --- Recurrence Logic ---
+  const handleRecurrenceChange = (tag: string) => {
+    // Remove existing tags first
+    let cleanDesc = formData.description;
+    RECURRENCE_OPTIONS.forEach(opt => {
+        if (opt.tag) cleanDesc = cleanDesc.replace(opt.tag, '');
+    });
+    cleanDesc = cleanDesc.trim();
+    
+    // Add new tag if selected
+    if (tag) {
+        setFormData({ ...formData, description: `${cleanDesc} ${tag}` });
+    } else {
+        setFormData({ ...formData, description: cleanDesc });
+    }
+  };
+
+  const currentRecurrence = useMemo(() => {
+    for (const opt of RECURRENCE_OPTIONS) {
+        if (opt.tag && formData.description.includes(opt.tag)) return opt.tag;
+    }
+    return '';
+  }, [formData.description]);
+  // ------------------------
+
 
   const handleFormat = (type: 'bold' | 'italic' | 'list' | 'link' | 'code') => {
     if (isPreviewMode) return;
@@ -158,7 +235,6 @@ export const TaskModal: React.FC<TaskModalProps> = ({
     });
   };
 
-  // Potential dependencies: All tasks except self
   const potentialDeps = useMemo(() => {
     return entries.filter(e => e.id !== formData.id && e.status !== 'Done');
   }, [entries, formData.id]);
@@ -182,12 +258,58 @@ export const TaskModal: React.FC<TaskModalProps> = ({
                {isEditing ? 'Edit Task' : 'New Task'}
              </h2>
           </div>
-          <button 
-            onClick={onClose}
-            className="text-slate-400 hover:text-slate-600 p-2 rounded-full hover:bg-slate-100 transition-colors"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
-          </button>
+          
+          <div className="flex items-center gap-2">
+             {/* Template Toggle */}
+             {!isEditing && (
+                 <div className="relative">
+                    <button 
+                        onClick={() => setShowTemplates(!showTemplates)}
+                        className="text-xs font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-md transition-colors flex items-center gap-1"
+                    >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2" /></svg>
+                        Templates
+                    </button>
+                    {showTemplates && (
+                        <div className="absolute right-0 top-full mt-2 w-64 bg-white border border-slate-200 rounded-lg shadow-xl z-50 overflow-hidden">
+                            <div className="bg-slate-50 px-3 py-2 border-b border-slate-100 text-[10px] font-bold uppercase text-slate-500 flex justify-between items-center">
+                                <span>Library</span>
+                                <button onClick={saveAsTemplate} className="text-indigo-600 hover:text-indigo-800 hover:underline">
+                                    + Save Current
+                                </button>
+                            </div>
+                            <div className="max-h-60 overflow-y-auto">
+                                {templates.length === 0 ? (
+                                    <div className="p-4 text-center text-xs text-slate-400 italic">No templates saved yet. Fill out the form and click "Save Current".</div>
+                                ) : (
+                                    templates.map(t => (
+                                        <div key={t.id} onClick={() => loadTemplate(t)} className="px-3 py-2 hover:bg-slate-50 cursor-pointer border-b border-slate-50 last:border-0 group flex justify-between items-center">
+                                            <div>
+                                                <div className="text-sm font-medium text-slate-800">{t.name}</div>
+                                                <div className="text-[10px] text-slate-400">{t.project} • {t.priority}</div>
+                                            </div>
+                                            <button 
+                                                onClick={(e) => deleteTemplate(t.id, e)}
+                                                className="text-slate-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all p-1"
+                                            >
+                                                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                                            </button>
+                                        </div>
+                                    ))
+                                )}
+                            </div>
+                        </div>
+                    )}
+                 </div>
+             )}
+
+             <button 
+                onClick={onClose}
+                className="text-slate-400 hover:text-slate-600 p-2 rounded-full hover:bg-slate-100 transition-colors"
+             >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
+             </button>
+          </div>
         </div>
 
         {/* Body */}
@@ -274,16 +396,30 @@ export const TaskModal: React.FC<TaskModalProps> = ({
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-               {/* Date */}
-               <div>
-                 <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Due Date</label>
-                 <input
-                    type="date"
-                    required
-                    className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-slate-700 shadow-sm"
-                    value={formData.date}
-                    onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                  />
+               {/* Date & Recurrence */}
+               <div className="flex gap-2">
+                 <div className="flex-1">
+                    <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Due Date</label>
+                    <input
+                        type="date"
+                        required
+                        className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-slate-700 shadow-sm"
+                        value={formData.date}
+                        onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                    />
+                 </div>
+                 <div className="w-1/3">
+                    <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2" title="Automatically recreates task when done">Repeats</label>
+                    <select
+                        value={currentRecurrence}
+                        onChange={(e) => handleRecurrenceChange(e.target.value)}
+                        className="w-full bg-white border border-slate-200 rounded-lg px-2 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-slate-700 shadow-sm"
+                    >
+                        {RECURRENCE_OPTIONS.map(opt => (
+                            <option key={opt.label} value={opt.tag}>{opt.label}</option>
+                        ))}
+                    </select>
+                 </div>
                </div>
 
                {/* Project */}

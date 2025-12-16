@@ -19,7 +19,7 @@ import { useAppConfig } from './hooks/useAppConfig';
 import { useNotifications } from './hooks/useNotifications';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts'; 
 import { generateAndDownloadCSV } from './utils/exportUtils';
-import { DEFAULT_PROJECTS, STATUSES } from './constants';
+import { DEFAULT_PROJECTS, STATUSES, RECURRENCE_OPTIONS } from './constants';
 
 type ViewMode = 'TABLE' | 'KANBAN' | 'GANTT';
 
@@ -169,8 +169,49 @@ const App: React.FC = () => {
     const currentIndex = STATUSES.indexOf(entry.status);
     const nextIndex = (currentIndex + 1) % STATUSES.length;
     const nextStatus = STATUSES[nextIndex];
+    
+    // 1. Update the original task
     const updatedEntry = { ...entry, status: nextStatus };
     await saveTransaction(updatedEntry, true);
+
+    // 2. RECURRENCE LOGIC
+    // If we just moved to 'Done' and the task has a recurrence tag
+    if (nextStatus === 'Done') {
+        const desc = entry.description;
+        const recurrenceOpt = RECURRENCE_OPTIONS.find(r => r.tag && desc.includes(r.tag));
+        
+        if (recurrenceOpt) {
+            // Calculate next date
+            const currentDueDate = new Date(entry.date);
+            let nextDate = new Date(currentDueDate);
+            
+            if (recurrenceOpt.label === 'Daily') {
+                nextDate.setDate(currentDueDate.getDate() + 1);
+            } else if (recurrenceOpt.label === 'Weekly') {
+                nextDate.setDate(currentDueDate.getDate() + 7);
+            } else if (recurrenceOpt.label === 'Monthly') {
+                nextDate.setMonth(currentDueDate.getMonth() + 1);
+            }
+
+            // Create new task object
+            // Note: We strip the ID so the backend generates a new one
+            const nextTask: TaskEntry = {
+                ...entry,
+                id: '', // Will trigger create
+                date: nextDate.toISOString().split('T')[0],
+                status: 'Backlog',
+                dependencies: [] // Reset dependencies for the new instance? Usually yes.
+            };
+
+            // Save the next iteration
+            // Small delay to ensure the first one processes? 
+            // Optimistic UI in saveTransaction handles it.
+            setTimeout(async () => {
+                await saveTransaction(nextTask, false);
+                showToast(`Recurring task scheduled for ${nextTask.date}`, 'success');
+            }, 500);
+        }
+    }
   };
 
   const executeBulkDelete = async () => {

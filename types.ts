@@ -15,6 +15,14 @@ export interface TaskEntry {
   dependencies?: string[]; // Array of IDs blocking this task
 }
 
+export interface TaskTemplate {
+  id: string;
+  name: string;
+  description: string;
+  project: string;
+  priority: PriorityLevel;
+}
+
 export interface TaskState {
   entries: TaskEntry[];
   isLoading: boolean;

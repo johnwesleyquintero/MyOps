@@ -1,3 +1,4 @@
+
 import { PriorityLevel, StatusLevel } from "./types";
 
 export const DEFAULT_PROJECTS = [
@@ -14,8 +15,16 @@ export const DEFAULT_PROJECTS = [
 export const PRIORITIES: PriorityLevel[] = ['High', 'Medium', 'Low'];
 export const STATUSES: StatusLevel[] = ['Backlog', 'In Progress', 'Done'];
 
+export const RECURRENCE_OPTIONS = [
+  { label: 'No Recurrence', tag: '' },
+  { label: 'Daily', tag: '🔁 Daily' },
+  { label: 'Weekly', tag: '🔁 Weekly' },
+  { label: 'Monthly', tag: '🔁 Monthly' }
+];
+
 export const INITIAL_CONFIG_KEY = 'myops_config_v1';
 export const LOCAL_STORAGE_KEY = 'myops_data_v1';
+export const TEMPLATE_STORAGE_KEY = 'myops_templates_v1';
 export const DEFAULT_GAS_URL = '';
 
 // Updated to "Dot" style background colors (more subtle)

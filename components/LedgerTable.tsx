@@ -53,7 +53,7 @@ export const LedgerTable: React.FC<LedgerTableProps> = ({
   entries, 
   isLoading, 
   onEdit, 
-  onDelete,
+  onDelete, 
   onStatusUpdate 
 }) => {
   // --- Column Management State ---
@@ -208,17 +208,31 @@ export const LedgerTable: React.FC<LedgerTableProps> = ({
                 p: ({node, ...props}) => <p {...props} className="my-0 leading-relaxed" />,
                 strong: ({node, ...props}) => <strong {...props} className="font-bold text-slate-800" />,
                 em: ({node, ...props}) => <em {...props} className="italic text-slate-700" />,
-                code: ({node, ...props}) => <code {...props} className="bg-slate-100 text-pink-600 px-1.5 py-0.5 rounded text-xs font-mono border border-slate-200" />,
-                // Block element overrides to keep table compact
-                ul: ({node, ...props}) => <ul {...props} className="list-disc list-inside my-1 pl-1" />,
-                ol: ({node, ...props}) => <ol {...props} className="list-decimal list-inside my-1 pl-1" />,
-                li: ({node, ...props}) => <li {...props} className="my-0" />,
-                h1: ({node, ...props}) => <strong {...props} className="block text-slate-800 font-bold text-sm my-1" />,
-                h2: ({node, ...props}) => <strong {...props} className="block text-slate-800 font-bold text-sm my-1" />,
-                h3: ({node, ...props}) => <strong {...props} className="block text-slate-800 font-medium text-sm my-1" />,
-                h4: ({node, ...props}) => <strong {...props} className="block text-slate-800 font-medium text-sm my-1" />,
-                blockquote: ({node, ...props}) => <blockquote {...props} className="border-l-2 border-slate-300 pl-2 text-slate-500 italic my-1" />,
-                pre: ({node, ...props}) => <div {...props} className="my-1" />
+                
+                // Code handling: Distinct inline vs block
+                code: ({node, ...props}) => (
+                  <code 
+                    {...props} 
+                    className="bg-slate-100 text-pink-600 px-1.5 py-0.5 rounded text-xs font-mono border border-slate-200" 
+                  />
+                ),
+                pre: ({node, ...props}) => (
+                  <pre 
+                    {...props} 
+                    className="bg-slate-900 text-slate-50 p-3 rounded-md my-2 overflow-x-auto text-xs font-mono border border-slate-800 [&>code]:bg-transparent [&>code]:text-inherit [&>code]:border-none [&>code]:p-0 [&>code]:rounded-none" 
+                  />
+                ),
+
+                // List handling: Better indentation and spacing
+                ul: ({node, ...props}) => <ul {...props} className="list-disc list-outside ml-4 my-1 space-y-0.5 text-slate-700" />,
+                ol: ({node, ...props}) => <ol {...props} className="list-decimal list-outside ml-4 my-1 space-y-0.5 text-slate-700" />,
+                li: ({node, ...props}) => <li {...props} className="pl-1" />,
+
+                h1: ({node, ...props}) => <strong {...props} className="block text-slate-800 font-bold text-sm mt-3 mb-1 border-b border-slate-100 pb-1" />,
+                h2: ({node, ...props}) => <strong {...props} className="block text-slate-800 font-bold text-sm mt-2 mb-1" />,
+                h3: ({node, ...props}) => <strong {...props} className="block text-slate-800 font-medium text-sm mt-2 mb-1" />,
+                h4: ({node, ...props}) => <strong {...props} className="block text-slate-800 font-medium text-sm mt-2 mb-1" />,
+                blockquote: ({node, ...props}) => <blockquote {...props} className="border-l-2 border-slate-300 pl-3 text-slate-500 italic my-2 bg-slate-50 py-1 rounded-r-sm" />,
               }}
             >
                 {entry.description}

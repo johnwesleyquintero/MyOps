@@ -16,9 +16,16 @@ export const TransactionForm: React.FC<TransactionFormProps> = ({
   onCancelEdit 
 }) => {
   
+  // Helper for local date string YYYY-MM-DD
+  const getLocalDate = (offsetDays: number = 0) => {
+    const d = new Date();
+    d.setDate(d.getDate() + offsetDays);
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+  };
+
   const [formData, setFormData] = useState<TaskEntry>({
     id: '',
-    date: new Date().toISOString().split('T')[0],
+    date: getLocalDate(),
     description: '',
     project: DEFAULT_PROJECTS[0],
     priority: 'Medium',
@@ -40,7 +47,7 @@ export const TransactionForm: React.FC<TransactionFormProps> = ({
   const resetForm = () => {
     setFormData({
       id: '',
-      date: new Date().toISOString().split('T')[0],
+      date: getLocalDate(),
       description: '',
       project: DEFAULT_PROJECTS[0],
       priority: 'Medium',
@@ -49,11 +56,21 @@ export const TransactionForm: React.FC<TransactionFormProps> = ({
     setIsCustomProject(false);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
     if (!formData.description || !formData.project) return;
     await onSubmit(formData);
     if (!initialData) resetForm();
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+      handleSubmit();
+    }
+  };
+
+  const setDateOffset = (days: number) => {
+    setFormData(prev => ({ ...prev, date: getLocalDate(days) }));
   };
 
   const toggleProjectMode = () => {
@@ -96,7 +113,10 @@ export const TransactionForm: React.FC<TransactionFormProps> = ({
         {/* Row 1: Description & Date */}
         <div className="flex flex-col lg:flex-row gap-4">
           <div className="flex-[3]">
-            <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Task Description</label>
+            <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5 flex justify-between">
+              Task Description
+              <span className="hidden sm:inline text-[9px] text-slate-300 font-normal normal-case">⌘+Enter to save</span>
+            </label>
             <input
               type="text"
               required
@@ -104,10 +124,19 @@ export const TransactionForm: React.FC<TransactionFormProps> = ({
               className={`w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-4 transition-all shadow-sm text-slate-700 placeholder-slate-400 ${theme.inputBorder} ${theme.ring}`}
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              onKeyDown={handleKeyDown}
+              autoFocus={!isEditing}
             />
           </div>
           <div className="flex-1">
-            <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Due Date</label>
+            <div className="flex justify-between items-center mb-1.5">
+              <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">Due Date</label>
+              <div className="flex gap-1">
+                <button type="button" onClick={() => setDateOffset(0)} className="px-1.5 py-0.5 rounded bg-slate-100 hover:bg-slate-200 text-[9px] text-slate-500 font-medium transition-colors">Today</button>
+                <button type="button" onClick={() => setDateOffset(1)} className="px-1.5 py-0.5 rounded bg-slate-100 hover:bg-slate-200 text-[9px] text-slate-500 font-medium transition-colors">+1d</button>
+                <button type="button" onClick={() => setDateOffset(7)} className="px-1.5 py-0.5 rounded bg-slate-100 hover:bg-slate-200 text-[9px] text-slate-500 font-medium transition-colors">+1w</button>
+              </div>
+            </div>
             <input
               type="date"
               required

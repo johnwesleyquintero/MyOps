@@ -1,8 +1,7 @@
-
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { TaskEntry, PriorityLevel, StatusLevel } from '../types';
-import { formatDate, getProjectStyle, PRIORITY_COLORS, STATUS_COLORS } from '../constants';
+import { formatRelativeDate, getProjectStyle, PRIORITY_COLORS, PRIORITY_DOTS, STATUS_COLORS } from '../constants';
 
 interface LedgerTableProps {
   entries: TaskEntry[];
@@ -25,7 +24,7 @@ interface ColumnConfig {
 }
 
 const DEFAULT_COLUMNS: ColumnConfig[] = [
-  { key: 'date', label: 'Due', visible: true, width: 'w-24' },
+  { key: 'date', label: 'Due', visible: true, width: 'w-32' },
   { key: 'description', label: 'Task', visible: true, width: 'min-w-[300px]' },
   { key: 'project', label: 'Project', visible: true, width: 'w-32' },
   { key: 'priority', label: 'Priority', visible: true, width: 'w-28' },
@@ -151,9 +150,14 @@ export const LedgerTable: React.FC<LedgerTableProps> = ({
 
   if (!isLoading && entries.length === 0) {
     return (
-      <div className="w-full p-12 text-center bg-white border border-slate-200 rounded-xl border-dashed">
-        <p className="text-slate-900 font-semibold">No tasks found.</p>
-        <p className="text-slate-500 text-sm mt-1">Inbox Zero achieved.</p>
+      <div className="w-full flex flex-col items-center justify-center py-20 bg-white border border-slate-200 rounded-xl border-dashed">
+        <div className="bg-slate-50 p-4 rounded-full mb-4">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 13l4 4L19 7" />
+          </svg>
+        </div>
+        <h3 className="text-slate-900 font-bold text-lg">All caught up</h3>
+        <p className="text-slate-500 text-sm mt-1 max-w-xs text-center">Your ledger is clear. Time to strategize for the next move or enjoy the downtime.</p>
       </div>
     );
   }
@@ -163,10 +167,10 @@ export const LedgerTable: React.FC<LedgerTableProps> = ({
     const isAsc = sortConfig.direction === 'asc';
     return (
       <th 
-        className="px-6 py-3 bg-slate-50 text-xs uppercase tracking-wider font-semibold cursor-pointer group/th select-none hover:bg-slate-100 transition-colors whitespace-nowrap"
+        className="px-6 py-3 bg-slate-50 text-[11px] uppercase tracking-widest font-bold text-slate-500 cursor-pointer group/th select-none hover:bg-slate-100 transition-colors whitespace-nowrap border-b border-slate-200"
         onClick={() => handleSort(col.key)}
       >
-        <div className={`flex items-center gap-1.5 ${isActive ? 'text-indigo-600' : 'text-slate-500'}`}>
+        <div className={`flex items-center gap-1.5 ${isActive ? 'text-indigo-600' : ''}`}>
           {col.label}
           <div className="flex flex-col">
              <svg className={`w-2 h-2 ${isActive && isAsc ? 'text-indigo-600' : 'text-slate-300'} ${!isActive && 'group-hover/th:text-slate-400'}`} fill="currentColor" viewBox="0 0 24 24"><path d="M12 4l-8 8h16l-8-8z" /></svg>
@@ -180,25 +184,25 @@ export const LedgerTable: React.FC<LedgerTableProps> = ({
   const renderCell = (entry: TaskEntry, key: SortKey) => {
     switch(key) {
       case 'date':
-        return <span className="font-mono text-slate-500 whitespace-nowrap text-xs">{formatDate(entry.date)}</span>;
+        const dateInfo = formatRelativeDate(entry.date);
+        return <span className={`font-mono text-xs whitespace-nowrap ${dateInfo.colorClass}`}>{dateInfo.text}</span>;
       case 'description':
         return (
-          // Added line-clamp-2 to limit vertical height in the table
           <div 
-             className={`prose prose-sm max-w-none line-clamp-2 overflow-hidden ${entry.status === 'Done' ? 'opacity-50' : 'text-slate-600'} cursor-pointer hover:text-indigo-900`}
+             className={`prose prose-sm max-w-none line-clamp-2 overflow-hidden ${entry.status === 'Done' ? 'opacity-50 line-through text-slate-400' : 'text-slate-700'} cursor-pointer hover:text-indigo-700 transition-colors`}
              onClick={() => onEdit(entry)}
-             title="Click to view/edit full description"
+             title="Click to edit"
           >
             <ReactMarkdown 
               components={{
-                a: ({node, ...props}) => <a {...props} className="text-indigo-600 pointer-events-none" />, // Disable links in preview to prevent accidental clicks
-                p: ({node, ...props}) => <span {...props} className="mr-1" />, // Flatten paragraphs for summary view
-                strong: ({node, ...props}) => <strong {...props} className="font-bold text-slate-800" />,
-                em: ({node, ...props}) => <em {...props} className="italic text-slate-700" />,
-                code: ({node, ...props}) => <code {...props} className="bg-slate-100 text-pink-600 px-1 py-0.5 rounded text-xs font-mono" />,
-                h1: ({node, ...props}) => <strong {...props} className="block text-slate-800 font-bold" />,
-                h2: ({node, ...props}) => <strong {...props} className="block text-slate-800 font-bold" />,
-                ul: ({node, ...props}) => <span {...props} />, // Flatten lists
+                a: ({node, ...props}) => <a {...props} className="text-indigo-600 pointer-events-none" />,
+                p: ({node, ...props}) => <span {...props} className="mr-1" />,
+                strong: ({node, ...props}) => <strong {...props} className="font-bold text-slate-900" />,
+                em: ({node, ...props}) => <em {...props} className="italic text-slate-600" />,
+                code: ({node, ...props}) => <code {...props} className="bg-slate-100 text-slate-600 border border-slate-200 px-1 py-0.5 rounded text-[10px] font-mono" />,
+                h1: ({node, ...props}) => <strong {...props} className="block text-slate-900 font-bold" />,
+                h2: ({node, ...props}) => <strong {...props} className="block text-slate-900 font-bold" />,
+                ul: ({node, ...props}) => <span {...props} />,
                 li: ({node, ...props}) => <span {...props} className="after:content-[',_'] last:after:content-none" />,
               }}
             >
@@ -208,14 +212,14 @@ export const LedgerTable: React.FC<LedgerTableProps> = ({
         );
       case 'project':
         return (
-          <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold border ${getProjectStyle(entry.project)}`}>
+          <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold border ${getProjectStyle(entry.project)}`}>
             {entry.project}
           </span>
         );
       case 'priority':
         return (
-          <div className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] font-bold border ${PRIORITY_COLORS[entry.priority] || 'bg-slate-100'}`}>
-            <span className="w-1.5 h-1.5 rounded-full bg-current"></span>
+          <div className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-[10px] font-bold border ${PRIORITY_COLORS[entry.priority] || 'bg-slate-50 border-slate-200 text-slate-500'}`}>
+            <span className={`w-1.5 h-1.5 rounded-full ${PRIORITY_DOTS[entry.priority] || 'bg-slate-300'}`}></span>
             {entry.priority}
           </div>
         );
@@ -223,9 +227,14 @@ export const LedgerTable: React.FC<LedgerTableProps> = ({
         return (
           <button 
             onClick={() => onStatusUpdate && onStatusUpdate(entry)}
-            className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold border cursor-pointer hover:shadow-sm transition-all active:scale-95 ${STATUS_COLORS[entry.status] || 'bg-slate-100'}`}
+            className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-[10px] font-bold border cursor-pointer hover:ring-2 hover:ring-indigo-100 transition-all active:scale-95 ${STATUS_COLORS[entry.status] || 'bg-slate-50'}`}
             title="Click to cycle status"
           >
+             {/* Status Dot */}
+            <span className={`w-1.5 h-1.5 rounded-full ${
+                entry.status === 'Done' ? 'bg-emerald-500' : 
+                entry.status === 'In Progress' ? 'bg-indigo-500' : 'bg-slate-400'
+            }`}></span>
             {entry.status}
           </button>
         );
@@ -244,12 +253,12 @@ export const LedgerTable: React.FC<LedgerTableProps> = ({
           className="flex items-center gap-2 px-3 py-1.5 bg-white border border-slate-200 rounded-md text-xs font-medium text-slate-600 hover:text-slate-900 hover:border-slate-300 shadow-sm transition-all"
         >
           <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" /></svg>
-          Columns
+          View
         </button>
 
         {isConfigOpen && (
-          <div className="absolute right-0 mt-2 w-56 bg-white border border-slate-200 rounded-lg shadow-xl overflow-hidden animate-slide-in">
-            <div className="bg-slate-50 px-4 py-2 border-b border-slate-100 text-[10px] font-bold uppercase text-slate-500 tracking-wider">Configure View</div>
+          <div className="absolute right-0 mt-2 w-56 bg-white border border-slate-200 rounded-lg shadow-xl overflow-hidden animate-slide-in z-50">
+            <div className="bg-slate-50 px-4 py-2 border-b border-slate-100 text-[10px] font-bold uppercase text-slate-500 tracking-wider">Table Columns</div>
             <div className="max-h-60 overflow-y-auto py-1">
               {columns.map((col, idx) => (
                 <div key={col.key} className="flex items-center justify-between px-3 py-2 hover:bg-slate-50 group">
@@ -274,12 +283,12 @@ export const LedgerTable: React.FC<LedgerTableProps> = ({
       </div>
 
       <div className="overflow-hidden bg-white border border-slate-200 rounded-xl shadow-sm">
-        <div className="overflow-x-auto max-h-[600px] overflow-y-auto custom-scrollbar">
+        <div className="overflow-x-auto max-h-[650px] overflow-y-auto custom-scrollbar">
           <table className="min-w-full text-sm text-left relative border-collapse">
             <thead className="bg-slate-50 border-b border-slate-200 sticky top-0 z-10 shadow-sm">
               <tr>
                 {visibleColumns.map(col => <SortHeader key={col.key} col={col} />)}
-                <th className="px-6 py-3 w-24 text-right bg-slate-50 text-xs uppercase tracking-wider text-slate-500 font-semibold sticky right-0 shadow-[inset_1px_0_0_0_rgba(226,232,240,0.5)]">Actions</th>
+                <th className="px-6 py-3 w-16 text-right bg-slate-50 text-[11px] uppercase tracking-widest text-slate-500 font-bold sticky right-0 shadow-[inset_1px_0_0_0_rgba(226,232,240,0.5)]"></th>
               </tr>
             </thead>
             
@@ -288,7 +297,7 @@ export const LedgerTable: React.FC<LedgerTableProps> = ({
             ) : (
               <tbody className="divide-y divide-slate-100">
                 {sortedEntries.map((entry, idx) => (
-                  <tr key={entry.id || `row-${idx}`} className={`group hover:bg-slate-50/80 transition-colors ${entry.status === 'Done' ? 'bg-slate-50/50' : ''}`}>
+                  <tr key={entry.id || `row-${idx}`} className={`group hover:bg-slate-50/80 transition-colors ${entry.status === 'Done' ? 'bg-slate-50/30' : ''}`}>
                     {visibleColumns.map(col => (
                       <td key={`${entry.id}-${col.key}`} className={`px-6 py-3 align-middle ${col.width || ''}`}>
                         {renderCell(entry, col.key)}

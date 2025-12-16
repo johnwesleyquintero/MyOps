@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { TaskEntry, PriorityLevel, StatusLevel } from '../types';
@@ -67,14 +68,11 @@ export const LedgerTable: React.FC<LedgerTableProps> = ({
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
         const parsed = JSON.parse(saved);
-        // Merge with default to ensure no missing keys if schema changes
         const merged = DEFAULT_COLUMNS.map(def => {
           const savedCol = parsed.find((p: ColumnConfig) => p.key === def.key);
           return savedCol ? { ...def, ...savedCol } : def;
         });
-        // Also respect the saved order
         const ordered = parsed.map((p: ColumnConfig) => merged.find(m => m.key === p.key)).filter(Boolean) as ColumnConfig[];
-        // Add any new default columns that weren't in saved
         const missing = DEFAULT_COLUMNS.filter(d => !ordered.find(o => o.key === d.key));
         setColumns([...ordered, ...missing]);
       }
@@ -83,7 +81,6 @@ export const LedgerTable: React.FC<LedgerTableProps> = ({
     }
   }, []);
 
-  // Save to local storage
   const saveColumns = (newCols: ColumnConfig[]) => {
     setColumns(newCols);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(newCols));
@@ -97,9 +94,7 @@ export const LedgerTable: React.FC<LedgerTableProps> = ({
   const moveColumn = (index: number, direction: 'up' | 'down') => {
     const newCols = [...columns];
     const targetIndex = direction === 'up' ? index - 1 : index + 1;
-    
     if (targetIndex < 0 || targetIndex >= newCols.length) return;
-    
     [newCols[index], newCols[targetIndex]] = [newCols[targetIndex], newCols[index]];
     saveColumns(newCols);
   };
@@ -114,7 +109,6 @@ export const LedgerTable: React.FC<LedgerTableProps> = ({
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
-
 
   // --- Sorting & Data State ---
   const [sortConfig, setSortConfig] = useState<{ key: SortKey; direction: SortDirection }>({ 
@@ -131,10 +125,8 @@ export const LedgerTable: React.FC<LedgerTableProps> = ({
 
   const sortedEntries = useMemo(() => {
     if (!entries) return [];
-    
     return [...entries].sort((a, b) => {
       let comparison = 0;
-
       switch (sortConfig.key) {
         case 'date':
           comparison = new Date(a.date).getTime() - new Date(b.date).getTime();
@@ -153,7 +145,6 @@ export const LedgerTable: React.FC<LedgerTableProps> = ({
           if (valA < valB) comparison = -1;
           if (valA > valB) comparison = 1;
       }
-
       return sortConfig.direction === 'asc' ? comparison : -comparison;
     });
   }, [entries, sortConfig]);
@@ -162,7 +153,7 @@ export const LedgerTable: React.FC<LedgerTableProps> = ({
     return (
       <div className="w-full p-12 text-center bg-white border border-slate-200 rounded-xl border-dashed">
         <p className="text-slate-900 font-semibold">No tasks found.</p>
-        <p className="text-slate-500 text-sm mt-1">Inbox Zero achieved. Or you need to add something.</p>
+        <p className="text-slate-500 text-sm mt-1">Inbox Zero achieved.</p>
       </div>
     );
   }
@@ -170,7 +161,6 @@ export const LedgerTable: React.FC<LedgerTableProps> = ({
   const SortHeader = ({ col }: { col: ColumnConfig }) => {
     const isActive = sortConfig.key === col.key;
     const isAsc = sortConfig.direction === 'asc';
-
     return (
       <th 
         className="px-6 py-3 bg-slate-50 text-xs uppercase tracking-wider font-semibold cursor-pointer group/th select-none hover:bg-slate-100 transition-colors whitespace-nowrap"
@@ -193,46 +183,23 @@ export const LedgerTable: React.FC<LedgerTableProps> = ({
         return <span className="font-mono text-slate-500 whitespace-nowrap text-xs">{formatDate(entry.date)}</span>;
       case 'description':
         return (
-          <div className={`prose prose-sm max-w-none ${entry.status === 'Done' ? 'opacity-50' : 'text-slate-600'}`}>
+          // Added line-clamp-2 to limit vertical height in the table
+          <div 
+             className={`prose prose-sm max-w-none line-clamp-2 overflow-hidden ${entry.status === 'Done' ? 'opacity-50' : 'text-slate-600'} cursor-pointer hover:text-indigo-900`}
+             onClick={() => onEdit(entry)}
+             title="Click to view/edit full description"
+          >
             <ReactMarkdown 
               components={{
-                a: ({node, ...props}) => (
-                  <a 
-                    {...props} 
-                    className="text-indigo-600 hover:text-indigo-800 hover:underline font-medium cursor-pointer transition-colors" 
-                    target="_blank" 
-                    rel="noopener noreferrer" 
-                    onClick={(e) => e.stopPropagation()} 
-                  />
-                ),
-                p: ({node, ...props}) => <p {...props} className="my-0 leading-relaxed" />,
+                a: ({node, ...props}) => <a {...props} className="text-indigo-600 pointer-events-none" />, // Disable links in preview to prevent accidental clicks
+                p: ({node, ...props}) => <span {...props} className="mr-1" />, // Flatten paragraphs for summary view
                 strong: ({node, ...props}) => <strong {...props} className="font-bold text-slate-800" />,
                 em: ({node, ...props}) => <em {...props} className="italic text-slate-700" />,
-                
-                // Code handling: Distinct inline vs block
-                code: ({node, ...props}) => (
-                  <code 
-                    {...props} 
-                    className="bg-slate-100 text-pink-600 px-1.5 py-0.5 rounded text-xs font-mono border border-slate-200" 
-                  />
-                ),
-                pre: ({node, ...props}) => (
-                  <pre 
-                    {...props} 
-                    className="bg-slate-900 text-slate-50 p-3 rounded-md my-2 overflow-x-auto text-xs font-mono border border-slate-800 [&>code]:bg-transparent [&>code]:text-inherit [&>code]:border-none [&>code]:p-0 [&>code]:rounded-none" 
-                  />
-                ),
-
-                // List handling: Better indentation and spacing
-                ul: ({node, ...props}) => <ul {...props} className="list-disc list-outside ml-4 my-1 space-y-0.5 text-slate-700" />,
-                ol: ({node, ...props}) => <ol {...props} className="list-decimal list-outside ml-4 my-1 space-y-0.5 text-slate-700" />,
-                li: ({node, ...props}) => <li {...props} className="pl-1" />,
-
-                h1: ({node, ...props}) => <strong {...props} className="block text-slate-800 font-bold text-sm mt-3 mb-1 border-b border-slate-100 pb-1" />,
-                h2: ({node, ...props}) => <strong {...props} className="block text-slate-800 font-bold text-sm mt-2 mb-1" />,
-                h3: ({node, ...props}) => <strong {...props} className="block text-slate-800 font-medium text-sm mt-2 mb-1" />,
-                h4: ({node, ...props}) => <strong {...props} className="block text-slate-800 font-medium text-sm mt-2 mb-1" />,
-                blockquote: ({node, ...props}) => <blockquote {...props} className="border-l-2 border-slate-300 pl-3 text-slate-500 italic my-2 bg-slate-50 py-1 rounded-r-sm" />,
+                code: ({node, ...props}) => <code {...props} className="bg-slate-100 text-pink-600 px-1 py-0.5 rounded text-xs font-mono" />,
+                h1: ({node, ...props}) => <strong {...props} className="block text-slate-800 font-bold" />,
+                h2: ({node, ...props}) => <strong {...props} className="block text-slate-800 font-bold" />,
+                ul: ({node, ...props}) => <span {...props} />, // Flatten lists
+                li: ({node, ...props}) => <span {...props} className="after:content-[',_'] last:after:content-none" />,
               }}
             >
                 {entry.description}
@@ -271,8 +238,6 @@ export const LedgerTable: React.FC<LedgerTableProps> = ({
 
   return (
     <div className="relative">
-      
-      {/* Table Controls (Top Right) */}
       <div className="absolute -top-10 right-0 z-20" ref={configRef}>
         <button
           onClick={() => setIsConfigOpen(!isConfigOpen)}
@@ -284,9 +249,7 @@ export const LedgerTable: React.FC<LedgerTableProps> = ({
 
         {isConfigOpen && (
           <div className="absolute right-0 mt-2 w-56 bg-white border border-slate-200 rounded-lg shadow-xl overflow-hidden animate-slide-in">
-            <div className="bg-slate-50 px-4 py-2 border-b border-slate-100 text-[10px] font-bold uppercase text-slate-500 tracking-wider">
-              Configure View
-            </div>
+            <div className="bg-slate-50 px-4 py-2 border-b border-slate-100 text-[10px] font-bold uppercase text-slate-500 tracking-wider">Configure View</div>
             <div className="max-h-60 overflow-y-auto py-1">
               {columns.map((col, idx) => (
                 <div key={col.key} className="flex items-center justify-between px-3 py-2 hover:bg-slate-50 group">
@@ -300,20 +263,8 @@ export const LedgerTable: React.FC<LedgerTableProps> = ({
                     <span className="text-sm text-slate-700">{col.label}</span>
                   </div>
                   <div className="flex items-center opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button 
-                      onClick={() => moveColumn(idx, 'up')} 
-                      disabled={idx === 0}
-                      className="p-1 text-slate-400 hover:text-indigo-600 disabled:opacity-30"
-                    >
-                      <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 15l7-7 7 7" /></svg>
-                    </button>
-                    <button 
-                      onClick={() => moveColumn(idx, 'down')} 
-                      disabled={idx === columns.length - 1}
-                      className="p-1 text-slate-400 hover:text-indigo-600 disabled:opacity-30"
-                    >
-                      <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg>
-                    </button>
+                    <button onClick={() => moveColumn(idx, 'up')} disabled={idx === 0} className="p-1 text-slate-400 hover:text-indigo-600 disabled:opacity-30"><svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 15l7-7 7 7" /></svg></button>
+                    <button onClick={() => moveColumn(idx, 'down')} disabled={idx === columns.length - 1} className="p-1 text-slate-400 hover:text-indigo-600 disabled:opacity-30"><svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg></button>
                   </div>
                 </div>
               ))}
@@ -322,19 +273,13 @@ export const LedgerTable: React.FC<LedgerTableProps> = ({
         )}
       </div>
 
-      {/* Main Table Container */}
       <div className="overflow-hidden bg-white border border-slate-200 rounded-xl shadow-sm">
         <div className="overflow-x-auto max-h-[600px] overflow-y-auto custom-scrollbar">
           <table className="min-w-full text-sm text-left relative border-collapse">
             <thead className="bg-slate-50 border-b border-slate-200 sticky top-0 z-10 shadow-sm">
               <tr>
-                {visibleColumns.map(col => (
-                  <SortHeader key={col.key} col={col} />
-                ))}
-                {/* Actions column is fixed */}
-                <th className="px-6 py-3 w-24 text-right bg-slate-50 text-xs uppercase tracking-wider text-slate-500 font-semibold sticky right-0 shadow-[inset_1px_0_0_0_rgba(226,232,240,0.5)]">
-                  Actions
-                </th>
+                {visibleColumns.map(col => <SortHeader key={col.key} col={col} />)}
+                <th className="px-6 py-3 w-24 text-right bg-slate-50 text-xs uppercase tracking-wider text-slate-500 font-semibold sticky right-0 shadow-[inset_1px_0_0_0_rgba(226,232,240,0.5)]">Actions</th>
               </tr>
             </thead>
             
@@ -349,21 +294,10 @@ export const LedgerTable: React.FC<LedgerTableProps> = ({
                         {renderCell(entry, col.key)}
                       </td>
                     ))}
-                    
-                    {/* Fixed Actions Column */}
                     <td className="px-6 py-3 text-right sticky right-0 bg-white group-hover:bg-slate-50/80 transition-colors shadow-[inset_1px_0_0_0_rgba(241,245,249,1)]">
                       <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-all duration-200">
-                        <button 
-                          onClick={() => onEdit(entry)}
-                          className="text-slate-400 hover:text-indigo-600 p-1.5 rounded hover:bg-indigo-50 transition-colors"
-                        >
+                        <button onClick={() => onEdit(entry)} className="text-slate-400 hover:text-indigo-600 p-1.5 rounded hover:bg-indigo-50 transition-colors" title="Edit Task">
                           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
-                        </button>
-                        <button 
-                          onClick={() => onDelete(entry)}
-                          className="text-slate-400 hover:text-rose-600 p-1.5 rounded hover:bg-rose-50 transition-colors"
-                        >
-                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
                         </button>
                       </div>
                     </td>

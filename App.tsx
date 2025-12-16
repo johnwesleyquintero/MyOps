@@ -1,8 +1,9 @@
+
 import React, { useState, useMemo } from 'react';
 import { TaskEntry, AppConfig, StatusLevel } from './types';
 import { SummaryCards } from './components/SummaryCards';
 import { LedgerTable } from './components/LedgerTable';
-import { TransactionForm } from './components/TransactionForm';
+import { TaskModal } from './components/TaskModal'; // New Modal Component
 import { SettingsModal } from './components/SettingsModal';
 import { FilterBar } from './components/FilterBar';
 import { ToastContainer } from './components/Toast';
@@ -20,7 +21,9 @@ const App: React.FC = () => {
   const { notifications, showToast, removeNotification } = useNotifications();
 
   const [showSettings, setShowSettings] = useState<boolean>(false);
+  const [isTaskModalOpen, setIsTaskModalOpen] = useState<boolean>(false);
   const [editingEntry, setEditingEntry] = useState<TaskEntry | null>(null);
+  
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
 
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -50,37 +53,42 @@ const App: React.FC = () => {
     return [...DEFAULT_PROJECTS, ...Array.from(new Set(custom))];
   }, [entries]);
 
-  const handleFormSubmit = async (entry: TaskEntry) => {
-    const success = await saveTransaction(entry, !!editingEntry);
-    if (success && editingEntry) {
-      setEditingEntry(null);
-    }
+  // Handlers for Modal
+  const handleOpenCreate = () => {
+    setEditingEntry(null);
+    setIsTaskModalOpen(true);
   };
 
-  const handleEditClick = (entry: TaskEntry) => {
+  const handleOpenEdit = (entry: TaskEntry) => {
     if (!entry.id) {
       showToast("Entry lacks ID. Cannot edit.", 'error');
       return;
     }
     setEditingEntry(entry);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setIsTaskModalOpen(true);
   };
 
-  const handleDeleteClick = async (entry: TaskEntry) => {
-    if (window.confirm(`Delete task "${entry.description}"?`)) {
-      await removeTransaction(entry);
+  const handleModalSubmit = async (entry: TaskEntry) => {
+    const success = await saveTransaction(entry, !!editingEntry);
+    if (success) {
+      setIsTaskModalOpen(false);
+      setEditingEntry(null);
     }
   };
 
-  // Inline status cycling handler
+  const handleModalDelete = async (entry: TaskEntry) => {
+     await removeTransaction(entry);
+     setIsTaskModalOpen(false);
+     setEditingEntry(null);
+  };
+
+  // Inline status cycling handler (Quick Action)
   const handleStatusUpdate = async (entry: TaskEntry) => {
     const currentIndex = STATUSES.indexOf(entry.status);
     const nextIndex = (currentIndex + 1) % STATUSES.length;
     const nextStatus = STATUSES[nextIndex];
     
     const updatedEntry = { ...entry, status: nextStatus };
-    // Optimistic update handled by reload in saveTransaction, 
-    // but meant for quick interactions
     await saveTransaction(updatedEntry, true);
   };
 
@@ -103,16 +111,24 @@ const App: React.FC = () => {
       <main className="max-w-6xl mx-auto px-3 sm:px-6 lg:px-8 py-6">
         <SummaryCards metrics={metrics} />
         
-        <TransactionForm 
-          onSubmit={handleFormSubmit} 
-          isSubmitting={isSubmitting} 
-          initialData={editingEntry}
-          onCancelEdit={() => setEditingEntry(null)}
-        />
-
+        {/* Main Content Area */}
         <div className="mt-8">
            <div className="flex items-center justify-between mb-4">
-               <h2 className="text-xl font-bold text-slate-800 tracking-tight">Active Tasks</h2>
+               <div className="flex items-center gap-4">
+                 <h2 className="text-xl font-bold text-slate-800 tracking-tight">Active Tasks</h2>
+                 
+                 {/* Primary Add Button */}
+                 <button 
+                   onClick={handleOpenCreate}
+                   className="flex items-center gap-2 bg-slate-900 text-white px-4 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider hover:bg-slate-800 hover:shadow-lg active:scale-95 transition-all shadow-md"
+                 >
+                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                     <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+                   </svg>
+                   New Task
+                 </button>
+               </div>
+
                <div className="flex gap-2">
                  {filteredEntries.length > 0 && (
                    <button 
@@ -146,12 +162,22 @@ const App: React.FC = () => {
            <LedgerTable 
              entries={filteredEntries} 
              isLoading={isLoading} 
-             onEdit={handleEditClick}
-             onDelete={handleDeleteClick}
+             onEdit={handleOpenEdit}
+             onDelete={handleModalDelete} // We can technically use handleModalDelete logic or just direct remove. Keeping direct remove for the table row trash icon.
              onStatusUpdate={handleStatusUpdate}
            />
         </div>
       </main>
+
+      {/* The Unified Task Modal */}
+      <TaskModal 
+        isOpen={isTaskModalOpen}
+        onClose={() => setIsTaskModalOpen(false)}
+        onSubmit={handleModalSubmit}
+        onDelete={handleModalDelete}
+        initialData={editingEntry}
+        isSubmitting={isSubmitting}
+      />
 
       <SettingsModal 
         isOpen={showSettings} 

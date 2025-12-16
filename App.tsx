@@ -3,7 +3,9 @@ import React, { useState, useMemo } from 'react';
 import { TaskEntry, AppConfig, StatusLevel } from './types';
 import { SummaryCards } from './components/SummaryCards';
 import { LedgerTable } from './components/LedgerTable';
-import { TaskModal } from './components/TaskModal'; // New Modal Component
+import { KanbanBoard } from './components/KanbanBoard'; // New Component
+import { GanttChart } from './components/GanttChart';   // New Component
+import { TaskModal } from './components/TaskModal';
 import { SettingsModal } from './components/SettingsModal';
 import { FilterBar } from './components/FilterBar';
 import { ToastContainer } from './components/Toast';
@@ -16,6 +18,8 @@ import { useNotifications } from './hooks/useNotifications';
 import { generateAndDownloadCSV } from './utils/exportUtils';
 import { DEFAULT_PROJECTS, STATUSES } from './constants';
 
+type ViewMode = 'TABLE' | 'KANBAN' | 'GANTT';
+
 const App: React.FC = () => {
   const { config, setConfig } = useAppConfig();
   const { notifications, showToast, removeNotification } = useNotifications();
@@ -23,6 +27,7 @@ const App: React.FC = () => {
   const [showSettings, setShowSettings] = useState<boolean>(false);
   const [isTaskModalOpen, setIsTaskModalOpen] = useState<boolean>(false);
   const [editingEntry, setEditingEntry] = useState<TaskEntry | null>(null);
+  const [viewMode, setViewMode] = useState<ViewMode>('TABLE');
   
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
 
@@ -113,36 +118,59 @@ const App: React.FC = () => {
         
         {/* Main Content Area */}
         <div className="mt-8">
-           <div className="flex items-center justify-between mb-4">
+           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
                <div className="flex items-center gap-4">
-                 <h2 className="text-xl font-bold text-slate-800 tracking-tight">Active Tasks</h2>
+                 <h2 className="text-xl font-bold text-slate-800 tracking-tight">Mission Control</h2>
                  
-                 {/* Primary Add Button */}
+                 {/* View Tabs */}
+                 <div className="flex bg-slate-200/50 p-1 rounded-lg">
+                   <button 
+                     onClick={() => setViewMode('TABLE')}
+                     className={`px-3 py-1 text-[10px] font-bold uppercase tracking-wider rounded-md transition-all ${viewMode === 'TABLE' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                   >
+                     Table
+                   </button>
+                   <button 
+                     onClick={() => setViewMode('KANBAN')}
+                     className={`px-3 py-1 text-[10px] font-bold uppercase tracking-wider rounded-md transition-all ${viewMode === 'KANBAN' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                   >
+                     Kanban
+                   </button>
+                   <button 
+                     onClick={() => setViewMode('GANTT')}
+                     className={`px-3 py-1 text-[10px] font-bold uppercase tracking-wider rounded-md transition-all ${viewMode === 'GANTT' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                   >
+                     Gantt
+                   </button>
+                 </div>
+               </div>
+
+               <div className="flex items-center gap-2">
                  <button 
                    onClick={handleOpenCreate}
-                   className="flex items-center gap-2 bg-slate-900 text-white px-4 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider hover:bg-slate-800 hover:shadow-lg active:scale-95 transition-all shadow-md"
+                   className="flex items-center gap-2 bg-slate-900 text-white px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider hover:bg-slate-800 hover:shadow-lg active:scale-95 transition-all shadow-md"
                  >
                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
                    </svg>
                    New Task
                  </button>
-               </div>
 
-               <div className="flex gap-2">
-                 {filteredEntries.length > 0 && (
+                 {viewMode === 'TABLE' && filteredEntries.length > 0 && (
                    <button 
                      onClick={() => setIsDeleteModalOpen(true)}
-                     className="text-red-600 border border-red-200 bg-white px-3 py-1.5 rounded text-xs font-bold uppercase tracking-wider hover:bg-red-50"
+                     className="p-2 text-red-600 border border-red-200 bg-white rounded-lg hover:bg-red-50 transition-colors"
+                     title="Clear View"
                    >
-                     Clear View
+                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
                    </button>
                  )}
                  <button 
                     onClick={() => generateAndDownloadCSV(filteredEntries)}
-                    className="text-slate-600 border border-slate-200 bg-white px-3 py-1.5 rounded text-xs font-bold uppercase tracking-wider hover:bg-slate-50"
+                    className="p-2 text-slate-600 border border-slate-200 bg-white rounded-lg hover:bg-slate-50 transition-colors"
+                    title="Export CSV"
                  >
-                    Export
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
                  </button>
                </div>
            </div>
@@ -159,17 +187,34 @@ const App: React.FC = () => {
              availableCategories={availableCategories}
            />
 
-           <LedgerTable 
-             entries={filteredEntries} 
-             isLoading={isLoading} 
-             onEdit={handleOpenEdit}
-             onDelete={handleModalDelete} // We can technically use handleModalDelete logic or just direct remove. Keeping direct remove for the table row trash icon.
-             onStatusUpdate={handleStatusUpdate}
-           />
+           {/* View Switcher */}
+           {viewMode === 'TABLE' && (
+             <LedgerTable 
+               entries={filteredEntries} 
+               isLoading={isLoading} 
+               onEdit={handleOpenEdit}
+               onDelete={handleModalDelete}
+               onStatusUpdate={handleStatusUpdate}
+             />
+           )}
+
+           {viewMode === 'KANBAN' && (
+             <KanbanBoard
+               entries={filteredEntries}
+               onEdit={handleOpenEdit}
+               onStatusUpdate={handleStatusUpdate}
+             />
+           )}
+
+           {viewMode === 'GANTT' && (
+             <GanttChart 
+                entries={filteredEntries}
+                onEdit={handleOpenEdit}
+             />
+           )}
         </div>
       </main>
 
-      {/* The Unified Task Modal */}
       <TaskModal 
         isOpen={isTaskModalOpen}
         onClose={() => setIsTaskModalOpen(false)}

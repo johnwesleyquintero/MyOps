@@ -1,0 +1,119 @@
+
+import React, { useMemo } from 'react';
+import { TaskEntry, StatusLevel } from '../types';
+import { formatRelativeDate, getProjectStyle, PRIORITY_DOTS } from '../constants';
+
+interface KanbanBoardProps {
+  entries: TaskEntry[];
+  onEdit: (entry: TaskEntry) => void;
+  onStatusUpdate: (entry: TaskEntry) => void;
+}
+
+export const KanbanBoard: React.FC<KanbanBoardProps> = ({ entries, onEdit, onStatusUpdate }) => {
+  
+  const columns = useMemo(() => {
+    const cols: Record<StatusLevel, TaskEntry[]> = {
+      'Backlog': [],
+      'In Progress': [],
+      'Done': []
+    };
+    entries.forEach(e => {
+      if (cols[e.status]) {
+        cols[e.status].push(e);
+      } else {
+        // Fallback for weird statuses, put in Backlog
+        cols['Backlog'].push(e);
+      }
+    });
+    return cols;
+  }, [entries]);
+
+  return (
+    <div className="flex flex-col md:flex-row gap-6 overflow-x-auto pb-4 h-[calc(100vh-250px)]">
+      {/* Column 1: Backlog */}
+      <KanbanColumn 
+        title="Backlog" 
+        tasks={columns['Backlog']} 
+        colorClass="border-t-4 border-t-slate-400 bg-slate-50"
+        onEdit={onEdit}
+      />
+
+      {/* Column 2: In Progress */}
+      <KanbanColumn 
+        title="In Progress" 
+        tasks={columns['In Progress']} 
+        colorClass="border-t-4 border-t-indigo-500 bg-indigo-50/30"
+        onEdit={onEdit}
+      />
+
+      {/* Column 3: Done */}
+      <KanbanColumn 
+        title="Done" 
+        tasks={columns['Done']} 
+        colorClass="border-t-4 border-t-emerald-500 bg-emerald-50/30 opacity-80"
+        onEdit={onEdit}
+        isDone
+      />
+    </div>
+  );
+};
+
+interface KanbanColumnProps {
+  title: string;
+  tasks: TaskEntry[];
+  colorClass: string;
+  onEdit: (entry: TaskEntry) => void;
+  isDone?: boolean;
+}
+
+const KanbanColumn: React.FC<KanbanColumnProps> = ({ title, tasks, colorClass, onEdit, isDone }) => {
+  return (
+    <div className={`flex-1 min-w-[300px] flex flex-col rounded-xl border border-slate-200 shadow-sm overflow-hidden ${colorClass}`}>
+      {/* Header */}
+      <div className="p-4 flex justify-between items-center bg-white/50 backdrop-blur-sm border-b border-slate-200/50">
+        <h3 className="font-bold text-slate-700 text-sm uppercase tracking-wider">{title}</h3>
+        <span className="bg-white px-2 py-0.5 rounded-full text-xs font-mono text-slate-500 border border-slate-200 shadow-sm">{tasks.length}</span>
+      </div>
+
+      {/* Content */}
+      <div className="flex-1 p-3 overflow-y-auto custom-scrollbar space-y-3">
+        {tasks.map(task => (
+          <div 
+            key={task.id}
+            onClick={() => onEdit(task)}
+            className={`bg-white p-4 rounded-lg border border-slate-200 shadow-sm hover:shadow-md hover:border-indigo-300 cursor-pointer transition-all group active:scale-[0.98] ${isDone ? 'opacity-70 grayscale hover:grayscale-0 hover:opacity-100' : ''}`}
+          >
+            <div className="flex justify-between items-start mb-2">
+              <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-bold border ${getProjectStyle(task.project)}`}>
+                {task.project}
+              </span>
+              <div 
+                className={`w-2 h-2 rounded-full ${PRIORITY_DOTS[task.priority]}`} 
+                title={`Priority: ${task.priority}`}
+              />
+            </div>
+            
+            <p className={`text-sm text-slate-800 font-medium mb-3 line-clamp-3 ${isDone ? 'line-through text-slate-500' : ''}`}>
+              {task.description}
+            </p>
+
+            <div className="flex items-center justify-between pt-2 border-t border-slate-100">
+               <div className="flex items-center gap-1.5">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" className="text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                  <span className={`text-[10px] font-mono ${formatRelativeDate(task.date).colorClass}`}>
+                    {formatRelativeDate(task.date).text}
+                  </span>
+               </div>
+               <span className="opacity-0 group-hover:opacity-100 text-[10px] font-bold text-indigo-600 uppercase tracking-wider transition-opacity">Edit</span>
+            </div>
+          </div>
+        ))}
+        {tasks.length === 0 && (
+          <div className="h-24 flex items-center justify-center border-2 border-dashed border-slate-200 rounded-lg">
+            <span className="text-xs text-slate-400 font-medium">Empty</span>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};

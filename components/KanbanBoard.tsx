@@ -8,10 +8,11 @@ interface KanbanBoardProps {
   onEdit: (entry: TaskEntry) => void;
   onStatusUpdate: (entry: TaskEntry) => void;
   onAdd: () => void;
+  onFocus: (entry: TaskEntry) => void; // Added onFocus
   allEntries?: TaskEntry[];
 }
 
-export const KanbanBoard: React.FC<KanbanBoardProps> = ({ entries, onEdit, onStatusUpdate, onAdd, allEntries = [] }) => {
+export const KanbanBoard: React.FC<KanbanBoardProps> = ({ entries, onEdit, onStatusUpdate, onAdd, onFocus, allEntries = [] }) => {
   
   const columns = useMemo(() => {
     const cols: Record<StatusLevel, TaskEntry[]> = {
@@ -39,6 +40,7 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({ entries, onEdit, onSta
         colorClass="border-t-4 border-t-slate-400 bg-slate-50"
         onEdit={onEdit}
         onAdd={onAdd}
+        onFocus={onFocus}
         allEntries={allEntries}
       />
 
@@ -49,6 +51,7 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({ entries, onEdit, onSta
         colorClass="border-t-4 border-t-indigo-500 bg-indigo-50/30"
         onEdit={onEdit}
         onAdd={onAdd}
+        onFocus={onFocus}
         allEntries={allEntries}
       />
 
@@ -59,6 +62,7 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({ entries, onEdit, onSta
         colorClass="border-t-4 border-t-emerald-500 bg-emerald-50/30 opacity-80"
         onEdit={onEdit}
         onAdd={onAdd}
+        onFocus={onFocus}
         isDone
         allEntries={allEntries}
       />
@@ -72,11 +76,12 @@ interface KanbanColumnProps {
   colorClass: string;
   onEdit: (entry: TaskEntry) => void;
   onAdd: () => void;
+  onFocus: (entry: TaskEntry) => void;
   isDone?: boolean;
   allEntries: TaskEntry[];
 }
 
-const KanbanColumn: React.FC<KanbanColumnProps> = ({ title, tasks, colorClass, onEdit, onAdd, isDone, allEntries }) => {
+const KanbanColumn: React.FC<KanbanColumnProps> = ({ title, tasks, colorClass, onEdit, onAdd, onFocus, isDone, allEntries }) => {
   
   const getDependencyStatus = (entry: TaskEntry) => {
       if (!entry.dependencies || entry.dependencies.length === 0) return null;
@@ -151,7 +156,18 @@ const KanbanColumn: React.FC<KanbanColumnProps> = ({ title, tasks, colorClass, o
                       {formatRelativeDate(task.date).text}
                     </span>
                 </div>
-                <span className="opacity-0 group-hover:opacity-100 text-[10px] font-bold text-indigo-600 uppercase tracking-wider transition-opacity">Edit</span>
+                <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    {!isDone && (
+                        <button 
+                            onClick={(e) => { e.stopPropagation(); onFocus(task); }}
+                            className="p-1 text-slate-400 hover:text-indigo-600 rounded hover:bg-indigo-50"
+                            title="Focus"
+                        >
+                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+                        </button>
+                    )}
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider py-1">Edit</span>
+                </div>
               </div>
             </div>
           );

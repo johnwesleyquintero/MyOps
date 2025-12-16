@@ -2,7 +2,7 @@
 export type PriorityLevel = 'High' | 'Medium' | 'Low';
 export type StatusLevel = 'Backlog' | 'In Progress' | 'Done';
 
-export type Page = 'DASHBOARD' | 'MISSIONS' | 'SETTINGS';
+export type Page = 'DASHBOARD' | 'MISSIONS' | 'SETTINGS' | 'FOCUS';
 
 export interface TaskEntry {
   id: string;         // UUID

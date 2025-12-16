@@ -10,7 +10,8 @@ interface TaskTableProps {
   onEdit: (entry: TaskEntry) => void;
   onDelete: (entry: TaskEntry) => void;
   onStatusUpdate?: (entry: TaskEntry) => void;
-  allEntries?: TaskEntry[]; // Needed for calculating blocking status
+  onFocus: (entry: TaskEntry) => void; // Added onFocus prop
+  allEntries?: TaskEntry[]; 
   currency?: string;
   locale?: string;
 }
@@ -57,6 +58,7 @@ export const TaskTable: React.FC<TaskTableProps> = ({
   onEdit, 
   onDelete, 
   onStatusUpdate,
+  onFocus,
   allEntries = []
 }) => {
   // --- Column Management State ---
@@ -319,7 +321,7 @@ export const TaskTable: React.FC<TaskTableProps> = ({
             <thead className="bg-slate-50 border-b border-slate-200 sticky top-0 z-10 shadow-sm">
               <tr>
                 {visibleColumns.map(col => <SortHeader key={col.key} col={col} />)}
-                <th className="px-6 py-3 w-16 text-right bg-slate-50 text-[11px] uppercase tracking-widest text-slate-500 font-bold sticky right-0 shadow-[inset_1px_0_0_0_rgba(226,232,240,0.5)]"></th>
+                <th className="px-6 py-3 w-20 text-right bg-slate-50 text-[11px] uppercase tracking-widest text-slate-500 font-bold sticky right-0 shadow-[inset_1px_0_0_0_rgba(226,232,240,0.5)]"></th>
               </tr>
             </thead>
             
@@ -336,6 +338,11 @@ export const TaskTable: React.FC<TaskTableProps> = ({
                     ))}
                     <td className="px-6 py-3 text-right sticky right-0 bg-white group-hover:bg-slate-50/80 transition-colors shadow-[inset_1px_0_0_0_rgba(241,245,249,1)]">
                       <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-all duration-200">
+                        {entry.status !== 'Done' && (
+                            <button onClick={() => onFocus(entry)} className="text-slate-400 hover:text-indigo-600 p-1.5 rounded hover:bg-indigo-50 transition-colors" title="Deep Work Focus">
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+                            </button>
+                        )}
                         <button onClick={() => onEdit(entry)} className="text-slate-400 hover:text-indigo-600 p-1.5 rounded hover:bg-indigo-50 transition-colors" title="Edit Task">
                           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
                         </button>

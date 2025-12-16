@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo, useEffect } from 'react';
 import { TaskEntry, AppConfig, Page } from './types';
 import { SummaryCards } from './components/SummaryCards';
@@ -13,6 +12,7 @@ import { Header } from './components/Header';
 import { Sidebar } from './components/Sidebar'; 
 import { ConfirmationModal } from './components/ConfirmationModal';
 import { ShortcutsModal } from './components/ShortcutsModal'; 
+import { FocusMode } from './components/FocusMode'; // Import FocusMode
 import { useTasks } from './hooks/useTasks';
 import { useTaskAnalytics } from './hooks/useTaskAnalytics';
 import { useAppConfig } from './hooks/useAppConfig';
@@ -51,6 +51,7 @@ const App: React.FC = () => {
   const [showShortcuts, setShowShortcuts] = useState<boolean>(false);
   const [isTaskModalOpen, setIsTaskModalOpen] = useState<boolean>(false);
   const [editingEntry, setEditingEntry] = useState<TaskEntry | null>(null);
+  const [focusedTask, setFocusedTask] = useState<TaskEntry | null>(null); // State for Deep Work
   
   // Mission Control State
   const [viewMode, setViewMode] = useState<ViewMode>('TABLE');
@@ -70,7 +71,7 @@ const App: React.FC = () => {
     { 
       key: 'c', 
       action: () => {
-        if (!isTaskModalOpen) {
+        if (!isTaskModalOpen && activePage !== 'FOCUS') {
           setEditingEntry(null);
           setIsTaskModalOpen(true);
         }
@@ -80,6 +81,7 @@ const App: React.FC = () => {
       key: '/', 
       preventDefault: true, 
       action: () => {
+        if (activePage === 'FOCUS') return; // Disable search in focus mode
         // Switch to Missions view if not there, then focus
         if (activePage !== 'MISSIONS') setActivePage('MISSIONS');
         // Small timeout to allow render if page changed
@@ -95,6 +97,7 @@ const App: React.FC = () => {
       preventDefault: true,
       allowInInput: true,
       action: () => {
+         if (activePage === 'FOCUS') return;
          if (activePage !== 'MISSIONS') setActivePage('MISSIONS');
          setTimeout(() => {
            const searchInput = document.getElementById('global-search');
@@ -149,6 +152,16 @@ const App: React.FC = () => {
     }
     setEditingEntry(entry);
     setIsTaskModalOpen(true);
+  };
+
+  const handleEnterFocus = (entry: TaskEntry) => {
+    setFocusedTask(entry);
+    setActivePage('FOCUS');
+  };
+
+  const handleExitFocus = () => {
+    setFocusedTask(null);
+    setActivePage('MISSIONS'); // Return to missions usually
   };
 
   const handleModalSubmit = async (entry: TaskEntry) => {
@@ -214,6 +227,32 @@ const App: React.FC = () => {
     }
   };
 
+  const handleFocusComplete = async (entry: TaskEntry) => {
+    // Mark as done
+    const updatedEntry = { ...entry, status: 'Done' as const };
+    await saveTransaction(updatedEntry, true);
+    
+    // Check recurrence immediately
+    const recurrenceOpt = RECURRENCE_OPTIONS.find(r => r.tag && entry.description.includes(r.tag));
+    if (recurrenceOpt) {
+         const currentDueDate = new Date(entry.date);
+         let nextDate = new Date(currentDueDate);
+         if (recurrenceOpt.label === 'Daily') nextDate.setDate(currentDueDate.getDate() + 1);
+         else if (recurrenceOpt.label === 'Weekly') nextDate.setDate(currentDueDate.getDate() + 7);
+         else if (recurrenceOpt.label === 'Monthly') nextDate.setMonth(currentDueDate.getMonth() + 1);
+
+         const nextTask: TaskEntry = {
+            ...entry,
+            id: '', 
+            date: nextDate.toISOString().split('T')[0],
+            status: 'Backlog',
+            dependencies: []
+         };
+         await saveTransaction(nextTask, false);
+         showToast(`Recurring task scheduled for ${nextTask.date}`, 'success');
+    }
+  };
+
   const executeBulkDelete = async () => {
     await bulkRemoveTransactions(filteredEntries);
     setIsDeleteModalOpen(false);
@@ -224,6 +263,18 @@ const App: React.FC = () => {
     setShowSettings(false);
     showToast('Configuration saved', 'success');
   };
+
+  // If in Focus Mode, render only Focus Component
+  if (activePage === 'FOCUS' && focusedTask) {
+    return (
+        <FocusMode 
+            task={focusedTask} 
+            onExit={handleExitFocus}
+            onUpdate={async (updated) => { await saveTransaction(updated, true); }}
+            onComplete={handleFocusComplete}
+        />
+    );
+  }
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 font-sans">
@@ -275,6 +326,7 @@ const App: React.FC = () => {
                         onEdit={handleOpenEdit}
                         onDelete={handleModalDelete}
                         onStatusUpdate={handleStatusUpdate}
+                        onFocus={handleEnterFocus}
                         allEntries={entries} // Pass all entries for dependency logic
                      />
                      {dashboardTasks.length === 0 && !isLoading && (
@@ -353,6 +405,7 @@ const App: React.FC = () => {
                    onEdit={handleOpenEdit}
                    onDelete={handleModalDelete}
                    onStatusUpdate={handleStatusUpdate}
+                   onFocus={handleEnterFocus}
                    allEntries={entries}
                  />
                )}
@@ -363,6 +416,7 @@ const App: React.FC = () => {
                    onEdit={handleOpenEdit}
                    onStatusUpdate={handleStatusUpdate}
                    onAdd={handleOpenCreate}
+                   onFocus={handleEnterFocus}
                    allEntries={entries}
                  />
                )}

@@ -1,9 +1,32 @@
 
 export const GAS_BACKEND_CODE = `// --- CONFIGURATION ---
-const API_SECRET = "myops-secret-key"; // <--- CHANGE THIS to your own strong password
-const SLACK_WEBHOOK_URL = ""; // <--- OPTIONAL: Add your Slack Webhook URL here
-const SLACK_BOT_NAME = "MyOps System";
+const API_SECRET = "myops-secret-key"; // <--- CHANGE THIS
+const SLACK_WEBHOOK_URL = ""; // <--- PASTE YOUR WEBHOOK URL HERE
 // ---------------------
+
+/**
+ * 🛠️ SETUP INSTRUCTION:
+ * 1. Paste your Slack Webhook URL above.
+ * 2. Select 'testSlack' from the function dropdown menu in the toolbar.
+ * 3. Click 'Run'. 
+ * 4. Google will ask for permissions (Review Permissions > Allow).
+ * 5. Check your Slack channel for a test message.
+ * 6. Deploy > Manage Deployments > Edit > Version: New Version > Deploy.
+ */
+
+function testSlack() {
+  if (!SLACK_WEBHOOK_URL) {
+    Logger.log("❌ Error: SLACK_WEBHOOK_URL is empty.");
+    return;
+  }
+  notifySlack("create", {
+    description: "System Connection Test",
+    project: "MyOps",
+    priority: "High",
+    status: "Active"
+  });
+  Logger.log("✅ Test sent. Check your Slack.");
+}
 
 function doGet(e) {
   if (!e || !e.parameter) {
@@ -21,11 +44,7 @@ function doGet(e) {
   const data = sheet.getDataRange().getValues();
   if (data.length < 2) return jsonResponse([]);
 
-  const headers = data.shift();
-  
-  // Mapping: 
-  // 0:Date, 1:Desc, 2:Project, 3:Priority, 4:Status, 5:CreatedAt, 6:ID, 7:Dependencies(JSON)
-  const entries = data.map(row => {
+  const entries = data.slice(1).map(row => {
     let dateVal = row[0];
     if (Object.prototype.toString.call(dateVal) === '[object Date]') {
       try {
@@ -101,7 +120,6 @@ function doPost(e) {
     else if (action === 'update') {
       if (!entry.id) return errorResponse("ID required for update");
       const data = sheet.getDataRange().getValues();
-      // ID is at index 6
       for (let i = 1; i < data.length; i++) {
         if (data[i][6] == entry.id) {
           // Update columns 1-5 (Basic info)
@@ -120,7 +138,6 @@ function doPost(e) {
       const data = sheet.getDataRange().getValues();
       for (let i = 1; i < data.length; i++) {
         if (data[i][6] == entry.id) {
-          // Grab description before deleting for the notification
           const deletedTask = { id: entry.id, description: data[i][1] };
           sheet.deleteRow(i + 1);
           notifySlack("delete", deletedTask);
@@ -140,53 +157,96 @@ function doPost(e) {
 function notifySlack(action, entry) {
   if (!SLACK_WEBHOOK_URL || SLACK_WEBHOOK_URL === "") return;
   
-  let title = "";
-  let color = "#334155";
-  let text = "";
-  
-  // Safe defaults
   const desc = entry.description || "No description";
-  const proj = entry.project || "-";
-  const prio = entry.priority || "-";
-  const stat = entry.status || "-";
+  const proj = entry.project || "Inbox";
+  const prio = entry.priority || "Medium";
+  const stat = entry.status || "Backlog";
+  
+  let headerText = "";
+  let colorEmoji = "⚪";
 
   if (action === "create") {
-    title = "🆕 New Mission Initialized";
-    color = "#4f46e5"; // Indigo
-    text = \`*Task:* \${desc}\\n*Project:* \${proj} | *Priority:* \${prio}\`;
+    headerText = "New Mission Initialized";
+    colorEmoji = "🔵";
   } else if (action === "update") {
     if (stat === "Done") {
-      title = "✅ Mission Accomplished";
-      color = "#10b981"; // Emerald
-      text = \`*Task:* \${desc}\\n*Status:* COMPLETED\`;
+      headerText = "Mission Accomplished";
+      colorEmoji = "🟢";
     } else {
-      title = "🔄 Mission Update";
-      color = "#f59e0b"; // Amber
-      text = \`*Task:* \${desc}\\n*Status:* \${stat} | *Priority:* \${prio}\`;
+      headerText = "Mission Update";
+      colorEmoji = "🟠";
     }
   } else if (action === "delete") {
-    title = "🗑️ Mission Aborted";
-    color = "#ef4444"; // Red
-    text = \`*Task:* \${desc}\`;
+    headerText = "Mission Aborted";
+    colorEmoji = "🔴";
   }
 
+  // Modern Block Kit Layout
   const payload = {
-    username: SLACK_BOT_NAME,
-    attachments: [{
-      color: color,
-      title: title,
-      text: text,
-      footer: "MyOps Sovereign System",
-      ts: Math.floor(Date.now() / 1000)
-    }]
+    "text": \`\${colorEmoji} \${headerText}: \${desc}\`,
+    "blocks": [
+      {
+        "type": "header",
+        "text": {
+          "type": "plain_text",
+          "text": \`\${colorEmoji}  \${headerText}\`,
+          "emoji": true
+        }
+      },
+      {
+        "type": "section",
+        "fields": [
+          {
+            "type": "mrkdwn",
+            "text": \`*Mission:*\n\${desc}\`
+          },
+          {
+            "type": "mrkdwn",
+            "text": \`*Project:*\n\${proj}\`
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "fields": [
+          {
+            "type": "mrkdwn",
+            "text": \`*Priority:*\n\${prio}\`
+          },
+          {
+            "type": "mrkdwn",
+            "text": \`*Status:*\n\${stat}\`
+          }
+        ]
+      },
+      {
+        "type": "divider"
+      },
+      {
+        "type": "context",
+        "elements": [
+          {
+            "type": "plain_text",
+            "text": "MyOps Sovereign System",
+            "emoji": true
+          }
+        ]
+      }
+    ]
   };
 
   try {
-    UrlFetchApp.fetch(SLACK_WEBHOOK_URL, {
+    const options = {
       method: "post",
       contentType: "application/json",
-      payload: JSON.stringify(payload)
-    });
+      payload: JSON.stringify(payload),
+      muteHttpExceptions: true
+    };
+    
+    const resp = UrlFetchApp.fetch(SLACK_WEBHOOK_URL, options);
+    Logger.log("Slack Response Code: " + resp.getResponseCode());
+    Logger.log("Slack Response Body: " + resp.getContentText());
+    
   } catch (err) {
     Logger.log("Slack notification failed: " + err);
   }

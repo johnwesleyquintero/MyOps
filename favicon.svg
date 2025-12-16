@@ -1,4 +1,27 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-  <rect width="32" height="32" rx="6" fill="#4f46e5"/>
-  <text x="50%" y="54%" dominant-baseline="central" text-anchor="middle" fill="white" font-family="monospace" font-weight="bold" font-size="20">M</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
+  <defs>
+    <!-- Background Gradient -->
+    <linearGradient id="sysGradient" x1="0" y1="0" x2="512" y2="512" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#334155" />
+      <stop offset="1" stop-color="#0f172a" />
+    </linearGradient>
+    <!-- Accent Gradient for Pulse & Circle -->
+    <linearGradient id="accentGradient" x1="0" y1="0" x2="512" y2="512" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#6366f1" />
+      <stop offset="1" stop-color="#4338ca" />
+    </linearGradient>
+  </defs>
+  <!-- Background: Sovereign Slate Container -->
+  <rect width="512" height="512" rx="128" fill="url(#sysGradient)" />
+  <!-- System Icon Group -->
+  <g transform="translate(106, 106)">
+    <!-- Left Pillar (slightly softened) -->
+    <rect x="0" y="0" width="80" height="300" rx="50" fill="#f1f5f9" />
+    <!-- Right Pillar (slightly softened) -->
+    <rect x="220" y="0" width="80" height="300" rx="50" fill="#f1f5f9" />
+    <!-- Execution Pulse (V) -->
+    <path d="M40 180 L150 280 L260 180" stroke="url(#accentGradient)" stroke-width="45" stroke-linecap="round" stroke-linejoin="round" />
+    <!-- Data Point (Top Center with subtle glow) -->
+    <circle cx="150" cy="50" r="40" fill="url(#accentGradient)" stroke="white" stroke-opacity="0.15" stroke-width="6" />
+  </g>
 </svg>

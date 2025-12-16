@@ -36,6 +36,7 @@ export interface AppConfig {
   apiToken: string; // The Shared Secret
   locale: string;   // e.g. 'en-US'
   currency?: string; 
+  theme: 'LIGHT' | 'DARK';
 }
 
 export interface MetricSummary {

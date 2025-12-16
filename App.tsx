@@ -29,6 +29,15 @@ const App: React.FC = () => {
   const { config, setConfig } = useAppConfig();
   const { notifications, showToast, removeNotification } = useNotifications();
 
+  // Theme Side Effect
+  useEffect(() => {
+    if (config.theme === 'DARK') {
+        document.documentElement.classList.add('dark');
+    } else {
+        document.documentElement.classList.remove('dark');
+    }
+  }, [config.theme]);
+
   // Navigation State
   const [activePage, setActivePage] = useState<Page>('DASHBOARD');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false); // Mobile Toggle
@@ -286,7 +295,7 @@ const App: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 font-sans">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans transition-colors duration-300">
       <ToastContainer notifications={notifications} removeNotification={removeNotification} />
       
       {/* Sidebar Navigation */}
@@ -320,15 +329,15 @@ const App: React.FC = () => {
                
                <div>
                   <div className="flex justify-between items-center mb-4">
-                     <h3 className="text-sm font-bold text-slate-500 uppercase tracking-wider">Immediate Focus</h3>
+                     <h3 className="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Immediate Focus</h3>
                      <button 
                        onClick={() => setActivePage('MISSIONS')}
-                       className="text-indigo-600 text-xs font-bold hover:underline"
+                       className="text-indigo-600 dark:text-indigo-400 text-xs font-bold hover:underline"
                      >
                        View All Missions &rarr;
                      </button>
                   </div>
-                  <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+                  <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm overflow-hidden">
                      <TaskTable 
                         entries={dashboardTasks}
                         isLoading={isLoading}
@@ -355,22 +364,22 @@ const App: React.FC = () => {
             <div className="animate-fade-in">
                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
                  {/* Tabs */}
-                 <div className="flex bg-slate-200/50 p-1 rounded-lg self-start">
+                 <div className="flex bg-slate-200/50 dark:bg-slate-800 p-1 rounded-lg self-start">
                    <button 
                      onClick={() => setViewMode('TABLE')}
-                     className={`px-4 py-1.5 text-[10px] font-bold uppercase tracking-wider rounded-md transition-all ${viewMode === 'TABLE' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                     className={`px-4 py-1.5 text-[10px] font-bold uppercase tracking-wider rounded-md transition-all ${viewMode === 'TABLE' ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-300 shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'}`}
                    >
                      Table
                    </button>
                    <button 
                      onClick={() => setViewMode('KANBAN')}
-                     className={`px-4 py-1.5 text-[10px] font-bold uppercase tracking-wider rounded-md transition-all ${viewMode === 'KANBAN' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                     className={`px-4 py-1.5 text-[10px] font-bold uppercase tracking-wider rounded-md transition-all ${viewMode === 'KANBAN' ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-300 shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'}`}
                    >
                      Kanban
                    </button>
                    <button 
                      onClick={() => setViewMode('GANTT')}
-                     className={`px-4 py-1.5 text-[10px] font-bold uppercase tracking-wider rounded-md transition-all ${viewMode === 'GANTT' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                     className={`px-4 py-1.5 text-[10px] font-bold uppercase tracking-wider rounded-md transition-all ${viewMode === 'GANTT' ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-300 shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'}`}
                    >
                      Gantt
                    </button>
@@ -381,7 +390,7 @@ const App: React.FC = () => {
                    {viewMode === 'TABLE' && filteredEntries.length > 0 && (
                      <button 
                        onClick={() => setIsDeleteModalOpen(true)}
-                       className="p-2 text-red-600 border border-red-200 bg-white rounded-lg hover:bg-red-50 transition-colors"
+                       className="p-2 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-900 bg-white dark:bg-slate-800 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
                        title="Clear View"
                      >
                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
@@ -389,7 +398,7 @@ const App: React.FC = () => {
                    )}
                    <button 
                       onClick={() => generateAndDownloadCSV(filteredEntries)}
-                      className="p-2 text-slate-600 border border-slate-200 bg-white rounded-lg hover:bg-slate-50 transition-colors"
+                      className="p-2 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
                       title="Export CSV"
                    >
                       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>

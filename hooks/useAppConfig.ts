@@ -7,7 +7,8 @@ const DEFAULT_CONFIG: AppConfig = {
   gasDeploymentUrl: DEFAULT_GAS_URL, 
   apiToken: '',
   currency: 'USD',
-  locale: 'en-US'
+  locale: 'en-US',
+  theme: 'LIGHT'
 };
 
 export const useAppConfig = () => {

@@ -11,6 +11,7 @@
     <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
     <script>
       tailwind.config = {
+        darkMode: 'class',
         theme: {
           extend: {
             fontFamily: {
@@ -30,6 +31,9 @@
       ::-webkit-scrollbar-track {
         background: #f1f1f1; 
       }
+      .dark ::-webkit-scrollbar-track {
+        background: #1e293b;
+      }
       ::-webkit-scrollbar-thumb {
         background: #94a3b8; 
         border-radius: 4px;
@@ -39,6 +43,9 @@
       }
       body {
         background-color: #f8fafc; /* Slate-50 */
+      }
+      .dark body {
+        background-color: #020617; /* Slate-950 */
       }
       /* Markdown Checkbox Styling */
       input[type="checkbox"] {

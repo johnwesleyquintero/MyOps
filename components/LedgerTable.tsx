@@ -1,5 +1,5 @@
-import React from 'react';
-import { TaskEntry } from '../types';
+import React, { useState, useMemo } from 'react';
+import { TaskEntry, PriorityLevel, StatusLevel } from '../types';
 import { formatDate, getProjectStyle, PRIORITY_COLORS, STATUS_COLORS } from '../constants';
 
 interface LedgerTableProps {
@@ -7,9 +7,12 @@ interface LedgerTableProps {
   isLoading: boolean;
   onEdit: (entry: TaskEntry) => void;
   onDelete: (entry: TaskEntry) => void;
-  currency?: string; // Legacy prop, unused
-  locale?: string;   // Legacy prop, unused
+  currency?: string;
+  locale?: string;
 }
+
+type SortKey = 'date' | 'description' | 'project' | 'priority' | 'status';
+type SortDirection = 'asc' | 'desc';
 
 const TableSkeleton = () => (
   <tbody className="divide-y divide-slate-100 animate-pulse">
@@ -26,7 +29,47 @@ const TableSkeleton = () => (
 );
 
 export const LedgerTable: React.FC<LedgerTableProps> = ({ entries, isLoading, onEdit, onDelete }) => {
-  
+  const [sortConfig, setSortConfig] = useState<{ key: SortKey; direction: SortDirection }>({ 
+    key: 'date', 
+    direction: 'asc' 
+  });
+
+  const handleSort = (key: SortKey) => {
+    setSortConfig((current) => ({
+      key,
+      direction: current.key === key && current.direction === 'asc' ? 'desc' : 'asc',
+    }));
+  };
+
+  const sortedEntries = useMemo(() => {
+    if (!entries) return [];
+    
+    return [...entries].sort((a, b) => {
+      let comparison = 0;
+
+      switch (sortConfig.key) {
+        case 'date':
+          comparison = new Date(a.date).getTime() - new Date(b.date).getTime();
+          break;
+        case 'priority':
+          const pRanks: Record<PriorityLevel, number> = { 'High': 0, 'Medium': 1, 'Low': 2 };
+          comparison = (pRanks[a.priority] ?? 99) - (pRanks[b.priority] ?? 99);
+          break;
+        case 'status':
+          const sRanks: Record<StatusLevel, number> = { 'Backlog': 0, 'In Progress': 1, 'Done': 2 };
+          comparison = (sRanks[a.status] ?? 99) - (sRanks[b.status] ?? 99);
+          break;
+        default:
+          const valA = String(a[sortConfig.key] || '').toLowerCase();
+          const valB = String(b[sortConfig.key] || '').toLowerCase();
+          if (valA < valB) comparison = -1;
+          if (valA > valB) comparison = 1;
+      }
+
+      return sortConfig.direction === 'asc' ? comparison : -comparison;
+    });
+  }, [entries, sortConfig]);
+
   if (!isLoading && entries.length === 0) {
     return (
       <div className="w-full p-12 text-center bg-white border border-slate-200 rounded-xl border-dashed">
@@ -36,18 +79,50 @@ export const LedgerTable: React.FC<LedgerTableProps> = ({ entries, isLoading, on
     );
   }
 
+  const SortHeader = ({ label, columnKey }: { label: string; columnKey: SortKey }) => {
+    const isActive = sortConfig.key === columnKey;
+    const isAsc = sortConfig.direction === 'asc';
+
+    return (
+      <th 
+        className="px-6 py-3 bg-slate-50 text-xs uppercase tracking-wider font-semibold cursor-pointer group/th select-none hover:bg-slate-100 transition-colors"
+        onClick={() => handleSort(columnKey)}
+      >
+        <div className={`flex items-center gap-1.5 ${isActive ? 'text-indigo-600' : 'text-slate-500'}`}>
+          {label}
+          <div className="flex flex-col">
+             {/* Up Arrow */}
+             <svg 
+               className={`w-2 h-2 ${isActive && isAsc ? 'text-indigo-600' : 'text-slate-300'} ${!isActive && 'group-hover/th:text-slate-400'}`} 
+               fill="currentColor" viewBox="0 0 24 24"
+             >
+               <path d="M12 4l-8 8h16l-8-8z" />
+             </svg>
+             {/* Down Arrow */}
+             <svg 
+               className={`w-2 h-2 -mt-0.5 ${isActive && !isAsc ? 'text-indigo-600' : 'text-slate-300'} ${!isActive && 'group-hover/th:text-slate-400'}`} 
+               fill="currentColor" viewBox="0 0 24 24"
+             >
+               <path d="M12 20l8-8H4l8 8z" />
+             </svg>
+          </div>
+        </div>
+      </th>
+    );
+  };
+
   return (
     <div className="overflow-hidden bg-white border border-slate-200 rounded-xl shadow-sm">
       <div className="overflow-x-auto max-h-[600px] overflow-y-auto custom-scrollbar">
         <table className="min-w-full text-sm text-left relative border-collapse">
-          <thead className="bg-slate-50 text-slate-500 font-semibold border-b border-slate-200 sticky top-0 z-10 shadow-sm">
+          <thead className="bg-slate-50 border-b border-slate-200 sticky top-0 z-10 shadow-sm">
             <tr>
-              <th className="px-6 py-3 w-32 whitespace-nowrap bg-slate-50 text-xs uppercase tracking-wider">Due</th>
-              <th className="px-6 py-3 min-w-[200px] bg-slate-50 text-xs uppercase tracking-wider">Task</th>
-              <th className="px-6 py-3 w-32 bg-slate-50 text-xs uppercase tracking-wider">Project</th>
-              <th className="px-6 py-3 w-28 bg-slate-50 text-xs uppercase tracking-wider">Priority</th>
-              <th className="px-6 py-3 w-32 bg-slate-50 text-xs uppercase tracking-wider">Status</th>
-              <th className="px-6 py-3 w-24 text-right bg-slate-50 text-xs uppercase tracking-wider">Actions</th>
+              <SortHeader label="Due" columnKey="date" />
+              <SortHeader label="Task" columnKey="description" />
+              <SortHeader label="Project" columnKey="project" />
+              <SortHeader label="Priority" columnKey="priority" />
+              <SortHeader label="Status" columnKey="status" />
+              <th className="px-6 py-3 w-24 text-right bg-slate-50 text-xs uppercase tracking-wider text-slate-500 font-semibold">Actions</th>
             </tr>
           </thead>
           
@@ -55,7 +130,7 @@ export const LedgerTable: React.FC<LedgerTableProps> = ({ entries, isLoading, on
             <TableSkeleton />
           ) : (
             <tbody className="divide-y divide-slate-100">
-              {entries.map((entry, idx) => (
+              {sortedEntries.map((entry, idx) => (
                 <tr key={entry.id || `row-${idx}`} className={`group hover:bg-slate-50/80 transition-colors ${entry.status === 'Done' ? 'opacity-60 bg-slate-50/50' : ''}`}>
                   <td className="px-6 py-3 font-mono text-slate-500 whitespace-nowrap text-xs">
                     {formatDate(entry.date)}

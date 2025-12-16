@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import ReactMarkdown from 'react-markdown';
 import { TaskEntry, PriorityLevel, StatusLevel } from '../types';
 import { formatDate, getProjectStyle, PRIORITY_COLORS, STATUS_COLORS } from '../constants';
 
@@ -138,13 +139,22 @@ export const LedgerTable: React.FC<LedgerTableProps> = ({
           ) : (
             <tbody className="divide-y divide-slate-100">
               {sortedEntries.map((entry, idx) => (
-                <tr key={entry.id || `row-${idx}`} className={`group hover:bg-slate-50/80 transition-colors ${entry.status === 'Done' ? 'opacity-60 bg-slate-50/50' : ''}`}>
+                <tr key={entry.id || `row-${idx}`} className={`group hover:bg-slate-50/80 transition-colors ${entry.status === 'Done' ? 'bg-slate-50/50' : ''}`}>
                   <td className="px-6 py-3 font-mono text-slate-500 whitespace-nowrap text-xs">
                     {formatDate(entry.date)}
                   </td>
                   <td className="px-6 py-3 text-slate-900 font-medium align-middle">
-                    <div className={entry.status === 'Done' ? 'line-through text-slate-500' : ''}>
-                        {entry.description}
+                    <div className={`prose prose-sm prose-slate max-w-none ${entry.status === 'Done' ? 'line-through text-slate-500 opacity-70' : ''}`}>
+                        <ReactMarkdown 
+                          allowedElements={['p', 'a', 'strong', 'em', 'code', 'br', 'span', 'del']}
+                          components={{
+                            a: ({node, ...props}) => <a {...props} className="text-indigo-600 hover:text-indigo-800 hover:underline cursor-pointer" target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} />,
+                            p: ({node, ...props}) => <p {...props} className="my-0 leading-normal" />,
+                            code: ({node, ...props}) => <code {...props} className="bg-slate-100 text-pink-600 px-1 py-0.5 rounded text-xs font-mono border border-slate-200" />
+                          }}
+                        >
+                            {entry.description}
+                        </ReactMarkdown>
                     </div>
                   </td>
                   <td className="px-6 py-3">

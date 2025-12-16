@@ -271,6 +271,7 @@ const App: React.FC = () => {
                    entries={filteredEntries}
                    onEdit={handleOpenEdit}
                    onStatusUpdate={handleStatusUpdate}
+                   onAdd={handleOpenCreate}
                  />
                )}
 

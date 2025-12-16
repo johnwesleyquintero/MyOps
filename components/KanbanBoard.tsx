@@ -7,9 +7,10 @@ interface KanbanBoardProps {
   entries: TaskEntry[];
   onEdit: (entry: TaskEntry) => void;
   onStatusUpdate: (entry: TaskEntry) => void;
+  onAdd: () => void;
 }
 
-export const KanbanBoard: React.FC<KanbanBoardProps> = ({ entries, onEdit, onStatusUpdate }) => {
+export const KanbanBoard: React.FC<KanbanBoardProps> = ({ entries, onEdit, onStatusUpdate, onAdd }) => {
   
   const columns = useMemo(() => {
     const cols: Record<StatusLevel, TaskEntry[]> = {
@@ -36,6 +37,7 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({ entries, onEdit, onSta
         tasks={columns['Backlog']} 
         colorClass="border-t-4 border-t-slate-400 bg-slate-50"
         onEdit={onEdit}
+        onAdd={onAdd}
       />
 
       {/* Column 2: In Progress */}
@@ -44,6 +46,7 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({ entries, onEdit, onSta
         tasks={columns['In Progress']} 
         colorClass="border-t-4 border-t-indigo-500 bg-indigo-50/30"
         onEdit={onEdit}
+        onAdd={onAdd}
       />
 
       {/* Column 3: Done */}
@@ -52,6 +55,7 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({ entries, onEdit, onSta
         tasks={columns['Done']} 
         colorClass="border-t-4 border-t-emerald-500 bg-emerald-50/30 opacity-80"
         onEdit={onEdit}
+        onAdd={onAdd}
         isDone
       />
     </div>
@@ -63,16 +67,26 @@ interface KanbanColumnProps {
   tasks: TaskEntry[];
   colorClass: string;
   onEdit: (entry: TaskEntry) => void;
+  onAdd: () => void;
   isDone?: boolean;
 }
 
-const KanbanColumn: React.FC<KanbanColumnProps> = ({ title, tasks, colorClass, onEdit, isDone }) => {
+const KanbanColumn: React.FC<KanbanColumnProps> = ({ title, tasks, colorClass, onEdit, onAdd, isDone }) => {
   return (
     <div className={`flex-1 min-w-[300px] flex flex-col rounded-xl border border-slate-200 shadow-sm overflow-hidden ${colorClass}`}>
       {/* Header */}
-      <div className="p-4 flex justify-between items-center bg-white/50 backdrop-blur-sm border-b border-slate-200/50">
-        <h3 className="font-bold text-slate-700 text-sm uppercase tracking-wider">{title}</h3>
-        <span className="bg-white px-2 py-0.5 rounded-full text-xs font-mono text-slate-500 border border-slate-200 shadow-sm">{tasks.length}</span>
+      <div className="p-3 flex justify-between items-center bg-white/50 backdrop-blur-sm border-b border-slate-200/50">
+        <div className="flex items-center gap-2">
+           <h3 className="font-bold text-slate-700 text-sm uppercase tracking-wider">{title}</h3>
+           <span className="bg-white px-2 py-0.5 rounded-full text-xs font-mono text-slate-500 border border-slate-200 shadow-sm">{tasks.length}</span>
+        </div>
+        <button 
+           onClick={onAdd}
+           className="p-1 hover:bg-slate-200/50 rounded text-slate-400 hover:text-slate-600 transition-colors"
+           title="Add Task"
+        >
+           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" /></svg>
+        </button>
       </div>
 
       {/* Content */}
@@ -109,9 +123,15 @@ const KanbanColumn: React.FC<KanbanColumnProps> = ({ title, tasks, colorClass, o
           </div>
         ))}
         {tasks.length === 0 && (
-          <div className="h-24 flex items-center justify-center border-2 border-dashed border-slate-200 rounded-lg">
-            <span className="text-xs text-slate-400 font-medium">Empty</span>
-          </div>
+          <button 
+             onClick={onAdd}
+             className="w-full h-24 flex flex-col items-center justify-center border-2 border-dashed border-slate-200 rounded-lg group hover:border-indigo-300 hover:bg-white/50 transition-all"
+          >
+            <span className="text-slate-400 group-hover:text-indigo-500 mb-1">
+               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" /></svg>
+            </span>
+            <span className="text-xs text-slate-400 font-medium group-hover:text-indigo-600">Create Task</span>
+          </button>
         )}
       </div>
     </div>

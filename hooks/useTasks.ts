@@ -1,4 +1,3 @@
-
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { TaskEntry, AppConfig, NotificationAction } from '../types';
 import { fetchTasks, addTask, updateTask, deleteTask } from '../services/taskService';
@@ -12,7 +11,7 @@ export const useTasks = (
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
   // Track pending deletions to prevent them from reappearing during background fetches
-  const pendingDeletions = useRef<Map<string, NodeJS.Timeout>>(new Map());
+  const pendingDeletions = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
 
   const loadData = useCallback(async () => {
     setIsLoading(true);

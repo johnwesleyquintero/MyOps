@@ -162,7 +162,7 @@ export const LedgerTable: React.FC<LedgerTableProps> = ({
     );
   }
 
-  const SortHeader = ({ col }: { col: ColumnConfig }) => {
+  const SortHeader: React.FC<{ col: ColumnConfig }> = ({ col }) => {
     const isActive = sortConfig.key === col.key;
     const isAsc = sortConfig.direction === 'asc';
     return (

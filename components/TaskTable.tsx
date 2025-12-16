@@ -1,6 +1,6 @@
-
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { TaskEntry, PriorityLevel, StatusLevel } from '../types';
 import { formatRelativeDate, getProjectStyle, PRIORITY_COLORS, PRIORITY_DOTS, STATUS_COLORS } from '../constants';
 
@@ -10,8 +10,9 @@ interface TaskTableProps {
   onEdit: (entry: TaskEntry) => void;
   onDelete: (entry: TaskEntry) => void;
   onStatusUpdate?: (entry: TaskEntry) => void;
+  onDescriptionUpdate?: (entry: TaskEntry, newDesc: string) => void;
   onFocus: (entry: TaskEntry) => void;
-  onDuplicate: (entry: TaskEntry) => void; // Added Prop
+  onDuplicate: (entry: TaskEntry) => void; 
   allEntries?: TaskEntry[]; 
   currency?: string;
   locale?: string;
@@ -59,6 +60,7 @@ export const TaskTable: React.FC<TaskTableProps> = ({
   onEdit, 
   onDelete, 
   onStatusUpdate,
+  onDescriptionUpdate,
   onFocus,
   onDuplicate,
   allEntries = []
@@ -171,6 +173,41 @@ export const TaskTable: React.FC<TaskTableProps> = ({
       };
   };
 
+  // Checklist Toggle Logic
+  const handleChecklistToggle = (entry: TaskEntry, checkboxIndex: number) => {
+    if (!onDescriptionUpdate) return;
+
+    const regex = /^(\s*[-*]\s*)\[([ x])\]/gm;
+    let match;
+    let matchIndex = 0;
+    
+    // We need to find the Nth checkbox match in the raw string
+    // and flip it.
+    
+    // Reconstruct string manually to avoid tricky regex replace issues with global flag
+    const text = entry.description;
+    const lines = text.split('\n');
+    let currentCheckbox = 0;
+    
+    const newLines = lines.map(line => {
+        const checkboxMatch = line.match(/^(\s*[-*]\s*)\[([ x])\]/);
+        if (checkboxMatch) {
+            if (currentCheckbox === checkboxIndex) {
+                const isChecked = checkboxMatch[2] === 'x';
+                const newStatus = isChecked ? ' ' : 'x';
+                // Replace only the first occurrence of the bracket part in this line
+                // to avoid messing up if they typed weird stuff later in the line
+                currentCheckbox++;
+                return line.replace(`[${checkboxMatch[2]}]`, `[${newStatus}]`);
+            }
+            currentCheckbox++;
+        }
+        return line;
+    });
+
+    onDescriptionUpdate(entry, newLines.join('\n'));
+  };
+
   if (!isLoading && entries.length === 0) {
     return (
       <div className="w-full flex flex-col items-center justify-center py-20 bg-white border border-slate-200 rounded-xl border-dashed">
@@ -185,7 +222,7 @@ export const TaskTable: React.FC<TaskTableProps> = ({
     );
   }
 
-  const SortHeader = ({ col }: { col: ColumnConfig }) => {
+  const SortHeader: React.FC<{ col: ColumnConfig }> = ({ col }) => {
     const isActive = sortConfig.key === col.key;
     const isAsc = sortConfig.direction === 'asc';
     return (
@@ -211,28 +248,55 @@ export const TaskTable: React.FC<TaskTableProps> = ({
         return <span className={`font-mono text-xs whitespace-nowrap ${dateInfo.colorClass}`}>{dateInfo.text}</span>;
       case 'description':
         const depStatus = getDependencyStatus(entry);
+        
+        // Counter for checkboxes in this specific cell render
+        let checkboxCounter = 0;
+
         return (
           <div className="flex items-start gap-2">
             <div 
-                className={`prose prose-sm max-w-none line-clamp-2 overflow-hidden ${entry.status === 'Done' ? 'opacity-50 line-through text-slate-400' : 'text-slate-700'} cursor-pointer hover:text-indigo-700 transition-colors`}
-                onClick={() => onEdit(entry)}
-                title="Click to edit"
+                className={`prose prose-sm max-w-none line-clamp-2 overflow-hidden ${entry.status === 'Done' ? 'opacity-50 line-through text-slate-400' : 'text-slate-700'} transition-colors relative`}
+                title="Click to edit (or click checkboxes)"
             >
-                <ReactMarkdown 
-                components={{
-                    a: ({node, ...props}) => <a {...props} className="text-indigo-600 pointer-events-none" />,
-                    p: ({node, ...props}) => <span {...props} className="mr-1" />,
-                    strong: ({node, ...props}) => <strong {...props} className="font-bold text-slate-900" />,
-                    em: ({node, ...props}) => <em {...props} className="italic text-slate-600" />,
-                    code: ({node, ...props}) => <code {...props} className="bg-slate-100 text-slate-600 border border-slate-200 px-1 py-0.5 rounded text-[10px] font-mono" />,
-                    h1: ({node, ...props}) => <strong {...props} className="block text-slate-900 font-bold" />,
-                    h2: ({node, ...props}) => <strong {...props} className="block text-slate-900 font-bold" />,
-                    ul: ({node, ...props}) => <span {...props} />,
-                    li: ({node, ...props}) => <span {...props} className="after:content-[',_'] last:after:content-none" />,
-                }}
-                >
-                    {entry.description}
-                </ReactMarkdown>
+                {/* 
+                  We handle clicks carefully here. 
+                  Checkboxes stopPropagation to allow toggling.
+                  The background div handles the "Edit" click.
+                */}
+                <div onClick={() => onEdit(entry)} className="absolute inset-0 cursor-pointer z-0"></div>
+
+                <div className="relative z-10 pointer-events-none">
+                    <ReactMarkdown 
+                    remarkPlugins={[remarkGfm]}
+                    components={{
+                        a: ({node, ...props}) => <a {...props} className="text-indigo-600 pointer-events-auto cursor-pointer hover:underline" onClick={e => e.stopPropagation()} target="_blank" />,
+                        p: ({node, ...props}) => <span {...props} className="mr-1" />,
+                        strong: ({node, ...props}) => <strong {...props} className="font-bold text-slate-900" />,
+                        em: ({node, ...props}) => <em {...props} className="italic text-slate-600" />,
+                        code: ({node, ...props}) => <code {...props} className="bg-slate-100 text-slate-600 border border-slate-200 px-1 py-0.5 rounded text-[10px] font-mono" />,
+                        ul: ({node, ...props}) => <span {...props} />,
+                        li: ({node, ...props}) => <span {...props} className="after:content-[',_'] last:after:content-none" />,
+                        // Custom Checkbox Renderer
+                        input: (props) => {
+                            if (props.type === 'checkbox') {
+                                const index = checkboxCounter++;
+                                return (
+                                    <input 
+                                        type="checkbox" 
+                                        checked={props.checked} 
+                                        onChange={() => handleChecklistToggle(entry, index)}
+                                        onClick={(e) => e.stopPropagation()}
+                                        className="mx-1 mt-0.5 align-middle rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 w-3.5 h-3.5 cursor-pointer pointer-events-auto"
+                                    />
+                                );
+                            }
+                            return <input {...props} />;
+                        }
+                    }}
+                    >
+                        {entry.description}
+                    </ReactMarkdown>
+                </div>
             </div>
             {depStatus && (
                 <div 
@@ -323,7 +387,7 @@ export const TaskTable: React.FC<TaskTableProps> = ({
             <thead className="bg-slate-50 border-b border-slate-200 sticky top-0 z-10 shadow-sm">
               <tr>
                 {visibleColumns.map(col => <SortHeader key={col.key} col={col} />)}
-                <th className="px-6 py-3 w-28 text-right bg-slate-50 text-[11px] uppercase tracking-widest text-slate-500 font-bold sticky right-0 shadow-[inset_1px_0_0_0_rgba(226,232,240,0.5)]"></th>
+                <th className="px-6 py-3 w-16 text-right bg-slate-50 text-[11px] uppercase tracking-widest text-slate-500 font-bold sticky right-0 shadow-[inset_1px_0_0_0_rgba(226,232,240,0.5)]"></th>
               </tr>
             </thead>
             

@@ -188,6 +188,14 @@ const App: React.FC = () => {
      setEditingEntry(null);
   };
 
+  // Direct Update Handler for Interactive Markdown (Checkboxes)
+  const handleDescriptionUpdate = async (entry: TaskEntry, newDescription: string) => {
+    const updatedEntry = { ...entry, description: newDescription };
+    // Pass true for isUpdate, and trigger save without toast if preferred, or with toast.
+    // We use the existing saveTransaction which handles optimistic UI.
+    await saveTransaction(updatedEntry, true);
+  };
+
   const handleStatusUpdate = async (entry: TaskEntry) => {
     const currentIndex = STATUSES.indexOf(entry.status);
     const nextIndex = (currentIndex + 1) % STATUSES.length;
@@ -327,6 +335,7 @@ const App: React.FC = () => {
                         onEdit={handleOpenEdit}
                         onDelete={handleModalDelete}
                         onStatusUpdate={handleStatusUpdate}
+                        onDescriptionUpdate={handleDescriptionUpdate}
                         onFocus={handleEnterFocus}
                         onDuplicate={handleDuplicate}
                         allEntries={entries} 
@@ -407,6 +416,7 @@ const App: React.FC = () => {
                    onEdit={handleOpenEdit}
                    onDelete={handleModalDelete}
                    onStatusUpdate={handleStatusUpdate}
+                   onDescriptionUpdate={handleDescriptionUpdate}
                    onFocus={handleEnterFocus}
                    onDuplicate={handleDuplicate}
                    allEntries={entries}

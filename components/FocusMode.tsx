@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { TaskEntry } from '../types';
@@ -22,7 +21,7 @@ export const FocusMode: React.FC<FocusModeProps> = ({ task, onExit, onUpdate, on
   // Audio Ref (Optional: Add a beep sound later)
   
   useEffect(() => {
-    let interval: NodeJS.Timeout;
+    let interval: ReturnType<typeof setTimeout>;
 
     if (isActive && timeLeft > 0) {
       interval = setInterval(() => {

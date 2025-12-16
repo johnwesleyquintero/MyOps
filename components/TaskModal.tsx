@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { TaskEntry, TaskTemplate } from '../types';
 import { DEFAULT_PROJECTS, PRIORITIES, STATUSES, PRIORITY_COLORS, STATUS_COLORS, RECURRENCE_OPTIONS, TEMPLATE_STORAGE_KEY } from '../constants';
 
@@ -9,7 +10,7 @@ interface TaskModalProps {
   onClose: () => void;
   onSubmit: (entry: TaskEntry) => Promise<void>;
   onDelete: (entry: TaskEntry) => Promise<void>;
-  onDuplicate: (entry: TaskEntry) => void; // Added Prop
+  onDuplicate: (entry: TaskEntry) => void; 
   initialData?: TaskEntry | null;
   isSubmitting: boolean;
   entries: TaskEntry[]; 
@@ -369,10 +370,12 @@ export const TaskModal: React.FC<TaskModalProps> = ({
                      <div className="w-full min-h-[300px] px-4 py-3 bg-white text-sm text-slate-700 overflow-y-auto prose prose-sm max-w-none">
                         {formData.description ? (
                           <ReactMarkdown 
+                            remarkPlugins={[remarkGfm]}
                             components={{
                               a: ({node, ...props}) => <a {...props} className="text-indigo-600 underline" target="_blank" rel="noopener noreferrer" />,
                               ul: ({node, ...props}) => <ul {...props} className="list-disc list-inside" />,
                               ol: ({node, ...props}) => <ol {...props} className="list-decimal list-inside" />,
+                              input: (props) => <input type="checkbox" checked={props.checked} readOnly className="mx-1 mt-0.5 align-middle rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 w-3.5 h-3.5" />
                             }}
                           >
                              {formData.description}

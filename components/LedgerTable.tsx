@@ -193,12 +193,22 @@ export const LedgerTable: React.FC<LedgerTableProps> = ({
         return <span className="font-mono text-slate-500 whitespace-nowrap text-xs">{formatDate(entry.date)}</span>;
       case 'description':
         return (
-          <div className={`prose prose-sm prose-slate max-w-none ${entry.status === 'Done' ? 'line-through text-slate-500 opacity-70' : ''}`}>
+          <div className={`prose prose-sm max-w-none ${entry.status === 'Done' ? 'opacity-50' : 'text-slate-600'}`}>
             <ReactMarkdown 
               components={{
-                a: ({node, ...props}) => <a {...props} className="text-indigo-600 hover:text-indigo-800 hover:underline cursor-pointer" target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} />,
-                p: ({node, ...props}) => <p {...props} className="my-0 leading-normal" />,
-                code: ({node, ...props}) => <code {...props} className="bg-slate-100 text-pink-600 px-1 py-0.5 rounded text-xs font-mono border border-slate-200" />,
+                a: ({node, ...props}) => (
+                  <a 
+                    {...props} 
+                    className="text-indigo-600 hover:text-indigo-800 hover:underline font-medium cursor-pointer transition-colors" 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    onClick={(e) => e.stopPropagation()} 
+                  />
+                ),
+                p: ({node, ...props}) => <p {...props} className="my-0 leading-relaxed" />,
+                strong: ({node, ...props}) => <strong {...props} className="font-bold text-slate-800" />,
+                em: ({node, ...props}) => <em {...props} className="italic text-slate-700" />,
+                code: ({node, ...props}) => <code {...props} className="bg-slate-100 text-pink-600 px-1.5 py-0.5 rounded text-xs font-mono border border-slate-200" />,
                 // Block element overrides to keep table compact
                 ul: ({node, ...props}) => <ul {...props} className="list-disc list-inside my-1 pl-1" />,
                 ol: ({node, ...props}) => <ol {...props} className="list-decimal list-inside my-1 pl-1" />,
@@ -208,7 +218,7 @@ export const LedgerTable: React.FC<LedgerTableProps> = ({
                 h3: ({node, ...props}) => <strong {...props} className="block text-slate-800 font-medium text-sm my-1" />,
                 h4: ({node, ...props}) => <strong {...props} className="block text-slate-800 font-medium text-sm my-1" />,
                 blockquote: ({node, ...props}) => <blockquote {...props} className="border-l-2 border-slate-300 pl-2 text-slate-500 italic my-1" />,
-                pre: ({node, ...props}) => <div {...props} className="my-1" /> // Prevent pre from breaking layout, code handles styling
+                pre: ({node, ...props}) => <div {...props} className="my-1" />
               }}
             >
                 {entry.description}

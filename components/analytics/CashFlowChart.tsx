@@ -1,9 +1,9 @@
 import React, { useMemo } from 'react';
-import { LedgerEntry } from '../../types';
+import { TaskEntry } from '../../types';
 import { calculateDailyTrend, generateSVGPoints, generateAreaPath } from '../../utils/analyticsUtils';
 
 interface CashFlowChartProps {
-  entries: LedgerEntry[];
+  entries: TaskEntry[];
 }
 
 export const CashFlowChart: React.FC<CashFlowChartProps> = ({ entries }) => {
@@ -20,8 +20,8 @@ export const CashFlowChart: React.FC<CashFlowChartProps> = ({ entries }) => {
   return (
     <div className="lg:col-span-2 bg-white border border-slate-200 rounded p-5 shadow-sm flex flex-col justify-between">
        <div className="flex justify-between items-center mb-4">
-           <h3 className="text-slate-500 text-xs font-semibold uppercase tracking-wider">Cash Flow Trend</h3>
-           <span className="text-xs text-slate-400 font-mono">Current View</span>
+           <h3 className="text-slate-500 text-xs font-semibold uppercase tracking-wider">Task Volume Trend</h3>
+           <span className="text-xs text-slate-400 font-mono">Daily Activity</span>
        </div>
        
        <div className="relative w-full h-[150px] overflow-hidden">
@@ -47,8 +47,8 @@ export const CashFlowChart: React.FC<CashFlowChartProps> = ({ entries }) => {
            </svg>
        </div>
        <div className="flex justify-between mt-2 text-[10px] text-slate-400 font-mono">
-          <span>{chartData[0]?.date}</span>
-          <span>{chartData[chartData.length-1]?.date}</span>
+          <span>{chartData[0]?.date || '-'}</span>
+          <span>{chartData[chartData.length-1]?.date || '-'}</span>
        </div>
     </div>
   );

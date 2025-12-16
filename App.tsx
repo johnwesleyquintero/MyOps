@@ -2,7 +2,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { TaskEntry, AppConfig, Page } from './types';
 import { SummaryCards } from './components/SummaryCards';
-import { LedgerTable } from './components/LedgerTable';
+import { TaskTable } from './components/TaskTable';
 import { KanbanBoard } from './components/KanbanBoard';
 import { GanttChart } from './components/GanttChart';
 import { TaskModal } from './components/TaskModal';
@@ -12,12 +12,12 @@ import { ToastContainer } from './components/Toast';
 import { Header } from './components/Header';
 import { Sidebar } from './components/Sidebar'; 
 import { ConfirmationModal } from './components/ConfirmationModal';
-import { ShortcutsModal } from './components/ShortcutsModal'; // New
-import { useLedger } from './hooks/useLedger';
-import { useLedgerAnalytics } from './hooks/useLedgerAnalytics';
+import { ShortcutsModal } from './components/ShortcutsModal'; 
+import { useTasks } from './hooks/useTasks';
+import { useTaskAnalytics } from './hooks/useTaskAnalytics';
 import { useAppConfig } from './hooks/useAppConfig';
 import { useNotifications } from './hooks/useNotifications';
-import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts'; // New
+import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts'; 
 import { generateAndDownloadCSV } from './utils/exportUtils';
 import { DEFAULT_PROJECTS, STATUSES } from './constants';
 
@@ -112,9 +112,9 @@ const App: React.FC = () => {
     saveTransaction, 
     removeTransaction, 
     bulkRemoveTransactions 
-  } = useLedger(config, showToast);
+  } = useTasks(config, showToast);
 
-  const { filteredEntries, metrics } = useLedgerAnalytics({
+  const { filteredEntries, metrics } = useTaskAnalytics({
     entries,
     searchQuery,
     selectedCategory,
@@ -228,7 +228,7 @@ const App: React.FC = () => {
                      </button>
                   </div>
                   <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
-                     <LedgerTable 
+                     <TaskTable 
                         entries={dashboardTasks}
                         isLoading={isLoading}
                         onEdit={handleOpenEdit}
@@ -305,7 +305,7 @@ const App: React.FC = () => {
                />
 
                {viewMode === 'TABLE' && (
-                 <LedgerTable 
+                 <TaskTable 
                    entries={filteredEntries} 
                    isLoading={isLoading} 
                    onEdit={handleOpenEdit}

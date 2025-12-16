@@ -1,9 +1,8 @@
 
-
 export type PriorityLevel = 'High' | 'Medium' | 'Low';
 export type StatusLevel = 'Backlog' | 'In Progress' | 'Done';
 
-export type Page = 'DASHBOARD' | 'MISSIONS' | 'SETTINGS'; // New navigation state
+export type Page = 'DASHBOARD' | 'MISSIONS' | 'SETTINGS';
 
 export interface TaskEntry {
   id: string;         // UUID
@@ -15,16 +14,7 @@ export interface TaskEntry {
   createdAt?: string; // ISO Timestamp
 }
 
-// Added to support legacy analytics components
-export interface LedgerEntry {
-  id?: string;
-  date: string;
-  description: string;
-  amount: number | string;
-  category?: string;
-}
-
-export interface LedgerState {
+export interface TaskState {
   entries: TaskEntry[];
   isLoading: boolean;
   error: string | null;
@@ -36,7 +26,7 @@ export interface AppConfig {
   gasDeploymentUrl: string;
   apiToken: string; // The Shared Secret
   locale: string;   // e.g. 'en-US'
-  currency?: string; // Added to fix useAppConfig error
+  currency?: string; 
 }
 
 export interface MetricSummary {

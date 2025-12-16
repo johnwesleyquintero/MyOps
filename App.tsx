@@ -12,10 +12,12 @@ import { ToastContainer } from './components/Toast';
 import { Header } from './components/Header';
 import { Sidebar } from './components/Sidebar'; 
 import { ConfirmationModal } from './components/ConfirmationModal';
+import { ShortcutsModal } from './components/ShortcutsModal'; // New
 import { useLedger } from './hooks/useLedger';
 import { useLedgerAnalytics } from './hooks/useLedgerAnalytics';
 import { useAppConfig } from './hooks/useAppConfig';
 import { useNotifications } from './hooks/useNotifications';
+import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts'; // New
 import { generateAndDownloadCSV } from './utils/exportUtils';
 import { DEFAULT_PROJECTS, STATUSES } from './constants';
 
@@ -46,6 +48,7 @@ const App: React.FC = () => {
   };
 
   const [showSettings, setShowSettings] = useState<boolean>(false);
+  const [showShortcuts, setShowShortcuts] = useState<boolean>(false);
   const [isTaskModalOpen, setIsTaskModalOpen] = useState<boolean>(false);
   const [editingEntry, setEditingEntry] = useState<TaskEntry | null>(null);
   
@@ -56,6 +59,51 @@ const App: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [selectedStatus, setSelectedStatus] = useState<string>('');
   const [selectedMonth, setSelectedMonth] = useState<string>('');
+
+  // --- Keyboard Shortcuts Integration ---
+  useKeyboardShortcuts([
+    // Navigation
+    { key: 'g d', action: () => setActivePage('DASHBOARD') },
+    { key: 'g m', action: () => setActivePage('MISSIONS') },
+    
+    // Actions
+    { 
+      key: 'c', 
+      action: () => {
+        if (!isTaskModalOpen) {
+          setEditingEntry(null);
+          setIsTaskModalOpen(true);
+        }
+      } 
+    },
+    { 
+      key: '/', 
+      preventDefault: true, 
+      action: () => {
+        // Switch to Missions view if not there, then focus
+        if (activePage !== 'MISSIONS') setActivePage('MISSIONS');
+        // Small timeout to allow render if page changed
+        setTimeout(() => {
+          const searchInput = document.getElementById('global-search');
+          if (searchInput) searchInput.focus();
+        }, 50);
+      } 
+    },
+    { 
+      key: 'k',
+      metaKey: true,
+      preventDefault: true,
+      allowInInput: true,
+      action: () => {
+         if (activePage !== 'MISSIONS') setActivePage('MISSIONS');
+         setTimeout(() => {
+           const searchInput = document.getElementById('global-search');
+           if (searchInput) searchInput.focus();
+         }, 50);
+      }
+    },
+    { key: '?', action: () => setShowShortcuts(prev => !prev) },
+  ]);
 
   const { 
     entries, 
@@ -302,6 +350,11 @@ const App: React.FC = () => {
         onClose={() => setShowSettings(false)}
         config={config}
         onSave={handleSaveConfig}
+      />
+
+      <ShortcutsModal 
+        isOpen={showShortcuts}
+        onClose={() => setShowShortcuts(false)}
       />
 
       <ConfirmationModal

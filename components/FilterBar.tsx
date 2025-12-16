@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { STATUSES } from '../constants';
 
@@ -46,9 +47,10 @@ export const FilterBar: React.FC<FilterBarProps> = ({
           </svg>
         </div>
         <input
+          id="global-search"
           type="text"
           className="block w-full pl-10 pr-8 py-2 border border-slate-300 rounded-md leading-5 bg-slate-50 placeholder-slate-400 focus:outline-none focus:bg-white focus:border-slate-800 focus:ring-1 focus:ring-slate-800 sm:text-sm transition-all"
-          placeholder="Search descriptions..."
+          placeholder="Search descriptions... (/)"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
         />

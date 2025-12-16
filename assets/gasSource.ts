@@ -9,8 +9,8 @@ const SLACK_WEBHOOK_URL = ""; // <--- PASTE YOUR WEBHOOK URL HERE
  * 1. Paste your Slack Webhook URL above.
  * 2. Select 'testSlack' from the function dropdown menu in the toolbar.
  * 3. Click 'Run'. 
- * 4. Google will ask for permissions (Review Permissions > Allow).
- * 5. Check your Slack channel for a test message.
+ * 4. Google WILL ask for permissions. Click "Review Permissions" -> Choose Account -> Advanced -> Go to MyOps API (unsafe) -> Allow.
+ * 5. Check your Slack channel. You should see "🔌 System Check".
  * 6. Deploy > Manage Deployments > Edit > Version: New Version > Deploy.
  */
 
@@ -19,13 +19,27 @@ function testSlack() {
     Logger.log("❌ Error: SLACK_WEBHOOK_URL is empty.");
     return;
   }
+  
+  // 1. FORCE AUTH: This raw call forces Google to ask for permissions if missing.
+  // Because it is NOT in a try/catch block, the script will pause and request 'UrlFetchApp' access.
+  Logger.log("📡 Attempting connection to Slack...");
+  const check = UrlFetchApp.fetch(SLACK_WEBHOOK_URL, {
+    method: "post",
+    contentType: "application/json",
+    payload: JSON.stringify({ text: "🔌 System Check: Auth Validated" }),
+    muteHttpExceptions: true
+  });
+  
+  Logger.log("✅ Connection successful (Code: " + check.getResponseCode() + ")");
+
+  // 2. Send the rich notification
   notifySlack("create", {
     description: "System Connection Test",
     project: "MyOps",
     priority: "High",
     status: "Active"
   });
-  Logger.log("✅ Test sent. Check your Slack.");
+  Logger.log("✅ Rich notification sent.");
 }
 
 function doGet(e) {
@@ -243,9 +257,7 @@ function notifySlack(action, entry) {
       muteHttpExceptions: true
     };
     
-    const resp = UrlFetchApp.fetch(SLACK_WEBHOOK_URL, options);
-    Logger.log("Slack Response Code: " + resp.getResponseCode());
-    Logger.log("Slack Response Body: " + resp.getContentText());
+    UrlFetchApp.fetch(SLACK_WEBHOOK_URL, options);
     
   } catch (err) {
     Logger.log("Slack notification failed: " + err);

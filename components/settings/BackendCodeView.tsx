@@ -17,7 +17,7 @@ export const BackendCodeView: React.FC = () => {
         <h4 className="font-bold text-amber-900 uppercase tracking-wide">Deployment Checklist</h4>
         <ol className="list-decimal list-inside space-y-1 ml-1 text-amber-800/90">
           <li><strong>Set Variables:</strong> Update <code>API_SECRET</code> and <code>SLACK_WEBHOOK_URL</code> at the top.</li>
-          <li><strong>Authorize Slack:</strong> Select the <code>testSlack</code> function in the editor toolbar and click <strong>Run</strong>. Google will ask for permissions.</li>
+          <li><strong>Authorize Slack (Critical):</strong> Select the <code>testSlack</code> function in the editor toolbar and click <strong>Run</strong>. <br/><span className="ml-5 font-bold text-amber-900">You MUST accept the permissions popup.</span></li>
           <li><strong>Deploy New Version:</strong> Go to <strong>Deploy &gt; Manage Deployments</strong>. Click the pencil icon (Edit), select <strong>New Version</strong>, and click <strong>Deploy</strong>.</li>
           <li><strong>Copy URL:</strong> Ensure the Web App URL hasn't changed (it shouldn't if you edit the existing deployment).</li>
         </ol>

@@ -5,6 +5,7 @@ interface UseLedgerAnalyticsProps {
   entries: TaskEntry[];
   searchQuery: string;
   selectedCategory: string; // "Project"
+  selectedStatus: string;
   selectedMonth: string;
 }
 
@@ -12,6 +13,7 @@ export const useLedgerAnalytics = ({
   entries,
   searchQuery,
   selectedCategory,
+  selectedStatus,
   selectedMonth,
 }: UseLedgerAnalyticsProps) => {
   
@@ -19,13 +21,14 @@ export const useLedgerAnalytics = ({
     return entries.filter(entry => {
       const matchesSearch = entry.description.toLowerCase().includes(searchQuery.toLowerCase());
       const matchesProject = selectedCategory ? entry.project === selectedCategory : true;
+      const matchesStatus = selectedStatus ? entry.status === selectedStatus : true;
       let matchesMonth = true;
       if (selectedMonth) {
         matchesMonth = entry.date.startsWith(selectedMonth);
       }
-      return matchesSearch && matchesProject && matchesMonth;
+      return matchesSearch && matchesProject && matchesStatus && matchesMonth;
     });
-  }, [entries, searchQuery, selectedCategory, selectedMonth]);
+  }, [entries, searchQuery, selectedCategory, selectedStatus, selectedMonth]);
 
   const metrics: MetricSummary = useMemo(() => {
     return filteredEntries.reduce((acc, curr) => {

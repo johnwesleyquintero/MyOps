@@ -1,10 +1,13 @@
 import React from 'react';
+import { STATUSES } from '../constants';
 
 interface FilterBarProps {
   searchQuery: string;
   setSearchQuery: (query: string) => void;
   selectedCategory: string;
   setSelectedCategory: (category: string) => void;
+  selectedStatus: string;
+  setSelectedStatus: (status: string) => void;
   selectedMonth: string;
   setSelectedMonth: (month: string) => void;
   availableCategories: string[];
@@ -15,6 +18,8 @@ export const FilterBar: React.FC<FilterBarProps> = ({
   setSearchQuery, 
   selectedCategory, 
   setSelectedCategory,
+  selectedStatus,
+  setSelectedStatus,
   selectedMonth,
   setSelectedMonth,
   availableCategories
@@ -27,6 +32,8 @@ export const FilterBar: React.FC<FilterBarProps> = ({
     const newMonth = date.toISOString().slice(0, 7);
     setSelectedMonth(newMonth);
   };
+
+  const hasActiveFilters = searchQuery || selectedCategory || selectedStatus || (selectedMonth !== new Date().toISOString().slice(0, 7));
 
   return (
     <div className="flex flex-col lg:flex-row gap-4 mb-6 bg-white p-4 border border-slate-200 rounded-lg shadow-sm items-center">
@@ -60,7 +67,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
         </button>
         <input 
           type="month"
-          className="block w-full lg:w-40 px-3 py-2 text-base border-y border-slate-300 focus:outline-none focus:border-slate-500 sm:text-sm bg-white text-slate-700 font-mono text-center rounded-none z-10"
+          className="block w-full lg:w-32 px-2 py-2 text-base border-y border-slate-300 focus:outline-none focus:border-slate-500 sm:text-sm bg-white text-slate-700 font-mono text-center rounded-none z-10"
           value={selectedMonth}
           onChange={(e) => setSelectedMonth(e.target.value)}
         />
@@ -75,29 +82,55 @@ export const FilterBar: React.FC<FilterBarProps> = ({
         </button>
       </div>
 
-      {/* Category Dropdown */}
-      <div className="w-full lg:w-48 relative">
-        <select
-          className="block w-full pl-3 pr-10 py-2 text-base border border-slate-300 focus:outline-none focus:border-slate-800 focus:ring-1 focus:ring-slate-800 sm:text-sm rounded-md bg-slate-50 appearance-none transition-all"
-          value={selectedCategory}
-          onChange={(e) => setSelectedCategory(e.target.value)}
-        >
-          <option value="">All Categories</option>
-          {availableCategories.map((category) => (
-            <option key={category} value={category}>
-              {category}
-            </option>
-          ))}
-        </select>
-        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-500">
-          <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg>
+      <div className="flex gap-2 w-full lg:w-auto">
+        {/* Status Dropdown */}
+        <div className="w-1/2 lg:w-32 relative">
+            <select
+            className="block w-full pl-3 pr-8 py-2 text-base border border-slate-300 focus:outline-none focus:border-slate-800 focus:ring-1 focus:ring-slate-800 sm:text-sm rounded-md bg-slate-50 appearance-none transition-all"
+            value={selectedStatus}
+            onChange={(e) => setSelectedStatus(e.target.value)}
+            >
+            <option value="">Status</option>
+            {STATUSES.map((status) => (
+                <option key={status} value={status}>
+                {status}
+                </option>
+            ))}
+            </select>
+            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-500">
+            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg>
+            </div>
+        </div>
+
+        {/* Category Dropdown */}
+        <div className="w-1/2 lg:w-40 relative">
+            <select
+            className="block w-full pl-3 pr-8 py-2 text-base border border-slate-300 focus:outline-none focus:border-slate-800 focus:ring-1 focus:ring-slate-800 sm:text-sm rounded-md bg-slate-50 appearance-none transition-all"
+            value={selectedCategory}
+            onChange={(e) => setSelectedCategory(e.target.value)}
+            >
+            <option value="">Project</option>
+            {availableCategories.map((category) => (
+                <option key={category} value={category}>
+                {category}
+                </option>
+            ))}
+            </select>
+            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-500">
+            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg>
+            </div>
         </div>
       </div>
 
       {/* Clear Button */}
-      {(searchQuery || selectedCategory || (selectedMonth !== new Date().toISOString().slice(0, 7))) && (
+      {hasActiveFilters && (
          <button
-           onClick={() => { setSearchQuery(''); setSelectedCategory(''); setSelectedMonth(new Date().toISOString().slice(0, 7)); }}
+           onClick={() => { 
+             setSearchQuery(''); 
+             setSelectedCategory(''); 
+             setSelectedStatus('');
+             setSelectedMonth(new Date().toISOString().slice(0, 7)); 
+           }}
            className="px-4 py-2 text-xs font-bold uppercase tracking-wider text-slate-500 hover:text-red-600 border border-transparent hover:border-red-200 hover:bg-red-50 rounded transition-all whitespace-nowrap"
          >
            Reset

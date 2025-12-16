@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { TaskEntry, AppConfig } from './types';
+import { TaskEntry, AppConfig, StatusLevel } from './types';
 import { SummaryCards } from './components/SummaryCards';
 import { LedgerTable } from './components/LedgerTable';
 import { TransactionForm } from './components/TransactionForm';
@@ -13,7 +13,7 @@ import { useLedgerAnalytics } from './hooks/useLedgerAnalytics';
 import { useAppConfig } from './hooks/useAppConfig';
 import { useNotifications } from './hooks/useNotifications';
 import { generateAndDownloadCSV } from './utils/exportUtils';
-import { DEFAULT_PROJECTS } from './constants';
+import { DEFAULT_PROJECTS, STATUSES } from './constants';
 
 const App: React.FC = () => {
   const { config, setConfig } = useAppConfig();
@@ -25,6 +25,7 @@ const App: React.FC = () => {
 
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [selectedCategory, setSelectedCategory] = useState<string>('');
+  const [selectedStatus, setSelectedStatus] = useState<string>('');
   const [selectedMonth, setSelectedMonth] = useState<string>('');
 
   const { 
@@ -40,6 +41,7 @@ const App: React.FC = () => {
     entries,
     searchQuery,
     selectedCategory,
+    selectedStatus,
     selectedMonth
   });
 
@@ -68,6 +70,18 @@ const App: React.FC = () => {
     if (window.confirm(`Delete task "${entry.description}"?`)) {
       await removeTransaction(entry);
     }
+  };
+
+  // Inline status cycling handler
+  const handleStatusUpdate = async (entry: TaskEntry) => {
+    const currentIndex = STATUSES.indexOf(entry.status);
+    const nextIndex = (currentIndex + 1) % STATUSES.length;
+    const nextStatus = STATUSES[nextIndex];
+    
+    const updatedEntry = { ...entry, status: nextStatus };
+    // Optimistic update handled by reload in saveTransaction, 
+    // but meant for quick interactions
+    await saveTransaction(updatedEntry, true);
   };
 
   const executeBulkDelete = async () => {
@@ -122,6 +136,8 @@ const App: React.FC = () => {
              setSearchQuery={setSearchQuery}
              selectedCategory={selectedCategory}
              setSelectedCategory={setSelectedCategory}
+             selectedStatus={selectedStatus}
+             setSelectedStatus={setSelectedStatus}
              selectedMonth={selectedMonth}
              setSelectedMonth={setSelectedMonth}
              availableCategories={availableCategories}
@@ -132,6 +148,7 @@ const App: React.FC = () => {
              isLoading={isLoading} 
              onEdit={handleEditClick}
              onDelete={handleDeleteClick}
+             onStatusUpdate={handleStatusUpdate}
            />
         </div>
       </main>

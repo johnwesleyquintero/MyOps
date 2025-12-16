@@ -7,6 +7,7 @@ interface LedgerTableProps {
   isLoading: boolean;
   onEdit: (entry: TaskEntry) => void;
   onDelete: (entry: TaskEntry) => void;
+  onStatusUpdate?: (entry: TaskEntry) => void; // New prop for inline update
   currency?: string;
   locale?: string;
 }
@@ -28,7 +29,13 @@ const TableSkeleton = () => (
   </tbody>
 );
 
-export const LedgerTable: React.FC<LedgerTableProps> = ({ entries, isLoading, onEdit, onDelete }) => {
+export const LedgerTable: React.FC<LedgerTableProps> = ({ 
+  entries, 
+  isLoading, 
+  onEdit, 
+  onDelete,
+  onStatusUpdate 
+}) => {
   const [sortConfig, setSortConfig] = useState<{ key: SortKey; direction: SortDirection }>({ 
     key: 'date', 
     direction: 'asc' 
@@ -152,9 +159,13 @@ export const LedgerTable: React.FC<LedgerTableProps> = ({ entries, isLoading, on
                       </div>
                   </td>
                   <td className="px-6 py-3">
-                    <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold border ${STATUS_COLORS[entry.status] || 'bg-slate-100'}`}>
+                    <button 
+                      onClick={() => onStatusUpdate && onStatusUpdate(entry)}
+                      className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold border cursor-pointer hover:shadow-sm transition-all active:scale-95 ${STATUS_COLORS[entry.status] || 'bg-slate-100'}`}
+                      title="Click to cycle status"
+                    >
                       {entry.status}
-                    </span>
+                    </button>
                   </td>
                   <td className="px-6 py-3 text-right">
                     <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-all duration-200">

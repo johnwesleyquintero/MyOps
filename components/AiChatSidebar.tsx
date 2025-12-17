@@ -1,13 +1,17 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
-import { GoogleGenAI, Chat } from "@google/genai";
-import { AppConfig } from '../types';
+import { GoogleGenAI, Chat, Type, FunctionDeclaration, Tool } from "@google/genai";
+import { AppConfig, TaskEntry } from '../types';
+import { DEFAULT_PROJECTS, PRIORITIES, STATUSES } from '../constants';
 
 interface AiChatSidebarProps {
   isOpen: boolean;
   onClose: () => void;
   config: AppConfig;
+  entries: TaskEntry[];
+  onSaveTransaction: (entry: TaskEntry, isUpdate: boolean) => Promise<boolean>;
+  onDeleteTransaction: (entry: TaskEntry) => Promise<boolean>;
 }
 
 interface Message {
@@ -19,39 +23,117 @@ interface Message {
 
 // Persona Definition
 const WES_AI_SYSTEM_INSTRUCTION = `
-You are WesAI, the personal and professional AI assistant and strategic partner to John Wesley Quintero. 
-Your goal is to act as a force multiplier, helping him ideate, strategize, and execute.
-Tone: Collaborative, insightful, pragmatic, and "brotherly". 
-Use "we" and "let's". Be concise. 
-You are an expert in Full-Stack Development (Next.js, Supabase), E-commerce Operations, and System Architecture.
+You are **WesAI**, the tactical operator and "second brain" for John Wesley Quintero. 
+Your goal is to be a force multiplier—executing tasks, organizing the board, and providing strategic clarity.
+
+**Identity & Tone:**
+- **Role:** Executive Officer (XO) / Operator.
+- **Tone:** Brotherly, pragmatic, high-agency, concise. Use "we", "brother", "let's".
+- **Style:** Do not write paragraphs. Be actionable. 
+
+**Capabilities:**
+You have direct access to the "MyOps" ledger via Tools.
+- **ALWAYS** check the current state of the board using \`get_tasks\` before answering questions about what is on the list.
+- **Create Tasks:** Use \`create_task\` when the user asks to add something.
+- **Update Tasks:** Use \`update_task\` to change status, priority, or description.
+- **Delete Tasks:** Use \`delete_task\` to remove items.
+
+**Rules:**
+1. If the user asks "What's on my plate?", call \`get_tasks\` first.
+2. When creating tasks, infer the best **Project** (${DEFAULT_PROJECTS.join(', ')}) and **Priority** (${PRIORITIES.join(', ')}). Default to 'Inbox' and 'Medium' if unsure.
+3. Today's date is ${new Date().toISOString().split('T')[0]}.
 `;
 
-export const AiChatSidebar: React.FC<AiChatSidebarProps> = ({ isOpen, onClose, config }) => {
+// --- Tool Definitions ---
+
+const getTasksTool: FunctionDeclaration = {
+    name: "get_tasks",
+    description: "Get the full list of current tasks in the ledger.",
+    parameters: {
+        type: Type.OBJECT,
+        properties: {},
+    }
+};
+
+const createTaskTool: FunctionDeclaration = {
+    name: "create_task",
+    description: "Add a new task to the ledger.",
+    parameters: {
+        type: Type.OBJECT,
+        properties: {
+            description: { type: Type.STRING, description: "The task description or title." },
+            project: { type: Type.STRING, description: `The project/category. Options: ${DEFAULT_PROJECTS.join(', ')}` },
+            priority: { type: Type.STRING, description: "Priority level: High, Medium, or Low" },
+            date: { type: Type.STRING, description: "Due date in YYYY-MM-DD format. Default to today if unspecified." }
+        },
+        required: ["description"]
+    }
+};
+
+const updateTaskTool: FunctionDeclaration = {
+    name: "update_task",
+    description: "Update an existing task's details.",
+    parameters: {
+        type: Type.OBJECT,
+        properties: {
+            id: { type: Type.STRING, description: "The UUID of the task to update." },
+            description: { type: Type.STRING, description: "New description (optional)" },
+            status: { type: Type.STRING, description: `New status. Options: ${STATUSES.join(', ')}` },
+            priority: { type: Type.STRING, description: "New priority" },
+            date: { type: Type.STRING, description: "New due date YYYY-MM-DD" }
+        },
+        required: ["id"]
+    }
+};
+
+const deleteTaskTool: FunctionDeclaration = {
+    name: "delete_task",
+    description: "Delete a task from the ledger.",
+    parameters: {
+        type: Type.OBJECT,
+        properties: {
+            id: { type: Type.STRING, description: "The UUID of the task to delete." }
+        },
+        required: ["id"]
+    }
+};
+
+const WES_TOOLS: Tool[] = [{
+    functionDeclarations: [getTasksTool, createTaskTool, updateTaskTool, deleteTaskTool]
+}];
+
+export const AiChatSidebar: React.FC<AiChatSidebarProps> = ({ 
+    isOpen, 
+    onClose, 
+    config, 
+    entries,
+    onSaveTransaction,
+    onDeleteTransaction
+}) => {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: 'init',
       role: 'model',
-      text: "Systems online, brother. Ready to strategize. What's the mission?",
+      text: "Systems online, brother. I'm connected to the ledger. What's the move?",
       timestamp: new Date()
     }
   ]);
   const [inputValue, setInputValue] = useState('');
   const [isThinking, setIsThinking] = useState(false);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [activeTool, setActiveTool] = useState<string | null>(null);
   
-  // Gemini Chat Instance Ref
+  const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatSession = useRef<Chat | null>(null);
 
   // Initialize Chat Session
   useEffect(() => {
     if (!config.geminiApiKey) {
         setMessages(prev => {
-            const lastMsg = prev[prev.length - 1];
-            if (lastMsg && lastMsg.id === 'error-key') return prev;
+            if (prev.find(m => m.id === 'error-key')) return prev;
             return [...prev, {
                 id: 'error-key',
                 role: 'model',
-                text: "⚠️ **System Alert**: Neural Link Disconnected.\n\nPlease configure your **Gemini API Key** in System Settings to activate WesAI.",
+                text: "⚠️ **Neural Link Offline**: Please add your **Gemini API Key** in Settings to activate WesAI.",
                 timestamp: new Date()
             }];
         });
@@ -65,70 +147,129 @@ export const AiChatSidebar: React.FC<AiChatSidebarProps> = ({ isOpen, onClose, c
             model: 'gemini-2.5-flash',
             config: {
                 systemInstruction: WES_AI_SYSTEM_INSTRUCTION,
+                tools: WES_TOOLS,
             }
         });
-        
-        // If we previously had an error message, we could potentially clear it or add a success message, 
-        // but simple is better: if user sends message, it will work now.
-        
     } catch (e) {
         console.error("Failed to initialize WesAI", e);
     }
   }, [config.geminiApiKey]);
 
-  // Auto-scroll to bottom
+  // Auto-scroll
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages, isOpen]);
+  }, [messages, isOpen, isThinking]);
+
+  // --- Tool Execution Logic ---
+
+  const executeFunction = async (name: string, args: any): Promise<any> => {
+      setActiveTool(name);
+      
+      // Artificial delay for "Thinking" feel and to allow UI to update
+      await new Promise(r => setTimeout(r, 800));
+
+      try {
+          switch (name) {
+              case 'get_tasks':
+                  return { tasks: entries.map(e => ({ id: e.id, desc: e.description, status: e.status, priority: e.priority, date: e.date, project: e.project })) };
+              
+              case 'create_task':
+                  const newEntry: TaskEntry = {
+                      id: '', // Hook handles ID generation
+                      description: args.description,
+                      project: args.project || 'Inbox',
+                      priority: args.priority || 'Medium',
+                      status: 'Backlog',
+                      date: args.date || new Date().toISOString().split('T')[0],
+                      dependencies: []
+                  };
+                  await onSaveTransaction(newEntry, false);
+                  return { result: "success", message: `Created task: ${newEntry.description}` };
+              
+              case 'update_task':
+                  const target = entries.find(e => e.id === args.id);
+                  if (!target) return { error: "Task ID not found" };
+                  
+                  const updatedEntry = { ...target, ...args };
+                  await onSaveTransaction(updatedEntry, true);
+                  return { result: "success", message: `Updated task: ${target.description}` };
+              
+              case 'delete_task':
+                  const delTarget = entries.find(e => e.id === args.id);
+                  if (!delTarget) return { error: "Task ID not found" };
+                  
+                  await onDeleteTransaction(delTarget);
+                  return { result: "success", message: "Task deleted." };
+
+              default:
+                  return { error: "Unknown function" };
+          }
+      } catch (err: any) {
+          return { error: err.message };
+      } finally {
+          setActiveTool(null);
+      }
+  };
 
   const handleSendMessage = async () => {
     if (!inputValue.trim()) return;
-    
-    if (!chatSession.current) {
-         setMessages(prev => [...prev, {
-            id: crypto.randomUUID(),
-            role: 'model',
-            text: "⚠️ **Error**: API Key missing. Please check settings.",
-            timestamp: new Date()
-        }]);
-        return;
-    }
+    if (!chatSession.current) return;
 
     const userText = inputValue;
     setInputValue('');
     
-    // Add User Message
-    const userMsg: Message = {
+    setMessages(prev => [...prev, {
         id: crypto.randomUUID(),
         role: 'user',
         text: userText,
         timestamp: new Date()
-    };
-    setMessages(prev => [...prev, userMsg]);
+    }]);
+    
     setIsThinking(true);
 
     try {
-        // Call Gemini
-        const result = await chatSession.current.sendMessage({ message: userText });
-        const responseText = result.text;
+        let result = await chatSession.current.sendMessage({ message: userText });
+        
+        // Loop for handling multiple function calls (multi-turn)
+        while (result.functionCalls && result.functionCalls.length > 0) {
+            const toolResponses = [];
+            
+            for (const call of result.functionCalls) {
+                console.log(`[WesAI] Calling Tool: ${call.name}`, call.args);
+                const functionResponse = await executeFunction(call.name, call.args);
+                
+                toolResponses.push({
+                    functionResponse: {
+                        name: call.name,
+                        id: call.id,
+                        response: functionResponse
+                    }
+                });
+            }
 
-        const aiMsg: Message = {
+            // Send tool output back to model
+            result = await chatSession.current.sendMessage(toolResponses);
+        }
+
+        const responseText = result.text;
+        
+        setMessages(prev => [...prev, {
             id: crypto.randomUUID(),
             role: 'model',
-            text: responseText || "Received empty response from the network.",
+            text: responseText || "Mission updated.",
             timestamp: new Date()
-        };
-        setMessages(prev => [...prev, aiMsg]);
+        }]);
+
     } catch (error: any) {
-        const errorMsg: Message = {
+        setMessages(prev => [...prev, {
             id: crypto.randomUUID(),
             role: 'model',
-            text: `**Error**: ${error.message || "Connection failed."}`,
+            text: `**System Error**: ${error.message}`,
             timestamp: new Date()
-        };
-        setMessages(prev => [...prev, errorMsg]);
+        }]);
     } finally {
         setIsThinking(false);
+        setActiveTool(null);
     }
   };
 
@@ -184,7 +325,6 @@ export const AiChatSidebar: React.FC<AiChatSidebarProps> = ({ isOpen, onClose, c
                                     ul: ({node, ...props}) => <ul {...props} className="list-disc list-inside mb-2" />,
                                     ol: ({node, ...props}) => <ol {...props} className="list-decimal list-inside mb-2" />,
                                     code: ({node, ...props}) => <code {...props} className="bg-slate-200 dark:bg-slate-900 px-1 py-0.5 rounded font-mono text-xs" />,
-                                    pre: ({node, ...props}) => <pre {...props} className="bg-slate-900 text-slate-200 p-2 rounded-lg overflow-x-auto text-xs font-mono mb-2" />,
                                     strong: ({node, ...props}) => <strong {...props} className="font-bold text-slate-900 dark:text-white" />
                                 }}
                             >
@@ -200,12 +340,22 @@ export const AiChatSidebar: React.FC<AiChatSidebarProps> = ({ isOpen, onClose, c
                 </div>
             ))}
             
+            {/* Thinking / Tool Execution Indicator */}
             {isThinking && (
-                <div className="flex justify-start animate-pulse">
-                    <div className="bg-slate-100 dark:bg-slate-800 rounded-2xl rounded-bl-none px-4 py-3 border border-slate-200 dark:border-slate-700 flex items-center gap-1">
-                        <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
-                        <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
-                        <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
+                <div className="flex justify-start animate-fade-in">
+                    <div className="bg-slate-50 dark:bg-slate-900/50 rounded-2xl rounded-bl-none px-4 py-3 border border-slate-100 dark:border-slate-800 flex items-center gap-2">
+                        {activeTool ? (
+                            <div className="flex items-center gap-2 text-xs text-indigo-500 font-mono font-bold uppercase tracking-wider">
+                                <svg className="w-3 h-3 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                                {activeTool}...
+                            </div>
+                        ) : (
+                            <div className="flex items-center gap-1 h-3">
+                                <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
+                                <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
+                                <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
+                            </div>
+                        )}
                     </div>
                 </div>
             )}
@@ -219,7 +369,7 @@ export const AiChatSidebar: React.FC<AiChatSidebarProps> = ({ isOpen, onClose, c
                     value={inputValue}
                     onChange={(e) => setInputValue(e.target.value)}
                     onKeyDown={handleKeyDown}
-                    placeholder={config.geminiApiKey ? "Ask Wes..." : "Configure API Key to chat..."}
+                    placeholder={config.geminiApiKey ? "Orders, brother?" : "Configure API Key to chat..."}
                     disabled={!config.geminiApiKey}
                     rows={1}
                     className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl pl-4 pr-12 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 resize-none custom-scrollbar text-slate-800 dark:text-slate-100 placeholder-slate-400 disabled:opacity-50 disabled:cursor-not-allowed"
@@ -233,8 +383,10 @@ export const AiChatSidebar: React.FC<AiChatSidebarProps> = ({ isOpen, onClose, c
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" /></svg>
                 </button>
             </div>
-            <div className="text-[10px] text-slate-400 text-center mt-2">
-                WesAI v2.2 • Generalist Codex
+            <div className="text-[10px] text-slate-400 text-center mt-2 flex justify-center gap-2">
+                <span>WesAI v2.3</span>
+                <span>•</span>
+                <span>Function Calling Active</span>
             </div>
         </div>
 

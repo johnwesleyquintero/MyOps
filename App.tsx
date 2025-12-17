@@ -476,6 +476,9 @@ const App: React.FC = () => {
         isOpen={isAiChatOpen}
         onClose={() => setIsAiChatOpen(false)}
         config={config}
+        entries={entries}
+        onSaveTransaction={saveTransaction}
+        onDeleteTransaction={removeTransaction}
       />
 
       <CommandPalette 

@@ -32,7 +32,7 @@ Your goal is to be a force multiplier—executing tasks, organizing the board, a
 - **Style:** Do not write paragraphs. Be actionable. 
 
 **Capabilities:**
-You have direct access to the "MyOps" ledger via Tools.
+You have direct access to the "MyOps" mission board via Tools.
 - **ALWAYS** check the current state of the board using \`get_tasks\` before answering questions about what is on the list.
 - **Create Tasks:** Use \`create_task\` when the user asks to add something.
 - **Update Tasks:** Use \`update_task\` to change status, priority, or description.
@@ -48,7 +48,7 @@ You have direct access to the "MyOps" ledger via Tools.
 
 const getTasksTool: FunctionDeclaration = {
     name: "get_tasks",
-    description: "Get the full list of current tasks in the ledger.",
+    description: "Get the full list of current tasks on the mission board.",
     parameters: {
         type: Type.OBJECT,
         properties: {},
@@ -57,7 +57,7 @@ const getTasksTool: FunctionDeclaration = {
 
 const createTaskTool: FunctionDeclaration = {
     name: "create_task",
-    description: "Add a new task to the ledger.",
+    description: "Add a new task to the board.",
     parameters: {
         type: Type.OBJECT,
         properties: {
@@ -88,7 +88,7 @@ const updateTaskTool: FunctionDeclaration = {
 
 const deleteTaskTool: FunctionDeclaration = {
     name: "delete_task",
-    description: "Delete a task from the ledger.",
+    description: "Delete a task from the board.",
     parameters: {
         type: Type.OBJECT,
         properties: {
@@ -114,7 +114,7 @@ export const AiChatSidebar: React.FC<AiChatSidebarProps> = ({
     {
       id: 'init',
       role: 'model',
-      text: "Systems online, brother. I'm connected to the ledger. What's the move?",
+      text: "Systems online, brother. I'm connected to the mission board. What's the move?",
       timestamp: new Date()
     }
   ]);
@@ -124,6 +124,22 @@ export const AiChatSidebar: React.FC<AiChatSidebarProps> = ({
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatSession = useRef<Chat | null>(null);
+
+  const startNewSession = () => {
+      if (!config.geminiApiKey) return;
+      try {
+        const ai = new GoogleGenAI({ apiKey: config.geminiApiKey });
+        chatSession.current = ai.chats.create({
+            model: 'gemini-2.5-flash',
+            config: {
+                systemInstruction: WES_AI_SYSTEM_INSTRUCTION,
+                tools: WES_TOOLS,
+            }
+        });
+      } catch (e) {
+        console.error("Failed to initialize WesAI", e);
+      }
+  };
 
   // Initialize Chat Session
   useEffect(() => {
@@ -141,24 +157,26 @@ export const AiChatSidebar: React.FC<AiChatSidebarProps> = ({
         return;
     }
 
-    try {
-        const ai = new GoogleGenAI({ apiKey: config.geminiApiKey });
-        chatSession.current = ai.chats.create({
-            model: 'gemini-2.5-flash',
-            config: {
-                systemInstruction: WES_AI_SYSTEM_INSTRUCTION,
-                tools: WES_TOOLS,
-            }
-        });
-    } catch (e) {
-        console.error("Failed to initialize WesAI", e);
-    }
+    startNewSession();
   }, [config.geminiApiKey]);
 
   // Auto-scroll
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isOpen, isThinking]);
+
+  // --- Reset Logic ---
+  const handleReset = () => {
+    setMessages([
+        {
+          id: crypto.randomUUID(),
+          role: 'model',
+          text: "Systems re-initialized. Ready for orders.",
+          timestamp: new Date()
+        }
+    ]);
+    startNewSession();
+  };
 
   // --- Tool Execution Logic ---
 
@@ -248,7 +266,7 @@ export const AiChatSidebar: React.FC<AiChatSidebarProps> = ({
             }
 
             // Send tool output back to model
-            result = await chatSession.current.sendMessage(toolResponses);
+            result = await chatSession.current.sendMessage({ message: toolResponses });
         }
 
         const responseText = result.text;
@@ -299,12 +317,21 @@ export const AiChatSidebar: React.FC<AiChatSidebarProps> = ({
                 <div className={`w-2 h-2 rounded-full ${config.geminiApiKey ? 'bg-indigo-500 animate-pulse' : 'bg-red-500'}`}></div>
                 <h2 className="font-bold text-slate-800 dark:text-slate-100 tracking-tight">WesAI <span className="text-slate-400 font-normal">Neural Link</span></h2>
             </div>
-            <button 
-                onClick={onClose}
-                className="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors"
-            >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
-            </button>
+            <div className="flex items-center gap-1">
+                <button 
+                    onClick={handleReset}
+                    className="p-2 text-slate-400 hover:text-indigo-500 rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors"
+                    title="Reset Chat"
+                >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+                </button>
+                <button 
+                    onClick={onClose}
+                    className="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors"
+                >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                </button>
+            </div>
         </div>
 
         {/* Chat Area */}

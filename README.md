@@ -14,33 +14,29 @@
 
 ### ⚡ Zero-Latency Core
 
-* Built on an **Optimistic UI** architecture: actions (create, update, delete) happen **instantly** in the interface while syncing to Google Sheets in the background.
-* No loading spinners. No waiting. Actions feel immediate.
+* Built on an **Optimistic UI** architecture: actions (create, update, delete) happen **instantly** while syncing in the background.
+* No spinners. No waiting. Immediate feedback.
 
 ### 🕸️ Execution Graph (Dependencies)
 
-* Tasks are no longer isolated. Link tasks to create **dependency chains**.
+* Link tasks to create **dependency chains**.
 * **Blocked tasks:** Red highlight
 * **Resolved tasks:** Gray indicator
-* Works seamlessly across **Table** and **Kanban** views.
+* Works across **Table** and **Kanban** views.
 
 ### 📝 Rich Intel (Markdown)
 
-* Task descriptions support full **Markdown syntax**: Bold, Italics, Lists, Code blocks.
-* **Toolbar:** One-click formatting tools
-* **Preview Mode:** Toggle between raw Markdown and rendered view
+* Full **Markdown support**: Bold, Italics, Lists, Code blocks.
+* **Toolbar:** One-click formatting
+* **Preview Mode:** Toggle raw/ rendered Markdown.
 
 ### 🔭 Mission Control Views
 
-Three operational lenses for maximum control:
-
-1. **Table:** High-density data view for bulk management
-2. **Kanban:** Flow state visualization for status tracking
-3. **Gantt:** 14-day rolling timeline view for temporal planning
+1. **Table:** Bulk management
+2. **Kanban:** Flow visualization
+3. **Gantt:** 14-day rolling timeline
 
 ### ⌨️ Keyboard Commands
-
-Power-user navigation without touching the mouse:
 
 | Shortcut  | Action                |
 | --------- | --------------------- |
@@ -54,55 +50,65 @@ Power-user navigation without touching the mouse:
 
 ## Sovereign Architecture
 
-MyOps uses **Google Apps Script** as a lightweight execution layer over Google Sheets. Each user deploys **their own script**, bound to **their own spreadsheet**.
-
-**There is no shared backend and no central database.**
+* Google Apps Script + Google Sheets = **fully sovereign, serverless execution**
+* **No shared backend. No central database.**
+* Each user deploys **their own script**, bound to **their own spreadsheet**.
 
 ### Data Ownership & Security
 
-* Data lives **only** in your Google Sheet.
-* Apps Script executes **under your Google account** (`Execute as: Me`).
+* Data lives **only** in your sheet.
+* Apps Script runs **under your Google account**.
 * **Best Practices:**
 
-  * Use **strong passwords** and **2FA** on your Google account
-  * Carefully manage sharing permissions
-  * Regularly backup your sheet if needed
+  * Strong passwords & 2FA
+  * Careful sharing permissions
+  * Backup sheets if needed
 
 ### Collaboration Model
 
-* Primarily a **solo operator tool**.
-* Multi-user collaboration is possible via **shared Google Sheets**, with each user running their own script.
-* Conflicts are minimized by **clear task ownership** and dependency logic.
+* Solo-operator friendly.
+* Multi-user collaboration possible via **shared sheets**, each with individual scripts.
+* Task ownership + dependency logic minimize conflicts.
 
 ---
 
-## Onboarding & Deployment
+## 🚀 Quick Deployment (Click & Go)
 
-Deploying MyOps is simple, even for non-technical users:
+Follow these steps to get MyOps running in your sheet:
 
-1. **Copy the Spreadsheet Template**
+1. **Open Apps Script**
 
-   * Pre-configured with required tables and headers.
+   * `Extensions → Apps Script` in your sheet.
+   * Open `Code.gs` and **paste the backend code**.
 
-2. **Deploy the Apps Script**
+2. **Set Your Variables**
 
-   * Follow step-by-step instructions to attach the script to your sheet.
-   * Optional: **One-click deploy script** (future update) to fully automate setup.
+   ```javascript
+   const API_SECRET = "YOUR_SECRET";
+   const SLACK_WEBHOOK_URL = "YOUR_WEBHOOK";
+   ```
 
-3. **Start Managing Tasks**
+3. **Authorize Slack (Critical)**
 
-   * Begin creating tasks immediately.
-   * Dependencies, views, and shortcuts work out-of-the-box.
+   * Select the function `testSlack` → **Run** → accept permissions.
 
-> **Tip:** Think of MyOps as your personal mission control — every task you create is instantly actionable, sovereign, and secure.
+4. **Deploy a New Version**
+
+   * `Deploy → Manage Deployments` → pencil icon → **New Version** → **Deploy**.
+
+5. **Copy Web App URL**
+
+   * Ensure it hasn’t changed (usually stable if editing existing deployment).
+
+> ✅ **Tip:** After deployment, check the modal in MyOps for additional setup instructions.
 
 ---
 
 ## Power-User Considerations
 
-* Google Apps Script has execution quotas. If you create thousands of tasks at once, the system may temporarily pause.
-* For advanced workflows, consider **splitting large projects across multiple sheets**.
-* Offline-first and optimistic updates ensure tasks **sync reliably**, even if your connection fluctuates.
+* Google Apps Script quotas exist; massive task volumes may pause execution temporarily.
+* For very large projects, split across multiple sheets.
+* Offline-first + optimistic UI ensures reliable sync even with intermittent connections.
 
 ---
 

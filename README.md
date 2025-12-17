@@ -5,6 +5,8 @@
 > **Architecture:** Serverless / Sovereign / Offline-First
 > **Cost:** $0.00 / month
 
+![System Architecture](https://chatgpt.com/backend-api/estuary/content?id=file_00000000a5dc71faaca5cebed10a83c1&ts=490538&p=fs&cid=1&sig=a05080a7741208f86f032f6c6ef58fe644e436d0f2e87245cccfbcc5bd190138&v=0)
+
 **MyOps** is a sovereign task execution system. It replaces complex project management SaaS with a lightweight, operator-grade interface backed by Google Sheets. It is designed for high-agency individuals who demand speed, ownership, and precision.
 
 ---

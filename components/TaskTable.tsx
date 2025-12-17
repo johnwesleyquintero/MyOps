@@ -1,9 +1,10 @@
-
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { TaskEntry, PriorityLevel, StatusLevel } from '../types';
 import { formatRelativeDate, getProjectStyle, PRIORITY_COLORS, PRIORITY_DOTS, STATUS_COLORS } from '../constants';
+import { useTableColumns, ColumnConfig, SortKey } from '../hooks/useTableColumns';
+import { processTextWithTags } from '../utils/textUtils';
 
 interface TaskTableProps {
   entries: TaskEntry[];
@@ -19,15 +20,7 @@ interface TaskTableProps {
   locale?: string;
 }
 
-type SortKey = 'date' | 'description' | 'project' | 'priority' | 'status';
 type SortDirection = 'asc' | 'desc';
-
-interface ColumnConfig {
-  key: SortKey;
-  label: string;
-  visible: boolean;
-  width?: string;
-}
 
 const DEFAULT_COLUMNS: ColumnConfig[] = [
   { key: 'date', label: 'Due', visible: true, width: 'w-32' },
@@ -55,23 +48,6 @@ const TableSkeleton = ({ colSpan }: { colSpan: number }) => (
   </tbody>
 );
 
-// Helper for parsing text nodes to find hashtags
-const processTextWithTags = (text: string) => {
-  if (typeof text !== 'string') return text;
-  
-  const parts = text.split(/(#\w+)/g);
-  return parts.map((part, index) => {
-    if (part.match(/^#\w+$/)) {
-      return (
-        <span key={index} className="inline-block bg-indigo-50 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-300 px-1.5 py-0 rounded text-[10px] font-bold mx-0.5 border border-indigo-100 dark:border-indigo-800">
-          {part}
-        </span>
-      );
-    }
-    return part;
-  });
-};
-
 export const TaskTable: React.FC<TaskTableProps> = ({ 
   entries, 
   isLoading, 
@@ -83,47 +59,11 @@ export const TaskTable: React.FC<TaskTableProps> = ({
   onDuplicate,
   allEntries = []
 }) => {
-  // --- Column Management State ---
-  const [columns, setColumns] = useState<ColumnConfig[]>(DEFAULT_COLUMNS);
+  // --- Column Management (Refactored to Hook) ---
+  const { columns, toggleColumn, moveColumn } = useTableColumns(DEFAULT_COLUMNS, STORAGE_KEY);
+  
   const [isConfigOpen, setIsConfigOpen] = useState(false);
   const configRef = useRef<HTMLDivElement>(null);
-
-  // Load from local storage on mount
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        const merged = DEFAULT_COLUMNS.map(def => {
-          const savedCol = parsed.find((p: ColumnConfig) => p.key === def.key);
-          return savedCol ? { ...def, ...savedCol } : def;
-        });
-        const ordered = parsed.map((p: ColumnConfig) => merged.find(m => m.key === p.key)).filter(Boolean) as ColumnConfig[];
-        const missing = DEFAULT_COLUMNS.filter(d => !ordered.find(o => o.key === d.key));
-        setColumns([...ordered, ...missing]);
-      }
-    } catch (e) {
-      console.warn("Failed to load column config", e);
-    }
-  }, []);
-
-  const saveColumns = (newCols: ColumnConfig[]) => {
-    setColumns(newCols);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(newCols));
-  };
-
-  const toggleColumn = (key: SortKey) => {
-    const newCols = columns.map(c => c.key === key ? { ...c, visible: !c.visible } : c);
-    saveColumns(newCols);
-  };
-
-  const moveColumn = (index: number, direction: 'up' | 'down') => {
-    const newCols = [...columns];
-    const targetIndex = direction === 'up' ? index - 1 : index + 1;
-    if (targetIndex < 0 || targetIndex >= newCols.length) return;
-    [newCols[index], newCols[targetIndex]] = [newCols[targetIndex], newCols[index]];
-    saveColumns(newCols);
-  };
 
   // Close popup when clicking outside
   useEffect(() => {
@@ -279,7 +219,7 @@ export const TaskTable: React.FC<TaskTableProps> = ({
                             }
                             return child;
                           });
-                          return <span {...props} className="mr-1 block">{processedChildren}</span>;
+                          return <span {...props} className="mr-1 block">{processedChildren as React.ReactNode}</span>;
                         },
                         strong: ({node, ...props}) => <strong {...props} className="font-bold text-slate-900 dark:text-white" />,
                         em: ({node, ...props}) => <em {...props} className="italic text-slate-600 dark:text-slate-400" />,
@@ -436,4 +376,4 @@ export const TaskTable: React.FC<TaskTableProps> = ({
       </div>
     </div>
   );
-};
+}

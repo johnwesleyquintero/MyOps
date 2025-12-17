@@ -1,8 +1,10 @@
+
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { TaskEntry, TaskTemplate } from '../types';
 import { DEFAULT_PROJECTS, PRIORITIES, STATUSES, PRIORITY_COLORS, STATUS_COLORS, RECURRENCE_OPTIONS, TEMPLATE_STORAGE_KEY } from '../constants';
+import { CopyIdButton } from './CopyIdButton';
 
 interface TaskModalProps {
   isOpen: boolean;
@@ -552,6 +554,11 @@ export const TaskModal: React.FC<TaskModalProps> = ({
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2" /></svg>
                     Duplicate
                 </button>
+                <CopyIdButton 
+                    id={formData.id}
+                    showLabel
+                    className="text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 text-sm font-medium hover:bg-indigo-50 dark:hover:bg-indigo-900/20 px-3 py-2 rounded transition-colors flex items-center gap-2"
+                />
              </div>
            ) : (
              <div></div> /* Spacer */

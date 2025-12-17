@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -5,6 +6,7 @@ import { TaskEntry, PriorityLevel, StatusLevel } from '../types';
 import { formatRelativeDate, getProjectStyle, PRIORITY_COLORS, PRIORITY_DOTS, STATUS_COLORS } from '../constants';
 import { useTableColumns, ColumnConfig, SortKey } from '../hooks/useTableColumns';
 import { processTextWithTags } from '../utils/textUtils';
+import { CopyIdButton } from './CopyIdButton';
 
 interface TaskTableProps {
   entries: TaskEntry[];
@@ -354,6 +356,10 @@ export const TaskTable: React.FC<TaskTableProps> = ({
                     ))}
                     <td className="px-6 py-3 text-right sticky right-0 bg-white dark:bg-slate-900 group-hover:bg-slate-50/80 dark:group-hover:bg-slate-800/80 transition-colors shadow-[inset_1px_0_0_0_rgba(241,245,249,1)] dark:shadow-[inset_1px_0_0_0_rgba(15,23,42,1)]">
                       <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-all duration-200">
+                        <CopyIdButton 
+                            id={entry.id} 
+                            className="text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 p-1.5 rounded hover:bg-indigo-50 dark:hover:bg-indigo-900/50 transition-colors" 
+                        />
                         {entry.status !== 'Done' && (
                             <button onClick={() => onFocus(entry)} className="text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 p-1.5 rounded hover:bg-indigo-50 dark:hover:bg-indigo-900/50 transition-colors" title="Deep Work Focus">
                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>

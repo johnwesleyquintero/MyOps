@@ -2,6 +2,7 @@
 import React, { useMemo } from 'react';
 import { TaskEntry, StatusLevel } from '../types';
 import { formatRelativeDate, getProjectStyle, PRIORITY_DOTS } from '../constants';
+import { CopyIdButton } from './CopyIdButton';
 
 interface KanbanBoardProps {
   entries: TaskEntry[];
@@ -179,6 +180,10 @@ const KanbanColumn: React.FC<KanbanColumnProps> = ({ title, tasks, colorClass, o
                     </span>
                 </div>
                 <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <CopyIdButton 
+                        id={task.id}
+                        className="p-1 text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 rounded hover:bg-indigo-50 dark:hover:bg-indigo-900/50" 
+                    />
                     <button 
                          onClick={(e) => { e.stopPropagation(); onDuplicate(task); }}
                          className="p-1 text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 rounded hover:bg-indigo-50 dark:hover:bg-indigo-900/50"

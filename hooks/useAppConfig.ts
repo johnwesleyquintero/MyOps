@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { AppConfig } from '../types';
 import { INITIAL_CONFIG_KEY, DEFAULT_GAS_URL } from '../constants';
@@ -8,7 +9,8 @@ const DEFAULT_CONFIG: AppConfig = {
   apiToken: '',
   currency: 'USD',
   locale: 'en-US',
-  theme: 'LIGHT'
+  theme: 'LIGHT',
+  geminiApiKey: ''
 };
 
 export const useAppConfig = () => {

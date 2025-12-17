@@ -37,6 +37,7 @@ export interface AppConfig {
   locale: string;   // e.g. 'en-US'
   currency?: string; 
   theme: 'LIGHT' | 'DARK';
+  geminiApiKey?: string; // User-provided Gemini API Key
 }
 
 export interface MetricSummary {

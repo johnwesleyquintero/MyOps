@@ -14,7 +14,8 @@ import { Sidebar } from './components/Sidebar';
 import { ConfirmationModal } from './components/ConfirmationModal';
 import { ShortcutsModal } from './components/ShortcutsModal'; 
 import { FocusMode } from './components/FocusMode'; 
-import { CommandPalette } from './components/CommandPalette'; // Import CommandPalette
+import { CommandPalette } from './components/CommandPalette'; 
+import { AiChatSidebar } from './components/AiChatSidebar'; // Import AI Chat Sidebar
 import { CashFlowChart } from './components/analytics/CashFlowChart';
 import { ExpenseCategoryList } from './components/analytics/ExpenseCategoryList';
 import { useTasks } from './hooks/useTasks';
@@ -63,9 +64,10 @@ const App: React.FC = () => {
   const [showSettings, setShowSettings] = useState<boolean>(false);
   const [showShortcuts, setShowShortcuts] = useState<boolean>(false);
   const [isTaskModalOpen, setIsTaskModalOpen] = useState<boolean>(false);
-  const [isCmdPaletteOpen, setIsCmdPaletteOpen] = useState<boolean>(false); // Command Palette State
+  const [isCmdPaletteOpen, setIsCmdPaletteOpen] = useState<boolean>(false); 
+  const [isAiChatOpen, setIsAiChatOpen] = useState<boolean>(false); // AI Chat State
   const [editingEntry, setEditingEntry] = useState<TaskEntry | null>(null);
-  const [focusedTask, setFocusedTask] = useState<TaskEntry | null>(null); // State for Deep Work
+  const [focusedTask, setFocusedTask] = useState<TaskEntry | null>(null); 
   
   // Mission Control State
   const [viewMode, setViewMode] = useState<ViewMode>('TABLE');
@@ -154,7 +156,7 @@ const App: React.FC = () => {
   };
 
   const handleOpenAiChat = () => {
-    showToast("WesAI Neural Link: Coming in v3.0", 'info');
+    setIsAiChatOpen(true);
   };
 
   const handleOpenEdit = (entry: TaskEntry) => {
@@ -470,6 +472,12 @@ const App: React.FC = () => {
       </div>
 
       {/* Overlays */}
+      <AiChatSidebar 
+        isOpen={isAiChatOpen}
+        onClose={() => setIsAiChatOpen(false)}
+        config={config}
+      />
+
       <CommandPalette 
         isOpen={isCmdPaletteOpen}
         onClose={() => setIsCmdPaletteOpen(false)}

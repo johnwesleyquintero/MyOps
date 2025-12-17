@@ -1,8 +1,8 @@
-import React, { useState, useRef, useEffect } from 'react';
+
+import React, { useRef, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
-import { GoogleGenAI, Chat } from "@google/genai";
 import { AppConfig, TaskEntry } from '../types';
-import { WES_AI_SYSTEM_INSTRUCTION, WES_TOOLS } from '../constants/aiConfig';
+import { useAiChat } from '../hooks/useAiChat';
 
 interface AiChatSidebarProps {
   isOpen: boolean;
@@ -13,13 +13,6 @@ interface AiChatSidebarProps {
   onDeleteTransaction: (entry: TaskEntry) => Promise<boolean>;
 }
 
-interface Message {
-  id: string;
-  role: 'user' | 'model';
-  text: string;
-  timestamp: Date;
-}
-
 export const AiChatSidebar: React.FC<AiChatSidebarProps> = ({ 
     isOpen, 
     onClose, 
@@ -28,191 +21,27 @@ export const AiChatSidebar: React.FC<AiChatSidebarProps> = ({
     onSaveTransaction,
     onDeleteTransaction
 }) => {
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: 'init',
-      role: 'model',
-      text: "Systems online, brother. I'm connected to the mission board. What's the move?",
-      timestamp: new Date()
-    }
-  ]);
-  const [inputValue, setInputValue] = useState('');
-  const [isThinking, setIsThinking] = useState(false);
-  const [activeTool, setActiveTool] = useState<string | null>(null);
+  const {
+    messages,
+    inputValue,
+    setInputValue,
+    isThinking,
+    activeTool,
+    sendMessage,
+    resetChat
+  } = useAiChat({ config, entries, onSaveTransaction, onDeleteTransaction });
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const chatSession = useRef<Chat | null>(null);
-
-  const startNewSession = () => {
-      if (!config.geminiApiKey) return;
-      try {
-        const ai = new GoogleGenAI({ apiKey: config.geminiApiKey });
-        chatSession.current = ai.chats.create({
-            model: 'gemini-2.5-flash',
-            config: {
-                systemInstruction: WES_AI_SYSTEM_INSTRUCTION,
-                tools: WES_TOOLS,
-            }
-        });
-      } catch (e) {
-        console.error("Failed to initialize WesAI", e);
-      }
-  };
-
-  // Initialize Chat Session
-  useEffect(() => {
-    if (!config.geminiApiKey) {
-        setMessages(prev => {
-            if (prev.find(m => m.id === 'error-key')) return prev;
-            return [...prev, {
-                id: 'error-key',
-                role: 'model',
-                text: "⚠️ **Neural Link Offline**: Please add your **Gemini API Key** in Settings to activate WesAI.",
-                timestamp: new Date()
-            }];
-        });
-        chatSession.current = null;
-        return;
-    }
-
-    startNewSession();
-  }, [config.geminiApiKey]);
 
   // Auto-scroll
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isOpen, isThinking]);
 
-  // --- Reset Logic ---
-  const handleReset = () => {
-    setMessages([
-        {
-          id: crypto.randomUUID(),
-          role: 'model',
-          text: "Systems re-initialized. Ready for orders.",
-          timestamp: new Date()
-        }
-    ]);
-    startNewSession();
-  };
-
-  // --- Tool Execution Logic ---
-
-  const executeFunction = async (name: string, args: any): Promise<any> => {
-      setActiveTool(name);
-      
-      // Artificial delay for "Thinking" feel and to allow UI to update
-      await new Promise(r => setTimeout(r, 800));
-
-      try {
-          switch (name) {
-              case 'get_tasks':
-                  return { tasks: entries.map(e => ({ id: e.id, desc: e.description, status: e.status, priority: e.priority, date: e.date, project: e.project })) };
-              
-              case 'create_task':
-                  const newEntry: TaskEntry = {
-                      id: '', // Hook handles ID generation
-                      description: args.description,
-                      project: args.project || 'Inbox',
-                      priority: args.priority || 'Medium',
-                      status: 'Backlog',
-                      date: args.date || new Date().toISOString().split('T')[0],
-                      dependencies: []
-                  };
-                  await onSaveTransaction(newEntry, false);
-                  return { result: "success", message: `Created task: ${newEntry.description}` };
-              
-              case 'update_task':
-                  const target = entries.find(e => e.id === args.id);
-                  if (!target) return { error: "Task ID not found" };
-                  
-                  const updatedEntry = { ...target, ...args };
-                  await onSaveTransaction(updatedEntry, true);
-                  return { result: "success", message: `Updated task: ${target.description}` };
-              
-              case 'delete_task':
-                  const delTarget = entries.find(e => e.id === args.id);
-                  if (!delTarget) return { error: "Task ID not found" };
-                  
-                  await onDeleteTransaction(delTarget);
-                  return { result: "success", message: "Task deleted." };
-
-              default:
-                  return { error: "Unknown function" };
-          }
-      } catch (err: any) {
-          return { error: err.message };
-      } finally {
-          setActiveTool(null);
-      }
-  };
-
-  const handleSendMessage = async () => {
-    if (!inputValue.trim()) return;
-    if (!chatSession.current) return;
-
-    const userText = inputValue;
-    setInputValue('');
-    
-    setMessages(prev => [...prev, {
-        id: crypto.randomUUID(),
-        role: 'user',
-        text: userText,
-        timestamp: new Date()
-    }]);
-    
-    setIsThinking(true);
-
-    try {
-        let result = await chatSession.current.sendMessage({ message: userText });
-        
-        // Loop for handling multiple function calls (multi-turn)
-        while (result.functionCalls && result.functionCalls.length > 0) {
-            const toolResponses = [];
-            
-            for (const call of result.functionCalls) {
-                console.log(`[WesAI] Calling Tool: ${call.name}`, call.args);
-                const functionResponse = await executeFunction(call.name, call.args);
-                
-                toolResponses.push({
-                    functionResponse: {
-                        name: call.name,
-                        id: call.id,
-                        response: functionResponse
-                    }
-                });
-            }
-
-            // Send tool output back to model
-            result = await chatSession.current.sendMessage({ message: toolResponses });
-        }
-
-        const responseText = result.text;
-        
-        setMessages(prev => [...prev, {
-            id: crypto.randomUUID(),
-            role: 'model',
-            text: responseText || "Mission updated.",
-            timestamp: new Date()
-        }]);
-
-    } catch (error: any) {
-        setMessages(prev => [...prev, {
-            id: crypto.randomUUID(),
-            role: 'model',
-            text: `**System Error**: ${error.message}`,
-            timestamp: new Date()
-        }]);
-    } finally {
-        setIsThinking(false);
-        setActiveTool(null);
-    }
-  };
-
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault();
-        handleSendMessage();
+        sendMessage();
     }
   };
 
@@ -237,7 +66,7 @@ export const AiChatSidebar: React.FC<AiChatSidebarProps> = ({
             </div>
             <div className="flex items-center gap-1">
                 <button 
-                    onClick={handleReset}
+                    onClick={resetChat}
                     className="p-2 text-slate-400 hover:text-indigo-500 rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors"
                     title="Reset Chat"
                 >
@@ -321,7 +150,7 @@ export const AiChatSidebar: React.FC<AiChatSidebarProps> = ({
                     style={{ minHeight: '48px', maxHeight: '120px' }}
                 />
                 <button 
-                    onClick={handleSendMessage}
+                    onClick={sendMessage}
                     disabled={!inputValue.trim() || isThinking || !config.geminiApiKey}
                     className="absolute right-2 bottom-2 p-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm"
                 >

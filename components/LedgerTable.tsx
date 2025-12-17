@@ -1,7 +1,9 @@
+
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { TaskEntry, PriorityLevel, StatusLevel } from '../types';
-import { formatRelativeDate, getProjectStyle, PRIORITY_COLORS, PRIORITY_DOTS, STATUS_COLORS } from '../constants';
+import { PRIORITY_COLORS, PRIORITY_DOTS, STATUS_COLORS } from '../constants';
+import { formatRelativeDate, getProjectStyle } from '../utils/formatUtils';
 
 interface LedgerTableProps {
   entries: TaskEntry[];

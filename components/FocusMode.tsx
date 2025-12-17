@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { TaskEntry } from '../types';
-import { getProjectStyle, PRIORITY_DOTS } from '../constants';
+import { PRIORITY_DOTS } from '../constants';
+import { getProjectStyle } from '../utils/formatUtils';
 
 interface FocusModeProps {
   task: TaskEntry;

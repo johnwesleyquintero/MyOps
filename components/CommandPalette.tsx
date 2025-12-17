@@ -1,7 +1,7 @@
-
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { TaskEntry, Page } from '../types';
-import { PRIORITY_DOTS, getProjectStyle } from '../constants';
+import { PRIORITY_DOTS } from '../constants';
+import { getProjectStyle } from '../utils/formatUtils';
 
 interface CommandPaletteProps {
   isOpen: boolean;

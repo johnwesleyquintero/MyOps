@@ -1,7 +1,8 @@
 
 import React, { useMemo } from 'react';
 import { TaskEntry } from '../types';
-import { getProjectStyle, PRIORITY_DOTS } from '../constants';
+import { PRIORITY_DOTS } from '../constants';
+import { getProjectStyle } from '../utils/formatUtils';
 
 interface GanttChartProps {
   entries: TaskEntry[];

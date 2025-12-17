@@ -1,7 +1,8 @@
 
 import React, { useMemo } from 'react';
 import { TaskEntry, StatusLevel } from '../types';
-import { formatRelativeDate, getProjectStyle, PRIORITY_DOTS } from '../constants';
+import { PRIORITY_DOTS } from '../constants';
+import { formatRelativeDate, getProjectStyle } from '../utils/formatUtils';
 import { CopyIdButton } from './CopyIdButton';
 
 interface KanbanBoardProps {

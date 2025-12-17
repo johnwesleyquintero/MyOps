@@ -1,0 +1,54 @@
+
+export const getProjectStyle = (project: string): string => {
+  const hash = project.split('').reduce((acc, char) => char.charCodeAt(0) + acc, 0);
+  const colors = [
+    "bg-slate-50 text-slate-600 border-slate-200",
+    "bg-zinc-50 text-zinc-600 border-zinc-200",
+    "bg-neutral-50 text-neutral-600 border-neutral-200",
+    "bg-stone-50 text-stone-600 border-stone-200",
+  ];
+  return colors[hash % colors.length];
+};
+
+export const formatDate = (dateString: string): string => {
+  if (!dateString) return '';
+  const date = new Date(dateString);
+  return date.toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric'
+  });
+};
+
+export const formatRelativeDate = (dateString: string): { text: string; colorClass: string } => {
+  if (!dateString) return { text: '-', colorClass: 'text-slate-400' };
+  
+  const target = new Date(dateString);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  
+  // Normalize target to midnight for comparison
+  const targetMidnight = new Date(target);
+  targetMidnight.setHours(0, 0, 0, 0);
+  
+  const diffTime = targetMidnight.getTime() - today.getTime();
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+
+  if (diffDays === 0) return { text: 'Today', colorClass: 'text-indigo-600 font-bold' };
+  if (diffDays === 1) return { text: 'Tomorrow', colorClass: 'text-amber-600' };
+  if (diffDays === -1) return { text: 'Yesterday', colorClass: 'text-rose-600 font-medium' };
+  if (diffDays < -1) return { text: formatDate(dateString), colorClass: 'text-rose-500' }; // Overdue
+  
+  return { text: formatDate(dateString), colorClass: 'text-slate-500' };
+};
+
+export const formatCurrency = (amount: number, currency: string = 'USD', locale: string = 'en-US'): string => {
+  try {
+    return new Intl.NumberFormat(locale, {
+      style: 'currency',
+      currency: currency,
+    }).format(amount);
+  } catch (e) {
+    return `${currency} ${amount}`;
+  }
+};

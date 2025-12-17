@@ -1,4 +1,3 @@
-
 import { TaskEntry, AppConfig } from '../types';
 import { LOCAL_STORAGE_KEY } from '../constants';
 import { getMockData } from './mockFactory';
@@ -15,6 +14,8 @@ const postToGas = async (url: string, payload: any) => {
 
 export const fetchTasks = async (config: AppConfig): Promise<TaskEntry[]> => {
   if (config.mode === 'DEMO') {
+    // Minimal delay for responsiveness check
+    await new Promise(resolve => setTimeout(resolve, 50)); 
     const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
     if (!stored) {
       const initialData = getMockData();
@@ -57,10 +58,9 @@ export const addTask = async (entry: TaskEntry, config: AppConfig): Promise<Task
   const entryWithId = { ...entry, id: entry.id || crypto.randomUUID() };
 
   if (config.mode === 'DEMO') {
+    await new Promise(resolve => setTimeout(resolve, 50));
     const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
     const current = stored ? JSON.parse(stored) : [];
-    // Ensure new items are at the top if sorting logic permits, or just append. 
-    // We stick to append here, UI handles sort.
     localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify([entryWithId, ...current]));
   } else {
     if (!config.gasDeploymentUrl) throw new Error("GAS URL not configured");
@@ -76,6 +76,7 @@ export const addTask = async (entry: TaskEntry, config: AppConfig): Promise<Task
 
 export const updateTask = async (entry: TaskEntry, config: AppConfig): Promise<void> => {
   if (config.mode === 'DEMO') {
+    await new Promise(resolve => setTimeout(resolve, 50));
     const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
     let current: TaskEntry[] = stored ? JSON.parse(stored) : [];
     current = current.map(e => e.id === entry.id ? entry : e);
@@ -92,6 +93,7 @@ export const updateTask = async (entry: TaskEntry, config: AppConfig): Promise<v
 
 export const deleteTask = async (id: string, config: AppConfig): Promise<void> => {
   if (config.mode === 'DEMO') {
+    await new Promise(resolve => setTimeout(resolve, 50));
     const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
     let current: TaskEntry[] = stored ? JSON.parse(stored) : [];
     current = current.filter(e => e.id !== id);

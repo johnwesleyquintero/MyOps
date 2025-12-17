@@ -1,5 +1,4 @@
-
-import { useMemo } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { TaskEntry, MetricSummary } from '../types';
 
 interface UseTaskAnalyticsProps {
@@ -10,6 +9,20 @@ interface UseTaskAnalyticsProps {
   selectedMonth: string;
 }
 
+// Internal debounce hook
+function useDebounce<T>(value: T, delay: number): T {
+  const [debouncedValue, setDebouncedValue] = useState(value);
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [value, delay]);
+  return debouncedValue;
+}
+
 export const useTaskAnalytics = ({
   entries,
   searchQuery,
@@ -18,9 +31,12 @@ export const useTaskAnalytics = ({
   selectedMonth,
 }: UseTaskAnalyticsProps) => {
   
+  // Debounce the search query to prevent stuttering on rapid typing
+  const debouncedSearch = useDebounce(searchQuery, 300);
+
   const filteredEntries = useMemo(() => {
     return entries.filter(entry => {
-      const matchesSearch = entry.description.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesSearch = entry.description.toLowerCase().includes(debouncedSearch.toLowerCase());
       const matchesProject = selectedCategory ? entry.project === selectedCategory : true;
       const matchesStatus = selectedStatus ? entry.status === selectedStatus : true;
       let matchesMonth = true;
@@ -29,7 +45,7 @@ export const useTaskAnalytics = ({
       }
       return matchesSearch && matchesProject && matchesStatus && matchesMonth;
     });
-  }, [entries, searchQuery, selectedCategory, selectedStatus, selectedMonth]);
+  }, [entries, debouncedSearch, selectedCategory, selectedStatus, selectedMonth]);
 
   const metrics: MetricSummary = useMemo(() => {
     return filteredEntries.reduce((acc, curr) => {

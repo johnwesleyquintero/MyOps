@@ -5,7 +5,7 @@
 > **Architecture:** Serverless / Sovereign / Offline-First
 > **Cost:** $0.00 / month
 
-![System Architecture](caching-diagram.png)
+<img width="1536" height="1024" alt="image" src="https://github.com/user-attachments/assets/e0a0c955-7ce4-4a2d-8a09-08a32f5d3861" />
 
 **MyOps** is a sovereign task execution system. It replaces complex project management SaaS with a lightweight, operator-grade interface backed by Google Sheets. It is designed for high-agency individuals who demand speed, ownership, and precision.
 
@@ -54,97 +54,3 @@ MyOps uses **Google Apps Script** as a lightweight execution layer over Google S
 
 *   Your data lives **only** in your Google Sheet.
 *   The Apps Script runs **under your Google account** (`Execute as: Me`).
-*   The frontend communicates using:
-    *   Your personal Web App URL.
-    *   A private API token (`API_SECRET`).
-*   This app does **not** store, sync, or proxy any user data externally.
-
-> **Disclaimer:** If you delete your Sheet or Script, your data is gone — by design. You are responsible for your own backups.
-
----
-
-## Deployment Protocol
-
-### Phase 1: The Vault (Google Sheets)
-
-1. Create a new **Google Sheet**.
-2. Rename the sheet (tab) at the bottom to `tasks`. **(Case sensitive)**.
-3. Create the following headers in **Row 1**:
-
-| Col A | Col B | Col C | Col D | Col E | Col F | Col G | Col H |
-|-------|-------|-------|-------|-------|-------|-------|-------|
-| date | description | project | priority | status | createdAt | id | dependencies |
-
-> **Note:** Column H (`dependencies`) stores a JSON array of blocking task IDs.
-
-### Phase 2: The Gateway (Google Apps Script)
-
-1. Inside your Google Sheet, go to **Extensions > Apps Script**.
-2. Rename the project to `MyOps API`.
-3. **Get the Code:**
-   - Open the MyOps Web App (this repo running locally).
-   - Click **System Config** (Sidebar) > **Backend Code**.
-   - Copy the script.
-4. Paste it into `Code.gs` in the Google Script editor.
-5. **CRITICAL:** Change the `API_SECRET` variable at the top of the file to a strong password.
-   ```javascript
-   // WARNING:
-   // This script runs with YOUR Google account permissions.
-   // Do not expose your Web App URL or API_SECRET publicly.
-   const API_SECRET = "CHANGE_THIS_TO_A_STRONG_SECRET"; 
-   ```
-6. Click **Deploy > New Deployment**.
-   - **Select type:** Web app.
-   - **Description:** `v2.2`.
-   - **Execute as:** `Me` (your email).
-   - **Who has access:** `Anyone` (Security is handled by your API Token).
-7. Copy the **Web App URL**.
-
-### Phase 3: The Interface (Frontend)
-
-1. Clone this repository.
-2. Install dependencies: `npm install`
-3. Start the local server: `npm start`
-4. Click **System Config** > **Connection**.
-5. Switch to **Live Mode**.
-6. Paste your **Web App URL** and **API Secret Token**.
-7. Save.
-
----
-
-## API Reference (The Engine Room)
-
-If you wish to interact with your system programmatically outside of this UI, the following endpoints are available on your Web App URL.
-
-### Authentication
-All requests must include your `token` (API Secret).
-
-### Read Tasks
-*   **Method:** `GET`
-*   **Params:** `?token=YOUR_SECRET`
-*   **Returns:** JSON array of tasks.
-
-### Create Task
-*   **Method:** `POST`
-*   **Payload:**
-    ```json
-    {
-      "token": "YOUR_SECRET",
-      "action": "create",
-      "entry": {
-        "date": "2025-01-01",
-        "description": "Task description",
-        "project": "Inbox",
-        "priority": "Medium",
-        "status": "Backlog",
-        "dependencies": []
-      }
-    }
-    ```
-
-### Concurrency
-Writes are protected with `LockService` to prevent race conditions. Google Apps Script has quota limits; if you hit them, execution will pause temporarily, but you will not be charged.
-
----
-
-*"Own your operation, own your life."*

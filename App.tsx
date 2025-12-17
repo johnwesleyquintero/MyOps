@@ -15,18 +15,20 @@ import { ConfirmationModal } from './components/ConfirmationModal';
 import { ShortcutsModal } from './components/ShortcutsModal'; 
 import { FocusMode } from './components/FocusMode'; 
 import { CommandPalette } from './components/CommandPalette'; 
-import { AiChatSidebar } from './components/AiChatSidebar'; // Import AI Chat Sidebar
+import { AiChatSidebar } from './components/AiChatSidebar'; 
 import { CashFlowChart } from './components/analytics/CashFlowChart';
 import { ExpenseCategoryList } from './components/analytics/ExpenseCategoryList';
+
+// Hooks
 import { useTasks } from './hooks/useTasks';
 import { useTaskAnalytics } from './hooks/useTaskAnalytics';
 import { useAppConfig } from './hooks/useAppConfig';
 import { useNotifications } from './hooks/useNotifications';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts'; 
-import { generateAndDownloadCSV } from './utils/exportUtils';
-import { DEFAULT_PROJECTS, STATUSES, RECURRENCE_OPTIONS } from './constants';
+import { useTaskActions } from './hooks/useTaskActions';
+import { useMissionControl } from './hooks/useMissionControl';
 
-type ViewMode = 'TABLE' | 'KANBAN' | 'GANTT';
+import { generateAndDownloadCSV } from './utils/exportUtils';
 
 const App: React.FC = () => {
   const { config, setConfig } = useAppConfig();
@@ -41,11 +43,9 @@ const App: React.FC = () => {
     }
   }, [config.theme]);
 
-  // Navigation State
+  // --- UI State ---
   const [activePage, setActivePage] = useState<Page>('DASHBOARD');
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false); // Mobile Toggle
-  
-  // Desktop Sidebar Collapse State (Persisted)
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false); 
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => {
     if (typeof window !== 'undefined') {
       return localStorage.getItem('myops_sidebar_collapsed') === 'true';
@@ -65,25 +65,53 @@ const App: React.FC = () => {
   const [showShortcuts, setShowShortcuts] = useState<boolean>(false);
   const [isTaskModalOpen, setIsTaskModalOpen] = useState<boolean>(false);
   const [isCmdPaletteOpen, setIsCmdPaletteOpen] = useState<boolean>(false); 
-  const [isAiChatOpen, setIsAiChatOpen] = useState<boolean>(false); // AI Chat State
+  const [isAiChatOpen, setIsAiChatOpen] = useState<boolean>(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
+  
   const [editingEntry, setEditingEntry] = useState<TaskEntry | null>(null);
   const [focusedTask, setFocusedTask] = useState<TaskEntry | null>(null); 
-  
-  // Mission Control State
-  const [viewMode, setViewMode] = useState<ViewMode>('TABLE');
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
-  const [searchQuery, setSearchQuery] = useState<string>('');
-  const [selectedCategory, setSelectedCategory] = useState<string>('');
-  const [selectedStatus, setSelectedStatus] = useState<string>('');
-  const [selectedMonth, setSelectedMonth] = useState<string>('');
 
-  // --- Keyboard Shortcuts Integration ---
+  // --- Data & Actions ---
+  const { 
+    entries, 
+    isLoading, 
+    isSubmitting, 
+    saveTransaction, 
+    removeTransaction, 
+    bulkRemoveTransactions 
+  } = useTasks(config, showToast);
+
+  // Business Logic Hook (Recurrence, Status updates, etc)
+  const {
+    handleDuplicate: generateDuplicate,
+    handleStatusUpdate,
+    handleDescriptionUpdate,
+    handleFocusComplete
+  } = useTaskActions({ saveTransaction, showToast });
+
+  // Mission Control State (View Mode, Filters)
+  const {
+    viewMode, setViewMode,
+    searchQuery, setSearchQuery,
+    selectedCategory, setSelectedCategory,
+    selectedStatus, setSelectedStatus,
+    selectedMonth, setSelectedMonth,
+    availableCategories
+  } = useMissionControl(entries);
+
+  // Analytics Hook
+  const { filteredEntries, metrics } = useTaskAnalytics({
+    entries,
+    searchQuery,
+    selectedCategory,
+    selectedStatus,
+    selectedMonth
+  });
+
+  // --- Keyboard Shortcuts ---
   useKeyboardShortcuts([
-    // Navigation
     { key: 'g d', action: () => setActivePage('DASHBOARD') },
     { key: 'g m', action: () => setActivePage('MISSIONS') },
-    
-    // Actions
     { 
       key: 'c', 
       action: () => {
@@ -107,7 +135,7 @@ const App: React.FC = () => {
     },
     { 
       key: 'k',
-      metaKey: true, // Cmd+K / Ctrl+K
+      metaKey: true, 
       preventDefault: true,
       allowInInput: true,
       action: () => {
@@ -118,38 +146,15 @@ const App: React.FC = () => {
     { key: '?', action: () => setShowShortcuts(prev => !prev) },
   ]);
 
-  const { 
-    entries, 
-    isLoading, 
-    isSubmitting, 
-    saveTransaction, 
-    removeTransaction, 
-    bulkRemoveTransactions 
-  } = useTasks(config, showToast);
-
-  const { filteredEntries, metrics } = useTaskAnalytics({
-    entries,
-    searchQuery,
-    selectedCategory,
-    selectedStatus,
-    selectedMonth
-  });
-
-  const availableCategories = useMemo(() => {
-    const custom = entries.map(e => e.project).filter(c => !DEFAULT_PROJECTS.includes(c));
-    return [...DEFAULT_PROJECTS, ...Array.from(new Set(custom))];
-  }, [entries]);
-
-  // Derived: High Priority / Due Soon tasks for Dashboard
+  // Derived: Dashboard Tasks (High Priority / Due Soon)
   const dashboardTasks = useMemo(() => {
-    // Show tasks that are NOT done, sorted by date
     return entries
       .filter(e => e.status !== 'Done')
       .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
-      .slice(0, 5); // Top 5
+      .slice(0, 5);
   }, [entries]);
 
-  // Handlers
+  // --- Handlers ---
   const handleOpenCreate = () => {
     setEditingEntry(null);
     setIsTaskModalOpen(true);
@@ -168,14 +173,8 @@ const App: React.FC = () => {
     setIsTaskModalOpen(true);
   };
 
-  const handleDuplicate = (entry: TaskEntry) => {
-    const copy: TaskEntry = {
-        ...entry,
-        id: '', 
-        status: 'Backlog', 
-        date: new Date().toISOString().split('T')[0], 
-        dependencies: [] 
-    };
+  const executeDuplicate = (entry: TaskEntry) => {
+    const copy = generateDuplicate(entry);
     setEditingEntry(copy);
     setIsTaskModalOpen(true);
   };
@@ -203,80 +202,6 @@ const App: React.FC = () => {
      await removeTransaction(entry);
      setIsTaskModalOpen(false);
      setEditingEntry(null);
-  };
-
-  // Direct Update Handler for Interactive Markdown (Checkboxes)
-  const handleDescriptionUpdate = async (entry: TaskEntry, newDescription: string) => {
-    const updatedEntry = { ...entry, description: newDescription };
-    // Pass true for isUpdate, and trigger save without toast if preferred, or with toast.
-    // We use the existing saveTransaction which handles optimistic UI.
-    await saveTransaction(updatedEntry, true);
-  };
-
-  const handleStatusUpdate = async (entry: TaskEntry) => {
-    const currentIndex = STATUSES.indexOf(entry.status);
-    const nextIndex = (currentIndex + 1) % STATUSES.length;
-    const nextStatus = STATUSES[nextIndex];
-    
-    // 1. Update the original task
-    const updatedEntry = { ...entry, status: nextStatus };
-    await saveTransaction(updatedEntry, true);
-
-    // 2. RECURRENCE LOGIC
-    if (nextStatus === 'Done') {
-        const desc = entry.description;
-        const recurrenceOpt = RECURRENCE_OPTIONS.find(r => r.tag && desc.includes(r.tag));
-        
-        if (recurrenceOpt) {
-            const currentDueDate = new Date(entry.date);
-            let nextDate = new Date(currentDueDate);
-            
-            if (recurrenceOpt.label === 'Daily') {
-                nextDate.setDate(currentDueDate.getDate() + 1);
-            } else if (recurrenceOpt.label === 'Weekly') {
-                nextDate.setDate(currentDueDate.getDate() + 7);
-            } else if (recurrenceOpt.label === 'Monthly') {
-                nextDate.setMonth(currentDueDate.getMonth() + 1);
-            }
-
-            const nextTask: TaskEntry = {
-                ...entry,
-                id: '', 
-                date: nextDate.toISOString().split('T')[0],
-                status: 'Backlog',
-                dependencies: [] 
-            };
-
-            setTimeout(async () => {
-                await saveTransaction(nextTask, false);
-                showToast(`Recurring task scheduled for ${nextTask.date}`, 'success');
-            }, 500);
-        }
-    }
-  };
-
-  const handleFocusComplete = async (entry: TaskEntry) => {
-    const updatedEntry = { ...entry, status: 'Done' as const };
-    await saveTransaction(updatedEntry, true);
-    
-    const recurrenceOpt = RECURRENCE_OPTIONS.find(r => r.tag && entry.description.includes(r.tag));
-    if (recurrenceOpt) {
-         const currentDueDate = new Date(entry.date);
-         let nextDate = new Date(currentDueDate);
-         if (recurrenceOpt.label === 'Daily') nextDate.setDate(currentDueDate.getDate() + 1);
-         else if (recurrenceOpt.label === 'Weekly') nextDate.setDate(currentDueDate.getDate() + 7);
-         else if (recurrenceOpt.label === 'Monthly') nextDate.setMonth(currentDueDate.getMonth() + 1);
-
-         const nextTask: TaskEntry = {
-            ...entry,
-            id: '', 
-            date: nextDate.toISOString().split('T')[0],
-            status: 'Backlog',
-            dependencies: []
-         };
-         await saveTransaction(nextTask, false);
-         showToast(`Recurring task scheduled for ${nextTask.date}`, 'success');
-    }
   };
 
   const executeBulkDelete = async () => {
@@ -318,7 +243,7 @@ const App: React.FC = () => {
         toggleCollapse={toggleSidebarCollapse}
       />
 
-      {/* Main Content Layout - Dynamic Padding based on collapse state */}
+      {/* Main Content Layout */}
       <div 
         className={`transition-all duration-300 ease-in-out ${isSidebarCollapsed ? 'lg:pl-20' : 'lg:pl-64'}`}
       >
@@ -361,7 +286,7 @@ const App: React.FC = () => {
                         onStatusUpdate={handleStatusUpdate}
                         onDescriptionUpdate={handleDescriptionUpdate}
                         onFocus={handleEnterFocus}
-                        onDuplicate={handleDuplicate}
+                        onDuplicate={executeDuplicate}
                         allEntries={entries} 
                      />
                      {dashboardTasks.length === 0 && !isLoading && (
@@ -442,7 +367,7 @@ const App: React.FC = () => {
                    onStatusUpdate={handleStatusUpdate}
                    onDescriptionUpdate={handleDescriptionUpdate}
                    onFocus={handleEnterFocus}
-                   onDuplicate={handleDuplicate}
+                   onDuplicate={executeDuplicate}
                    allEntries={entries}
                  />
                )}
@@ -454,7 +379,7 @@ const App: React.FC = () => {
                    onStatusUpdate={handleStatusUpdate}
                    onAdd={handleOpenCreate}
                    onFocus={handleEnterFocus}
-                   onDuplicate={handleDuplicate}
+                   onDuplicate={executeDuplicate}
                    allEntries={entries}
                  />
                )}
@@ -497,7 +422,7 @@ const App: React.FC = () => {
         onClose={() => setIsTaskModalOpen(false)}
         onSubmit={handleModalSubmit}
         onDelete={handleModalDelete}
-        onDuplicate={handleDuplicate}
+        onDuplicate={executeDuplicate}
         initialData={editingEntry}
         isSubmitting={isSubmitting}
         entries={entries} 

@@ -24,6 +24,15 @@
 * **Resolved tasks:** Gray indicator
 * Works across **Table** and **Kanban** views.
 
+### 🧠 Neural Link (WesAI)
+
+* **Integrated Intelligence:** Built-in chat interface powered by Google Gemini (2.5 Flash).
+* **Context Aware:** WesAI has read/write access to your board. It knows your active missions.
+* **Agentic Capabilities:**
+  * *"Add a high priority task to investigate server costs."* → Creates task.
+  * *"What's on my plate today?"* → Lists active tasks.
+  * *"Mark the server task as Done."* → Updates status.
+
 ### 📝 Rich Intel (Markdown)
 
 * Full **Markdown support**: Bold, Italics, Lists, Code blocks.
@@ -114,5 +123,3 @@ Follow these steps to get MyOps running in your sheet:
 
 **Conclusion:**
 MyOps is not just task management — it’s a **sovereign operational system**. Fast, autonomous, zero-cost, and fully under your control. Perfect for operators who demand **execution speed, clarity, and ownership**.
-
----

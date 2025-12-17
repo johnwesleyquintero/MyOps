@@ -153,6 +153,10 @@ const App: React.FC = () => {
     setIsTaskModalOpen(true);
   };
 
+  const handleOpenAiChat = () => {
+    showToast("WesAI Neural Link: Coming in v3.0", 'info');
+  };
+
   const handleOpenEdit = (entry: TaskEntry) => {
     if (!entry.id) {
       showToast("Entry lacks ID. Cannot edit.", 'error');
@@ -320,6 +324,7 @@ const App: React.FC = () => {
           activePage={activePage} 
           onMenuToggle={() => setIsSidebarOpen(!isSidebarOpen)}
           onOpenCreate={handleOpenCreate}
+          onOpenAiChat={handleOpenAiChat}
         />
 
         <main className="p-4 sm:p-6 lg:p-8 pb-24">

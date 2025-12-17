@@ -1,10 +1,11 @@
 
-import React, { useState, useMemo, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { TaskEntry, PriorityLevel, StatusLevel } from '../types';
+import { TaskEntry } from '../types';
 import { formatRelativeDate, getProjectStyle, PRIORITY_COLORS, PRIORITY_DOTS, STATUS_COLORS } from '../constants';
 import { useTableColumns, ColumnConfig, SortKey } from '../hooks/useTableColumns';
+import { useSortableData } from '../hooks/useSortableData';
 import { processTextWithTags } from '../utils/textUtils';
 import { CopyIdButton } from './CopyIdButton';
 
@@ -21,8 +22,6 @@ interface TaskTableProps {
   currency?: string;
   locale?: string;
 }
-
-type SortDirection = 'asc' | 'desc';
 
 const DEFAULT_COLUMNS: ColumnConfig[] = [
   { key: 'date', label: 'Due', visible: true, width: 'w-32' },
@@ -54,16 +53,18 @@ export const TaskTable: React.FC<TaskTableProps> = ({
   entries, 
   isLoading, 
   onEdit, 
-  onDelete, 
   onStatusUpdate,
   onDescriptionUpdate,
   onFocus,
   onDuplicate,
   allEntries = []
 }) => {
-  // --- Column Management (Refactored to Hook) ---
+  // --- Column Management ---
   const { columns, toggleColumn, moveColumn } = useTableColumns(DEFAULT_COLUMNS, STORAGE_KEY);
   
+  // --- Sorting Management ---
+  const { items: sortedEntries, requestSort, sortConfig } = useSortableData(entries);
+
   const [isConfigOpen, setIsConfigOpen] = useState(false);
   const configRef = useRef<HTMLDivElement>(null);
 
@@ -77,45 +78,6 @@ export const TaskTable: React.FC<TaskTableProps> = ({
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
-
-  // --- Sorting & Data State ---
-  const [sortConfig, setSortConfig] = useState<{ key: SortKey; direction: SortDirection }>({ 
-    key: 'date', 
-    direction: 'asc' 
-  });
-
-  const handleSort = (key: SortKey) => {
-    setSortConfig((current) => ({
-      key,
-      direction: current.key === key && current.direction === 'asc' ? 'desc' : 'asc',
-    }));
-  };
-
-  const sortedEntries = useMemo(() => {
-    if (!entries) return [];
-    return [...entries].sort((a, b) => {
-      let comparison = 0;
-      switch (sortConfig.key) {
-        case 'date':
-          comparison = new Date(a.date).getTime() - new Date(b.date).getTime();
-          break;
-        case 'priority':
-          const pRanks: Record<PriorityLevel, number> = { 'High': 0, 'Medium': 1, 'Low': 2 };
-          comparison = (pRanks[a.priority] ?? 99) - (pRanks[b.priority] ?? 99);
-          break;
-        case 'status':
-          const sRanks: Record<StatusLevel, number> = { 'Backlog': 0, 'In Progress': 1, 'Done': 2 };
-          comparison = (sRanks[a.status] ?? 99) - (sRanks[b.status] ?? 99);
-          break;
-        default:
-          const valA = String(a[sortConfig.key] || '').toLowerCase();
-          const valB = String(b[sortConfig.key] || '').toLowerCase();
-          if (valA < valB) comparison = -1;
-          if (valA > valB) comparison = 1;
-      }
-      return sortConfig.direction === 'asc' ? comparison : -comparison;
-    });
-  }, [entries, sortConfig]);
 
   // Dependency Checker
   const getDependencyStatus = (entry: TaskEntry) => {
@@ -178,7 +140,7 @@ export const TaskTable: React.FC<TaskTableProps> = ({
     return (
       <th 
         className="px-6 py-3 bg-slate-50 dark:bg-slate-800 text-[11px] uppercase tracking-widest font-bold text-slate-500 dark:text-slate-400 cursor-pointer group/th select-none hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors whitespace-nowrap border-b border-slate-200 dark:border-slate-700"
-        onClick={() => handleSort(col.key)}
+        onClick={() => requestSort(col.key)}
       >
         <div className={`flex items-center gap-1.5 ${isActive ? 'text-indigo-600 dark:text-indigo-400' : ''}`}>
           {col.label}
@@ -214,7 +176,6 @@ export const TaskTable: React.FC<TaskTableProps> = ({
                     components={{
                         a: ({node, ...props}) => <a {...props} className="text-indigo-600 dark:text-indigo-400 pointer-events-auto cursor-pointer hover:underline" onClick={e => e.stopPropagation()} target="_blank" />,
                         p: ({node, children, ...props}) => {
-                          // Custom renderer to handle #hashtags within paragraphs
                           const processedChildren = React.Children.map(children, child => {
                             if (typeof child === 'string') {
                               return processTextWithTags(child);
@@ -228,7 +189,6 @@ export const TaskTable: React.FC<TaskTableProps> = ({
                         code: ({node, ...props}) => <code {...props} className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 px-1 py-0.5 rounded text-[10px] font-mono" />,
                         ul: ({node, ...props}) => <span {...props} />,
                         li: ({node, ...props}) => <span {...props} className="after:content-[',_'] last:after:content-none" />,
-                        // Custom Checkbox Renderer
                         input: (props) => {
                             if (props.type === 'checkbox') {
                                 const index = checkboxCounter++;
@@ -281,7 +241,6 @@ export const TaskTable: React.FC<TaskTableProps> = ({
             className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-[10px] font-bold border cursor-pointer hover:ring-2 hover:ring-indigo-100 dark:hover:ring-indigo-900 transition-all active:scale-95 ${STATUS_COLORS[entry.status] || 'bg-slate-50'}`}
             title="Click to cycle status"
           >
-             {/* Status Dot */}
             <span className={`w-1.5 h-1.5 rounded-full ${
                 entry.status === 'Done' ? 'bg-emerald-500' : 
                 entry.status === 'In Progress' ? 'bg-indigo-500' : 'bg-slate-400'
@@ -382,4 +341,4 @@ export const TaskTable: React.FC<TaskTableProps> = ({
       </div>
     </div>
   );
-}
+};

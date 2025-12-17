@@ -1,10 +1,11 @@
 
-import React, { useState, useEffect, useMemo, useRef } from 'react';
+import React, { useRef } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { TaskEntry, TaskTemplate } from '../types';
-import { DEFAULT_PROJECTS, PRIORITIES, STATUSES, PRIORITY_COLORS, STATUS_COLORS, RECURRENCE_OPTIONS, TEMPLATE_STORAGE_KEY } from '../constants';
+import { TaskEntry } from '../types';
+import { DEFAULT_PROJECTS, PRIORITIES, STATUSES, PRIORITY_COLORS, STATUS_COLORS, RECURRENCE_OPTIONS } from '../constants';
 import { CopyIdButton } from './CopyIdButton';
+import { useTaskForm } from '../hooks/useTaskForm';
 
 interface TaskModalProps {
   isOpen: boolean;
@@ -29,67 +30,21 @@ export const TaskModal: React.FC<TaskModalProps> = ({
 }) => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   
-  const getLocalDate = (offsetDays: number = 0) => {
-    const d = new Date();
-    d.setDate(d.getDate() + offsetDays);
-    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
-  };
-
-  const [formData, setFormData] = useState<TaskEntry>({
-    id: '',
-    date: getLocalDate(),
-    description: '',
-    project: DEFAULT_PROJECTS[0],
-    priority: 'Medium',
-    status: 'Backlog',
-    dependencies: []
-  });
-  
-  const [isCustomProject, setIsCustomProject] = useState<boolean>(false);
-  const [showDeps, setShowDeps] = useState<boolean>(false);
-  const [isPreviewMode, setIsPreviewMode] = useState<boolean>(false);
-  
-  // Template State
-  const [templates, setTemplates] = useState<TaskTemplate[]>([]);
-  const [showTemplates, setShowTemplates] = useState<boolean>(false);
-
-  // Load templates on mount
-  useEffect(() => {
-    const stored = localStorage.getItem(TEMPLATE_STORAGE_KEY);
-    if (stored) {
-      setTemplates(JSON.parse(stored));
-    }
-  }, []);
-
-  useEffect(() => {
-    if (isOpen) {
-      if (initialData) {
-        setFormData({ ...initialData, dependencies: initialData.dependencies || [] });
-        const isStandard = DEFAULT_PROJECTS.includes(initialData.project);
-        setIsCustomProject(!isStandard);
-        if (initialData.dependencies && initialData.dependencies.length > 0) {
-            setShowDeps(true);
-        }
-      } else {
-        resetForm();
-      }
-    }
-  }, [isOpen, initialData]);
-
-  const resetForm = () => {
-    setFormData({
-      id: '',
-      date: getLocalDate(),
-      description: '',
-      project: DEFAULT_PROJECTS[0],
-      priority: 'Medium',
-      status: 'Backlog',
-      dependencies: []
-    });
-    setIsCustomProject(false);
-    setShowDeps(false);
-    setIsPreviewMode(false);
-  };
+  const {
+    formData, setFormData,
+    isCustomProject, setIsCustomProject,
+    showDeps, setShowDeps,
+    isPreviewMode, setIsPreviewMode,
+    templates,
+    showTemplates, setShowTemplates,
+    currentRecurrence,
+    potentialDeps,
+    handleRecurrenceChange,
+    toggleDependency,
+    saveAsTemplate,
+    loadTemplate,
+    deleteTemplate
+  } = useTaskForm(initialData, entries);
 
   const handleSubmit = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
@@ -113,70 +68,6 @@ export const TaskModal: React.FC<TaskModalProps> = ({
       onClose();
     }
   };
-
-  // --- Template Logic ---
-  const saveAsTemplate = () => {
-    const name = prompt("Template Name:", formData.description.slice(0, 30));
-    if (!name) return;
-    
-    const newTemplate: TaskTemplate = {
-      id: crypto.randomUUID(),
-      name,
-      description: formData.description,
-      project: formData.project,
-      priority: formData.priority
-    };
-    
-    const updated = [...templates, newTemplate];
-    setTemplates(updated);
-    localStorage.setItem(TEMPLATE_STORAGE_KEY, JSON.stringify(updated));
-    alert("Template Saved!");
-  };
-
-  const loadTemplate = (template: TaskTemplate) => {
-    setFormData(prev => ({
-      ...prev,
-      description: template.description,
-      project: template.project,
-      priority: template.priority
-    }));
-    setShowTemplates(false);
-  };
-
-  const deleteTemplate = (id: string, e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (!window.confirm("Delete this template?")) return;
-    const updated = templates.filter(t => t.id !== id);
-    setTemplates(updated);
-    localStorage.setItem(TEMPLATE_STORAGE_KEY, JSON.stringify(updated));
-  };
-  // -----------------------
-
-  // --- Recurrence Logic ---
-  const handleRecurrenceChange = (tag: string) => {
-    // Remove existing tags first
-    let cleanDesc = formData.description;
-    RECURRENCE_OPTIONS.forEach(opt => {
-        if (opt.tag) cleanDesc = cleanDesc.replace(opt.tag, '');
-    });
-    cleanDesc = cleanDesc.trim();
-    
-    // Add new tag if selected
-    if (tag) {
-        setFormData({ ...formData, description: `${cleanDesc} ${tag}` });
-    } else {
-        setFormData({ ...formData, description: cleanDesc });
-    }
-  };
-
-  const currentRecurrence = useMemo(() => {
-    for (const opt of RECURRENCE_OPTIONS) {
-        if (opt.tag && formData.description.includes(opt.tag)) return opt.tag;
-    }
-    return '';
-  }, [formData.description]);
-  // ------------------------
-
 
   const handleFormat = (type: 'bold' | 'italic' | 'list' | 'link' | 'code') => {
     if (isPreviewMode) return;
@@ -228,21 +119,6 @@ export const TaskModal: React.FC<TaskModalProps> = ({
     }, 0);
   };
 
-  const toggleDependency = (id: string) => {
-    setFormData(prev => {
-        const current = prev.dependencies || [];
-        if (current.includes(id)) {
-            return { ...prev, dependencies: current.filter(d => d !== id) };
-        } else {
-            return { ...prev, dependencies: [...current, id] };
-        }
-    });
-  };
-
-  const potentialDeps = useMemo(() => {
-    return entries.filter(e => e.id !== formData.id && e.status !== 'Done');
-  }, [entries, formData.id]);
-
   if (!isOpen) return null;
 
   const isEditing = !!initialData;
@@ -293,7 +169,7 @@ export const TaskModal: React.FC<TaskModalProps> = ({
                                                 <div className="text-[10px] text-slate-400">{t.project} • {t.priority}</div>
                                             </div>
                                             <button 
-                                                onClick={(e) => deleteTemplate(t.id, e)}
+                                                onClick={(e) => { e.stopPropagation(); deleteTemplate(t.id); }}
                                                 className="text-slate-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all p-1"
                                             >
                                                 <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
@@ -350,7 +226,7 @@ export const TaskModal: React.FC<TaskModalProps> = ({
                   {!isPreviewMode && (
                     <div className="flex items-center gap-1 p-2 border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50">
                        <button type="button" onClick={() => handleFormat('bold')} className="p-1.5 text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 rounded" title="Bold">
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 4h8a4 4 0 014 4 4 4 0 01-4 4H6V4zm0 8h9a4 4 0 014 4 4 4 0 01-4 4H6v-8z" /></svg>
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 4h8a4 4 0 014 4 4 4 4 0 01-4 4H6V4zm0 8h9a4 4 0 014 4 4 4 4 0 01-4 4H6v-8z" /></svg>
                        </button>
                        <button type="button" onClick={() => handleFormat('italic')} className="p-1.5 text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 rounded" title="Italic">
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" /></svg>

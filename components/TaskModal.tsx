@@ -1,5 +1,5 @@
 
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { TaskEntry } from '../types';
@@ -29,6 +29,7 @@ export const TaskModal: React.FC<TaskModalProps> = ({
   entries 
 }) => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const [descriptionCopied, setDescriptionCopied] = useState(false);
   
   const {
     formData, setFormData,
@@ -45,6 +46,13 @@ export const TaskModal: React.FC<TaskModalProps> = ({
     loadTemplate,
     deleteTemplate
   } = useTaskForm(initialData, entries);
+
+  const handleCopyDescription = () => {
+    if (!formData.description) return;
+    navigator.clipboard.writeText(formData.description);
+    setDescriptionCopied(true);
+    setTimeout(() => setDescriptionCopied(false), 2000);
+  };
 
   const handleSubmit = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
@@ -203,21 +211,43 @@ export const TaskModal: React.FC<TaskModalProps> = ({
                     Description
                     <span className="text-[10px] font-normal text-slate-400 dark:text-slate-500 normal-case hidden sm:inline">Markdown supported</span>
                   </label>
-                  <div className="flex bg-slate-100 dark:bg-slate-800 rounded-lg p-0.5">
-                     <button 
-                       type="button"
-                       onClick={() => setIsPreviewMode(false)}
-                       className={`px-3 py-1 text-[10px] font-bold rounded-md transition-all ${!isPreviewMode ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-white shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'}`}
-                     >
-                       Write
-                     </button>
-                     <button 
-                       type="button"
-                       onClick={() => setIsPreviewMode(true)}
-                       className={`px-3 py-1 text-[10px] font-bold rounded-md transition-all ${isPreviewMode ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-white shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'}`}
-                     >
-                       Preview
-                     </button>
+                  <div className="flex items-center gap-3">
+                    {formData.description && (
+                        <button 
+                            type="button"
+                            onClick={handleCopyDescription}
+                            className={`flex items-center gap-1.5 px-2 py-1 text-[10px] font-bold uppercase tracking-wider rounded transition-all ${descriptionCopied ? 'text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20' : 'text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
+                            title="Copy Description Text"
+                        >
+                            {descriptionCopied ? (
+                                <>
+                                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" /></svg>
+                                    Copied
+                                </>
+                            ) : (
+                                <>
+                                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
+                                    Copy
+                                </>
+                            )}
+                        </button>
+                    )}
+                    <div className="flex bg-slate-100 dark:bg-slate-800 rounded-lg p-0.5">
+                        <button 
+                        type="button"
+                        onClick={() => setIsPreviewMode(false)}
+                        className={`px-3 py-1 text-[10px] font-bold rounded-md transition-all ${!isPreviewMode ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-white shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'}`}
+                        >
+                        Write
+                        </button>
+                        <button 
+                        type="button"
+                        onClick={() => setIsPreviewMode(true)}
+                        className={`px-3 py-1 text-[10px] font-bold rounded-md transition-all ${isPreviewMode ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-white shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'}`}
+                        >
+                        Preview
+                        </button>
+                    </div>
                   </div>
                </div>
 

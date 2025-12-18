@@ -1,6 +1,7 @@
 
 import { TaskEntry, NotificationAction } from '../types';
-import { STATUSES, RECURRENCE_OPTIONS } from '../constants';
+import { RECURRENCE_OPTIONS } from '../constants';
+import { getNextStatus } from '../utils/taskLogic';
 
 interface UseTaskActionsProps {
   saveTransaction: (entry: TaskEntry, isUpdate: boolean) => Promise<boolean>;
@@ -10,7 +11,6 @@ interface UseTaskActionsProps {
 export const useTaskActions = ({ saveTransaction, showToast }: UseTaskActionsProps) => {
 
   const handleDuplicate = (entry: TaskEntry): TaskEntry => {
-    // Returns a copy ready for the modal
     return {
         ...entry,
         id: '', 
@@ -26,9 +26,7 @@ export const useTaskActions = ({ saveTransaction, showToast }: UseTaskActionsPro
   };
 
   const handleStatusUpdate = async (entry: TaskEntry) => {
-    const currentIndex = STATUSES.indexOf(entry.status);
-    const nextIndex = (currentIndex + 1) % STATUSES.length;
-    const nextStatus = STATUSES[nextIndex];
+    const nextStatus = getNextStatus(entry.status);
     
     // 1. Update the original task
     const updatedEntry = { ...entry, status: nextStatus };
@@ -59,10 +57,9 @@ export const useTaskActions = ({ saveTransaction, showToast }: UseTaskActionsPro
                 dependencies: [] 
             };
 
-            // Small delay to ensure the UI updates first
             setTimeout(async () => {
                 await saveTransaction(nextTask, false);
-                showToast(`Recurring task scheduled for ${nextTask.date}`, 'success');
+                showToast(`Recurring mission scheduled for ${nextTask.date}`, 'success');
             }, 500);
         }
     }
@@ -72,7 +69,6 @@ export const useTaskActions = ({ saveTransaction, showToast }: UseTaskActionsPro
     const updatedEntry = { ...entry, status: 'Done' as const };
     await saveTransaction(updatedEntry, true);
     
-    // Check recurrence immediately
     const recurrenceOpt = RECURRENCE_OPTIONS.find(r => r.tag && entry.description.includes(r.tag));
     if (recurrenceOpt) {
          const currentDueDate = new Date(entry.date);
@@ -89,7 +85,7 @@ export const useTaskActions = ({ saveTransaction, showToast }: UseTaskActionsPro
             dependencies: []
          };
          await saveTransaction(nextTask, false);
-         showToast(`Recurring task scheduled for ${nextTask.date}`, 'success');
+         showToast(`Recurring mission scheduled for ${nextTask.date}`, 'success');
     }
   };
 

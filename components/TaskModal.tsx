@@ -7,12 +7,13 @@ import { DEFAULT_PROJECTS, PRIORITIES, STATUSES, PRIORITY_COLORS, STATUS_COLORS,
 import { CopyIdButton } from './CopyIdButton';
 import { useTaskForm } from '../hooks/useTaskForm';
 import { useMarkdownEditor } from '../hooks/useMarkdownEditor';
+import { Icon, iconProps } from './Icons';
 
 interface TaskModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (entry: TaskEntry) => Promise<void>;
-  onDelete: (entry: TaskEntry) => Promise<void>;
+  onDelete: (entry: TaskEntry) => Promise<void | boolean>;
   onDuplicate: (entry: TaskEntry) => void; 
   initialData?: TaskEntry | null;
   isSubmitting: boolean;
@@ -109,7 +110,7 @@ export const TaskModal: React.FC<TaskModalProps> = ({
                         onClick={() => setShowTemplates(!showTemplates)}
                         className="text-xs font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/20 hover:bg-indigo-100 dark:hover:bg-indigo-900/40 px-3 py-1.5 rounded-md transition-colors flex items-center gap-1"
                     >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2" /></svg>
+                        <Icon.Template {...iconProps(14)} />
                         Templates
                     </button>
                     {showTemplates && (
@@ -131,7 +132,7 @@ export const TaskModal: React.FC<TaskModalProps> = ({
                                                 <div className="text-[10px] text-slate-400">{t.project} • {t.priority}</div>
                                             </div>
                                             <button onClick={(e) => { e.stopPropagation(); deleteTemplate(t.id); }} className="text-slate-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all p-1">
-                                                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                                                <Icon.Close {...iconProps(12)} />
                                             </button>
                                         </div>
                                     ))
@@ -143,7 +144,7 @@ export const TaskModal: React.FC<TaskModalProps> = ({
              )}
 
              <button onClick={onClose} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                <Icon.Close {...iconProps(20)} />
              </button>
           </div>
         </div>
@@ -169,10 +170,10 @@ export const TaskModal: React.FC<TaskModalProps> = ({
                <div className="border border-slate-200 dark:border-slate-700 rounded-lg overflow-hidden bg-white dark:bg-slate-900 flex flex-col min-h-[300px]">
                   {!isPreviewMode && (
                     <div className="flex items-center gap-1 p-2 border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50">
-                       <button type="button" onClick={() => applyFormat('bold')} className="p-1.5 text-slate-500 hover:text-indigo-600 dark:text-slate-400 rounded transition-colors"><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 4h8a4 4 0 014 4 4 4 4 0 01-4 4H6V4zm0 8h9a4 4 0 014 4 4 4 4 0 01-4 4H6v-8z" /></svg></button>
-                       <button type="button" onClick={() => applyFormat('italic')} className="p-1.5 text-slate-500 hover:text-indigo-600 dark:text-slate-400 rounded transition-colors"><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" /></svg></button>
-                       <button type="button" onClick={() => applyFormat('list')} className="p-1.5 text-slate-500 hover:text-indigo-600 dark:text-slate-400 rounded transition-colors"><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M4 6h16M4 12h16M4 18h16" /></svg></button>
-                       <button type="button" onClick={() => applyFormat('code')} className="p-1.5 text-slate-500 hover:text-indigo-600 dark:text-slate-400 rounded transition-colors"><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M10 20l4-16" /></svg></button>
+                       <button type="button" onClick={() => applyFormat('bold')} className="p-1.5 text-slate-500 hover:text-indigo-600 dark:text-slate-400 rounded transition-colors"><Icon.Bold {...iconProps(14)} /></button>
+                       <button type="button" onClick={() => applyFormat('italic')} className="p-1.5 text-slate-500 hover:text-indigo-600 dark:text-slate-400 rounded transition-colors"><Icon.Italic {...iconProps(14)} /></button>
+                       <button type="button" onClick={() => applyFormat('list')} className="p-1.5 text-slate-500 hover:text-indigo-600 dark:text-slate-400 rounded transition-colors"><Icon.List {...iconProps(14)} /></button>
+                       <button type="button" onClick={() => applyFormat('code')} className="p-1.5 text-slate-500 hover:text-indigo-600 dark:text-slate-400 rounded transition-colors"><Icon.Code {...iconProps(14)} /></button>
                        <div className="flex-1"></div>
                        <span className="text-[9px] text-slate-400 px-2 font-medium">⌘+Enter to save</span>
                     </div>
@@ -276,7 +277,7 @@ export const TaskModal: React.FC<TaskModalProps> = ({
 
             <div className="border-t border-slate-100 dark:border-slate-800 pt-4">
                 <button type="button" onClick={() => setShowDeps(!showDeps)} className="flex items-center gap-2 text-xs font-bold text-slate-500 uppercase tracking-wider hover:text-indigo-600 mb-3">
-                    <svg className={`w-4 h-4 transition-transform ${showDeps ? 'rotate-90' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" /></svg>
+                    <Icon.Down {...iconProps(14, `transition-transform ${showDeps ? '' : '-rotate-90'}`)} />
                     Blocking Tasks ({formData.dependencies?.length || 0})
                 </button>
                 {showDeps && (
@@ -285,10 +286,10 @@ export const TaskModal: React.FC<TaskModalProps> = ({
                              const isSelected = formData.dependencies?.includes(task.id);
                              return (
                                 <div key={task.id} onClick={() => toggleDependency(task.id)}
-                                    className={`flex items-start gap-2 p-2 rounded cursor-pointer border ${isSelected ? 'bg-white border-indigo-200 shadow-sm' : 'border-transparent hover:bg-slate-100'}`}
+                                    className={`flex items-start gap-2 p-2 rounded cursor-pointer border ${isSelected ? 'bg-white border-indigo-200 shadow-sm dark:bg-slate-700 dark:border-indigo-500' : 'border-transparent hover:bg-slate-100 dark:hover:bg-slate-800'}`}
                                 >
-                                    <div className={`mt-0.5 w-4 h-4 border rounded flex items-center justify-center ${isSelected ? 'bg-indigo-600 border-indigo-600' : 'border-slate-300 bg-white'}`}>
-                                        {isSelected && <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" /></svg>}
+                                    <div className={`mt-0.5 w-4 h-4 border rounded flex items-center justify-center ${isSelected ? 'bg-indigo-600 border-indigo-600' : 'border-slate-300 bg-white dark:bg-slate-600 dark:border-slate-500'}`}>
+                                        {isSelected && <Icon.Check {...iconProps(12, "text-white")} />}
                                     </div>
                                     <div className="flex-1">
                                         <p className="text-xs font-medium text-slate-700 dark:text-slate-200">{task.description}</p>
@@ -304,14 +305,15 @@ export const TaskModal: React.FC<TaskModalProps> = ({
         </div>
 
         {/* Footer */}
-        <div className="bg-slate-50 dark:bg-slate-800 px-6 py-4 border-t border-slate-100 dark:border-slate-700 flex justify-between items-center">
+        <div className="bg-slate-50 dark:bg-slate-800 px-6 py-4 border-t border-slate-100 dark:border-slate-800 flex justify-between items-center">
            {isEditing ? (
              <div className="flex gap-2">
                  <button type="button" onClick={handleDelete} className="text-red-500 hover:text-red-700 text-sm font-medium px-3 py-2 rounded transition-colors flex items-center gap-2">
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                    <Icon.Delete {...iconProps(16)} />
                     Delete
                 </button>
                 <button type="button" onClick={() => onDuplicate(formData)} className="text-slate-500 hover:text-indigo-600 text-sm font-medium px-3 py-2 rounded flex items-center gap-2">
+                    <Icon.Copy {...iconProps(16)} />
                     Duplicate
                 </button>
                 <CopyIdButton id={formData.id} showLabel className="text-slate-500 hover:text-indigo-600 text-sm font-medium px-3 py-2 rounded flex items-center gap-2" />
@@ -319,9 +321,9 @@ export const TaskModal: React.FC<TaskModalProps> = ({
            ) : <div />}
            
            <div className="flex gap-3">
-             <button onClick={onClose} className="px-4 py-2 text-sm font-medium text-slate-600 bg-white dark:bg-slate-700 border border-slate-300 rounded-lg hover:bg-slate-50">Cancel</button>
+             <button onClick={onClose} className="px-4 py-2 text-sm font-medium text-slate-600 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-600">Cancel</button>
              <button onClick={() => handleSubmit()} disabled={isSubmitting}
-               className={`px-6 py-2 text-sm font-bold text-white rounded-lg shadow-md ${isEditing ? 'bg-amber-600 hover:bg-amber-700' : 'bg-slate-900 dark:bg-indigo-600 hover:bg-slate-800'}`}
+               className={`px-6 py-2 text-sm font-bold text-white rounded-lg shadow-md ${isEditing ? 'bg-amber-600 hover:bg-amber-700' : 'bg-slate-900 dark:bg-indigo-600 hover:bg-slate-800 dark:hover:bg-indigo-500'}`}
              >
                {isSubmitting ? 'Saving...' : isEditing ? 'Update' : 'Create'}
              </button>

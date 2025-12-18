@@ -1,5 +1,5 @@
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { GoogleGenAI, Chat } from "@google/genai";
 import { AppConfig, TaskEntry } from '../types';
 import { WES_AI_SYSTEM_INSTRUCTION, WES_TOOLS } from '../constants/aiConfig';
@@ -28,168 +28,82 @@ export const useAiChat = ({
     {
       id: 'init',
       role: 'model',
-      text: "Systems online, brother. I'm connected to the mission board. What's the move?",
+      text: "WesAI initialized. Systems optimal. What's the directive?",
       timestamp: new Date()
     }
   ]);
   const [inputValue, setInputValue] = useState('');
   const [isThinking, setIsThinking] = useState(false);
   const [activeTool, setActiveTool] = useState<string | null>(null);
-  
   const chatSession = useRef<Chat | null>(null);
 
-  const startNewSession = () => {
-      if (!config.geminiApiKey) return;
-      try {
-        const ai = new GoogleGenAI({ apiKey: config.geminiApiKey });
-        chatSession.current = ai.chats.create({
-            model: 'gemini-3-flash-preview',
-            config: {
-                systemInstruction: WES_AI_SYSTEM_INSTRUCTION,
-                tools: WES_TOOLS,
-                thinkingConfig: { thinkingBudget: 0 } // Flash doesn't need heavy thinking for board management
-            }
-        });
-      } catch (e) {
-        console.error("Failed to initialize WesAI", e);
-      }
-  };
-
-  useEffect(() => {
-    if (!config.geminiApiKey) {
-        setMessages(prev => {
-            if (prev.find(m => m.id === 'error-key')) return prev;
-            return [...prev, {
-                id: 'error-key',
-                role: 'model',
-                text: "⚠️ **Neural Link Offline**: Please add your **Gemini API Key** in Settings to activate WesAI.",
-                timestamp: new Date()
-            }];
-        });
-        chatSession.current = null;
-        return;
-    }
-    startNewSession();
+  const initSession = useCallback(() => {
+    if (!config.geminiApiKey) return;
+    try {
+      const ai = new GoogleGenAI({ apiKey: config.geminiApiKey });
+      chatSession.current = ai.chats.create({
+          model: 'gemini-3-flash-preview',
+          config: {
+              systemInstruction: WES_AI_SYSTEM_INSTRUCTION,
+              tools: WES_TOOLS,
+              thinkingConfig: { thinkingBudget: 0 }
+          }
+      });
+    } catch (e) { console.error("Neural initialization failed", e); }
   }, [config.geminiApiKey]);
 
-  const resetChat = () => {
-    setMessages([
-        {
-          id: crypto.randomUUID(),
-          role: 'model',
-          text: "Systems re-initialized. Ready for orders.",
-          timestamp: new Date()
-        }
-    ]);
-    startNewSession();
-  };
+  useEffect(() => {
+    if (config.geminiApiKey) initSession();
+  }, [config.geminiApiKey, initSession]);
 
-  const executeFunction = async (name: string, args: any): Promise<any> => {
-      setActiveTool(name);
-      await new Promise(r => setTimeout(r, 600)); // Minimal feel delay
-
-      try {
-          switch (name) {
-              case 'get_tasks':
-                  return { tasks: entries.map(e => ({ id: e.id, desc: e.description, status: e.status, priority: e.priority, date: e.date, project: e.project })) };
-              
-              case 'create_task':
-                  const newEntry: TaskEntry = {
-                      id: '',
-                      description: args.description,
-                      project: args.project || 'Inbox',
-                      priority: args.priority || 'Medium',
-                      status: 'Backlog',
-                      date: args.date || new Date().toISOString().split('T')[0],
-                      dependencies: []
-                  };
-                  await onSaveTransaction(newEntry, false);
-                  return { result: "success", message: `Created task: ${newEntry.description}` };
-              
-              case 'update_task':
-                  const target = entries.find(e => e.id === args.id);
-                  if (!target) return { error: "Task ID not found" };
-                  const updatedEntry = { ...target, ...args };
-                  await onSaveTransaction(updatedEntry, true);
-                  return { result: "success", message: `Updated task: ${target.description}` };
-              
-              case 'delete_task':
-                  const delTarget = entries.find(e => e.id === args.id);
-                  if (!delTarget) return { error: "Task ID not found" };
-                  await onDeleteTransaction(delTarget);
-                  return { result: "success", message: "Task deleted." };
-
-              default:
-                  return { error: "Unknown function" };
-          }
-      } catch (err: any) {
-          return { error: err.message };
-      } finally {
-          setActiveTool(null);
+  const executeTool = async (name: string, args: any) => {
+    setActiveTool(name);
+    try {
+      switch (name) {
+        case 'get_tasks':
+          return { tasks: entries.map(({ id, description, status, priority, date, project }) => ({ id, description, status, priority, date, project })) };
+        case 'create_task':
+          const success = await onSaveTransaction({ 
+            id: '', description: args.description, project: args.project || 'Inbox', 
+            priority: args.priority || 'Medium', status: 'Backlog', 
+            date: args.date || new Date().toISOString().split('T')[0], dependencies: [] 
+          }, false);
+          return success ? { status: "Created successfully" } : { error: "Failed to create" };
+        case 'update_task':
+          const task = entries.find(e => e.id === args.id);
+          if (!task) return { error: "ID not found" };
+          const ok = await onSaveTransaction({ ...task, ...args }, true);
+          return ok ? { status: "Updated successfully" } : { error: "Failed to update" };
+        case 'delete_task':
+          const t = entries.find(e => e.id === args.id);
+          if (!t) return { error: "ID not found" };
+          const delOk = await onDeleteTransaction(t);
+          return delOk ? { status: "Deleted successfully" } : { error: "Failed to delete" };
+        default: return { error: "Tool not found" };
       }
+    } finally { setActiveTool(null); }
   };
 
   const sendMessage = async () => {
-    if (!inputValue.trim()) return;
-    if (!chatSession.current) return;
-
-    const userText = inputValue;
+    if (!inputValue.trim() || !chatSession.current) return;
+    const prompt = inputValue;
     setInputValue('');
-    
-    setMessages(prev => [...prev, {
-        id: crypto.randomUUID(),
-        role: 'user',
-        text: userText,
-        timestamp: new Date()
-    }]);
-    
+    setMessages(prev => [...prev, { id: crypto.randomUUID(), role: 'user', text: prompt, timestamp: new Date() }]);
     setIsThinking(true);
 
     try {
-        let result = await chatSession.current.sendMessage({ message: userText });
-        
-        while (result.functionCalls && result.functionCalls.length > 0) {
-            const toolResponses = [];
-            for (const call of result.functionCalls) {
-                const functionResponse = await executeFunction(call.name, call.args);
-                toolResponses.push({
-                    functionResponse: {
-                        name: call.name,
-                        id: call.id,
-                        response: functionResponse
-                    }
-                });
-            }
-            result = await chatSession.current.sendMessage({ message: toolResponses });
-        }
-
-        setMessages(prev => [...prev, {
-            id: crypto.randomUUID(),
-            role: 'model',
-            text: result.text || "Mission updated.",
-            timestamp: new Date()
-        }]);
-
-    } catch (error: any) {
-        setMessages(prev => [...prev, {
-            id: crypto.randomUUID(),
-            role: 'model',
-            text: `**System Error**: ${error.message}`,
-            timestamp: new Date()
-        }]);
-    } finally {
-        setIsThinking(false);
-        setActiveTool(null);
-    }
+      let result = await chatSession.current.sendMessage({ message: prompt });
+      while (result.functionCalls?.length) {
+        const responses = await Promise.all(result.functionCalls.map(async (call) => ({
+          functionResponse: { name: call.name, id: call.id, response: await executeTool(call.name, call.args) }
+        })));
+        result = await chatSession.current.sendMessage({ message: responses });
+      }
+      setMessages(prev => [...prev, { id: crypto.randomUUID(), role: 'model', text: result.text || "Directives processed.", timestamp: new Date() }]);
+    } catch (err: any) {
+      setMessages(prev => [...prev, { id: crypto.randomUUID(), role: 'model', text: `System Error: ${err.message}`, timestamp: new Date() }]);
+    } finally { setIsThinking(false); }
   };
 
-  return {
-    messages,
-    inputValue,
-    setInputValue,
-    isThinking,
-    activeTool,
-    sendMessage,
-    resetChat
-  };
+  return { messages, inputValue, setInputValue, isThinking, activeTool, sendMessage, resetChat: () => { setMessages([{ id: 'reset', role: 'model', text: "Systems re-zeroed.", timestamp: new Date() }]); initSession(); } };
 };

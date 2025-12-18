@@ -1,8 +1,9 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { TaskEntry } from '../types';
 import { PRIORITY_DOTS } from '../constants';
-import { getProjectStyle } from '../utils/formatUtils';
+import { Icon, iconProps } from './Icons';
 
 interface FocusModeProps {
   task: TaskEntry;
@@ -19,8 +20,6 @@ export const FocusMode: React.FC<FocusModeProps> = ({ task, onExit, onUpdate, on
   const [sessionNotes, setSessionNotes] = useState('');
   const [showDetails, setShowDetails] = useState(false);
 
-  // Audio Ref (Optional: Add a beep sound later)
-  
   useEffect(() => {
     let interval: ReturnType<typeof setTimeout>;
 
@@ -80,7 +79,7 @@ export const FocusMode: React.FC<FocusModeProps> = ({ task, onExit, onUpdate, on
         } else {
             await onComplete(task);
         }
-        onExit(); // App.tsx handles the actual status update logic
+        onExit(); 
     }
   };
 
@@ -94,7 +93,7 @@ export const FocusMode: React.FC<FocusModeProps> = ({ task, onExit, onUpdate, on
       <div className="flex justify-between items-center p-6 border-b border-slate-800">
         <div className="flex items-center gap-3">
              <div className="p-2 bg-slate-800 rounded-lg">
-                <svg className="w-5 h-5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+                <Icon.Focus {...iconProps(20, "text-indigo-400")} />
              </div>
              <div>
                  <div className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Deep Work Protocol</div>
@@ -119,7 +118,7 @@ export const FocusMode: React.FC<FocusModeProps> = ({ task, onExit, onUpdate, on
          <div className="flex flex-col items-center justify-center p-8 border-b lg:border-b-0 lg:border-r border-slate-800 relative overflow-hidden">
             {/* Background Pulse Effect */}
             {isActive && (
-                <div className="absolute inset-0 bg-indigo-500/5 animate-pulse pointer-events-none"></div>
+                <div className="absolute inset-0 bg-indigo-500/5 animate-pulse-soft pointer-events-none"></div>
             )}
             
             <div className="relative z-10 text-center space-y-8">
@@ -175,23 +174,23 @@ export const FocusMode: React.FC<FocusModeProps> = ({ task, onExit, onUpdate, on
                         className={`w-14 h-14 rounded-full flex items-center justify-center border-2 transition-all ${isActive ? 'border-amber-500 text-amber-500 hover:bg-amber-500 hover:text-white' : 'border-indigo-500 text-indigo-500 hover:bg-indigo-500 hover:text-white'}`}
                     >
                         {isActive ? (
-                            <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+                            <Icon.Pause {...iconProps(24, "fill-current")} />
                         ) : (
-                            <svg className="w-6 h-6 ml-1" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                            <Icon.Play {...iconProps(24, "fill-current ml-1")} />
                         )}
                     </button>
                     <button 
                         onClick={resetTimer}
                         className="w-14 h-14 rounded-full flex items-center justify-center border-2 border-slate-600 text-slate-400 hover:border-slate-400 hover:text-white transition-all"
                     >
-                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+                        <Icon.Reset {...iconProps(24)} />
                     </button>
                     <button 
                         onClick={handleCompleteTask}
                         className="w-14 h-14 rounded-full flex items-center justify-center border-2 border-emerald-600 text-emerald-500 hover:bg-emerald-600 hover:text-white transition-all ml-8"
                         title="Mark Done"
                     >
-                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" /></svg>
+                        <Icon.Check {...iconProps(24)} />
                     </button>
                 </div>
             </div>
@@ -203,7 +202,8 @@ export const FocusMode: React.FC<FocusModeProps> = ({ task, onExit, onUpdate, on
             <div className="p-6 border-b border-slate-800 bg-slate-800/30">
                 <div className="flex justify-between items-start mb-4">
                     <h2 className="text-xl font-bold text-white leading-snug">{task.description.split('\n')[0]}</h2>
-                    <button onClick={() => setShowDetails(!showDetails)} className="text-slate-500 hover:text-indigo-400 text-xs uppercase font-bold tracking-wider">
+                    <button onClick={() => setShowDetails(!showDetails)} className="text-slate-500 hover:text-indigo-400 text-xs uppercase font-bold tracking-wider flex items-center gap-1.5">
+                        <Icon.Preview {...iconProps(14)} />
                         {showDetails ? 'Hide Details' : 'Show Details'}
                     </button>
                 </div>
@@ -217,7 +217,7 @@ export const FocusMode: React.FC<FocusModeProps> = ({ task, onExit, onUpdate, on
             {/* Session Notes */}
             <div className="flex-1 flex flex-col p-6 min-h-0">
                 <label className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3 flex items-center gap-2">
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+                    <Icon.Edit {...iconProps(14)} />
                     Session Log
                 </label>
                 <textarea

@@ -3,6 +3,7 @@ import React, { useRef, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { AppConfig, TaskEntry } from '../types';
 import { useAiChat } from '../hooks/useAiChat';
+import { Icon, iconProps } from './Icons';
 
 interface AiChatSidebarProps {
   isOpen: boolean;
@@ -61,7 +62,7 @@ export const AiChatSidebar: React.FC<AiChatSidebarProps> = ({
         {/* Header */}
         <div className="h-16 flex items-center justify-between px-6 border-b border-slate-100 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-900/80 backdrop-blur-md">
             <div className="flex items-center gap-2">
-                <div className={`w-2 h-2 rounded-full ${config.geminiApiKey ? 'bg-indigo-500 animate-pulse' : 'bg-red-500'}`}></div>
+                <div className={`w-2 h-2 rounded-full ${config.geminiApiKey ? 'bg-indigo-500 animate-pulse-soft' : 'bg-red-500'}`}></div>
                 <h2 className="font-bold text-slate-800 dark:text-slate-100 tracking-tight">WesAI <span className="text-slate-400 font-normal">Neural Link</span></h2>
             </div>
             <div className="flex items-center gap-1">
@@ -70,13 +71,13 @@ export const AiChatSidebar: React.FC<AiChatSidebarProps> = ({
                     className="p-2 text-slate-400 hover:text-indigo-500 rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors"
                     title="Reset Chat"
                 >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+                    <Icon.Reset {...iconProps(18)} />
                 </button>
                 <button 
                     onClick={onClose}
                     className="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors"
                 >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                    <Icon.Close {...iconProps(18)} />
                 </button>
             </div>
         </div>
@@ -92,18 +93,26 @@ export const AiChatSidebar: React.FC<AiChatSidebarProps> = ({
                             : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 rounded-bl-none border border-slate-200 dark:border-slate-700'
                         }`}
                     >
+                        {msg.role === 'model' && (
+                           <div className="mb-2 flex items-center gap-1.5 text-indigo-500 dark:text-indigo-400">
+                              <Icon.Bot {...iconProps(14, "stroke-[2.5px]")} />
+                              <span className="text-[10px] font-bold uppercase tracking-widest">WesAI</span>
+                           </div>
+                        )}
                         {msg.role === 'model' ? (
-                            <ReactMarkdown 
-                                components={{
-                                    p: ({node, ...props}) => <p {...props} className="mb-2 last:mb-0" />,
-                                    ul: ({node, ...props}) => <ul {...props} className="list-disc list-inside mb-2" />,
-                                    ol: ({node, ...props}) => <ol {...props} className="list-decimal list-inside mb-2" />,
-                                    code: ({node, ...props}) => <code {...props} className="bg-slate-200 dark:bg-slate-900 px-1 py-0.5 rounded font-mono text-xs" />,
-                                    strong: ({node, ...props}) => <strong {...props} className="font-bold text-slate-900 dark:text-white" />
-                                }}
-                            >
-                                {msg.text}
-                            </ReactMarkdown>
+                            <div className="prose prose-sm dark:prose-invert max-w-none">
+                              <ReactMarkdown 
+                                  components={{
+                                      p: ({node, ...props}) => <p {...props} className="mb-2 last:mb-0" />,
+                                      ul: ({node, ...props}) => <ul {...props} className="list-disc list-inside mb-2" />,
+                                      ol: ({node, ...props}) => <ol {...props} className="list-decimal list-inside mb-2" />,
+                                      code: ({node, ...props}) => <code {...props} className="bg-slate-200 dark:bg-slate-900 px-1 py-0.5 rounded font-mono text-xs" />,
+                                      strong: ({node, ...props}) => <strong {...props} className="font-bold text-slate-900 dark:text-white" />
+                                  }}
+                              >
+                                  {msg.text}
+                              </ReactMarkdown>
+                            </div>
                         ) : (
                             msg.text
                         )}
@@ -120,7 +129,7 @@ export const AiChatSidebar: React.FC<AiChatSidebarProps> = ({
                     <div className="bg-slate-50 dark:bg-slate-900/50 rounded-2xl rounded-bl-none px-4 py-3 border border-slate-100 dark:border-slate-800 flex items-center gap-2">
                         {activeTool ? (
                             <div className="flex items-center gap-2 text-xs text-indigo-500 font-mono font-bold uppercase tracking-wider">
-                                <svg className="w-3 h-3 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                                <Icon.Settings {...iconProps(14, "animate-spin")} />
                                 {activeTool}...
                             </div>
                         ) : (
@@ -154,7 +163,7 @@ export const AiChatSidebar: React.FC<AiChatSidebarProps> = ({
                     disabled={!inputValue.trim() || isThinking || !config.geminiApiKey}
                     className="absolute right-2 bottom-2 p-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm"
                 >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" /></svg>
+                    <Icon.Send {...iconProps(18)} />
                 </button>
             </div>
             <div className="text-[10px] text-slate-400 text-center mt-2 flex justify-center gap-2">

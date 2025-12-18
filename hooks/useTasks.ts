@@ -1,3 +1,4 @@
+
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { TaskEntry, AppConfig, NotificationAction } from '../types';
 import { fetchTasks, addTask, updateTask, deleteTask } from '../services/taskService';
@@ -12,121 +13,75 @@ export const useTasks = (
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
-  // Track pending deletions to prevent them from reappearing during background fetches
+  // Track operations in flight to avoid race conditions with background refreshes
   const pendingDeletions = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
 
-  const loadData = useCallback(async () => {
-    // 1. FAST PATH: Load from Cache immediately (Live Mode)
-    // This implements "Stale-While-Revalidate" strategy
+  const syncState = useCallback((newEntries: TaskEntry[]) => {
+    const sorted = [...newEntries].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    setEntries(sorted);
     if (config.mode === 'LIVE') {
-       const cached = localStorage.getItem(LIVE_CACHE_KEY);
-       if (cached) {
-         try {
-           const parsed = JSON.parse(cached);
-           setEntries(parsed);
-           setIsLoading(false); // Render immediately, don't wait for network
-         } catch (e) {
-           console.warn("Corrupt local cache", e);
-         }
-       }
+        localStorage.setItem(LIVE_CACHE_KEY, JSON.stringify(sorted));
     }
+  }, [config.mode]);
 
-    // Only show loading spinner if we have NO data at all
-    if (config.mode === 'LIVE' && !localStorage.getItem(LIVE_CACHE_KEY)) {
-        setIsLoading(true);
-    } else if (config.mode === 'DEMO') {
-        setIsLoading(true);
+  const loadData = useCallback(async (isInitial = false) => {
+    if (isInitial) {
+       if (config.mode === 'LIVE') {
+          const cached = localStorage.getItem(LIVE_CACHE_KEY);
+          if (cached) {
+            try {
+              setEntries(JSON.parse(cached));
+              setIsLoading(false);
+            } catch (e) { console.warn("Cache corrupted"); }
+          }
+       }
+       if (entries.length === 0) setIsLoading(true);
     }
 
     try {
-      // 2. SLOW PATH: Network Fetch (Background Sync)
       const data = await fetchTasks(config);
-      
       const visibleData = data.filter(item => !pendingDeletions.current.has(item.id));
-
-      const sorted = [...visibleData].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-      
-      setEntries(sorted);
-
-      // Update Cache with fresh server data
-      if (config.mode === 'LIVE') {
-        localStorage.setItem(LIVE_CACHE_KEY, JSON.stringify(sorted));
-      }
-      
+      syncState(visibleData);
     } catch (err: any) {
-      // If we have cached data, suppress the error to a console log or subtle toast
-      // so we don't block the user from working with cached data.
-      if (config.mode === 'LIVE' && localStorage.getItem(LIVE_CACHE_KEY)) {
-          console.error("Background sync failed:", err);
-          // Optional: showToast('Offline: Using cached data', 'info'); 
-      } else {
-          showToast(err.message || 'Failed to load tasks.', 'error');
+      if (!isInitial || entries.length === 0) {
+          showToast(err.message || 'Sync failed.', 'error');
       }
+      console.error("Task sync error:", err);
     } finally {
       setIsLoading(false);
     }
-  }, [config, showToast]);
+  }, [config, showToast, entries.length, syncState]);
 
   useEffect(() => {
-    loadData();
-  }, [loadData]);
+    loadData(true);
+  }, [config.mode, config.gasDeploymentUrl]);
 
   const saveTransaction = async (entry: TaskEntry, isUpdate: boolean) => {
     setIsSubmitting(true);
-    try {
-      // Optimistic Update: Update UI & Cache immediately
-      setEntries(prev => {
-        let updated;
-        if (isUpdate) {
-            updated = prev.map(e => e.id === entry.id ? entry : e);
-        } else {
-            updated = [...prev, entry]; // ID might be temp, but fine for display
-        }
-        const sorted = updated.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-        
-        // Persist optimistic state to cache immediately
-        if (config.mode === 'LIVE') {
-            localStorage.setItem(LIVE_CACHE_KEY, JSON.stringify(sorted));
-        }
-        return sorted;
-      });
+    const originalState = [...entries];
+    
+    // Optimistic Update
+    const optimisticEntry = { ...entry, id: entry.id || crypto.randomUUID() };
+    const nextState = isUpdate 
+        ? entries.map(e => e.id === optimisticEntry.id ? optimisticEntry : e)
+        : [optimisticEntry, ...entries];
+    
+    syncState(nextState);
 
+    try {
       if (isUpdate) {
-        await updateTask(entry, config);
-        showToast('Task updated', 'success');
+        await updateTask(optimisticEntry, config);
+        showToast('Mission updated', 'success');
       } else {
-        const newEntry = await addTask(entry, config);
-        
-        // Re-update state with the server-confirmed entry (e.g. valid ID)
-        setEntries(prev => {
-           // Replace the optimistically added entry (which might have had temp ID or missing fields)
-           // Actually, addTask returns the full object with ID.
-           // Since we don't easily know which one was the temp one without a temp-id tracking system,
-           // we'll just append. (In a perfect system we'd swap the ID).
-           // For simplicity in this lightweight app, the optimistic add above is visually fine.
-           // To ensure data consistency, we update the cache again with the returned value.
-           
-           // Simple strategy: Just ensure the newEntry is in the list. 
-           // Since we already added 'entry' optimistically, and 'newEntry' usually has the same content + ID.
-           // We might technically have a duplicate if we don't filter.
-           // A safer bet for this specific lightweight implementation is to rely on background sync next time,
-           // OR purely rely on the optimistic update if IDs align.
-           
-           // For now, let's trust the optimistic update we did above for visual speed,
-           // and the background re-fetch will eventually clean up any ID discrepancies if we re-loaded.
-           // But to be cleaner, let's update the cache one last time.
-           const updated = [...prev.filter(e => e.id !== entry.id), newEntry];
-           const sorted = updated.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-           if (config.mode === 'LIVE') localStorage.setItem(LIVE_CACHE_KEY, JSON.stringify(sorted));
-           return sorted;
-        });
-        showToast('Task added', 'success');
+        const confirmedEntry = await addTask(optimisticEntry, config);
+        // Swap temp with confirmed if needed (though IDs are usually stable UUIDs here)
+        setEntries(prev => prev.map(e => e.id === optimisticEntry.id ? confirmedEntry : e));
+        showToast('Mission initialized', 'success');
       }
-      
       return true;
     } catch (err: any) {
-      showToast(`Error saving task: ${err.message}`, 'error');
-      await loadData(); // Revert on error
+      showToast(`Error: ${err.message}`, 'error');
+      setEntries(originalState);
       return false;
     } finally {
       setIsSubmitting(false);
@@ -135,50 +90,33 @@ export const useTasks = (
 
   const removeTransaction = async (entry: TaskEntry) => {
     if (!entry.id) return false;
+    const originalState = [...entries];
 
     // Optimistic Delete
-    setEntries(current => {
-        const updated = current.filter(e => e.id !== entry.id);
-        // Update cache immediately
-        if (config.mode === 'LIVE') localStorage.setItem(LIVE_CACHE_KEY, JSON.stringify(updated));
-        return updated;
-    });
+    syncState(entries.filter(e => e.id !== entry.id));
 
     const performDelete = async () => {
        try {
          await deleteTask(entry.id, config);
          pendingDeletions.current.delete(entry.id);
        } catch (err: any) {
-         // Revert UI on failure
-         setEntries(prev => {
-            const restored = [...prev, entry].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-            if (config.mode === 'LIVE') localStorage.setItem(LIVE_CACHE_KEY, JSON.stringify(restored));
-            return restored;
-         });
+         setEntries(originalState);
          pendingDeletions.current.delete(entry.id);
-         showToast(`Failed to delete: ${err.message}`, 'error');
+         showToast(`Abortion failed: ${err.message}`, 'error');
        }
     };
 
     const timeoutId = setTimeout(performDelete, 4500);
     pendingDeletions.current.set(entry.id, timeoutId);
 
-    showToast('Task deleted', 'info', {
+    showToast('Mission aborted', 'info', {
       label: 'Undo',
       onClick: () => {
         const timer = pendingDeletions.current.get(entry.id);
         if (timer) clearTimeout(timer);
-        
         pendingDeletions.current.delete(entry.id);
-
-        setEntries(prev => {
-           const restored = [...prev, entry];
-           const sorted = restored.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-           if (config.mode === 'LIVE') localStorage.setItem(LIVE_CACHE_KEY, JSON.stringify(sorted));
-           return sorted;
-        });
-        
-        showToast('Deletion undone', 'success');
+        syncState(originalState);
+        showToast('Restoration complete', 'success');
       }
     });
 
@@ -189,23 +127,14 @@ export const useTasks = (
     if (entriesToDelete.length === 0) return;
     setIsLoading(true);
     try {
-      const idsToDelete = new Set(entriesToDelete.map(e => e.id));
-      setEntries(prev => {
-          const updated = prev.filter(e => !idsToDelete.has(e.id));
-          if (config.mode === 'LIVE') localStorage.setItem(LIVE_CACHE_KEY, JSON.stringify(updated));
-          return updated;
-      });
-
-      let deletedCount = 0;
+      const ids = new Set(entriesToDelete.map(e => e.id));
+      syncState(entries.filter(e => !ids.has(e.id)));
       for (const entry of entriesToDelete) {
-        if (entry.id) {
-          await deleteTask(entry.id, config);
-          deletedCount++;
-        }
+        if (entry.id) await deleteTask(entry.id, config);
       }
-      showToast(`Deleted ${deletedCount} tasks`, 'success');
+      showToast(`Purged ${entriesToDelete.length} missions`, 'success');
     } catch (err: any) {
-      showToast(`Error: ${err.message}`, 'error');
+      showToast(`Bulk error: ${err.message}`, 'error');
       await loadData();
     } finally {
       setIsLoading(false);

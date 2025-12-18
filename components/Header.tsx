@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { Page } from '../types';
+import { Icon, iconProps } from './Icons';
 
 interface HeaderProps {
   activePage: Page;
@@ -26,9 +27,7 @@ export const Header: React.FC<HeaderProps> = ({ activePage, onMenuToggle, onOpen
           onClick={onMenuToggle}
           className="lg:hidden p-2 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
-          </svg>
+          <Icon.Menu {...iconProps(22)} />
         </button>
 
         <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100 tracking-tight">{getTitle()}</h2>
@@ -40,18 +39,14 @@ export const Header: React.FC<HeaderProps> = ({ activePage, onMenuToggle, onOpen
             onClick={onOpenAiChat}
             className="hidden sm:flex items-center gap-2 text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 px-3 py-2 rounded-lg text-xs font-bold uppercase tracking-wider hover:bg-slate-100 dark:hover:bg-slate-800 transition-all"
          >
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-               <path strokeLinecap="round" strokeLinejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
-            </svg>
+            <Icon.Chat {...iconProps(16)} />
             Ask Wes
          </button>
          <button 
             onClick={onOpenAiChat}
             className="sm:hidden flex items-center justify-center w-8 h-8 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-all"
          >
-             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-               <path strokeLinecap="round" strokeLinejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
-            </svg>
+             <Icon.Chat {...iconProps(18)} />
          </button>
 
          {/* Quick Action: New Task (Always available) */}
@@ -59,18 +54,14 @@ export const Header: React.FC<HeaderProps> = ({ activePage, onMenuToggle, onOpen
             onClick={onOpenCreate}
             className="hidden sm:flex items-center gap-2 bg-slate-900 dark:bg-indigo-600 text-white px-3 py-2 rounded-lg text-xs font-bold uppercase tracking-wider hover:bg-slate-800 dark:hover:bg-indigo-500 shadow-md hover:shadow-lg active:scale-95 transition-all"
          >
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
-               <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
-            </svg>
+            <Icon.Add {...iconProps(16, "stroke-[3px]")} />
             Quick Task
          </button>
          <button 
             onClick={onOpenCreate}
             className="sm:hidden flex items-center justify-center w-8 h-8 bg-slate-900 dark:bg-indigo-600 text-white rounded-lg shadow-md hover:bg-slate-800 dark:hover:bg-indigo-500"
          >
-             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
-               <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
-            </svg>
+             <Icon.Add {...iconProps(18, "stroke-[3px]")} />
          </button>
       </div>
     </header>

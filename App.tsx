@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { TaskEntry, AppConfig } from './types';
 import { TaskModal } from './components/TaskModal';
 import { SettingsModal } from './components/SettingsModal';
@@ -28,11 +28,9 @@ const App: React.FC = () => {
   const { config, setConfig } = useAppConfig();
   const { notifications, showToast, removeNotification } = useNotifications();
   
-  // Theme & State Hooks
   useTheme(config.theme);
   const ui = useUiState();
 
-  // --- Data & Actions ---
   const { 
     entries, 
     isLoading, 
@@ -42,14 +40,9 @@ const App: React.FC = () => {
     bulkRemoveTransactions 
   } = useTasks(config, showToast);
 
-  const {
-    handleDuplicate: generateDuplicate,
-    handleStatusUpdate,
-    handleDescriptionUpdate,
-    handleFocusComplete
-  } = useTaskActions({ saveTransaction, showToast });
-
+  const taskActions = useTaskActions({ saveTransaction, showToast });
   const missionControl = useMissionControl(entries);
+  
   const { filteredEntries, metrics } = useTaskAnalytics({
     entries,
     searchQuery: missionControl.searchQuery,
@@ -58,7 +51,6 @@ const App: React.FC = () => {
     selectedMonth: missionControl.selectedMonth
   });
 
-  // --- Keyboard Shortcuts Hook ---
   useAppShortcuts({
     activePage: ui.activePage,
     isTaskModalOpen: ui.isTaskModalOpen,
@@ -69,48 +61,33 @@ const App: React.FC = () => {
     setShowShortcuts: ui.setShowShortcuts
   });
 
-  // --- Handlers ---
-  const executeDuplicate = (entry: TaskEntry) => {
-    const copy = generateDuplicate(entry);
-    ui.setEditingEntry(copy);
-    ui.setIsTaskModalOpen(true);
-  };
-
   const handleModalSubmit = async (entry: TaskEntry) => {
-    const isUpdate = !!ui.editingEntry?.id;
-    const success = await saveTransaction(entry, isUpdate);
+    const success = await saveTransaction(entry, !!ui.editingEntry?.id);
     if (success) {
       ui.setIsTaskModalOpen(false);
       ui.setEditingEntry(null);
     }
   };
 
-  const handleModalDelete = async (entry: TaskEntry) => {
-     await removeTransaction(entry);
-     ui.setIsTaskModalOpen(false);
-     ui.setEditingEntry(null);
-  };
-
   const handleSaveConfig = (newConfig: AppConfig) => {
     setConfig(newConfig);
     ui.setShowSettings(false);
-    showToast('Configuration saved', 'success');
+    showToast('Core systems recalibrated', 'success');
   };
 
-  // Focus Mode Overlay
   if (ui.activePage === 'FOCUS' && ui.focusedTask) {
     return (
         <FocusMode 
             task={ui.focusedTask} 
             onExit={ui.exitFocus}
-            onUpdate={async (updated) => { await saveTransaction(updated, true); }}
-            onComplete={handleFocusComplete}
+            onUpdate={async (u) => { await saveTransaction(u, true); }}
+            onComplete={taskActions.handleFocusComplete}
         />
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans transition-colors duration-300">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans selection:bg-indigo-100 dark:selection:bg-indigo-900 transition-colors duration-300">
       <ToastContainer notifications={notifications} removeNotification={removeNotification} />
       
       <Sidebar 
@@ -124,9 +101,7 @@ const App: React.FC = () => {
         toggleCollapse={ui.toggleSidebarCollapse}
       />
 
-      <div 
-        className={`transition-all duration-300 ease-in-out ${ui.isSidebarCollapsed ? 'lg:pl-20' : 'lg:pl-64'}`}
-      >
+      <div className={`transition-all duration-300 ease-in-out ${ui.isSidebarCollapsed ? 'lg:pl-20' : 'lg:pl-64'}`}>
         <Header 
           activePage={ui.activePage} 
           onMenuToggle={() => ui.setIsSidebarOpen(!ui.isSidebarOpen)}
@@ -141,11 +116,11 @@ const App: React.FC = () => {
                metrics={metrics}
                isLoading={isLoading}
                onEdit={ui.openEdit}
-               onDelete={handleModalDelete}
-               onStatusUpdate={handleStatusUpdate}
-               onDescriptionUpdate={handleDescriptionUpdate}
+               onDelete={removeTransaction}
+               onStatusUpdate={taskActions.handleStatusUpdate}
+               onDescriptionUpdate={taskActions.handleDescriptionUpdate}
                onFocus={ui.enterFocus}
-               onDuplicate={executeDuplicate}
+               onDuplicate={(e) => { ui.setEditingEntry(taskActions.handleDuplicate(e)); ui.setIsTaskModalOpen(true); }}
                onNavigate={ui.setActivePage}
             />
           )}
@@ -156,12 +131,12 @@ const App: React.FC = () => {
               filteredEntries={filteredEntries}
               isLoading={isLoading}
               onEdit={ui.openEdit}
-              onDelete={handleModalDelete}
+              onDelete={removeTransaction}
               onBulkDelete={bulkRemoveTransactions}
-              onStatusUpdate={handleStatusUpdate}
-              onDescriptionUpdate={handleDescriptionUpdate}
+              onStatusUpdate={taskActions.handleStatusUpdate}
+              onDescriptionUpdate={taskActions.handleDescriptionUpdate}
               onFocus={ui.enterFocus}
-              onDuplicate={executeDuplicate}
+              onDuplicate={(e) => { ui.setEditingEntry(taskActions.handleDuplicate(e)); ui.setIsTaskModalOpen(true); }}
               onAdd={ui.openCreate}
               {...missionControl}
             />
@@ -193,8 +168,8 @@ const App: React.FC = () => {
         isOpen={ui.isTaskModalOpen}
         onClose={() => ui.setIsTaskModalOpen(false)}
         onSubmit={handleModalSubmit}
-        onDelete={handleModalDelete}
-        onDuplicate={executeDuplicate}
+        onDelete={removeTransaction}
+        onDuplicate={(e) => ui.setEditingEntry(taskActions.handleDuplicate(e))}
         initialData={ui.editingEntry}
         isSubmitting={isSubmitting}
         entries={entries} 
@@ -207,10 +182,7 @@ const App: React.FC = () => {
         onSave={handleSaveConfig}
       />
 
-      <ShortcutsModal 
-        isOpen={ui.showShortcuts}
-        onClose={() => ui.setShowShortcuts(false)}
-      />
+      <ShortcutsModal isOpen={ui.showShortcuts} onClose={() => ui.setShowShortcuts(false)} />
     </div>
   );
 };

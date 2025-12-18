@@ -8,7 +8,7 @@ export interface TaskEntry {
   id: string;         // UUID
   date: string;       // Due Date (YYYY-MM-DD)
   description: string;
-  project: string;    // Formerly Category
+  project: string;    
   priority: PriorityLevel;
   status: StatusLevel;
   createdAt?: string; // ISO Timestamp
@@ -23,21 +23,14 @@ export interface TaskTemplate {
   priority: PriorityLevel;
 }
 
-export interface TaskState {
-  entries: TaskEntry[];
-  isLoading: boolean;
-  error: string | null;
-  config: AppConfig;
-}
-
 export interface AppConfig {
   mode: 'DEMO' | 'LIVE';
   gasDeploymentUrl: string;
-  apiToken: string; // The Shared Secret
-  locale: string;   // e.g. 'en-US'
-  currency?: string; 
+  apiToken: string; 
+  locale: string;   
+  currency: string; 
   theme: 'LIGHT' | 'DARK';
-  geminiApiKey?: string; // User-provided Gemini API Key
+  geminiApiKey?: string;
 }
 
 export interface MetricSummary {

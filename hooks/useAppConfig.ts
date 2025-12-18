@@ -4,7 +4,7 @@ import { AppConfig } from '../types';
 import { INITIAL_CONFIG_KEY, DEFAULT_GAS_URL } from '../constants';
 
 const DEFAULT_CONFIG: AppConfig = { 
-  mode: 'LIVE', 
+  mode: 'DEMO', // Changed from LIVE to DEMO for smoother first-run
   gasDeploymentUrl: DEFAULT_GAS_URL, 
   apiToken: '',
   currency: 'USD',

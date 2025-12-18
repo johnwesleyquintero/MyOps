@@ -1,4 +1,3 @@
-
 import { FunctionDeclaration, Tool, Type } from "@google/genai";
 import { DEFAULT_PROJECTS, PRIORITIES, STATUSES } from '../constants';
 

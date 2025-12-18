@@ -8,12 +8,11 @@ export interface TaskEntry {
   id: string;         // UUID
   date: string;       // Due Date (YYYY-MM-DD)
   description: string;
-  project: string;    
+  project: string;    // Formerly Category
   priority: PriorityLevel;
   status: StatusLevel;
-  createdAt?: string; 
-  dependencies?: string[]; 
-  completedAt?: string; // Track when finished
+  createdAt?: string; // ISO Timestamp
+  dependencies?: string[]; // Array of IDs blocking this task
 }
 
 export interface TaskTemplate {
@@ -24,14 +23,21 @@ export interface TaskTemplate {
   priority: PriorityLevel;
 }
 
+export interface TaskState {
+  entries: TaskEntry[];
+  isLoading: boolean;
+  error: string | null;
+  config: AppConfig;
+}
+
 export interface AppConfig {
   mode: 'DEMO' | 'LIVE';
   gasDeploymentUrl: string;
-  apiToken: string; 
-  locale: string;   
+  apiToken: string; // The Shared Secret
+  locale: string;   // e.g. 'en-US'
   currency?: string; 
   theme: 'LIGHT' | 'DARK';
-  geminiApiKey?: string; 
+  geminiApiKey?: string; // User-provided Gemini API Key
 }
 
 export interface MetricSummary {
@@ -39,7 +45,6 @@ export interface MetricSummary {
   backlog: number;
   inProgress: number;
   done: number;
-  overdue: number; // New metric
 }
 
 export interface NotificationAction {

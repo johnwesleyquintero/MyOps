@@ -43,10 +43,11 @@ export const useAiChat = ({
       try {
         const ai = new GoogleGenAI({ apiKey: config.geminiApiKey });
         chatSession.current = ai.chats.create({
-            model: 'gemini-2.5-flash',
+            model: 'gemini-3-flash-preview',
             config: {
                 systemInstruction: WES_AI_SYSTEM_INSTRUCTION,
                 tools: WES_TOOLS,
+                thinkingConfig: { thinkingBudget: 0 } // Flash doesn't need heavy thinking for board management
             }
         });
       } catch (e) {
@@ -85,7 +86,7 @@ export const useAiChat = ({
 
   const executeFunction = async (name: string, args: any): Promise<any> => {
       setActiveTool(name);
-      await new Promise(r => setTimeout(r, 800)); // UI delay for feel
+      await new Promise(r => setTimeout(r, 600)); // Minimal feel delay
 
       try {
           switch (name) {
@@ -150,7 +151,6 @@ export const useAiChat = ({
         while (result.functionCalls && result.functionCalls.length > 0) {
             const toolResponses = [];
             for (const call of result.functionCalls) {
-                console.log(`[WesAI] Calling Tool: ${call.name}`, call.args);
                 const functionResponse = await executeFunction(call.name, call.args);
                 toolResponses.push({
                     functionResponse: {

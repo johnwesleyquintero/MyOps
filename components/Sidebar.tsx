@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Page, AppConfig } from '../types';
 
@@ -48,12 +49,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
     );
   };
 
-  // Dynamic width classes
   const widthClass = isOpen ? 'w-64' : (isCollapsed ? 'w-20' : 'w-64');
 
   return (
     <>
-      {/* Mobile Overlay */}
       {isOpen && (
         <div 
           className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-40 lg:hidden"
@@ -61,15 +60,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
         />
       )}
 
-      {/* Sidebar Container */}
       <aside 
         className={`fixed top-0 left-0 z-50 h-screen bg-slate-900 border-r border-slate-800 transition-all duration-300 ease-in-out lg:translate-x-0 ${isOpen ? 'translate-x-0' : '-translate-x-full'} ${widthClass}`}
       >
         
-        {/* Brand Header */}
         <div className={`h-20 flex items-center border-b border-slate-800 transition-all duration-300 ${isCollapsed ? 'justify-center px-0' : 'px-6'}`}>
            <div className="flex-shrink-0 relative group">
-             {/* Official MyOps "System Delta" Logo */}
              <svg 
                className="w-9 h-9 shadow-lg shadow-slate-900/50 group-hover:scale-105 transition-transform duration-300" 
                viewBox="0 0 512 512" 
@@ -99,13 +95,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
            <div className={`ml-3 overflow-hidden transition-all duration-300 ${isCollapsed ? 'w-0 opacity-0' : 'w-auto opacity-100'}`}>
              <h1 className="text-white font-bold tracking-tight leading-none text-lg">MyOps</h1>
              <div className="flex items-center gap-2 mt-1">
-                <span className="text-[10px] text-slate-500 font-mono uppercase tracking-widest whitespace-nowrap">v2.2</span>
-                <span className={`w-1.5 h-1.5 rounded-full ${config.mode === 'LIVE' ? 'bg-emerald-500' : 'bg-amber-400'}`}></span>
+                <span className="text-[10px] text-slate-500 font-mono uppercase tracking-widest whitespace-nowrap">v2.3</span>
+                <span className={`w-1.5 h-1.5 rounded-full ${config.mode === 'LIVE' ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-amber-400'}`}></span>
              </div>
            </div>
         </div>
 
-        {/* Navigation */}
         <nav className="p-3 space-y-2 mt-4">
           <div className={`px-4 mb-2 text-[10px] font-bold text-slate-600 uppercase tracking-widest transition-opacity duration-300 ${isCollapsed ? 'opacity-0 h-0 hidden' : 'opacity-100'}`}>
             Main Menu
@@ -132,9 +127,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
           />
         </nav>
 
-        {/* Footer Actions */}
         <div className="absolute bottom-0 left-0 w-full bg-slate-900 border-t border-slate-800">
-           {/* Collapse Toggle (Desktop Only) */}
+           {!isCollapsed && (
+              <div className="px-6 py-2">
+                 <div className="flex items-center gap-2 mb-2">
+                    <span className={`w-1.5 h-1.5 rounded-full ${config.geminiApiKey ? 'bg-indigo-400 animate-pulse' : 'bg-slate-600'}`}></span>
+                    <span className="text-[9px] font-bold text-slate-500 uppercase tracking-wider">WesAI: {config.geminiApiKey ? 'Linked' : 'Offline'}</span>
+                 </div>
+              </div>
+           )}
+
            <div className="hidden lg:flex justify-end p-2">
               <button 
                  onClick={toggleCollapse}

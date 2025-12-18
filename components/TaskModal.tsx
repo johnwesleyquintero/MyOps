@@ -1,5 +1,5 @@
 
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { TaskEntry } from '../types';
@@ -29,6 +29,7 @@ export const TaskModal: React.FC<TaskModalProps> = ({
   entries 
 }) => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const [descCopied, setDescCopied] = useState(false);
   
   const {
     formData, setFormData,
@@ -45,6 +46,13 @@ export const TaskModal: React.FC<TaskModalProps> = ({
     loadTemplate,
     deleteTemplate
   } = useTaskForm(initialData, entries);
+
+  const handleCopyDescription = () => {
+    if (!formData.description) return;
+    navigator.clipboard.writeText(formData.description);
+    setDescCopied(true);
+    setTimeout(() => setDescCopied(false), 2000);
+  };
 
   const handleSubmit = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
@@ -203,21 +211,36 @@ export const TaskModal: React.FC<TaskModalProps> = ({
                     Description
                     <span className="text-[10px] font-normal text-slate-400 dark:text-slate-500 normal-case hidden sm:inline">Markdown supported</span>
                   </label>
-                  <div className="flex bg-slate-100 dark:bg-slate-800 rounded-lg p-0.5">
-                     <button 
-                       type="button"
-                       onClick={() => setIsPreviewMode(false)}
-                       className={`px-3 py-1 text-[10px] font-bold rounded-md transition-all ${!isPreviewMode ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-white shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'}`}
-                     >
-                       Write
-                     </button>
-                     <button 
-                       type="button"
-                       onClick={() => setIsPreviewMode(true)}
-                       className={`px-3 py-1 text-[10px] font-bold rounded-md transition-all ${isPreviewMode ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-white shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'}`}
-                     >
-                       Preview
-                     </button>
+                  <div className="flex items-center gap-2">
+                    <button 
+                        type="button"
+                        onClick={handleCopyDescription}
+                        className={`p-1.5 rounded-md border transition-all flex items-center gap-1.5 ${descCopied ? 'bg-emerald-50 border-emerald-200 text-emerald-600 dark:bg-emerald-900/20 dark:border-emerald-800 dark:text-emerald-400' : 'bg-slate-50 border-slate-200 text-slate-400 hover:text-slate-600 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-500 dark:hover:text-slate-300'}`}
+                        title="Copy Description"
+                    >
+                        {descCopied ? (
+                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" /></svg>
+                        ) : (
+                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" /></svg>
+                        )}
+                        <span className="text-[10px] font-bold uppercase">{descCopied ? 'Copied' : 'Copy'}</span>
+                    </button>
+                    <div className="flex bg-slate-100 dark:bg-slate-800 rounded-lg p-0.5">
+                        <button 
+                        type="button"
+                        onClick={() => setIsPreviewMode(false)}
+                        className={`px-3 py-1 text-[10px] font-bold rounded-md transition-all ${!isPreviewMode ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-white shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'}`}
+                        >
+                        Write
+                        </button>
+                        <button 
+                        type="button"
+                        onClick={() => setIsPreviewMode(true)}
+                        className={`px-3 py-1 text-[10px] font-bold rounded-md transition-all ${isPreviewMode ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-white shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'}`}
+                        >
+                        Preview
+                        </button>
+                    </div>
                   </div>
                </div>
 
@@ -237,6 +260,15 @@ export const TaskModal: React.FC<TaskModalProps> = ({
                        </button>
                        <button type="button" onClick={() => handleFormat('code')} className="p-1.5 text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 rounded" title="Code">
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" /></svg>
+                       </button>
+                       <div className="w-px h-5 bg-slate-200 dark:bg-slate-700 mx-1"></div>
+                       <button 
+                            type="button" 
+                            onClick={handleCopyDescription} 
+                            className={`p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700 transition-all ${descCopied ? 'text-emerald-500' : 'text-slate-500 dark:text-slate-400'}`}
+                            title="Copy Description"
+                       >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
                        </button>
                        <div className="w-px h-5 bg-slate-200 dark:bg-slate-700 mx-1"></div>
                        <div className="text-[9px] text-slate-400 px-2 font-medium">⌘+Enter to save</div>

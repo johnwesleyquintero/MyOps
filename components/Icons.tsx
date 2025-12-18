@@ -35,8 +35,7 @@ import {
   List,
   Code2,
   FileText,
-  CopyIcon,
-  DuplicateIcon,
+  // Removed CopyIcon and DuplicateIcon (DuplicateIcon does not exist in lucide-react)
   Undo2,
   ChevronDown,
   Monitor

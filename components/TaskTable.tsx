@@ -1,9 +1,9 @@
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { TaskEntry } from '../types';
-import { PRIORITY_COLORS, PRIORITY_DOTS, STATUS_COLORS } from '../constants';
+import { PRIORITY_COLORS, PRIORITY_DOTS, STATUS_COLORS, STATUS_INDICATORS, COLUMN_CONFIG_KEY } from '../constants';
 import { formatRelativeDate, getProjectStyle } from '../utils/formatUtils';
 import { useTableColumns, ColumnConfig, SortKey } from '../hooks/useTableColumns';
 import { useSortableData } from '../hooks/useSortableData';
@@ -20,8 +20,6 @@ interface TaskTableProps {
   onFocus: (entry: TaskEntry) => void;
   onDuplicate: (entry: TaskEntry) => void; 
   allEntries?: TaskEntry[]; 
-  currency?: string;
-  locale?: string;
 }
 
 const DEFAULT_COLUMNS: ColumnConfig[] = [
@@ -31,8 +29,6 @@ const DEFAULT_COLUMNS: ColumnConfig[] = [
   { key: 'priority', label: 'Priority', visible: true, width: 'w-28' },
   { key: 'status', label: 'Status', visible: true, width: 'w-32' },
 ];
-
-const STORAGE_KEY = 'myops_column_config_v1';
 
 const TableSkeleton = ({ colSpan }: { colSpan: number }) => (
   <tbody className="divide-y divide-slate-100 dark:divide-slate-800 animate-pulse">
@@ -60,16 +56,12 @@ export const TaskTable: React.FC<TaskTableProps> = ({
   onDuplicate,
   allEntries = []
 }) => {
-  // --- Column Management ---
-  const { columns, toggleColumn, moveColumn } = useTableColumns(DEFAULT_COLUMNS, STORAGE_KEY);
-  
-  // --- Sorting Management ---
+  const { columns, toggleColumn, moveColumn } = useTableColumns(DEFAULT_COLUMNS, COLUMN_CONFIG_KEY);
   const { items: sortedEntries, requestSort, sortConfig } = useSortableData(entries);
 
   const [isConfigOpen, setIsConfigOpen] = useState(false);
   const configRef = useRef<HTMLDivElement>(null);
 
-  // Close popup when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (configRef.current && !configRef.current.contains(event.target as Node)) {
@@ -80,36 +72,24 @@ export const TaskTable: React.FC<TaskTableProps> = ({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Dependency Checker
-  const getDependencyStatus = (entry: TaskEntry) => {
+  const getDependencyStatus = useCallback((entry: TaskEntry) => {
       if (!entry.dependencies || entry.dependencies.length === 0) return null;
-      
       const blockerCount = entry.dependencies.filter(depId => {
           const depTask = allEntries.find(e => e.id === depId);
           return depTask && depTask.status !== 'Done';
       }).length;
+      return { blocked: blockerCount > 0, blockerCount };
+  }, [allEntries]);
 
-      return {
-          count: entry.dependencies.length,
-          blocked: blockerCount > 0,
-          blockerCount
-      };
-  };
-
-  // Checklist Toggle Logic
-  const handleChecklistToggle = (entry: TaskEntry, checkboxIndex: number) => {
+  const handleChecklistToggle = useCallback((entry: TaskEntry, checkboxIndex: number) => {
     if (!onDescriptionUpdate) return;
-
-    const text = entry.description;
-    const lines = text.split('\n');
+    const lines = entry.description.split('\n');
     let currentCheckbox = 0;
-    
     const newLines = lines.map(line => {
         const checkboxMatch = line.match(/^(\s*[-*]\s*)\[([ x])\]/);
         if (checkboxMatch) {
             if (currentCheckbox === checkboxIndex) {
-                const isChecked = checkboxMatch[2] === 'x';
-                const newStatus = isChecked ? ' ' : 'x';
+                const newStatus = checkboxMatch[2] === 'x' ? ' ' : 'x';
                 currentCheckbox++;
                 return line.replace(`[${checkboxMatch[2]}]`, `[${newStatus}]`);
             }
@@ -117,140 +97,46 @@ export const TaskTable: React.FC<TaskTableProps> = ({
         }
         return line;
     });
-
     onDescriptionUpdate(entry, newLines.join('\n'));
-  };
-
-  if (!isLoading && entries.length === 0) {
-    return (
-      <div className="w-full flex flex-col items-center justify-center py-20 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl border-dashed">
-        <div className="bg-slate-50 dark:bg-slate-800 p-4 rounded-full mb-4">
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 13l4 4L19 7" />
-          </svg>
-        </div>
-        <h3 className="text-slate-900 dark:text-slate-100 font-bold text-lg">All caught up</h3>
-        <p className="text-slate-500 dark:text-slate-400 text-sm mt-1 max-w-xs text-center">Your task list is clear. Time to strategize for the next move or enjoy the downtime.</p>
-      </div>
-    );
-  }
-
-  const SortHeader: React.FC<{ col: ColumnConfig }> = ({ col }) => {
-    const isActive = sortConfig.key === col.key;
-    const isAsc = sortConfig.direction === 'asc';
-    return (
-      <th 
-        className="px-6 py-3 bg-slate-50 dark:bg-slate-800 text-[11px] uppercase tracking-widest font-bold text-slate-500 dark:text-slate-400 cursor-pointer group/th select-none hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors whitespace-nowrap border-b border-slate-200 dark:border-slate-700"
-        onClick={() => requestSort(col.key)}
-      >
-        <div className={`flex items-center gap-1.5 ${isActive ? 'text-indigo-600 dark:text-indigo-400' : ''}`}>
-          {col.label}
-          <div className="flex flex-col">
-             <svg className={`w-2 h-2 ${isActive && isAsc ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-300 dark:text-slate-600'} ${!isActive && 'group-hover/th:text-slate-400'}`} fill="currentColor" viewBox="0 0 24 24"><path d="M12 4l-8 8h16l-8-8z" /></svg>
-             <svg className={`w-2 h-2 -mt-0.5 ${isActive && !isAsc ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-300 dark:text-slate-600'} ${!isActive && 'group-hover/th:text-slate-400'}`} fill="currentColor" viewBox="0 0 24 24"><path d="M12 20l8-8H4l8 8z" /></svg>
-          </div>
-        </div>
-      </th>
-    );
-  };
+  }, [onDescriptionUpdate]);
 
   const renderCell = (entry: TaskEntry, key: SortKey) => {
     switch(key) {
       case 'date':
         const dateInfo = formatRelativeDate(entry.date);
-        return <span className={`font-mono text-xs whitespace-nowrap ${dateInfo.colorClass}`}>{dateInfo.text}</span>;
+        return <span className={`font-mono text-[11px] whitespace-nowrap ${dateInfo.colorClass}`}>{dateInfo.text}</span>;
       case 'description':
-        const depStatus = getDependencyStatus(entry);
+        const dep = getDependencyStatus(entry);
         let checkboxCounter = 0;
-
         return (
-          <div className="flex items-start gap-2">
-            <div 
-                className={`prose prose-sm max-w-none line-clamp-2 overflow-hidden ${entry.status === 'Done' ? 'opacity-50 line-through text-slate-400 dark:text-slate-500' : 'text-slate-700 dark:text-slate-200'} transition-colors relative`}
-                title="Click to edit (or click checkboxes)"
-            >
+          <div className="flex items-start gap-2 max-w-lg">
+            <div className={`prose prose-sm max-w-none line-clamp-2 overflow-hidden flex-1 ${entry.status === 'Done' ? 'opacity-50 line-through text-slate-400' : 'text-slate-700 dark:text-slate-200'}`}>
                 <div onClick={() => onEdit(entry)} className="absolute inset-0 cursor-pointer z-0"></div>
-
                 <div className="relative z-10 pointer-events-none">
-                    <ReactMarkdown 
-                    remarkPlugins={[remarkGfm]}
-                    components={{
-                        a: ({node, ...props}) => <a {...props} className="text-indigo-600 dark:text-indigo-400 pointer-events-auto cursor-pointer hover:underline" onClick={e => e.stopPropagation()} target="_blank" />,
-                        p: ({node, children, ...props}) => {
-                          const processedChildren = React.Children.map(children, child => {
-                            if (typeof child === 'string') {
-                              return processTextWithTags(child);
-                            }
-                            return child;
-                          });
-                          return <span {...props} className="mr-1 block">{processedChildren as React.ReactNode}</span>;
-                        },
-                        strong: ({node, ...props}) => <strong {...props} className="font-bold text-slate-900 dark:text-white" />,
-                        em: ({node, ...props}) => <em {...props} className="italic text-slate-600 dark:text-slate-400" />,
-                        code: ({node, ...props}) => <code {...props} className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 px-1 py-0.5 rounded text-[10px] font-mono" />,
-                        ul: ({node, ...props}) => <span {...props} />,
-                        li: ({node, ...props}) => <span {...props} className="after:content-[',_'] last:after:content-none" />,
-                        input: (props) => {
-                            if (props.type === 'checkbox') {
-                                const index = checkboxCounter++;
-                                return (
-                                    <input 
-                                        type="checkbox" 
-                                        checked={props.checked} 
-                                        onChange={() => handleChecklistToggle(entry, index)}
-                                        onClick={(e) => e.stopPropagation()}
-                                        className="mx-1 mt-0.5 align-middle rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 w-3.5 h-3.5 cursor-pointer pointer-events-auto"
-                                    />
-                                );
-                            }
-                            return <input {...props} />;
-                        }
-                    }}
-                    >
-                        {entry.description}
-                    </ReactMarkdown>
+                    <ReactMarkdown remarkPlugins={[remarkGfm]} components={{
+                        a: ({node, ...props}) => <a {...props} className="text-indigo-600 pointer-events-auto cursor-pointer" onClick={e => e.stopPropagation()} target="_blank" />,
+                        p: ({node, children, ...props}) => <span className="block">{React.Children.map(children, child => typeof child === 'string' ? processTextWithTags(child) : child)}</span>,
+                        input: (props) => props.type === 'checkbox' ? (
+                            <input type="checkbox" checked={props.checked} onChange={() => handleChecklistToggle(entry, checkboxCounter++)} onClick={e => e.stopPropagation()} className="mx-1 mt-0.5 align-middle rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 w-3.5 h-3.5 cursor-pointer pointer-events-auto" />
+                        ) : <input {...props} />
+                    }}>{entry.description}</ReactMarkdown>
                 </div>
             </div>
-            {depStatus && (
-                <div 
-                    className={`flex-shrink-0 flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-bold border ${depStatus.blocked ? 'bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 border-red-200 dark:border-red-900/30' : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-700'}`}
-                    title={depStatus.blocked ? `${depStatus.blockerCount} blocking tasks pending` : 'Dependencies cleared'}
-                >
-                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" /></svg>
-                    {depStatus.blocked && <span>{depStatus.blockerCount}</span>}
+            {dep && (
+                <div className={`flex-shrink-0 flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold border ${dep.blocked ? 'bg-rose-50 border-rose-100 text-rose-600 dark:bg-rose-900/20 dark:border-rose-900/30' : 'bg-slate-50 border-slate-200 text-slate-400'}`}>
+                    <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4" /></svg>
+                    {dep.blocked && dep.blockerCount}
                 </div>
             )}
           </div>
         );
       case 'project':
-        return (
-          <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold border ${getProjectStyle(entry.project)}`}>
-            {entry.project}
-          </span>
-        );
+        return <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold border ${getProjectStyle(entry.project)}`}>{entry.project}</span>;
       case 'priority':
-        return (
-          <div className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-[10px] font-bold border ${PRIORITY_COLORS[entry.priority] || 'bg-slate-50 border-slate-200 text-slate-500'}`}>
-            <span className={`w-1.5 h-1.5 rounded-full ${PRIORITY_DOTS[entry.priority] || 'bg-slate-300'}`}></span>
-            {entry.priority}
-          </div>
-        );
+        return <div className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-[10px] font-bold border ${PRIORITY_COLORS[entry.priority]}`}><span className={`w-1.5 h-1.5 rounded-full ${PRIORITY_DOTS[entry.priority]}`} />{entry.priority}</div>;
       case 'status':
-        return (
-          <button 
-            onClick={() => onStatusUpdate && onStatusUpdate(entry)}
-            className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-[10px] font-bold border cursor-pointer hover:ring-2 hover:ring-indigo-100 dark:hover:ring-indigo-900 transition-all active:scale-95 ${STATUS_COLORS[entry.status] || 'bg-slate-50'}`}
-            title="Click to cycle status"
-          >
-            <span className={`w-1.5 h-1.5 rounded-full ${
-                entry.status === 'Done' ? 'bg-emerald-500' : 
-                entry.status === 'In Progress' ? 'bg-indigo-500' : 'bg-slate-400'
-            }`}></span>
-            {entry.status}
-          </button>
-        );
-      default:
-        return null;
+        return <button onClick={() => onStatusUpdate?.(entry)} className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-[10px] font-bold border hover:ring-2 hover:ring-indigo-100 dark:hover:ring-indigo-900 transition-all ${STATUS_COLORS[entry.status]}`}><span className={`w-1.5 h-1.5 rounded-full ${STATUS_INDICATORS[entry.status]}`} />{entry.status}</button>;
+      default: return null;
     }
   };
 
@@ -259,36 +145,25 @@ export const TaskTable: React.FC<TaskTableProps> = ({
   return (
     <div className="relative">
       <div className="absolute -top-10 right-0 z-20" ref={configRef}>
-        <button
-          onClick={() => setIsConfigOpen(!isConfigOpen)}
-          className="flex items-center gap-2 px-3 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md text-xs font-medium text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:border-slate-300 dark:hover:border-slate-500 shadow-sm transition-all"
-        >
+        <button onClick={() => setIsConfigOpen(!isConfigOpen)} className="flex items-center gap-2 px-3 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md text-xs font-medium text-slate-600 dark:text-slate-300 hover:border-slate-400 transition-all shadow-sm">
           <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" /></svg>
           View
         </button>
-
         {isConfigOpen && (
           <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-xl overflow-hidden animate-slide-in z-50">
-            <div className="bg-slate-50 dark:bg-slate-700 px-4 py-2 border-b border-slate-100 dark:border-slate-600 text-[10px] font-bold uppercase text-slate-500 dark:text-slate-400 tracking-wider">Table Columns</div>
-            <div className="max-h-60 overflow-y-auto py-1">
-              {columns.map((col, idx) => (
-                <div key={col.key} className="flex items-center justify-between px-3 py-2 hover:bg-slate-50 dark:hover:bg-slate-700 group">
-                  <div className="flex items-center gap-2">
-                    <input 
-                      type="checkbox" 
-                      checked={col.visible}
-                      onChange={() => toggleColumn(col.key)}
-                      className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 h-4 w-4 cursor-pointer"
-                    />
-                    <span className="text-sm text-slate-700 dark:text-slate-300">{col.label}</span>
-                  </div>
-                  <div className="flex items-center opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button onClick={() => moveColumn(idx, 'up')} disabled={idx === 0} className="p-1 text-slate-400 hover:text-indigo-600 disabled:opacity-30"><svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 15l7-7 7 7" /></svg></button>
-                    <button onClick={() => moveColumn(idx, 'down')} disabled={idx === columns.length - 1} className="p-1 text-slate-400 hover:text-indigo-600 disabled:opacity-30"><svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg></button>
-                  </div>
+            <div className="bg-slate-50 dark:bg-slate-700 px-4 py-2 border-b border-slate-100 dark:border-slate-600 text-[10px] font-bold uppercase text-slate-500 tracking-wider">Columns</div>
+            {columns.map((col, idx) => (
+              <div key={col.key} className="flex items-center justify-between px-3 py-2 hover:bg-slate-50 dark:hover:bg-slate-700 group">
+                <div className="flex items-center gap-2">
+                  <input type="checkbox" checked={col.visible} onChange={() => toggleColumn(col.key)} className="rounded text-indigo-600 focus:ring-indigo-500 h-4 w-4 cursor-pointer" />
+                  <span className="text-sm text-slate-700 dark:text-slate-300">{col.label}</span>
                 </div>
-              ))}
-            </div>
+                <div className="flex items-center opacity-0 group-hover:opacity-100 transition-opacity">
+                  <button onClick={() => moveColumn(idx, 'up')} disabled={idx === 0} className="p-1 text-slate-400 hover:text-indigo-600 disabled:opacity-30"><svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 15l7-7 7 7" /></svg></button>
+                  <button onClick={() => moveColumn(idx, 'down')} disabled={idx === columns.length - 1} className="p-1 text-slate-400 hover:text-indigo-600 disabled:opacity-30"><svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg></button>
+                </div>
+              </div>
+            ))}
           </div>
         )}
       </div>
@@ -298,39 +173,29 @@ export const TaskTable: React.FC<TaskTableProps> = ({
           <table className="min-w-full text-sm text-left relative border-collapse">
             <thead className="bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 sticky top-0 z-10 shadow-sm">
               <tr>
-                {visibleColumns.map(col => <SortHeader key={col.key} col={col} />)}
-                <th className="px-6 py-3 w-16 text-right bg-slate-50 dark:bg-slate-800 text-[11px] uppercase tracking-widest text-slate-500 font-bold sticky right-0 shadow-[inset_1px_0_0_0_rgba(226,232,240,0.5)] dark:shadow-[inset_1px_0_0_0_rgba(30,41,59,0.5)]"></th>
+                {visibleColumns.map(col => (
+                  <th key={col.key} className="px-6 py-3 text-[11px] uppercase tracking-widest font-bold text-slate-500 cursor-pointer select-none hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors" onClick={() => requestSort(col.key)}>
+                    <div className="flex items-center gap-1.5">
+                      {col.label}
+                      {sortConfig.key === col.key && (
+                        <svg className={`w-2 h-2 ${sortConfig.direction === 'asc' ? '' : 'rotate-180'} transition-transform`} fill="currentColor" viewBox="0 0 24 24"><path d="M12 4l-8 8h16l-8-8z" /></svg>
+                      )}
+                    </div>
+                  </th>
+                ))}
+                <th className="px-6 py-3 w-16 sticky right-0 bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 shadow-[inset_1px_0_0_0_rgba(226,232,240,0.5)]"></th>
               </tr>
             </thead>
-            
-            {isLoading ? (
-              <TableSkeleton colSpan={visibleColumns.length + 1} />
-            ) : (
+            {isLoading ? <TableSkeleton colSpan={visibleColumns.length + 1} /> : (
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                 {sortedEntries.map((entry, idx) => (
-                  <tr key={entry.id || `row-${idx}`} className={`group hover:bg-slate-50/80 dark:hover:bg-slate-800/80 transition-colors ${entry.status === 'Done' ? 'bg-slate-50/30 dark:bg-slate-800/30' : ''}`}>
-                    {visibleColumns.map(col => (
-                      <td key={`${entry.id}-${col.key}`} className={`px-6 py-3 align-middle ${col.width || ''}`}>
-                        {renderCell(entry, col.key)}
-                      </td>
-                    ))}
-                    <td className="px-6 py-3 text-right sticky right-0 bg-white dark:bg-slate-900 group-hover:bg-slate-50/80 dark:group-hover:bg-slate-800/80 transition-colors shadow-[inset_1px_0_0_0_rgba(241,245,249,1)] dark:shadow-[inset_1px_0_0_0_rgba(15,23,42,1)]">
-                      <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-all duration-200">
-                        <CopyIdButton 
-                            id={entry.id} 
-                            className="text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 p-1.5 rounded hover:bg-indigo-50 dark:hover:bg-indigo-900/50 transition-colors" 
-                        />
-                        {entry.status !== 'Done' && (
-                            <button onClick={() => onFocus(entry)} className="text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 p-1.5 rounded hover:bg-indigo-50 dark:hover:bg-indigo-900/50 transition-colors" title="Deep Work Focus">
-                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
-                            </button>
-                        )}
-                        <button onClick={() => onDuplicate(entry)} className="text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 p-1.5 rounded hover:bg-indigo-50 dark:hover:bg-indigo-900/50 transition-colors" title="Duplicate">
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2" /></svg>
-                        </button>
-                        <button onClick={() => onEdit(entry)} className="text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 p-1.5 rounded hover:bg-indigo-50 dark:hover:bg-indigo-900/50 transition-colors" title="Edit Task">
-                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
-                        </button>
+                  <tr key={entry.id || `row-${idx}`} className={`group hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors ${entry.status === 'Done' ? 'opacity-70 grayscale-[0.5]' : ''}`}>
+                    {visibleColumns.map(col => <td key={col.key} className="px-6 py-3 align-middle">{renderCell(entry, col.key)}</td>)}
+                    <td className="px-6 py-3 text-right sticky right-0 bg-white dark:bg-slate-900 group-hover:bg-slate-50/50 dark:group-hover:bg-slate-800/50 shadow-[inset_1px_0_0_0_rgba(241,245,249,1)] dark:shadow-[inset_1px_0_0_0_rgba(15,23,42,1)]">
+                      <div className="flex items-center justify-end gap-1.5 opacity-0 group-hover:opacity-100 transition-all">
+                        <CopyIdButton id={entry.id} className="text-slate-400 hover:text-indigo-600 p-1 rounded hover:bg-indigo-50 dark:hover:bg-indigo-900/50" />
+                        <button onClick={() => onDuplicate(entry)} className="text-slate-400 hover:text-indigo-600 p-1 rounded hover:bg-indigo-50 dark:hover:bg-indigo-900/50" title="Duplicate"><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2" /></svg></button>
+                        <button onClick={() => onEdit(entry)} className="text-slate-400 hover:text-indigo-600 p-1 rounded hover:bg-indigo-50 dark:hover:bg-indigo-900/50" title="Edit"><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536" /></svg></button>
                       </div>
                     </td>
                   </tr>

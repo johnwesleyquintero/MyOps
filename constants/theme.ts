@@ -1,24 +1,27 @@
 
 import { PriorityLevel, StatusLevel } from "../types";
 
-export const PRIORITY_THEME: Record<PriorityLevel, { text: string; bg: string; dot: string; border: string }> = {
+export const PRIORITY_THEME: Record<PriorityLevel, { text: string; bg: string; dot: string; border: string; accent: string }> = {
   "High": {
     text: "text-rose-700 dark:text-rose-300",
     bg: "bg-rose-50 dark:bg-rose-950/30",
     dot: "bg-rose-500",
-    border: "border-rose-100 dark:border-rose-900/50"
+    border: "border-rose-100 dark:border-rose-900/50",
+    accent: "bg-rose-600"
   },
   "Medium": {
     text: "text-orange-700 dark:text-orange-300",
     bg: "bg-orange-50 dark:bg-orange-950/30",
     dot: "bg-orange-500",
-    border: "border-orange-100 dark:border-orange-900/50"
+    border: "border-orange-100 dark:border-orange-900/50",
+    accent: "bg-orange-600"
   },
   "Low": {
     text: "text-slate-600 dark:text-slate-400",
     bg: "bg-slate-100 dark:bg-slate-800/50",
     dot: "bg-slate-400",
-    border: "border-slate-200 dark:border-slate-700"
+    border: "border-slate-200 dark:border-slate-700",
+    accent: "bg-slate-600"
   }
 };
 
@@ -49,3 +52,14 @@ export const PROJECT_THEME_BASE = [
   "bg-neutral-50 text-neutral-600 border-neutral-200 dark:bg-neutral-800 dark:text-neutral-300 dark:border-neutral-700",
   "bg-stone-50 text-stone-600 border-stone-200 dark:bg-stone-800 dark:text-stone-300 dark:border-stone-700",
 ];
+
+export const UI_COLORS = {
+  primary: "indigo-600",
+  primaryHover: "indigo-700",
+  secondary: "slate-900",
+  secondaryHover: "slate-800",
+  danger: "red-600",
+  dangerHover: "red-700",
+  warning: "amber-500",
+  success: "emerald-600"
+};

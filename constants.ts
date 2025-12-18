@@ -22,12 +22,12 @@ export const RECURRENCE_OPTIONS = [
   { label: 'Monthly', tag: '🔁 Monthly' }
 ];
 
-export const INITIAL_CONFIG_KEY = 'myops_config_v1';
-export const LOCAL_STORAGE_KEY = 'myops_data_v1';
-export const TEMPLATE_STORAGE_KEY = 'myops_templates_v1';
+export const INITIAL_CONFIG_KEY = 'wesledger_config_v1';
+export const LOCAL_STORAGE_KEY = 'wesledger_data_v1';
+export const TEMPLATE_STORAGE_KEY = 'wesledger_templates_v1';
 export const DEFAULT_GAS_URL = '';
 
-// Fix: Adding exported constants required by several UI components for legacy styling support
+// Legacy mappings for backwards compatibility if needed during transition
 export const PRIORITY_COLORS: Record<PriorityLevel, string> = {
   High: 'bg-rose-50 text-rose-700 border-rose-100',
   Medium: 'bg-orange-50 text-orange-700 border-orange-100',

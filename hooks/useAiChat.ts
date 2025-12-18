@@ -1,5 +1,5 @@
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { GoogleGenAI, Chat, GenerateContentResponse } from "@google/genai";
 import { AppConfig, TaskEntry } from '../types';
 import { WES_AI_SYSTEM_INSTRUCTION, WES_TOOLS } from '../constants/aiConfig';
@@ -28,7 +28,7 @@ export const useAiChat = ({
     {
       id: 'init',
       role: 'model',
-      text: "Systems online, brother. I'm connected to the mission board. What's the move?",
+      text: "Systems online, brother. WesLedger core initialized. Ready for the next objective.",
       timestamp: new Date()
     }
   ]);
@@ -38,8 +38,9 @@ export const useAiChat = ({
   
   const chatSession = useRef<Chat | null>(null);
 
-  const startNewSession = () => {
+  const startNewSession = useCallback(() => {
     try {
+      // Ensure we use the latest API key from env
       const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
       chatSession.current = ai.chats.create({
         model: 'gemini-3-flash-preview',
@@ -49,20 +50,20 @@ export const useAiChat = ({
         }
       });
     } catch (e) {
-      console.error("Failed to initialize WesAI", e);
+      console.error("Failed to initialize WesAI Neural Link", e);
     }
-  };
+  }, []);
 
   useEffect(() => {
     startNewSession();
-  }, []);
+  }, [startNewSession]);
 
   const resetChat = () => {
     setMessages([
       {
         id: crypto.randomUUID(),
         role: 'model',
-        text: "Systems re-initialized. Ready for orders.",
+        text: "Neural Link re-established. Tactical feed reset.",
         timestamp: new Date()
       }
     ]);
@@ -71,7 +72,8 @@ export const useAiChat = ({
 
   const executeFunction = async (name: string, args: any): Promise<any> => {
     setActiveTool(name);
-    await new Promise(r => setTimeout(r, 600));
+    // Visual feedback for "operator-grade" feeling
+    await new Promise(r => setTimeout(r, 400));
 
     try {
       switch (name) {
@@ -80,7 +82,7 @@ export const useAiChat = ({
         
         case 'create_task':
           const newEntry: TaskEntry = {
-            id: '',
+            id: crypto.randomUUID(),
             description: args.description,
             project: args.project || 'Inbox',
             priority: args.priority || 'Medium',
@@ -89,26 +91,26 @@ export const useAiChat = ({
             dependencies: []
           };
           await onSaveTransaction(newEntry, false);
-          return { result: "success", message: `Created: ${newEntry.description}` };
+          return { result: "success", message: `Mission added: ${newEntry.description}` };
         
         case 'update_task':
           const target = entries.find(e => e.id === args.id);
-          if (!target) return { error: "ID not found" };
+          if (!target) return { error: "Mission ID not found in current ledger." };
           const updatedEntry = { ...target, ...args };
           await onSaveTransaction(updatedEntry, true);
-          return { result: "success", message: `Updated: ${target.description}` };
+          return { result: "success", message: `Mission updated: ${target.description}` };
         
         case 'delete_task':
           const delTarget = entries.find(e => e.id === args.id);
-          if (!delTarget) return { error: "ID not found" };
+          if (!delTarget) return { error: "Mission ID not found." };
           await onDeleteTransaction(delTarget);
-          return { result: "success", message: "Task deleted." };
+          return { result: "success", message: "Mission purged from ledger." };
 
         default:
-          return { error: "Unknown tool" };
+          return { error: "Protocol not found." };
       }
     } catch (err: any) {
-      return { error: err.message };
+      return { error: `Command execution failed: ${err.message}` };
     } finally {
       setActiveTool(null);
     }
@@ -130,34 +132,40 @@ export const useAiChat = ({
     setIsThinking(true);
 
     try {
+      // Correct usage of @google/genai SDK
       let response: GenerateContentResponse = await chatSession.current.sendMessage({ message: userText });
       
+      // Handle potential tool calls in a loop for chain-of-thought
       while (response.functionCalls && response.functionCalls.length > 0) {
-        const functionResponses = response.functionCalls.map(async (call) => {
-          const result = await executeFunction(call.name, call.args);
-          return {
+        const functionResponses = await Promise.all(
+          response.functionCalls.map(async (call) => ({
             id: call.id,
             name: call.name,
-            response: result
-          };
-        });
+            response: await executeFunction(call.name, call.args)
+          }))
+        );
         
-        const results = await Promise.all(functionResponses);
-        response = await chatSession.current.sendMessage({ message: { parts: results.map(r => ({ functionResponse: r })) } as any });
+        response = await chatSession.current.sendMessage({ 
+          message: { parts: functionResponses.map(r => ({ functionResponse: r })) } as any 
+        });
       }
+
+      // response.text is a getter property
+      const textOutput = response.text || "Objective confirmed.";
 
       setMessages(prev => [...prev, {
         id: crypto.randomUUID(),
         role: 'model',
-        text: response.text || "Confirmed.",
+        text: textOutput,
         timestamp: new Date()
       }]);
 
     } catch (error: any) {
+      console.error("WesAI Communication Error:", error);
       setMessages(prev => [...prev, {
         id: crypto.randomUUID(),
         role: 'model',
-        text: `**System Error**: ${error.message}`,
+        text: `**Neural Link Error**: ${error.message}. Please check system config.`,
         timestamp: new Date()
       }]);
     } finally {

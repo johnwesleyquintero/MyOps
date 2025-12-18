@@ -1,9 +1,10 @@
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>MyOps</title>
+    <title>WesLedger</title>
     <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -18,39 +19,46 @@
               sans: ['Inter', 'sans-serif'],
               mono: ['JetBrains Mono', 'monospace'],
             },
+            animation: {
+              'pulse-subtle': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+            }
           },
         },
       }
     </script>
     <style>
-      /* Custom scrollbar for an operator-grade feel */
       ::-webkit-scrollbar {
-        width: 8px;
-        height: 8px;
+        width: 6px;
+        height: 6px;
       }
       ::-webkit-scrollbar-track {
-        background: #f1f1f1; 
+        background: transparent;
       }
       .dark ::-webkit-scrollbar-track {
-        background: #1e293b;
+        background: transparent;
       }
       ::-webkit-scrollbar-thumb {
-        background: #94a3b8; 
-        border-radius: 4px;
+        background: #cbd5e1; 
+        border-radius: 10px;
+      }
+      .dark ::-webkit-scrollbar-thumb {
+        background: #334155;
       }
       ::-webkit-scrollbar-thumb:hover {
-        background: #64748b; 
+        background: #94a3b8; 
       }
       body {
-        background-color: #f8fafc; /* Slate-50 */
+        background-color: #f8fafc;
       }
       .dark body {
-        background-color: #020617; /* Slate-950 */
+        background-color: #020617;
       }
-      /* Markdown Checkbox Styling */
       input[type="checkbox"] {
-        accent-color: #4f46e5; /* Indigo-600 */
+        accent-color: #4f46e5;
         cursor: pointer;
+      }
+      .custom-scrollbar::-webkit-scrollbar {
+        width: 4px;
       }
     </style>
   <script type="importmap">

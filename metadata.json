@@ -1,5 +1,5 @@
 {
-  "name": "MyOps",
-  "description": "A sovereign, lightweight personal project management system. Operator-grade task tracking with Google Sheets integration.",
+  "name": "WesLedger",
+  "description": "Tactical mission board and sovereign ledger for high-agency operators. Powered by Google Sheets and WesAI.",
   "requestFramePermissions": []
 }

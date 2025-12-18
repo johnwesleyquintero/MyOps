@@ -27,22 +27,21 @@ export const LOCAL_STORAGE_KEY = 'myops_data_v1';
 export const TEMPLATE_STORAGE_KEY = 'myops_templates_v1';
 export const DEFAULT_GAS_URL = '';
 
-// Updated to "Dot" style background colors (more subtle)
+// Fix: Adding exported constants required by several UI components for legacy styling support
 export const PRIORITY_COLORS: Record<PriorityLevel, string> = {
-  "High": "text-rose-700 bg-rose-50 border-rose-100",
-  "Medium": "text-orange-700 bg-orange-50 border-orange-100",
-  "Low": "text-slate-600 bg-slate-100 border-slate-200"
+  High: 'bg-rose-50 text-rose-700 border-rose-100',
+  Medium: 'bg-orange-50 text-orange-700 border-orange-100',
+  Low: 'bg-slate-50 text-slate-600 border-slate-200',
 };
 
-// Dot colors for the priorities
 export const PRIORITY_DOTS: Record<PriorityLevel, string> = {
-  "High": "bg-rose-500",
-  "Medium": "bg-orange-500",
-  "Low": "bg-slate-400"
+  High: 'bg-rose-500',
+  Medium: 'bg-orange-500',
+  Low: 'bg-slate-400',
 };
 
 export const STATUS_COLORS: Record<StatusLevel, string> = {
-  "Backlog": "bg-slate-100 text-slate-500 border-slate-200",
-  "In Progress": "bg-indigo-50 text-indigo-700 border-indigo-100",
-  "Done": "bg-emerald-50 text-emerald-700 border-emerald-100"
+  Backlog: 'bg-slate-50 text-slate-500 border-slate-200',
+  'In Progress': 'bg-indigo-50 text-indigo-700 border-indigo-200',
+  Done: 'bg-emerald-50 text-emerald-700 border-emerald-200',
 };

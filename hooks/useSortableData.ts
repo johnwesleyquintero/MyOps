@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { TaskEntry, PriorityLevel, StatusLevel } from "../types";
+import { TaskEntry, StatusLevel } from "../types";
 
 export type SortKey =
   | "date"
@@ -11,7 +11,7 @@ export type SortDirection = "asc" | "desc";
 
 export const useSortableData = (
   items: TaskEntry[],
-  config = { key: "date" as SortKey, direction: "asc" as SortDirection },
+  config = { key: "date" as SortKey, direction: "desc" as SortDirection },
 ) => {
   const [sortConfig, setSortConfig] = useState(config);
 
@@ -21,18 +21,62 @@ export const useSortableData = (
       sortableItems.sort((a, b) => {
         let comparison = 0;
         switch (sortConfig.key) {
-          case "date":
-            comparison =
-              new Date(a.date).getTime() - new Date(b.date).getTime();
+          case "date": {
+            const timeA = a.date ? new Date(a.date).getTime() : 0;
+            const timeB = b.date ? new Date(b.date).getTime() : 0;
+
+            const isInvalidA = isNaN(timeA) || timeA === 0;
+            const isInvalidB = isNaN(timeB) || timeB === 0;
+
+            if (isInvalidA && isInvalidB) {
+              comparison = 0;
+            } else if (isInvalidA) {
+              comparison = -1; // Move empty/invalid to bottom
+            } else if (isInvalidB) {
+              comparison = 1; // Move empty/invalid to bottom
+            } else {
+              comparison = timeA - timeB;
+            }
+
+            // Secondary sort by Priority then Status if dates are equal
+            if (comparison === 0) {
+              const pRanks: Record<string, number> = {
+                High: 0,
+                Medium: 1,
+                Low: 2,
+              };
+              const pA = pRanks[a.priority as string] ?? 99;
+              const pB = pRanks[b.priority as string] ?? 99;
+
+              if (pA !== pB) {
+                // We want High(0) first when direction is desc.
+                // direction=desc => result is -comparison.
+                // So if pA=0, pB=1, we want -1.
+                // -comparison = -1 => comparison = 1.
+                // comparison = pB - pA = 1 - 0 = 1.
+                comparison = pB - pA;
+              } else {
+                const sRanks: Record<string, number> = {
+                  "In Progress": 0,
+                  Backlog: 1,
+                  Done: 2,
+                };
+                const sA = sRanks[a.status as string] ?? 99;
+                const sB = sRanks[b.status as string] ?? 99;
+                comparison = sB - sA;
+              }
+            }
             break;
+          }
           case "priority": {
-            const pRanks: Record<PriorityLevel, number> = {
+            const pRanks: Record<string, number> = {
               High: 0,
               Medium: 1,
               Low: 2,
             };
             comparison =
-              (pRanks[a.priority] ?? 99) - (pRanks[b.priority] ?? 99);
+              (pRanks[a.priority as string] ?? 99) -
+              (pRanks[b.priority as string] ?? 99);
             break;
           }
           case "status": {

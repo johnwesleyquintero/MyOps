@@ -125,7 +125,7 @@ export const OperationTable: React.FC<OperationTableProps> = ({
     direction: SortDirection;
   }>({
     key: "date",
-    direction: "asc",
+    direction: "desc",
   });
 
   const handleSort = (key: SortKey) => {
@@ -141,16 +141,45 @@ export const OperationTable: React.FC<OperationTableProps> = ({
     return [...entries].sort((a, b) => {
       let comparison = 0;
       switch (sortConfig.key) {
-        case "date":
-          comparison = new Date(a.date).getTime() - new Date(b.date).getTime();
+        case "date": {
+          const timeA = a.date ? new Date(a.date).getTime() : 0;
+          const timeB = b.date ? new Date(b.date).getTime() : 0;
+
+          const isInvalidA = isNaN(timeA) || timeA === 0;
+          const isInvalidB = isNaN(timeB) || timeB === 0;
+
+          if (isInvalidA && isInvalidB) {
+            comparison = 0;
+          } else if (isInvalidA) {
+            comparison = -1; // Move empty/invalid to bottom
+          } else if (isInvalidB) {
+            comparison = 1; // Move empty/invalid to bottom
+          } else {
+            comparison = timeA - timeB;
+          }
+
+          // Secondary sort by Priority if dates are equal
+          if (comparison === 0) {
+            const pRanks: Record<string, number> = {
+              High: 0,
+              Medium: 1,
+              Low: 2,
+            };
+            const pA = pRanks[a.priority as string] ?? 99;
+            const pB = pRanks[b.priority as string] ?? 99;
+            comparison = pB - pA;
+          }
           break;
+        }
         case "priority": {
-          const pRanks: Record<PriorityLevel, number> = {
+          const pRanks: Record<string, number> = {
             High: 0,
             Medium: 1,
             Low: 2,
           };
-          comparison = (pRanks[a.priority] ?? 99) - (pRanks[b.priority] ?? 99);
+          comparison =
+            (pRanks[a.priority as string] ?? 99) -
+            (pRanks[b.priority as string] ?? 99);
           break;
         }
         case "status": {

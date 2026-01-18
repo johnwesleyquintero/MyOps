@@ -1,6 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Contact, Interaction } from "../../types";
 import { Icon } from "../Icons";
+import { ContactModal } from "../ContactModal";
+import { InteractionModal } from "../InteractionModal";
 
 interface CrmViewProps {
   contacts: Contact[];
@@ -10,9 +12,68 @@ interface CrmViewProps {
   onSaveInteraction: (interaction: Interaction) => Promise<boolean>;
 }
 
-export const CrmView: React.FC<CrmViewProps> = ({ contacts, isLoading }) => {
+export const CrmView: React.FC<CrmViewProps> = ({
+  contacts,
+  isLoading,
+  onSaveContact,
+  onGetInteractions,
+  onSaveInteraction,
+}) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingContact, setEditingContact] = useState<Contact | null>(null);
+  const [isInteractionModalOpen, setIsInteractionModalOpen] = useState(false);
+  const [interactions, setInteractions] = useState<Interaction[]>([]);
+  const [isInteractionsLoading, setIsInteractionsLoading] = useState(false);
+
+  const loadInteractions = useCallback(
+    async (contactId: string) => {
+      setIsInteractionsLoading(true);
+      try {
+        const data = await onGetInteractions(contactId);
+        setInteractions(
+          data.sort(
+            (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
+          ),
+        );
+      } finally {
+        setIsInteractionsLoading(false);
+      }
+    },
+    [onGetInteractions],
+  );
+
+  useEffect(() => {
+    if (selectedContact) {
+      loadInteractions(selectedContact.id);
+    } else {
+      setInteractions([]);
+    }
+  }, [selectedContact, loadInteractions]);
+
+  const handleSaveInteraction = async (interaction: Interaction) => {
+    const success = await onSaveInteraction(interaction);
+    if (success && selectedContact) {
+      await loadInteractions(selectedContact.id);
+    }
+    return success;
+  };
+
+  const getInteractionIcon = (type: Interaction["type"]) => {
+    switch (type) {
+      case "Call":
+        return <Icon.Chat size={12} />;
+      case "Email":
+        return <Icon.Chat size={12} />;
+      case "Message":
+        return <Icon.Chat size={12} />;
+      case "Meeting":
+        return <Icon.Users size={12} />;
+      default:
+        return <Icon.Chat size={12} />;
+    }
+  };
 
   const filteredContacts = contacts.filter(
     (c) =>
@@ -20,6 +81,26 @@ export const CrmView: React.FC<CrmViewProps> = ({ contacts, isLoading }) => {
       c.company?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       c.email?.toLowerCase().includes(searchQuery.toLowerCase()),
   );
+
+  const handleAdd = () => {
+    setEditingContact(null);
+    setIsModalOpen(true);
+  };
+
+  const handleEdit = (contact: Contact) => {
+    setEditingContact(contact);
+    setIsModalOpen(true);
+  };
+
+  const handleSave = async (contact: Contact, isUpdate: boolean) => {
+    const success = await onSaveContact(contact, isUpdate);
+    if (success) {
+      if (selectedContact?.id === contact.id) {
+        setSelectedContact(contact);
+      }
+    }
+    return success;
+  };
 
   const typeColors = {
     Client:
@@ -46,7 +127,7 @@ export const CrmView: React.FC<CrmViewProps> = ({ contacts, isLoading }) => {
           </p>
         </div>
         <button
-          onClick={() => {}}
+          onClick={handleAdd}
           className="notion-button notion-button-primary"
         >
           <Icon.Add
@@ -174,7 +255,10 @@ export const CrmView: React.FC<CrmViewProps> = ({ contacts, isLoading }) => {
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
-                    <button className="p-3 bg-notion-light-bg dark:bg-notion-dark-bg text-notion-light-muted hover:text-notion-light-text dark:hover:text-notion-dark-text hover:border-notion-light-text/30 dark:hover:border-notion-dark-text/30 border border-notion-light-border dark:border-notion-dark-border rounded transition-all shadow-sm hover:shadow-md">
+                    <button
+                      onClick={() => handleEdit(selectedContact)}
+                      className="p-3 bg-notion-light-bg dark:bg-notion-dark-bg text-notion-light-muted hover:text-notion-light-text dark:hover:text-notion-dark-text hover:border-notion-light-text/30 dark:hover:border-notion-dark-text/30 border border-notion-light-border dark:border-notion-dark-border rounded transition-all shadow-sm hover:shadow-md"
+                    >
                       <Icon.Edit size={20} />
                     </button>
                     <button className="p-3 bg-notion-light-bg dark:bg-notion-dark-bg text-notion-light-muted hover:text-red-500 hover:border-red-500/50 border border-notion-light-border dark:border-notion-dark-border rounded transition-all shadow-sm hover:shadow-md">
@@ -209,13 +293,16 @@ export const CrmView: React.FC<CrmViewProps> = ({ contacts, isLoading }) => {
                 </div>
               </div>
 
-              {/* Activity Tabs Placeholder */}
+              {/* Interaction Log Section */}
               <div className="flex-1 p-10 bg-notion-light-bg dark:bg-notion-dark-bg">
                 <div className="flex items-center justify-between mb-8">
                   <h3 className="notion-label uppercase tracking-[0.2em]">
                     Interaction Log
                   </h3>
-                  <button className="text-[12px] font-bold text-notion-light-text dark:text-notion-dark-text flex items-center gap-2 hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover transition-colors bg-notion-light-sidebar dark:bg-notion-dark-sidebar px-3 py-1.5 rounded border border-notion-light-border dark:border-notion-dark-border shadow-sm">
+                  <button
+                    onClick={() => setIsInteractionModalOpen(true)}
+                    className="text-[12px] font-bold text-notion-light-text dark:text-notion-dark-text flex items-center gap-2 hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover transition-colors bg-notion-light-sidebar dark:bg-notion-dark-sidebar px-3 py-1.5 rounded border border-notion-light-border dark:border-notion-dark-border shadow-sm"
+                  >
                     <Icon.Add size={14} /> Log Interaction
                   </button>
                 </div>
@@ -223,45 +310,39 @@ export const CrmView: React.FC<CrmViewProps> = ({ contacts, isLoading }) => {
                 <div className="space-y-8 relative">
                   <div className="absolute left-[13px] top-2 bottom-2 w-0.5 bg-notion-light-border dark:bg-notion-dark-border opacity-50"></div>
 
-                  <div className="relative pl-10 group/item">
-                    <div className="absolute left-0 top-1 w-7 h-7 bg-notion-light-text dark:bg-notion-dark-text text-white dark:text-notion-dark-bg rounded-full flex items-center justify-center z-10 border-4 border-white dark:border-notion-dark-bg shadow-lg group-hover/item:scale-110 transition-transform">
-                      <Icon.Chat size={12} />
+                  {isInteractionsLoading ? (
+                    <div className="flex justify-center py-8">
+                      <div className="w-6 h-6 border-2 border-notion-light-text/20 border-t-notion-light-text rounded-full animate-spin"></div>
                     </div>
-                    <div className="p-5 bg-notion-light-sidebar/40 dark:bg-notion-dark-sidebar/40 rounded border border-notion-light-border dark:border-notion-dark-border group-hover/item:shadow-md group-hover/item:border-notion-light-text/20 dark:group-hover/item:border-notion-dark-text/20 transition-all">
-                      <div className="flex items-center justify-between mb-3">
-                        <span className="text-[14px] font-bold text-notion-light-text dark:text-notion-dark-text">
-                          Initial Discovery Call
-                        </span>
-                        <span className="notion-label bg-notion-light-bg dark:bg-notion-dark-bg px-2 py-0.5 rounded border border-notion-light-border dark:border-notion-dark-border">
-                          Oct 24, 2023
-                        </span>
+                  ) : interactions.length > 0 ? (
+                    interactions.map((interaction) => (
+                      <div
+                        key={interaction.id}
+                        className="relative pl-10 group/item"
+                      >
+                        <div className="absolute left-0 top-1 w-7 h-7 bg-notion-light-text dark:bg-notion-dark-text text-white dark:text-notion-dark-bg rounded-full flex items-center justify-center z-10 border-4 border-white dark:border-notion-dark-bg shadow-lg group-hover/item:scale-110 transition-transform">
+                          {getInteractionIcon(interaction.type)}
+                        </div>
+                        <div className="p-5 bg-notion-light-sidebar/40 dark:bg-notion-dark-sidebar/40 rounded border border-notion-light-border dark:border-notion-dark-border group-hover/item:shadow-md group-hover/item:border-notion-light-text/20 dark:group-hover/item:border-notion-dark-text/20 transition-all">
+                          <div className="flex items-center justify-between mb-3">
+                            <span className="text-[14px] font-bold text-notion-light-text dark:text-notion-dark-text">
+                              {interaction.type}
+                            </span>
+                            <span className="notion-label bg-notion-light-bg dark:bg-notion-dark-bg px-2 py-0.5 rounded border border-notion-light-border dark:border-notion-dark-border">
+                              {new Date(interaction.date).toLocaleDateString()}
+                            </span>
+                          </div>
+                          <p className="text-[14px] text-notion-light-muted dark:text-notion-dark-muted leading-relaxed whitespace-pre-wrap">
+                            {interaction.notes}
+                          </p>
+                        </div>
                       </div>
-                      <p className="text-[14px] text-notion-light-muted dark:text-notion-dark-muted leading-relaxed">
-                        Discussed project scope and initial requirements for the
-                        dashboard migration.
-                      </p>
+                    ))
+                  ) : (
+                    <div className="relative pl-10 py-8 text-center">
+                      <p className="notion-label">No interactions logged yet</p>
                     </div>
-                  </div>
-
-                  <div className="relative pl-10 group/item">
-                    <div className="absolute left-0 top-1 w-7 h-7 bg-notion-light-text dark:bg-notion-dark-text text-white dark:text-notion-dark-bg rounded-full flex items-center justify-center z-10 border-4 border-white dark:border-notion-dark-bg shadow-lg group-hover/item:scale-110 transition-transform">
-                      <Icon.Docs size={12} />
-                    </div>
-                    <div className="p-5 bg-notion-light-sidebar/40 dark:bg-notion-dark-sidebar/40 rounded border border-notion-light-border dark:border-notion-dark-border group-hover/item:shadow-md group-hover/item:border-notion-light-text/20 dark:group-hover/item:border-notion-dark-text/20 transition-all">
-                      <div className="flex items-center justify-between mb-3">
-                        <span className="text-[14px] font-bold text-notion-light-text dark:text-notion-dark-text">
-                          Proposal Sent
-                        </span>
-                        <span className="notion-label bg-notion-light-bg dark:bg-notion-dark-bg px-2 py-0.5 rounded border border-notion-light-border dark:border-notion-dark-border">
-                          Oct 26, 2023
-                        </span>
-                      </div>
-                      <p className="text-[14px] text-notion-light-muted dark:text-notion-dark-muted leading-relaxed">
-                        Emailed the full project proposal and timeline
-                        estimates.
-                      </p>
-                    </div>
-                  </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -286,6 +367,22 @@ export const CrmView: React.FC<CrmViewProps> = ({ contacts, isLoading }) => {
           )}
         </div>
       </div>
+
+      <ContactModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSubmit={handleSave}
+        initialData={editingContact}
+      />
+
+      {selectedContact && (
+        <InteractionModal
+          isOpen={isInteractionModalOpen}
+          onClose={() => setIsInteractionModalOpen(false)}
+          onSubmit={handleSaveInteraction}
+          contactId={selectedContact.id}
+        />
+      )}
     </div>
   );
 };

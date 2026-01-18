@@ -135,6 +135,9 @@ export interface DecisionEntry {
   options: string[];
   decision: string;
   expectedOutcome: string;
+  actualOutcome?: string;
+  assumptions: string[];
+  decisionType: "strategy" | "tactic";
   reviewDate: string;
   status: "PENDING" | "REVIEWED" | "ARCHIVED";
   impact: 1 | 2 | 3 | 4 | 5;
@@ -144,9 +147,8 @@ export interface DecisionEntry {
 export interface MentalStateEntry {
   id: string;
   date: string;
-  energy: 1 | 2 | 3 | 4 | 5;
-  clarity: 1 | 2 | 3 | 4 | 5;
-  stress: 1 | 2 | 3 | 4 | 5;
+  energy: "low" | "medium" | "high";
+  clarity: "foggy" | "neutral" | "sharp";
   notes?: string;
 }
 

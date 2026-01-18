@@ -115,7 +115,7 @@ export const BLUEPRINT_MODULES: BlueprintModule[] = [
   {
     id: "strategy",
     title: "Decision & Strategy",
-    status: "PARTIAL",
+    status: "ACTIVE",
     iconKey: "Strategy",
     features: [
       "Decision journal logs",
@@ -128,7 +128,7 @@ export const BLUEPRINT_MODULES: BlueprintModule[] = [
   {
     id: "awareness",
     title: "Mental State Awareness",
-    status: "PENDING",
+    status: "ACTIVE",
     iconKey: "Activity",
     features: [
       "Energy & clarity tracking",

@@ -8,6 +8,8 @@ import {
   Note,
   VaultEntry,
   OperatorMetrics,
+  DecisionEntry,
+  MentalStateEntry,
 } from "../types";
 import { WES_AI_SYSTEM_INSTRUCTION, WES_TOOLS } from "../constants/aiConfig";
 
@@ -25,6 +27,8 @@ interface UseAiChatProps {
   notes: Note[];
   vaultEntries: VaultEntry[];
   metrics: OperatorMetrics;
+  decisions: DecisionEntry[];
+  mentalStates: MentalStateEntry[];
   onSaveTransaction: (entry: TaskEntry, isUpdate: boolean) => Promise<boolean>;
   onDeleteTransaction: (entry: TaskEntry) => Promise<boolean>;
   onSaveContact: (contact: Contact, isUpdate: boolean) => Promise<boolean>;
@@ -38,6 +42,8 @@ export const useAiChat = ({
   notes,
   vaultEntries,
   metrics,
+  decisions,
+  mentalStates,
   onSaveTransaction,
   onDeleteTransaction,
   onSaveContact,
@@ -343,6 +349,34 @@ export const useAiChat = ({
           return noteSuccess
             ? { status: "Note created" }
             : { error: "Failed to create note" };
+        }
+        case "get_decisions":
+          return {
+            decisions: decisions.map((d) => ({
+              id: d.id,
+              date: d.date,
+              title: d.title,
+              decisionType: d.decisionType,
+              status: d.status,
+              impact: d.impact,
+              reviewDate: d.reviewDate,
+            })),
+          };
+        case "get_mental_state": {
+          const today = new Date().toISOString().split("T")[0];
+          const latest =
+            mentalStates.find((m) => m.date === today) || mentalStates[0];
+          return latest
+            ? {
+                date: latest.date,
+                energy: latest.energy,
+                clarity: latest.clarity,
+                isToday: latest.date === today,
+              }
+            : {
+                error:
+                  "No mental state data available. Suggest the user perform a check-in.",
+              };
         }
         default:
           return { error: "Tool not found" };

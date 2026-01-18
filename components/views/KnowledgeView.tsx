@@ -1,4 +1,6 @@
 import React, { useState, useMemo } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { Note } from "../../types";
 import { Icon } from "../Icons";
 import { useMarkdownEditor } from "../../hooks/useMarkdownEditor";
@@ -17,15 +19,36 @@ export const KnowledgeView: React.FC<KnowledgeViewProps> = ({
   onDeleteNote,
 }) => {
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedNote, setSelectedNote] = useState<Note | null>(null);
+  const [rawSelectedNote, setRawSelectedNote] = useState<Note | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [editTitle, setEditTitle] = useState("");
   const [editContent, setEditContent] = useState("");
   const [editTags, setEditTags] = useState<string[]>([]);
+  const [isCopied, setIsCopied] = useState(false);
+
+  const selectedNote =
+    rawSelectedNote ||
+    (!rawSelectedNote && !isEditing && notes.length > 0 && !isLoading
+      ? notes[0]
+      : null);
 
   const [prevSelectedNote, setPrevSelectedNote] = useState<Note | null>(
     selectedNote,
   );
+
+  const handleCopyMarkdown = async () => {
+    if (!selectedNote) return;
+
+    const markdown = `# ${selectedNote.title}\n\n${selectedNote.content}\n\nTags: ${selectedNote.tags.join(", ")}`;
+
+    try {
+      await navigator.clipboard.writeText(markdown);
+      setIsCopied(true);
+      setTimeout(() => setIsCopied(false), 2000);
+    } catch (err) {
+      console.error("Failed to copy markdown: ", err);
+    }
+  };
 
   if (selectedNote !== prevSelectedNote) {
     setPrevSelectedNote(selectedNote);
@@ -69,15 +92,15 @@ export const KnowledgeView: React.FC<KnowledgeViewProps> = ({
     const success = await onSaveNote(noteData, !!selectedNote);
     if (success) {
       setIsEditing(false);
-      if (!selectedNote) {
+      if (!rawSelectedNote) {
         // Find the newly created note and select it (simplified)
-        setSelectedNote(noteData);
+        setRawSelectedNote(noteData);
       }
     }
   };
 
   const handleCreateNew = () => {
-    setSelectedNote(null);
+    setRawSelectedNote(null);
     setIsEditing(true);
     setEditTitle("");
     setEditContent("");
@@ -140,7 +163,7 @@ export const KnowledgeView: React.FC<KnowledgeViewProps> = ({
                 <button
                   key={note.id}
                   onClick={() => {
-                    setSelectedNote(note);
+                    setRawSelectedNote(note);
                     setIsEditing(false);
                   }}
                   className={`w-full text-left p-3 rounded-xl border transition-all ${
@@ -207,7 +230,7 @@ export const KnowledgeView: React.FC<KnowledgeViewProps> = ({
                       <button
                         onClick={() => {
                           setIsEditing(false);
-                          if (!selectedNote) setSelectedNote(null);
+                          if (!selectedNote) setRawSelectedNote(null);
                         }}
                         className="notion-button notion-button-ghost text-xs uppercase tracking-widest"
                       >
@@ -222,6 +245,22 @@ export const KnowledgeView: React.FC<KnowledgeViewProps> = ({
                     </>
                   ) : (
                     <>
+                      <button
+                        onClick={handleCopyMarkdown}
+                        className={`p-2 transition-all flex items-center gap-2 ${
+                          isCopied
+                            ? "text-green-500"
+                            : "text-notion-light-muted hover:text-notion-light-text dark:hover:text-notion-dark-text"
+                        }`}
+                        title="Copy to Markdown"
+                      >
+                        <Icon.Copy size={18} />
+                        {isCopied && (
+                          <span className="text-[10px] font-black uppercase tracking-widest animate-in fade-in zoom-in duration-300">
+                            Copied!
+                          </span>
+                        )}
+                      </button>
                       <button
                         onClick={() => setIsEditing(true)}
                         className="p-2 text-notion-light-muted hover:text-notion-light-text dark:hover:text-notion-dark-text transition-colors"
@@ -292,13 +331,39 @@ export const KnowledgeView: React.FC<KnowledgeViewProps> = ({
                       </button>
                     </div>
 
-                    <textarea
-                      ref={textareaRef}
-                      value={editContent}
-                      onChange={(e) => setEditContent(e.target.value)}
-                      placeholder="Write your SOP here using markdown..."
-                      className="w-full h-[400px] bg-transparent outline-none resize-none font-mono text-sm leading-relaxed text-notion-light-text dark:text-notion-dark-text placeholder:text-notion-light-muted/30"
-                    />
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 min-h-[400px]">
+                      {/* Editor */}
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between px-1">
+                          <span className="text-[10px] font-black uppercase tracking-widest text-notion-light-muted/50 dark:text-notion-dark-muted/50">
+                            Markdown Editor
+                          </span>
+                        </div>
+                        <textarea
+                          ref={textareaRef}
+                          value={editContent}
+                          onChange={(e) => setEditContent(e.target.value)}
+                          placeholder="Write your SOP here using markdown..."
+                          className="w-full h-[400px] bg-notion-light-sidebar/20 dark:bg-notion-dark-sidebar/20 rounded-xl p-4 outline-none resize-none font-mono text-sm leading-relaxed text-notion-light-text dark:text-notion-dark-text placeholder:text-notion-light-muted/30 border border-notion-light-border/30 dark:border-notion-dark-border/30 focus:border-notion-light-text/20 dark:focus:border-notion-dark-text/20 transition-all"
+                        />
+                      </div>
+
+                      {/* Live Preview */}
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between px-1">
+                          <span className="text-[10px] font-black uppercase tracking-widest text-notion-light-muted/50 dark:text-notion-dark-muted/50">
+                            Live Preview
+                          </span>
+                        </div>
+                        <div className="w-full h-[400px] overflow-y-auto bg-notion-light-sidebar/10 dark:bg-notion-dark-sidebar/10 rounded-xl p-6 border border-dashed border-notion-light-border dark:border-notion-dark-border markdown-preview">
+                          <div className="prose prose-sm dark:prose-invert max-w-none text-notion-light-text dark:text-notion-dark-text leading-relaxed">
+                            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                              {editContent || "_No content to preview_"}
+                            </ReactMarkdown>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
 
                     <div className="pt-4 border-t border-notion-light-border dark:border-notion-dark-border">
                       <div className="flex items-center gap-2 mb-2">
@@ -325,7 +390,7 @@ export const KnowledgeView: React.FC<KnowledgeViewProps> = ({
                     </div>
                   </div>
                 ) : (
-                  <div className="max-w-none">
+                  <div className="max-w-none markdown-preview">
                     <div className="flex flex-wrap gap-2 mb-8">
                       {selectedNote?.tags.map((tag) => (
                         <span
@@ -336,8 +401,10 @@ export const KnowledgeView: React.FC<KnowledgeViewProps> = ({
                         </span>
                       ))}
                     </div>
-                    <div className="whitespace-pre-wrap text-notion-light-text dark:text-notion-dark-text leading-relaxed text-sm">
-                      {selectedNote?.content || "No content available."}
+                    <div className="prose prose-sm dark:prose-invert max-w-none text-notion-light-text dark:text-notion-dark-text leading-relaxed">
+                      <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                        {selectedNote?.content || "No content available."}
+                      </ReactMarkdown>
                     </div>
                   </div>
                 )}

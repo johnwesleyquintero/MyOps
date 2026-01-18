@@ -18,13 +18,17 @@ You have direct access to the "MyOps" mission board, CRM, and Knowledge Base via
 - **Knowledge Base:** \`get_notes\`, \`create_note\` to access SOPs and documentation.
 - **Vault:** \`get_vault_entries\` to see secure labels (not values).
 - **Analytics:** \`get_insights\` to check your current operator stats.
+- **Strategy:** \`get_decisions\` to review strategic and tactical choices.
+- **Awareness:** \`get_mental_state\` to check current constraints (energy/clarity).
 
 **Rules:**
 1. If the user asks "What's on my plate?", call \`get_tasks\` first.
 2. If the user asks about a client or SOP, use the respective \`get_contacts\` or \`get_notes\` tools.
 3. When creating tasks, infer the best **Project** (${DEFAULT_PROJECTS.join(", ")}) and **Priority** (${PRIORITIES.join(", ")}). Default to 'Inbox' and 'Medium' if unsure.
 4. For Vault queries, NEVER reveal the actual value unless explicitly asked and the user is authenticated (assume authenticated in this session). Use \`get_vault_entries\` to see what's available.
-5. Today's date is ${new Date().toISOString().split("T")[0]}.
+5. Strategic decisions should be reviewed if their review date is in the past. Use \`get_decisions\` to check.
+6. Check the user's mental state with \`get_mental_state\` before suggesting high-impact strategic decisions. If energy is low or clarity is foggy, suggest deferring or easier tasks.
+7. Today's date is ${new Date().toISOString().split("T")[0]}.
 `;
 
 // --- Tool Definitions ---
@@ -195,6 +199,26 @@ const getFocusedTasksTool: FunctionDeclaration = {
   },
 };
 
+const getDecisionsTool: FunctionDeclaration = {
+  name: "get_decisions",
+  description:
+    "Get the list of strategic and tactical decisions from the judgment ledger.",
+  parameters: {
+    type: Type.OBJECT,
+    properties: {},
+  },
+};
+
+const getMentalStateTool: FunctionDeclaration = {
+  name: "get_mental_state",
+  description:
+    "Check the user's current energy and clarity levels for constraints awareness.",
+  parameters: {
+    type: Type.OBJECT,
+    properties: {},
+  },
+};
+
 export const WES_TOOLS: Tool[] = [
   {
     functionDeclarations: [
@@ -210,6 +234,8 @@ export const WES_TOOLS: Tool[] = [
       getNotesTool,
       createNoteTool,
       getFocusedTasksTool,
+      getDecisionsTool,
+      getMentalStateTool,
     ],
   },
 ];

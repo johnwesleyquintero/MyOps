@@ -19,6 +19,7 @@ import { VaultView } from "./components/views/VaultView";
 import { AutomationView } from "./components/views/AutomationView";
 import { ReportView } from "./components/views/ReportView";
 import { StrategyView } from "./components/views/StrategyView";
+import { AwarenessView } from "./components/views/AwarenessView";
 
 // Hooks
 import { useTasks } from "./hooks/useTasks";
@@ -35,6 +36,8 @@ import { useNotes } from "./hooks/useNotes";
 import { useOperatorAnalytics } from "./hooks/useOperatorAnalytics";
 import { useVault } from "./hooks/useVault";
 import { useAutomation } from "./hooks/useAutomation";
+import { useDecisions } from "./hooks/useDecisions";
+import { useAwareness } from "./hooks/useAwareness";
 
 const App: React.FC = () => {
   const { config, setConfig } = useAppConfig();
@@ -47,6 +50,8 @@ const App: React.FC = () => {
   const notes = useNotes(config, showToast);
   const vault = useVault(config, showToast);
   const automation = useAutomation(config, showToast);
+  const { decisions } = useDecisions(config);
+  const { mentalStates } = useAwareness(config);
 
   const {
     entries,
@@ -229,6 +234,7 @@ const App: React.FC = () => {
 
           {ui.activePage === "REPORT" && <ReportView />}
           {ui.activePage === "STRATEGY" && <StrategyView config={config} />}
+          {ui.activePage === "AWARENESS" && <AwarenessView config={config} />}
         </main>
       </div>
 
@@ -241,6 +247,8 @@ const App: React.FC = () => {
         notes={notes.notes}
         vaultEntries={vault.vaultEntries}
         metrics={operatorMetrics}
+        decisions={decisions}
+        mentalStates={mentalStates}
         onSaveTransaction={saveTransaction}
         onDeleteTransaction={removeTransaction}
         onSaveContact={crm.saveContact}

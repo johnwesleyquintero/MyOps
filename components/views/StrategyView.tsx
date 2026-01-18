@@ -136,12 +136,46 @@ export const StrategyView: React.FC<StrategyViewProps> = ({ config }) => {
               </div>
 
               <h3 className="text-lg font-bold text-notion-light-text dark:text-notion-dark-text mb-2">
+                <span
+                  className={`mr-2 px-1.5 py-0.5 rounded text-[10px] font-black uppercase tracking-tighter ${decision.decisionType === "strategy" ? "bg-indigo-500/10 text-indigo-500 border border-indigo-500/20" : "bg-sky-500/10 text-sky-500 border border-sky-500/20"}`}
+                >
+                  {decision.decisionType}
+                </span>
                 {decision.title}
               </h3>
 
               <div className="prose prose-sm dark:prose-invert max-w-none line-clamp-3 mb-4 text-sm text-notion-light-muted dark:text-notion-dark-muted">
                 <ReactMarkdown>{decision.context}</ReactMarkdown>
               </div>
+
+              {decision.assumptions && decision.assumptions.length > 0 && (
+                <div className="mb-4">
+                  <span className="text-[10px] font-bold uppercase tracking-widest opacity-40 block mb-1">
+                    Assumptions
+                  </span>
+                  <div className="flex flex-wrap gap-1">
+                    {decision.assumptions.map((a, i) => (
+                      <span
+                        key={i}
+                        className="text-[10px] bg-notion-light-sidebar dark:bg-notion-dark-sidebar px-1.5 py-0.5 rounded border border-notion-light-border dark:border-notion-dark-border"
+                      >
+                        {a}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {decision.actualOutcome && (
+                <div className="mb-4 p-3 bg-emerald-500/5 border border-emerald-500/10 rounded-xl">
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-emerald-600 dark:text-emerald-400 block mb-1">
+                    Actual Outcome
+                  </span>
+                  <p className="text-sm text-notion-light-text dark:text-notion-dark-text italic">
+                    {decision.actualOutcome}
+                  </p>
+                </div>
+              )}
 
               <div className="flex items-center justify-between mt-6 pt-4 border-t border-notion-light-border dark:border-notion-dark-border">
                 <div className="flex items-center gap-4">
@@ -200,6 +234,9 @@ const DecisionModal: React.FC<DecisionModalProps> = ({
       options: [],
       decision: "",
       expectedOutcome: "",
+      actualOutcome: "",
+      assumptions: [],
+      decisionType: "tactic",
       reviewDate: "",
       status: "PENDING",
       impact: 3,
@@ -223,7 +260,25 @@ const DecisionModal: React.FC<DecisionModalProps> = ({
         </div>
 
         <div className="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-3 gap-4">
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-bold uppercase tracking-widest opacity-60">
+                Type
+              </label>
+              <select
+                value={formData.decisionType}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    decisionType: e.target.value as "strategy" | "tactic",
+                  })
+                }
+                className="notion-input w-full"
+              >
+                <option value="tactic">Tactic</option>
+                <option value="strategy">Strategy</option>
+              </select>
+            </div>
             <div className="space-y-1.5">
               <label className="text-[10px] font-bold uppercase tracking-widest opacity-60">
                 Date
@@ -269,6 +324,27 @@ const DecisionModal: React.FC<DecisionModalProps> = ({
 
           <div className="space-y-1.5">
             <label className="text-[10px] font-bold uppercase tracking-widest opacity-60">
+              Assumptions (Comma separated)
+            </label>
+            <input
+              type="text"
+              placeholder="e.g. Market will grow, No new competitors..."
+              value={formData.assumptions.join(", ")}
+              onChange={(e) =>
+                setFormData({
+                  ...formData,
+                  assumptions: e.target.value
+                    .split(",")
+                    .map((s) => s.trim())
+                    .filter(Boolean),
+                })
+              }
+              className="notion-input w-full"
+            />
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="text-[10px] font-bold uppercase tracking-widest opacity-60">
               Context & Options
             </label>
             <textarea
@@ -277,8 +353,37 @@ const DecisionModal: React.FC<DecisionModalProps> = ({
               onChange={(e) =>
                 setFormData({ ...formData, context: e.target.value })
               }
-              className="notion-input w-full min-h-[120px] resize-none"
+              className="notion-input w-full min-h-[100px] resize-none"
             />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-bold uppercase tracking-widest opacity-60">
+                Expected Outcome
+              </label>
+              <textarea
+                placeholder="What do you think will happen?"
+                value={formData.expectedOutcome}
+                onChange={(e) =>
+                  setFormData({ ...formData, expectedOutcome: e.target.value })
+                }
+                className="notion-input w-full min-h-[80px] resize-none"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-bold uppercase tracking-widest opacity-60">
+                Actual Outcome (Review phase)
+              </label>
+              <textarea
+                placeholder="What actually happened?"
+                value={formData.actualOutcome}
+                onChange={(e) =>
+                  setFormData({ ...formData, actualOutcome: e.target.value })
+                }
+                className="notion-input w-full min-h-[80px] resize-none"
+              />
+            </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">

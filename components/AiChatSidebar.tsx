@@ -7,6 +7,8 @@ import {
   Note,
   VaultEntry,
   OperatorMetrics,
+  DecisionEntry,
+  MentalStateEntry,
 } from "../types";
 import { useAiChat } from "../hooks/useAiChat";
 import { Icon, iconProps } from "./Icons";
@@ -20,6 +22,8 @@ interface AiChatSidebarProps {
   notes: Note[];
   vaultEntries: VaultEntry[];
   metrics: OperatorMetrics;
+  decisions: DecisionEntry[];
+  mentalStates: MentalStateEntry[];
   onSaveTransaction: (entry: TaskEntry, isUpdate: boolean) => Promise<boolean>;
   onDeleteTransaction: (entry: TaskEntry) => Promise<boolean>;
   onSaveContact: (contact: Contact, isUpdate: boolean) => Promise<boolean>;
@@ -35,6 +39,8 @@ export const AiChatSidebar: React.FC<AiChatSidebarProps> = ({
   notes,
   vaultEntries,
   metrics,
+  decisions,
+  mentalStates,
   onSaveTransaction,
   onDeleteTransaction,
   onSaveContact,
@@ -55,6 +61,8 @@ export const AiChatSidebar: React.FC<AiChatSidebarProps> = ({
     notes,
     vaultEntries,
     metrics,
+    decisions,
+    mentalStates,
     onSaveTransaction,
     onDeleteTransaction,
     onSaveContact,

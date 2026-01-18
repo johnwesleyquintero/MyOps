@@ -21,6 +21,7 @@ export const useUiState = () => {
   const [editingEntry, setEditingEntry] = useState<TaskEntry | null>(null);
   const [editingContact, setEditingContact] = useState<Contact | null>(null);
   const [editingNote, setEditingNote] = useState<Note | null>(null);
+  const [isCreatingNote, setIsCreatingNote] = useState(false);
   const [focusedTask, setFocusedTask] = useState<TaskEntry | null>(null);
 
   const toggleSidebarCollapse = useCallback(() => {
@@ -48,6 +49,13 @@ export const useUiState = () => {
 
   const openEditNote = useCallback((note: Note) => {
     setEditingNote(note);
+    setIsCreatingNote(false);
+    setActivePage("KNOWLEDGE");
+  }, []);
+
+  const openCreateNote = useCallback(() => {
+    setEditingNote(null);
+    setIsCreatingNote(true);
     setActivePage("KNOWLEDGE");
   }, []);
 
@@ -84,12 +92,15 @@ export const useUiState = () => {
     setEditingContact,
     editingNote,
     setEditingNote,
+    isCreatingNote,
+    setIsCreatingNote,
     focusedTask,
     setFocusedTask,
     openEdit,
     openCreate,
     openEditContact,
     openEditNote,
+    openCreateNote,
     enterFocus,
     exitFocus,
   };

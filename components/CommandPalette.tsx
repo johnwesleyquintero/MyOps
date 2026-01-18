@@ -11,6 +11,7 @@ interface CommandPaletteProps {
   notes?: Note[];
   onNavigate: (page: Page) => void;
   onCreate: () => void;
+  onCreateNote?: () => void;
   onEdit: (entry: TaskEntry) => void;
   onEditContact?: (contact: Contact) => void;
   onEditNote?: (note: Note) => void;
@@ -38,6 +39,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
   notes = [],
   onNavigate,
   onCreate,
+  onCreateNote,
   onEdit,
   onEditContact,
   onEditNote,
@@ -172,6 +174,27 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
         action: () => onCreate(),
       },
       {
+        id: "act-create-note",
+        type: "ACTION",
+        label: "Create New Document",
+        subLabel: "Add to Knowledge Base",
+        icon: <Icon.Docs {...iconProps(16)} />,
+        action: () => {
+          if (onCreateNote) onCreateNote();
+          else onNavigate("KNOWLEDGE");
+        },
+      },
+      {
+        id: "act-create-contact",
+        type: "ACTION",
+        label: "Create New Contact",
+        subLabel: "Add to CRM & Network",
+        icon: <Icon.Users {...iconProps(16)} />,
+        action: () => {
+          onNavigate("CRM");
+        },
+      },
+      {
         id: "act-create-high",
         type: "ACTION",
         label: "Create High Priority Task",
@@ -192,7 +215,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
         action: () => onSettings(),
       },
     ],
-    [onNavigate, onCreate, onSettings],
+    [onNavigate, onCreate, onCreateNote, onSettings],
   );
 
   const filteredCommands = useMemo(() => {

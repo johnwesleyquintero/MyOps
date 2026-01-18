@@ -203,6 +203,7 @@ const App: React.FC = () => {
               onSaveNote={notes.saveNote}
               onDeleteNote={notes.deleteNote}
               initialSelectedNote={ui.editingNote}
+              initialIsCreating={ui.isCreatingNote}
             />
           )}
 
@@ -282,6 +283,7 @@ const App: React.FC = () => {
         notes={notes.notes}
         onNavigate={ui.setActivePage}
         onCreate={ui.openCreate}
+        onCreateNote={ui.openCreateNote}
         onEdit={ui.openEdit}
         onEditContact={ui.openEditContact}
         onEditNote={(note) => {

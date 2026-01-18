@@ -34,6 +34,18 @@ export default {
             muted: "#9B9B9B",
           },
         },
+        chatgpt: {
+          light: {
+            user: "#FFFFFF",
+            assistant: "#F7F7F8",
+            border: "#E5E5E5",
+          },
+          dark: {
+            user: "#343541",
+            assistant: "#444654",
+            border: "#565869",
+          },
+        },
       },
       keyframes: {
         "pulse-soft": {

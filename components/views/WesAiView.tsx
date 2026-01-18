@@ -43,6 +43,7 @@ export const WesAiView: React.FC<WesAiViewProps> = ({
   onSaveContact,
   onSaveNote,
 }) => {
+  const [copiedId, setCopiedId] = useState<string | null>(null);
   const {
     messages,
     inputValue,
@@ -82,6 +83,12 @@ export const WesAiView: React.FC<WesAiViewProps> = ({
     if (!inputValue.trim() && attachments.length === 0) return;
     sendMessage(inputValue, attachments.length > 0 ? attachments : undefined);
     setAttachments([]);
+  };
+
+  const handleCopy = (text: string, id: string) => {
+    navigator.clipboard.writeText(text);
+    setCopiedId(id);
+    setTimeout(() => setCopiedId(null), 2000);
   };
 
   const handlePaste = (e: React.ClipboardEvent) => {
@@ -193,20 +200,67 @@ export const WesAiView: React.FC<WesAiViewProps> = ({
             className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
           >
             <div
-              className={`max-w-[80%] rounded-2xl p-4 ${
+              className={`max-w-[80%] rounded-2xl p-4 transition-all duration-200 group/msg ${
                 msg.role === "user"
-                  ? "bg-blue-600 text-white shadow-lg"
-                  : "bg-notion-light-sidebar dark:bg-notion-dark-sidebar border border-notion-light-border dark:border-notion-dark-border text-notion-light-text dark:text-notion-dark-text shadow-sm"
+                  ? "bg-chatgpt-light-user dark:bg-chatgpt-dark-user text-notion-light-text dark:text-notion-dark-text border border-chatgpt-light-border dark:border-chatgpt-dark-border shadow-sm hover:shadow-md"
+                  : "bg-chatgpt-light-assistant dark:bg-chatgpt-dark-assistant text-notion-light-text dark:text-notion-dark-text border border-chatgpt-light-border dark:border-chatgpt-dark-border shadow-sm"
               }`}
             >
-              <div className="flex items-center gap-2 mb-2 opacity-60 text-[10px] font-bold uppercase tracking-widest">
-                {msg.role === "model" && <Icon.Ai {...iconProps(12)} />}
-                {msg.role === "model" ? "WesAI" : "Operator"} •{" "}
-                {msg.timestamp.toLocaleTimeString()}
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2 opacity-60 text-[10px] font-bold uppercase tracking-widest">
+                  {msg.role === "model" && <Icon.Ai {...iconProps(12)} />}
+                  {msg.role === "model" ? "WesAI" : "Operator"} •{" "}
+                  {msg.timestamp.toLocaleTimeString()}
+                </div>
+                {msg.role === "model" && (
+                  <button
+                    onClick={() => handleCopy(msg.text, msg.id)}
+                    className="opacity-0 group-hover/msg:opacity-100 p-1 hover:bg-notion-light-border dark:hover:bg-notion-dark-border rounded transition-all text-notion-light-text/40 hover:text-notion-light-text dark:text-notion-dark-text/40 dark:hover:text-notion-dark-text"
+                    title="Copy as Markdown"
+                  >
+                    {copiedId === msg.id ? (
+                      <Icon.Check {...iconProps(12, "text-green-500")} />
+                    ) : (
+                      <Icon.Copy {...iconProps(12)} />
+                    )}
+                  </button>
+                )}
               </div>
 
-              <div className="text-sm leading-relaxed prose prose-sm dark:prose-invert max-w-none">
-                <ReactMarkdown>{msg.text}</ReactMarkdown>
+              <div className="text-sm leading-relaxed prose prose-sm dark:prose-invert max-w-none prose-p:leading-relaxed prose-pre:bg-chatgpt-light-user dark:prose-pre:bg-chatgpt-dark-user prose-pre:border prose-pre:border-chatgpt-light-border dark:prose-pre:border-chatgpt-dark-border prose-code:text-notion-light-text dark:prose-code:text-notion-dark-text prose-code:bg-chatgpt-light-border dark:prose-code:bg-chatgpt-dark-border prose-code:px-1 prose-code:rounded">
+                <ReactMarkdown
+                  components={{
+                    p: ({ ...props }) => (
+                      <p {...props} className="mb-3 last:mb-0" />
+                    ),
+                    ul: ({ ...props }) => (
+                      <ul
+                        {...props}
+                        className="list-disc list-inside mb-3 space-y-1"
+                      />
+                    ),
+                    ol: ({ ...props }) => (
+                      <ol
+                        {...props}
+                        className="list-decimal list-inside mb-3 space-y-1"
+                      />
+                    ),
+                    code: ({ ...props }) => (
+                      <code
+                        {...props}
+                        className="px-1.5 py-0.5 rounded font-mono text-[11px] bg-chatgpt-light-border dark:bg-chatgpt-dark-border text-notion-light-text dark:text-notion-dark-text"
+                      />
+                    ),
+                    strong: ({ ...props }) => (
+                      <strong
+                        {...props}
+                        className="font-bold text-notion-light-text dark:text-white"
+                      />
+                    ),
+                  }}
+                >
+                  {msg.text}
+                </ReactMarkdown>
               </div>
 
               {msg.attachments && msg.attachments.length > 0 && (
@@ -235,14 +289,14 @@ export const WesAiView: React.FC<WesAiViewProps> = ({
         ))}
         {isThinking && (
           <div className="flex justify-start">
-            <div className="bg-notion-light-sidebar dark:bg-notion-dark-sidebar border border-notion-light-border dark:border-notion-dark-border rounded-2xl p-4 shadow-sm">
+            <div className="bg-chatgpt-light-assistant dark:bg-chatgpt-dark-assistant border border-chatgpt-light-border dark:border-chatgpt-dark-border rounded-2xl p-4 shadow-sm">
               <div className="flex items-center gap-3">
-                <div className="flex gap-1">
-                  <div className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
-                  <div className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
-                  <div className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-bounce"></div>
+                <div className="flex gap-1.5 h-4 items-center">
+                  <div className="w-1.5 h-1.5 bg-notion-light-text/40 dark:bg-notion-dark-text/40 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+                  <div className="w-1.5 h-1.5 bg-notion-light-text/40 dark:bg-notion-dark-text/40 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+                  <div className="w-1.5 h-1.5 bg-notion-light-text/40 dark:bg-notion-dark-text/40 rounded-full animate-bounce"></div>
                 </div>
-                <span className="text-[10px] font-bold uppercase tracking-widest opacity-60">
+                <span className="text-[10px] font-bold uppercase tracking-widest text-notion-light-text/60 dark:text-notion-dark-text/60">
                   WesAI is thinking...
                 </span>
               </div>
@@ -306,13 +360,11 @@ export const WesAiView: React.FC<WesAiViewProps> = ({
           <button
             onClick={handleSendMessage}
             disabled={
-              (!inputValue.trim() && attachments.length === 0) || isThinking
+              (!inputValue.trim() && attachments.length === 0) ||
+              isThinking ||
+              !config.geminiApiKey
             }
-            className={`p-2.5 rounded-xl transition-all ${
-              (inputValue.trim() || attachments.length > 0) && !isThinking
-                ? "bg-blue-600 text-white shadow-md hover:bg-blue-700 active:scale-95"
-                : "bg-notion-light-border dark:bg-notion-dark-border text-notion-light-muted dark:text-notion-dark-muted cursor-not-allowed"
-            }`}
+            className="p-3 bg-notion-light-text dark:bg-notion-dark-text text-white dark:text-notion-dark-bg rounded-xl hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg active:scale-95"
           >
             <Icon.Send {...iconProps(20)} />
           </button>

@@ -70,6 +70,7 @@ export const AiChatSidebar: React.FC<AiChatSidebarProps> = ({
   });
 
   const [attachments, setAttachments] = useState<string[]>([]);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -82,6 +83,12 @@ export const AiChatSidebar: React.FC<AiChatSidebarProps> = ({
     if (!inputValue.trim() && attachments.length === 0) return;
     sendMessage(inputValue, attachments.length > 0 ? attachments : undefined);
     setAttachments([]);
+  };
+
+  const handleCopy = (text: string, id: string) => {
+    navigator.clipboard.writeText(text);
+    setCopiedId(id);
+    setTimeout(() => setCopiedId(null), 2000);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -188,27 +195,40 @@ export const AiChatSidebar: React.FC<AiChatSidebarProps> = ({
           {messages.map((msg) => (
             <div
               key={msg.id}
-              className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"} animate-in fade-in slide-in-from-bottom-2 duration-300`}
+              className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"} animate-in fade-in slide-in-from-bottom-2 duration-300 group/msg`}
             >
               <div
                 className={`max-w-[90%] rounded-2xl px-4 py-3 text-sm leading-relaxed shadow-sm transition-all duration-200 ${
                   msg.role === "user"
-                    ? "bg-notion-light-text dark:bg-notion-dark-text text-white dark:text-notion-dark-bg rounded-br-none hover:shadow-md"
-                    : "bg-notion-light-sidebar dark:bg-notion-dark-sidebar text-notion-light-text dark:text-notion-dark-text rounded-bl-none border border-notion-light-border dark:border-notion-dark-border hover:border-notion-light-text/10 dark:hover:border-notion-dark-text/10"
+                    ? "bg-chatgpt-light-user dark:bg-chatgpt-dark-user text-notion-light-text dark:text-notion-dark-text rounded-br-none border border-chatgpt-light-border dark:border-chatgpt-dark-border hover:shadow-md"
+                    : "bg-chatgpt-light-assistant dark:bg-chatgpt-dark-assistant text-notion-light-text dark:text-notion-dark-text rounded-bl-none border border-chatgpt-light-border dark:border-chatgpt-dark-border hover:border-notion-light-text/10 dark:hover:border-notion-dark-text/10"
                 }`}
               >
                 {msg.role === "model" && (
-                  <div className="mb-2.5 flex items-center gap-2 text-notion-light-text dark:text-notion-dark-text">
-                    <div className="p-1 rounded-md bg-notion-light-border dark:bg-notion-dark-border">
-                      <Icon.Bot {...iconProps(14, "stroke-[2.5px]")} />
+                  <div className="mb-2.5 flex items-center justify-between">
+                    <div className="flex items-center gap-2 text-notion-light-text dark:text-notion-dark-text">
+                      <div className="p-1 rounded-md bg-chatgpt-light-border dark:bg-chatgpt-dark-border">
+                        <Icon.Bot {...iconProps(14, "stroke-[2.5px]")} />
+                      </div>
+                      <span className="text-[10px] font-bold uppercase tracking-[0.2em]">
+                        WesAI
+                      </span>
                     </div>
-                    <span className="text-[10px] font-bold uppercase tracking-[0.2em]">
-                      WesAI
-                    </span>
+                    <button
+                      onClick={() => handleCopy(msg.text, msg.id)}
+                      className="opacity-0 group-hover/msg:opacity-100 p-1 hover:bg-notion-light-border dark:hover:bg-notion-dark-border rounded transition-all text-notion-light-text/40 hover:text-notion-light-text dark:text-notion-dark-text/40 dark:hover:text-notion-dark-text"
+                      title="Copy as Markdown"
+                    >
+                      {copiedId === msg.id ? (
+                        <Icon.Check {...iconProps(12, "text-green-500")} />
+                      ) : (
+                        <Icon.Copy {...iconProps(12)} />
+                      )}
+                    </button>
                   </div>
                 )}
                 {msg.role === "model" ? (
-                  <div className="prose prose-sm dark:prose-invert max-w-none prose-p:leading-relaxed prose-pre:bg-notion-light-bg dark:prose-pre:bg-notion-dark-bg prose-pre:border prose-pre:border-notion-light-border dark:prose-pre:border-notion-dark-border prose-code:text-notion-light-text dark:prose-code:text-notion-dark-text prose-code:bg-notion-light-border dark:prose-code:bg-notion-dark-border prose-code:px-1 prose-code:rounded">
+                  <div className="prose prose-sm dark:prose-invert max-w-none prose-p:leading-relaxed prose-pre:bg-chatgpt-light-user dark:prose-pre:bg-chatgpt-dark-user prose-pre:border prose-pre:border-chatgpt-light-border dark:prose-pre:border-chatgpt-dark-border prose-code:text-notion-light-text dark:prose-code:text-notion-dark-text prose-code:bg-chatgpt-light-border dark:prose-code:bg-chatgpt-dark-border prose-code:px-1 prose-code:rounded">
                     <ReactMarkdown
                       components={{
                         p: ({ ...props }) => (
@@ -229,7 +249,7 @@ export const AiChatSidebar: React.FC<AiChatSidebarProps> = ({
                         code: ({ ...props }) => (
                           <code
                             {...props}
-                            className="px-1.5 py-0.5 rounded font-mono text-[11px] bg-notion-light-border dark:bg-notion-dark-border text-notion-light-text dark:text-notion-dark-text"
+                            className="px-1.5 py-0.5 rounded font-mono text-[11px] bg-chatgpt-light-border dark:bg-chatgpt-dark-border text-notion-light-text dark:text-notion-dark-text"
                           />
                         ),
                         strong: ({ ...props }) => (
@@ -280,7 +300,7 @@ export const AiChatSidebar: React.FC<AiChatSidebarProps> = ({
           {/* Thinking / Tool Execution Indicator */}
           {isThinking && (
             <div className="flex justify-start animate-in fade-in slide-in-from-bottom-2 duration-300">
-              <div className="bg-notion-light-sidebar/50 dark:bg-notion-dark-sidebar/50 rounded-2xl rounded-bl-none px-5 py-4 border border-notion-light-border dark:border-notion-dark-border flex items-center gap-3 shadow-sm">
+              <div className="bg-chatgpt-light-assistant dark:bg-chatgpt-dark-assistant rounded-2xl rounded-bl-none px-5 py-4 border border-chatgpt-light-border dark:border-chatgpt-dark-border flex items-center gap-3 shadow-sm">
                 {activeTool ? (
                   <div className="flex items-center gap-3 text-[11px] text-notion-light-text dark:text-notion-dark-text font-mono font-bold uppercase tracking-widest">
                     <div className="relative">
@@ -370,7 +390,7 @@ export const AiChatSidebar: React.FC<AiChatSidebarProps> = ({
                   isThinking ||
                   !config.geminiApiKey
                 }
-                className="absolute right-2 bottom-2 p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg hover:shadow-blue-500/20 active:scale-95"
+                className="absolute right-2 bottom-2 p-2 bg-notion-light-text dark:bg-notion-dark-text text-white dark:text-notion-dark-bg rounded-lg hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg active:scale-95"
               >
                 <Icon.Send {...iconProps(16)} />
               </button>

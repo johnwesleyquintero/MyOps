@@ -276,6 +276,8 @@ const App: React.FC = () => {
         isOpen={ui.isCmdPaletteOpen}
         onClose={() => ui.setIsCmdPaletteOpen(false)}
         entries={entries}
+        contacts={crm.contacts}
+        notes={notes.notes}
         onNavigate={ui.setActivePage}
         onCreate={ui.openCreate}
         onEdit={ui.openEdit}

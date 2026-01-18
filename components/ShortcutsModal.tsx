@@ -18,7 +18,7 @@ export const ShortcutsModal: React.FC<ShortcutsModalProps> = ({
       items: [
         { keys: ["g", "d"], label: "Go to Dashboard" },
         { keys: ["g", "m"], label: "Go to Missions" },
-        { keys: ["⌘", "K"], label: "Command Palette" },
+        { keys: ["Ctrl", "K"], label: "Command Palette" },
       ],
     },
     {

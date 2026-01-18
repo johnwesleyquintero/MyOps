@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
-import { TaskEntry, Page } from "../types";
+import { TaskEntry, Page, Contact, Note } from "../types";
 import { PRIORITY_DOTS } from "@/constants";
 import { Icon, iconProps } from "./Icons";
 
@@ -7,14 +7,18 @@ interface CommandPaletteProps {
   isOpen: boolean;
   onClose: () => void;
   entries: TaskEntry[];
+  contacts?: Contact[];
+  notes?: Note[];
   onNavigate: (page: Page) => void;
   onCreate: () => void;
   onEdit: (entry: TaskEntry) => void;
+  onEditContact?: (contact: Contact) => void;
+  onEditNote?: (note: Note) => void;
   onSettings: () => void;
   onToggleFocus: (entry: TaskEntry) => void;
 }
 
-type CommandType = "ACTION" | "NAVIGATION" | "TASK";
+type CommandType = "ACTION" | "NAVIGATION" | "TASK" | "CONTACT" | "NOTE";
 
 interface CommandItem {
   id: string;
@@ -23,16 +27,20 @@ interface CommandItem {
   subLabel?: string;
   icon?: React.ReactNode;
   action: () => void;
-  meta?: TaskEntry;
+  meta?: any;
 }
 
 export const CommandPalette: React.FC<CommandPaletteProps> = ({
   isOpen,
   onClose,
   entries,
+  contacts = [],
+  notes = [],
   onNavigate,
   onCreate,
   onEdit,
+  onEditContact,
+  onEditNote,
   onSettings,
   onToggleFocus,
 }) => {
@@ -62,7 +70,8 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
       {
         id: "nav-dashboard",
         type: "NAVIGATION",
-        label: "Go to Dashboard",
+        label: "Go to Command Center",
+        subLabel: "Dashboard & active metrics",
         icon: <Icon.Dashboard {...iconProps(16)} />,
         action: () => onNavigate("DASHBOARD"),
       },
@@ -70,20 +79,87 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
         id: "nav-missions",
         type: "NAVIGATION",
         label: "Go to Mission Control",
+        subLabel: "Task management & backlog",
         icon: <Icon.Missions {...iconProps(16)} />,
         action: () => onNavigate("MISSIONS"),
+      },
+      {
+        id: "nav-crm",
+        type: "NAVIGATION",
+        label: "Go to CRM & Contacts",
+        subLabel: "Manage leads and interactions",
+        icon: <Icon.Users {...iconProps(16)} />,
+        action: () => onNavigate("CRM"),
+      },
+      {
+        id: "nav-automation",
+        type: "NAVIGATION",
+        label: "Go to Active Agents",
+        subLabel: "Automation & active workflows",
+        icon: <Icon.Active {...iconProps(16)} />,
+        action: () => onNavigate("AUTOMATION"),
+      },
+      {
+        id: "nav-knowledge",
+        type: "NAVIGATION",
+        label: "Go to Knowledge Base",
+        subLabel: "SOPs, notes and documentation",
+        icon: <Icon.Docs {...iconProps(16)} />,
+        action: () => onNavigate("KNOWLEDGE"),
+      },
+      {
+        id: "nav-insights",
+        type: "NAVIGATION",
+        label: "Go to Insights & XP",
+        subLabel: "Neural analytics and progress",
+        icon: <Icon.Analytics {...iconProps(16)} />,
+        action: () => onNavigate("INSIGHTS"),
       },
       {
         id: "nav-wesai",
         type: "NAVIGATION",
         label: "Go to WesAI Co-Pilot",
+        subLabel: "Multimodal tactical intelligence",
         icon: <Icon.Ai {...iconProps(16)} />,
         action: () => onNavigate("WESAI"),
+      },
+      {
+        id: "nav-awareness",
+        type: "NAVIGATION",
+        label: "Go to Mental State",
+        subLabel: "Operator check-in and clarity",
+        icon: <Icon.Strategy {...iconProps(16)} />,
+        action: () => onNavigate("AWARENESS"),
+      },
+      {
+        id: "nav-vault",
+        type: "NAVIGATION",
+        label: "Go to Secure Vault",
+        subLabel: "Encrypted data and credentials",
+        icon: <Icon.Vault {...iconProps(16)} />,
+        action: () => onNavigate("VAULT"),
+      },
+      {
+        id: "nav-blueprint",
+        type: "NAVIGATION",
+        label: "Go to Master Blueprint",
+        subLabel: "Long-term strategy and roadmap",
+        icon: <Icon.Blueprint {...iconProps(16)} />,
+        action: () => onNavigate("BLUEPRINT"),
+      },
+      {
+        id: "nav-strategy",
+        type: "NAVIGATION",
+        label: "Go to Decision Journal",
+        subLabel: "Strategic logs and retrospectives",
+        icon: <Icon.Strategy {...iconProps(16)} />,
+        action: () => onNavigate("STRATEGY"),
       },
       {
         id: "nav-report",
         type: "NAVIGATION",
         label: "Go to Health Report",
+        subLabel: "System status and operational health",
         icon: <Icon.Report {...iconProps(16)} />,
         action: () => onNavigate("REPORT"),
       },
@@ -91,14 +167,27 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
         id: "act-create",
         type: "ACTION",
         label: "Create New Task",
-        subLabel: "Open creator modal",
+        subLabel: "Quick entry for mission control",
         icon: <Icon.Add {...iconProps(16)} />,
         action: () => onCreate(),
+      },
+      {
+        id: "act-create-high",
+        type: "ACTION",
+        label: "Create High Priority Task",
+        subLabel: "Mission-critical urgent entry",
+        icon: <Icon.Add {...iconProps(16)} className="text-red-500" />,
+        action: () => {
+          onCreate();
+          // We could potentially pass initial state to onCreate,
+          // but for now we just trigger the modal.
+        },
       },
       {
         id: "act-settings",
         type: "ACTION",
         label: "System Configuration",
+        subLabel: "API keys and core settings",
         icon: <Icon.Settings {...iconProps(16)} />,
         action: () => onSettings(),
       },
@@ -122,7 +211,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
           normalize(t.description).includes(q) ||
           normalize(t.project).includes(q),
       )
-      .slice(0, 10)
+      .slice(0, 5)
       .map((t) => ({
         id: t.id,
         type: "TASK",
@@ -132,9 +221,56 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
         action: () => onEdit(t),
       }));
 
+    const contactResults: CommandItem[] = contacts
+      .filter(
+        (c) =>
+          normalize(c.name).includes(q) ||
+          (c.company && normalize(c.company).includes(q)),
+      )
+      .slice(0, 3)
+      .map((c) => ({
+        id: `contact-${c.id}`,
+        type: "CONTACT",
+        label: c.name,
+        subLabel: c.company || "Individual Contact",
+        icon: <Icon.Users {...iconProps(16)} />,
+        action: () => {
+          onNavigate("CRM");
+          if (onEditContact) onEditContact(c);
+        },
+      }));
+
+    const noteResults: CommandItem[] = notes
+      .filter(
+        (n) =>
+          normalize(n.title).includes(q) || normalize(n.content).includes(q),
+      )
+      .slice(0, 3)
+      .map((n) => ({
+        id: `note-${n.id}`,
+        type: "NOTE",
+        label: n.title,
+        subLabel: n.tags[0] || "General Note",
+        icon: <Icon.Docs {...iconProps(16)} />,
+        action: () => {
+          onNavigate("KNOWLEDGE");
+          if (onEditNote) onEditNote(n);
+        },
+      }));
+
     if (!q) return [...cmds];
-    return [...cmds, ...tasks];
-  }, [query, staticCommands, entries, onEdit]);
+    return [...cmds, ...tasks, ...contactResults, ...noteResults];
+  }, [
+    query,
+    staticCommands,
+    entries,
+    contacts,
+    notes,
+    onEdit,
+    onNavigate,
+    onEditContact,
+    onEditNote,
+  ]);
 
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
@@ -198,7 +334,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
             ref={inputRef}
             type="text"
             className="flex-1 text-[16px] text-notion-light-text dark:text-notion-dark-text placeholder-notion-light-muted/50 dark:placeholder-notion-dark-muted/50 focus:outline-none bg-transparent font-bold"
-            placeholder="Search commands, tasks, missions..."
+            placeholder="Search commands, missions, contacts or notes..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
           />
@@ -272,7 +408,11 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
 
                 {index === selectedIndex && (
                   <div className="flex-shrink-0 text-[10px] font-black opacity-70 uppercase tracking-widest flex items-center gap-1.5 text-notion-light-muted dark:text-notion-dark-muted bg-notion-light-bg dark:bg-notion-dark-bg px-2 py-1 rounded-md border border-notion-light-border dark:border-notion-dark-border shadow-sm">
-                    {item.type === "TASK" ? "Open" : "Run"}
+                    {item.type === "TASK" ||
+                    item.type === "CONTACT" ||
+                    item.type === "NOTE"
+                      ? "Open"
+                      : "Run"}
                     <Icon.Next size={10} />
                   </div>
                 )}
@@ -305,6 +445,14 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
             <span>Command Palette v1.0</span>
           </div>
           <div className="flex gap-5">
+            <span className="flex items-center gap-2">
+              <kbd className="font-black bg-notion-light-bg dark:bg-notion-dark-bg border border-notion-light-border dark:border-notion-dark-border rounded-md px-1.5 py-0.5 shadow-sm text-notion-light-text dark:text-notion-dark-text">
+                ESC
+              </kbd>
+              <span className="font-bold uppercase tracking-tighter opacity-70">
+                Close
+              </span>
+            </span>
             <span className="flex items-center gap-2">
               <kbd className="font-black bg-notion-light-bg dark:bg-notion-dark-bg border border-notion-light-border dark:border-notion-dark-border rounded-md px-1.5 py-0.5 shadow-sm text-notion-light-text dark:text-notion-dark-text">
                 ↑↓

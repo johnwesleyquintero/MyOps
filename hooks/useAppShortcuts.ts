@@ -45,6 +45,16 @@ export const useAppShortcuts = ({
     },
     {
       key: "k",
+      ctrlKey: true,
+      preventDefault: true,
+      allowInInput: true,
+      action: () => {
+        if (activePage === "FOCUS") return;
+        setIsCmdPaletteOpen((prev) => !prev);
+      },
+    },
+    {
+      key: "k",
       metaKey: true,
       preventDefault: true,
       allowInInput: true,

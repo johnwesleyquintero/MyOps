@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect, useRef } from "react";
 import ReactMarkdown from "react-markdown";
-import { TaskEntry, PriorityLevel, StatusLevel } from "../types";
+import { TaskEntry, StatusLevel } from "../types";
 import {
   PRIORITY_COLORS,
   PRIORITY_DOTS,

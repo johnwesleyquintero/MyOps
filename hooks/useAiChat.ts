@@ -36,6 +36,12 @@ interface UseAiChatProps {
   onSaveNote: (note: Note, isUpdate: boolean) => Promise<boolean>;
 }
 
+const STORAGE_KEY = "wes_ai_chat_history";
+
+interface StoredMessage extends Omit<Message, "timestamp"> {
+  timestamp: string;
+}
+
 export const useAiChat = ({
   config,
   entries,
@@ -50,14 +56,34 @@ export const useAiChat = ({
   onSaveContact,
   onSaveNote,
 }: UseAiChatProps) => {
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: "init",
-      role: "model",
-      text: "WesAI initialized. Systems optimal. What's the directive?",
-      timestamp: new Date(),
-    },
-  ]);
+  const [messages, setMessages] = useState<Message[]>(() => {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved) as StoredMessage[];
+        return parsed.map((msg) => ({
+          ...msg,
+          timestamp: new Date(msg.timestamp),
+        }));
+      } catch (e) {
+        console.error("Failed to load chat history", e);
+      }
+    }
+    return [
+      {
+        id: "init",
+        role: "model",
+        text: "WesAI initialized. Systems optimal. What's the directive?",
+        timestamp: new Date(),
+      },
+    ];
+  });
+
+  // Persist messages
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(messages));
+  }, [messages]);
+
   const [inputValue, setInputValue] = useState("");
   const [isThinking, setIsThinking] = useState(false);
   const [activeTool, setActiveTool] = useState<string | null>(null);

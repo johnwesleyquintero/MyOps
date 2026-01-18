@@ -81,7 +81,7 @@ export const AiChatSidebar: React.FC<AiChatSidebarProps> = ({
 
   const handleSendMessage = () => {
     if (!inputValue.trim() && attachments.length === 0) return;
-    sendMessage(inputValue, attachments.length > 0 ? attachments : undefined);
+    sendMessage(undefined, attachments.length > 0 ? attachments : undefined);
     setAttachments([]);
   };
 

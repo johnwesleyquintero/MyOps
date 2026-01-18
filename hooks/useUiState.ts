@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import { Page, TaskEntry } from "../types";
+import { Page, TaskEntry, Contact, Note } from "../types";
 import { SIDEBAR_COLLAPSED_KEY } from "@/constants";
 
 export const useUiState = () => {
@@ -19,6 +19,8 @@ export const useUiState = () => {
   const [isAiChatOpen, setIsAiChatOpen] = useState(false);
 
   const [editingEntry, setEditingEntry] = useState<TaskEntry | null>(null);
+  const [editingContact, setEditingContact] = useState<Contact | null>(null);
+  const [editingNote, setEditingNote] = useState<Note | null>(null);
   const [focusedTask, setFocusedTask] = useState<TaskEntry | null>(null);
 
   const toggleSidebarCollapse = useCallback(() => {
@@ -37,6 +39,16 @@ export const useUiState = () => {
   const openCreate = useCallback(() => {
     setEditingEntry(null);
     setIsTaskModalOpen(true);
+  }, []);
+
+  const openEditContact = useCallback((contact: Contact) => {
+    setEditingContact(contact);
+    setActivePage("CRM");
+  }, []);
+
+  const openEditNote = useCallback((note: Note) => {
+    setEditingNote(note);
+    setActivePage("KNOWLEDGE");
   }, []);
 
   const enterFocus = useCallback((entry: TaskEntry) => {
@@ -68,10 +80,16 @@ export const useUiState = () => {
     setIsAiChatOpen,
     editingEntry,
     setEditingEntry,
+    editingContact,
+    setEditingContact,
+    editingNote,
+    setEditingNote,
     focusedTask,
     setFocusedTask,
     openEdit,
     openCreate,
+    openEditContact,
+    openEditNote,
     enterFocus,
     exitFocus,
   };

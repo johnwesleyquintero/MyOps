@@ -11,6 +11,7 @@ interface CrmViewProps {
   onSaveContact: (contact: Contact, isUpdate: boolean) => Promise<boolean>;
   onGetInteractions: (contactId: string) => Promise<Interaction[]>;
   onSaveInteraction: (interaction: Interaction) => Promise<boolean>;
+  initialSelectedContact?: Contact | null;
 }
 
 export const CrmView: React.FC<CrmViewProps> = ({
@@ -19,9 +20,19 @@ export const CrmView: React.FC<CrmViewProps> = ({
   onSaveContact,
   onGetInteractions,
   onSaveInteraction,
+  initialSelectedContact,
 }) => {
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
+  const [selectedContact, setSelectedContact] = useState<Contact | null>(
+    initialSelectedContact || null,
+  );
+
+  useEffect(() => {
+    if (initialSelectedContact) {
+      setSelectedContact(initialSelectedContact);
+    }
+  }, [initialSelectedContact]);
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingContact, setEditingContact] = useState<Contact | null>(null);
   const [isInteractionModalOpen, setIsInteractionModalOpen] = useState(false);

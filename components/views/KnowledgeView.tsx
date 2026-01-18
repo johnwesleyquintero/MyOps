@@ -11,6 +11,7 @@ interface KnowledgeViewProps {
   isLoading: boolean;
   onSaveNote: (note: Note, isUpdate: boolean) => Promise<boolean>;
   onDeleteNote: (id: string) => Promise<boolean>;
+  initialSelectedNote?: Note | null;
 }
 
 export const KnowledgeView: React.FC<KnowledgeViewProps> = ({
@@ -18,24 +19,31 @@ export const KnowledgeView: React.FC<KnowledgeViewProps> = ({
   isLoading,
   onSaveNote,
   onDeleteNote,
+  initialSelectedNote,
 }) => {
   const [searchQuery, setSearchQuery] = useState("");
-  const [rawSelectedNote, setRawSelectedNote] = useState<Note | null>(null);
+  const [rawSelectedNote, setRawSelectedNote] = useState<Note | null>(
+    initialSelectedNote || null,
+  );
   const [isEditing, setIsEditing] = useState(false);
-  const [editTitle, setEditTitle] = useState("");
-  const [editContent, setEditContent] = useState("");
-  const [editTags, setEditTags] = useState<string[]>([]);
-  const [isCopied, setIsCopied] = useState(false);
+
+  React.useEffect(() => {
+    if (initialSelectedNote) {
+      setRawSelectedNote(initialSelectedNote);
+      setIsEditing(false);
+    }
+  }, [initialSelectedNote]);
 
   const selectedNote =
     rawSelectedNote ||
-    (!rawSelectedNote && !isEditing && notes.length > 0 && !isLoading
-      ? notes[0]
-      : null);
+    (!rawSelectedNote && notes.length > 0 && !isLoading ? notes[0] : null);
 
-  const [prevSelectedNote, setPrevSelectedNote] = useState<Note | null>(
-    selectedNote,
-  );
+  const [editTitle, setEditTitle] = useState(selectedNote?.title || "");
+  const [editContent, setEditContent] = useState(selectedNote?.content || "");
+  const [editTags, setEditTags] = useState<string[]>(selectedNote?.tags || []);
+  const [isCopied, setIsCopied] = useState(false);
+
+  const [prevSelectedNote, setPrevSelectedNote] = useState<Note | null>(null);
 
   const handleCopyMarkdown = async () => {
     if (!selectedNote) return;
@@ -57,7 +65,7 @@ export const KnowledgeView: React.FC<KnowledgeViewProps> = ({
       setEditTitle(selectedNote.title);
       setEditContent(selectedNote.content);
       setEditTags(selectedNote.tags);
-    } else if (!selectedNote) {
+    } else if (!selectedNote && !isEditing) {
       setEditTitle("");
       setEditContent("");
       setEditTags([]);
@@ -176,10 +184,13 @@ export const KnowledgeView: React.FC<KnowledgeViewProps> = ({
                   </h3>
                   <div className="flex items-center gap-2 mt-1.5">
                     <span className="notion-label">
-                      {new Date(note.lastModified).toLocaleDateString(
-                        undefined,
-                        { month: "short", day: "numeric" },
-                      )}
+                      {note.lastModified &&
+                      !isNaN(new Date(note.lastModified).getTime())
+                        ? new Date(note.lastModified).toLocaleDateString(
+                            undefined,
+                            { month: "short", day: "numeric" },
+                          )
+                        : "Recently"}
                     </span>
                     {note.tags.slice(0, 2).map((tag) => (
                       <span
@@ -255,7 +266,14 @@ export const KnowledgeView: React.FC<KnowledgeViewProps> = ({
                         )}
                       </button>
                       <button
-                        onClick={() => setIsEditing(true)}
+                        onClick={() => {
+                          if (selectedNote) {
+                            setEditTitle(selectedNote.title);
+                            setEditContent(selectedNote.content);
+                            setEditTags(selectedNote.tags);
+                          }
+                          setIsEditing(true);
+                        }}
                         className="p-2 text-notion-light-muted hover:text-notion-light-text dark:hover:text-notion-dark-text transition-colors"
                         title="Edit Document"
                       >

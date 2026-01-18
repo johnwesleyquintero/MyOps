@@ -27,7 +27,7 @@ interface CommandItem {
   subLabel?: string;
   icon?: React.ReactNode;
   action: () => void;
-  meta?: any;
+  meta?: TaskEntry;
 }
 
 export const CommandPalette: React.FC<CommandPaletteProps> = ({

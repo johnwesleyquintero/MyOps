@@ -192,6 +192,7 @@ const App: React.FC = () => {
               onSaveContact={crm.saveContact}
               onGetInteractions={crm.getInteractions}
               onSaveInteraction={crm.saveInteraction}
+              initialSelectedContact={ui.editingContact}
             />
           )}
 
@@ -201,6 +202,7 @@ const App: React.FC = () => {
               isLoading={notes.isLoading}
               onSaveNote={notes.saveNote}
               onDeleteNote={notes.deleteNote}
+              initialSelectedNote={ui.editingNote}
             />
           )}
 
@@ -281,6 +283,11 @@ const App: React.FC = () => {
         onNavigate={ui.setActivePage}
         onCreate={ui.openCreate}
         onEdit={ui.openEdit}
+        onEditContact={ui.openEditContact}
+        onEditNote={(note) => {
+          ui.openEditNote(note);
+          ui.setIsCmdPaletteOpen(false);
+        }}
         onSettings={() => ui.setShowSettings(true)}
         onToggleFocus={ui.enterFocus}
       />

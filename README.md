@@ -26,7 +26,7 @@
 
 ### 🧠 Neural Link (WesAI)
 
-- **Integrated Intelligence:** Built-in chat interface powered by Google Gemini (2.5 Flash).
+- **Integrated Intelligence:** Built-in chat interface powered by **Google Gemini 3 Flash**.
 - **Context Aware:** WesAI has read/write access to your board. It knows your active missions.
 - **Agentic Capabilities:**
   - _"Add a high priority task to investigate server costs."_ → Creates task.
@@ -47,13 +47,14 @@
 
 ### ⌨️ Keyboard Commands
 
-| Shortcut  | Action                |
-| --------- | --------------------- |
-| `c`       | Create new task       |
-| `/`       | Global Search         |
-| `g` → `d` | Go to Dashboard       |
-| `g` → `m` | Go to Mission Control |
-| `?`       | View all shortcuts    |
+| Shortcut       | Action                |
+| -------------- | --------------------- |
+| `c`            | Create new task       |
+| `k` (Ctrl/Cmd) | Command Palette       |
+| `/`            | Global Search         |
+| `g` → `d`      | Go to Dashboard       |
+| `g` → `m`      | Go to Mission Control |
+| `?`            | View all shortcuts    |
 
 ---
 

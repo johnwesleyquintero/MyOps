@@ -92,9 +92,9 @@ export const BLUEPRINT_MODULES: BlueprintModule[] = [
     status: "ACTIVE",
     iconKey: "Bot",
     features: [
-      "Context-aware",
+      "Gemini 3 Flash Powered",
+      "Context-aware execution",
       "Create/Update tasks",
-      "Generate reports",
       "Conversational strategy",
     ],
     color: "violet",
@@ -142,7 +142,7 @@ export const BLUEPRINT_MODULES: BlueprintModule[] = [
     id: "assets",
     title: "Asset & IP Registry",
     status: "PENDING",
-    iconKey: "Vault",
+    iconKey: "Project",
     features: [
       "SOP & Framework library",
       "Monetization potential score",

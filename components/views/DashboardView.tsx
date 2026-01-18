@@ -5,6 +5,7 @@ import { CashFlowChart } from "../analytics/CashFlowChart";
 import { ExpenseCategoryList } from "../analytics/ExpenseCategoryList";
 import { TaskTable } from "../TaskTable";
 import { Icon, iconProps } from "../Icons";
+import { ViewHeader } from "../ViewHeader";
 
 interface DashboardViewProps {
   entries: TaskEntry[];
@@ -60,6 +61,10 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
   return (
     <div className="animate-fade-in space-y-6">
+      <ViewHeader
+        title="Command Center"
+        subTitle="Operational overview and tactical focus"
+      />
       <SummaryCards metrics={metrics} />
 
       {/* Analytics Grid */}

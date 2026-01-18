@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Icon } from "../Icons";
 import { Automation } from "../../types";
+import { ViewHeader } from "../ViewHeader";
 
 interface AutomationViewProps {
   automations: Automation[];
@@ -52,17 +53,17 @@ export const AutomationView: React.FC<AutomationViewProps> = ({
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
-      <div>
-        <h1 className="text-3xl font-black tracking-tight text-notion-light-text dark:text-notion-dark-text">
-          AUTOMATION{" "}
-          <span className="text-notion-light-muted dark:text-notion-dark-muted">
-            LAYER
-          </span>
-        </h1>
-        <p className="text-notion-light-muted dark:text-notion-dark-muted mt-1 text-xs font-black uppercase tracking-widest opacity-70">
-          Smart agentic tasks and event triggers
-        </p>
-      </div>
+      <ViewHeader
+        title="Automation Layer"
+        subTitle="Smart agentic tasks and event triggers"
+      >
+        <button
+          onClick={handleAdd}
+          className="px-4 py-2 bg-notion-light-sidebar dark:bg-notion-dark-sidebar text-notion-light-text dark:text-notion-dark-text text-[10px] font-black uppercase tracking-widest border border-notion-light-border dark:border-notion-dark-border rounded-xl hover:bg-notion-light-border dark:hover:bg-notion-dark-border transition-all active:scale-95 shadow-sm"
+        >
+          + New Trigger
+        </button>
+      </ViewHeader>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <div className="bg-notion-light-bg dark:bg-notion-dark-bg border border-notion-light-border dark:border-notion-dark-border rounded-2xl p-6 shadow-sm">
@@ -76,12 +77,6 @@ export const AutomationView: React.FC<AutomationViewProps> = ({
               </div>
               Active Automations
             </h3>
-            <button
-              onClick={handleAdd}
-              className="px-4 py-2 bg-notion-light-sidebar dark:bg-notion-dark-sidebar text-notion-light-text dark:text-notion-dark-text text-[10px] font-black uppercase tracking-widest border border-notion-light-border dark:border-notion-dark-border rounded-xl hover:bg-notion-light-border dark:hover:bg-notion-dark-border transition-all active:scale-95 shadow-sm"
-            >
-              + New Trigger
-            </button>
           </div>
 
           <div className="space-y-4">

@@ -7,6 +7,7 @@ import {
   VaultEntry,
 } from "../../types";
 import { Icon, iconProps } from "../Icons";
+import { ViewHeader } from "../ViewHeader";
 import {
   BarChart,
   Bar,
@@ -198,29 +199,19 @@ export const InsightsView: React.FC<InsightsViewProps> = ({
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-12">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-black tracking-tight text-notion-light-text dark:text-notion-dark-text">
-            OPERATOR{" "}
-            <span className="text-notion-light-text dark:text-notion-dark-text opacity-70">
-              INSIGHTS
-            </span>
-          </h1>
-          <p className="text-notion-light-muted dark:text-notion-dark-muted mt-1 font-medium">
-            Analyze your growth and operational velocity
-          </p>
+      <ViewHeader
+        title="Operator Insights"
+        subTitle="Analyze your growth and operational velocity"
+      >
+        <div className="px-4 py-2 bg-notion-light-sidebar dark:bg-notion-dark-sidebar rounded-xl border border-notion-light-border dark:border-notion-dark-border">
+          <span className="text-[10px] font-black text-notion-light-muted dark:text-notion-dark-muted uppercase tracking-widest block">
+            Last Sync
+          </span>
+          <span className="text-sm font-bold text-notion-light-text dark:text-notion-dark-text">
+            Just now
+          </span>
         </div>
-        <div className="flex items-center gap-4">
-          <div className="px-4 py-2 bg-notion-light-sidebar dark:bg-notion-dark-sidebar rounded-xl border border-notion-light-border dark:border-notion-dark-border">
-            <span className="text-[10px] font-black text-notion-light-muted dark:text-notion-dark-muted uppercase tracking-widest block">
-              Last Sync
-            </span>
-            <span className="text-sm font-bold text-notion-light-text dark:text-notion-dark-text">
-              Just now
-            </span>
-          </div>
-        </div>
-      </div>
+      </ViewHeader>
 
       {/* Gamification Layer */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">

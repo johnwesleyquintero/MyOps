@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { VaultEntry } from "../../types";
 import { Icon } from "../Icons";
+import { ViewHeader } from "../ViewHeader";
 
 interface VaultViewProps {
   entries: VaultEntry[];
@@ -53,18 +54,10 @@ export const VaultView: React.FC<VaultViewProps> = ({
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-black tracking-tight text-notion-light-text dark:text-notion-dark-text">
-            SECURE{" "}
-            <span className="text-notion-light-muted dark:text-notion-dark-muted">
-              VAULT
-            </span>
-          </h1>
-          <p className="text-notion-light-muted dark:text-notion-dark-muted mt-1 font-bold text-xs uppercase tracking-widest">
-            Encrypted storage for keys and tokens
-          </p>
-        </div>
+      <ViewHeader
+        title="Secure Vault"
+        subTitle="Encrypted storage for keys and tokens"
+      >
         <button
           onClick={() => setIsAdding(true)}
           className="flex items-center gap-2 px-6 py-3 bg-notion-light-sidebar dark:bg-notion-dark-sidebar border border-notion-light-border dark:border-notion-dark-border text-notion-light-text dark:text-notion-dark-text rounded-2xl font-black text-sm uppercase tracking-widest shadow-sm hover:bg-notion-light-border dark:hover:bg-notion-dark-border transition-all active:scale-95"
@@ -72,7 +65,7 @@ export const VaultView: React.FC<VaultViewProps> = ({
           <Icon.Vault size={20} />
           Secure New Item
         </button>
-      </div>
+      </ViewHeader>
 
       <div className="bg-notion-light-sidebar dark:bg-notion-dark-sidebar border border-notion-light-border dark:border-notion-dark-border rounded-2xl p-5 flex items-start gap-4">
         <div className="p-2.5 bg-notion-light-text/5 dark:bg-notion-dark-text/5 text-notion-light-text dark:text-notion-dark-text rounded-xl shadow-sm">

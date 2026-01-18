@@ -3,6 +3,7 @@ import { Contact, Interaction } from "../../types";
 import { Icon } from "../Icons";
 import { ContactModal } from "../ContactModal";
 import { InteractionModal } from "../InteractionModal";
+import { ViewHeader } from "../ViewHeader";
 
 interface CrmViewProps {
   contacts: Contact[];
@@ -114,18 +115,10 @@ export const CrmView: React.FC<CrmViewProps> = ({
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-notion-light-text dark:text-notion-dark-text">
-            CRM &{" "}
-            <span className="text-notion-light-text/60 dark:text-notion-dark-text/60">
-              Contacts
-            </span>
-          </h1>
-          <p className="notion-label mt-1">
-            Manage your network and interaction logs
-          </p>
-        </div>
+      <ViewHeader
+        title="CRM & Contacts"
+        subTitle="Manage your network and interaction logs"
+      >
         <button
           onClick={handleAdd}
           className="notion-button notion-button-primary"
@@ -136,7 +129,7 @@ export const CrmView: React.FC<CrmViewProps> = ({
           />
           New Contact
         </button>
-      </div>
+      </ViewHeader>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Contact List */}

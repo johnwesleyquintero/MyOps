@@ -7,6 +7,7 @@ import { TaskTable } from "../TaskTable";
 import { KanbanBoard } from "../KanbanBoard";
 import { GanttChart } from "../GanttChart";
 import { ConfirmationModal } from "../ConfirmationModal";
+import { ViewHeader } from "../ViewHeader";
 
 interface MissionControlViewProps {
   entries: TaskEntry[];
@@ -84,22 +85,11 @@ export const MissionControlView: React.FC<MissionControlViewProps> = ({
 
   return (
     <div className="animate-fade-in">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
-        {/* Notion-style View Tabs */}
-        <div className="flex items-center gap-1">
-          {(["TABLE", "KANBAN", "GANTT"] as ViewMode[]).map((mode) => (
-            <button
-              key={mode}
-              onClick={() => handleViewChange(mode)}
-              className={`px-3 py-1.5 text-sm font-medium rounded transition-colors ${viewMode === mode ? "bg-notion-light-hover dark:bg-notion-dark-hover text-notion-light-text dark:text-notion-dark-text" : "text-notion-light-muted dark:text-notion-dark-muted hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover"}`}
-            >
-              {mode.charAt(0) + mode.slice(1).toLowerCase()}
-            </button>
-          ))}
-        </div>
-
-        {/* Action Buttons */}
-        <div className="flex items-center gap-2 self-end md:self-auto">
+      <ViewHeader
+        title="Mission Control"
+        subTitle="Manage and track your active missions and tasks"
+      >
+        <div className="flex items-center gap-2">
           {viewMode === "TABLE" && filteredEntries.length > 0 && (
             <button
               onClick={() => setIsDeleteModalOpen(true)}
@@ -116,6 +106,21 @@ export const MissionControlView: React.FC<MissionControlViewProps> = ({
           >
             EXPORT
           </button>
+        </div>
+      </ViewHeader>
+
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
+        {/* Notion-style View Tabs */}
+        <div className="flex items-center gap-1">
+          {(["TABLE", "KANBAN", "GANTT"] as ViewMode[]).map((mode) => (
+            <button
+              key={mode}
+              onClick={() => handleViewChange(mode)}
+              className={`px-3 py-1.5 text-sm font-medium rounded transition-colors ${viewMode === mode ? "bg-notion-light-hover dark:bg-notion-dark-hover text-notion-light-text dark:text-notion-dark-text" : "text-notion-light-muted dark:text-notion-dark-muted hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover"}`}
+            >
+              {mode.charAt(0) + mode.slice(1).toLowerCase()}
+            </button>
+          ))}
         </div>
       </div>
 

@@ -4,6 +4,7 @@ import remarkGfm from "remark-gfm";
 import { Note } from "../../types";
 import { Icon } from "../Icons";
 import { useMarkdownEditor } from "../../hooks/useMarkdownEditor";
+import { ViewHeader } from "../ViewHeader";
 
 interface KnowledgeViewProps {
   notes: Note[];
@@ -109,18 +110,10 @@ export const KnowledgeView: React.FC<KnowledgeViewProps> = ({
 
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-12">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-black tracking-tight text-notion-light-text dark:text-notion-dark-text">
-            KNOWLEDGE{" "}
-            <span className="opacity-50 uppercase tracking-widest text-2xl">
-              BASE
-            </span>
-          </h1>
-          <p className="text-notion-light-muted dark:text-notion-dark-muted mt-1 font-medium">
-            SOPs, playbooks, and strategic documentation
-          </p>
-        </div>
+      <ViewHeader
+        title="Knowledge Base"
+        subTitle="SOPs, playbooks, and strategic documentation"
+      >
         <button
           onClick={handleCreateNew}
           className="notion-button notion-button-primary px-6 py-2.5 shadow-sm"
@@ -128,7 +121,7 @@ export const KnowledgeView: React.FC<KnowledgeViewProps> = ({
           <Icon.Add size={18} />
           New Document
         </button>
-      </div>
+      </ViewHeader>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
         {/* Sidebar */}

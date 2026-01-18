@@ -4,6 +4,7 @@ import {
   fetchMentalStates,
   saveMentalState,
 } from "@/services/awarenessService";
+import { ViewHeader } from "../ViewHeader";
 
 interface AwarenessViewProps {
   config: AppConfig;
@@ -63,14 +64,10 @@ export const AwarenessView: React.FC<AwarenessViewProps> = ({ config }) => {
 
   return (
     <div className="max-w-2xl mx-auto space-y-12 animate-in fade-in duration-500">
-      <section className="text-center space-y-2">
-        <h1 className="text-3xl font-bold tracking-tighter">
-          Mental Awareness
-        </h1>
-        <p className="text-notion-light-muted dark:text-notion-dark-muted text-sm uppercase tracking-widest font-black opacity-50">
-          Constraints Awareness Check-in
-        </p>
-      </section>
+      <ViewHeader
+        title="Mental Awareness"
+        subTitle="Constraints Awareness Check-in"
+      />
 
       <div className="bg-notion-light-bg dark:bg-notion-dark-bg border border-notion-light-border dark:border-notion-dark-border rounded-3xl p-8 shadow-xl">
         <div className="space-y-8">

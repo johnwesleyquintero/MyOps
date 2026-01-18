@@ -8,6 +8,7 @@ import {
   deleteDecision,
 } from "@/services/strategyService";
 import ReactMarkdown from "react-markdown";
+import { ViewHeader } from "../ViewHeader";
 
 interface StrategyViewProps {
   config: AppConfig;
@@ -65,15 +66,10 @@ export const StrategyView: React.FC<StrategyViewProps> = ({ config }) => {
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-notion-light-text dark:text-notion-dark-text">
-            Decision <span className="opacity-70">Journal</span>
-          </h1>
-          <p className="text-notion-light-muted dark:text-notion-dark-muted mt-1 text-sm">
-            Strategy & assumption tracking for the one-man empire.
-          </p>
-        </div>
+      <ViewHeader
+        title="Decision Journal"
+        subTitle="Strategy & assumption tracking for the one-man empire."
+      >
         <button
           onClick={() => {
             setEditingDecision(null);
@@ -84,7 +80,7 @@ export const StrategyView: React.FC<StrategyViewProps> = ({ config }) => {
           <Icon.Add size={18} />
           <span>Log Decision</span>
         </button>
-      </div>
+      </ViewHeader>
 
       {isLoading ? (
         <div className="flex items-center justify-center py-20">

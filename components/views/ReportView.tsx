@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Icon, iconProps } from "../Icons";
+import { ViewHeader } from "../ViewHeader";
 import reportData from "../../code-check-report.json";
 
 interface CheckResult {
@@ -84,16 +85,11 @@ export const ReportView: React.FC = () => {
   }
 
   return (
-    <div className="animate-fade-in space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-2xl font-black text-notion-light-text dark:text-notion-dark-text tracking-tight uppercase">
-            Code Health Report
-          </h1>
-          <p className="text-sm text-notion-light-muted dark:text-notion-dark-muted mt-1">
-            Real-time diagnostics from the last system scan
-          </p>
-        </div>
+    <div className="space-y-8 animate-in fade-in duration-500 pb-20">
+      <ViewHeader
+        title="Code Intelligence"
+        subTitle="Automated codebase health and architecture report"
+      >
         <button
           onClick={handleCopyMd}
           className={`notion-button transition-all ${
@@ -110,11 +106,11 @@ export const ReportView: React.FC = () => {
           ) : (
             <>
               <Icon.Copy {...iconProps(14)} />
-              COPY AS MARKDOWN
+              COPY
             </>
           )}
         </button>
-      </div>
+      </ViewHeader>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {report?.results.map((res, idx) => (

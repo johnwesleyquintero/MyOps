@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Icon, iconProps } from "../Icons";
 import { BLUEPRINT_MODULES } from "@/constants";
+import { ViewHeader } from "../ViewHeader";
 
 export const BlueprintView: React.FC = () => {
   const [copied, setCopied] = useState(false);
@@ -28,42 +29,35 @@ export const BlueprintView: React.FC = () => {
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-notion-light-text dark:text-notion-dark-text">
-            Master <span className="opacity-70">Blueprint</span>
-          </h1>
-          <p className="text-notion-light-muted dark:text-notion-dark-muted mt-1 text-sm">
-            Solo Operator Command Center Roadmap
-          </p>
-        </div>
-        <div className="flex items-center gap-3">
-          <button
-            onClick={copyAsMarkdown}
-            className="flex items-center gap-2 px-3 py-1.5 bg-notion-light-bg dark:bg-notion-dark-bg hover:bg-notion-light-sidebar dark:hover:bg-notion-dark-sidebar rounded-lg border border-notion-light-border dark:border-notion-dark-border text-[10px] font-bold text-notion-light-text dark:text-notion-dark-text transition-all group"
-            title="Copy Roadmap as Markdown"
-          >
-            {copied ? (
-              <Icon.Check size={14} className="text-emerald-500" />
-            ) : (
-              <Icon.Copy
-                size={14}
-                className="opacity-60 group-hover:opacity-100"
-              />
-            )}
-            <span className="uppercase tracking-widest">
-              {copied ? "Copied!" : "Copy MD"}
-            </span>
-          </button>
+      <ViewHeader
+        title="Master Blueprint"
+        subTitle="Solo Operator Command Center Roadmap"
+      >
+        <button
+          onClick={copyAsMarkdown}
+          className="flex items-center gap-2 px-3 py-1.5 bg-notion-light-bg dark:bg-notion-dark-bg hover:bg-notion-light-sidebar dark:hover:bg-notion-dark-sidebar rounded-lg border border-notion-light-border dark:border-notion-dark-border text-[10px] font-bold text-notion-light-text dark:text-notion-dark-text transition-all group"
+          title="Copy Roadmap as Markdown"
+        >
+          {copied ? (
+            <Icon.Check size={14} className="text-emerald-500" />
+          ) : (
+            <Icon.Copy
+              size={14}
+              className="opacity-60 group-hover:opacity-100"
+            />
+          )}
+          <span className="uppercase tracking-widest">
+            {copied ? "Copied!" : "COPY"}
+          </span>
+        </button>
 
-          <div className="flex items-center gap-2 px-3 py-1.5 bg-notion-light-sidebar dark:bg-notion-dark-sidebar rounded-lg border border-notion-light-border dark:border-notion-dark-border">
-            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)] animate-pulse"></div>
-            <span className="text-[10px] font-bold text-notion-light-text dark:text-notion-dark-text opacity-70 uppercase tracking-widest">
-              System v2.2 - Deployment Ready
-            </span>
-          </div>
+        <div className="flex items-center gap-2 px-3 py-1.5 bg-notion-light-sidebar dark:bg-notion-dark-sidebar rounded-lg border border-notion-light-border dark:border-notion-dark-border">
+          <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)] animate-pulse"></div>
+          <span className="text-[10px] font-bold text-notion-light-text dark:text-notion-dark-text opacity-70 uppercase tracking-widest">
+            System v2.2 - Deployment Ready
+          </span>
         </div>
-      </div>
+      </ViewHeader>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {BLUEPRINT_MODULES.map((mod) => (

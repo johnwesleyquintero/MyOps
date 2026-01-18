@@ -15,7 +15,7 @@ const SLACK_WEBHOOK_URL = ""; // <--- PASTE YOUR WEBHOOK URL HERE
 
 function setupSystem() {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
-  const modules = ['tasks', 'contacts', 'interactions', 'notes', 'vault', 'automations'];
+  const modules = ['tasks', 'contacts', 'interactions', 'notes', 'vault', 'automations', 'strategy'];
   
   modules.forEach(m => {
     let sheet = ss.getSheetByName(m);
@@ -29,6 +29,7 @@ function setupSystem() {
       if (m === 'notes') headers = ['ID', 'Title', 'Content', 'Tags', 'CreatedAt', 'UpdatedAt'];
       if (m === 'vault') headers = ['ID', 'Label', 'Category', 'Value', 'CreatedAt'];
       if (m === 'automations') headers = ['ID', 'Name', 'Trigger', 'Action', 'Status', 'LastRun'];
+      if (m === 'strategy') headers = ['ID', 'Date', 'Title', 'Context', 'Options', 'Decision', 'ExpectedOutcome', 'ReviewDate', 'Status', 'Impact', 'Tags'];
       
       if (headers.length > 0) {
         sheet.getRange(1, 1, 1, headers.length).setValues([headers]).setFontWeight('bold');
@@ -219,6 +220,19 @@ function mapRowToEntry(row, module) {
     if (module === 'automations') {
       return { id: row[0], name: row[1], trigger: row[2], action: row[3], status: row[4], lastRun: row[5] };
     }
+
+    if (module === 'strategy') {
+      let options = [];
+      try { if (row[4] && row[4] !== "") options = JSON.parse(row[4]); } catch (e) {}
+      let tags = [];
+      try { if (row[10] && row[10] !== "") tags = JSON.parse(row[10]); } catch (e) {}
+      
+      return {
+        id: row[0], date: row[1], title: row[2], context: row[3],
+        options: options, decision: row[5], expectedOutcome: row[6],
+        reviewDate: row[7], status: row[8], impact: row[9], tags: tags
+      };
+    }
   } catch (e) {
     return null;
   }
@@ -253,6 +267,13 @@ function mapEntryToRow(entry, module) {
   }
   if (module === 'automations') {
     return [entry.id, entry.name, entry.trigger, entry.action, entry.status, entry.lastRun || ""];
+  }
+  if (module === 'strategy') {
+    return [
+      entry.id, entry.date, entry.title, entry.context, JSON.stringify(entry.options || []),
+      entry.decision, entry.expectedOutcome, entry.reviewDate, entry.status, entry.impact,
+      JSON.stringify(entry.tags || [])
+    ];
   }
   return [];
 }

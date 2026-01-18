@@ -141,6 +141,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <Icon.Users {...iconProps(18)} />,
           )}
 
+          {renderNavItem(
+            "AUTOMATION",
+            "Active Agents",
+            <Icon.Active {...iconProps(18)} />,
+          )}
+
           <div
             className={`px-3 mb-2 mt-6 text-[10px] font-bold text-notion-light-text/40 dark:text-notion-dark-text/40 uppercase tracking-[0.2em] transition-all duration-300 ${isCollapsed ? "opacity-0 h-0 hidden" : "opacity-100"}`}
           >
@@ -175,6 +181,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
             "BLUEPRINT",
             "Master Blueprint",
             <Icon.Blueprint {...iconProps(18)} />,
+          )}
+
+          {renderNavItem(
+            "STRATEGY",
+            "Decision Journal",
+            <Icon.Strategy {...iconProps(18)} />,
           )}
 
           <div

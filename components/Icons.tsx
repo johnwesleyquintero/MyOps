@@ -50,6 +50,10 @@ import {
   Folder,
   Clock,
   Flag,
+  Target,
+  Activity,
+  History,
+  Heart,
 } from "lucide-react";
 
 export const Icon = {
@@ -108,6 +112,10 @@ export const Icon = {
   Tag: Tag,
   Knowledge: Book,
   Report: FileCheck,
+  Strategy: Target,
+  Activity: Activity,
+  History: History,
+  Heart: Heart,
 };
 
 // Standard props helper for consistent sizing

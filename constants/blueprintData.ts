@@ -1,0 +1,180 @@
+export interface BlueprintModule {
+  id: string;
+  title: string;
+  status: "ACTIVE" | "PARTIAL" | "PENDING";
+  iconKey: string;
+  features: string[];
+  color: string;
+}
+
+export const BLUEPRINT_MODULES: BlueprintModule[] = [
+  {
+    id: "tasks",
+    title: "Task & Project Management",
+    status: "ACTIVE",
+    iconKey: "Missions",
+    features: [
+      "Table / Kanban / Gantt views",
+      "Dependencies & blockers",
+      "Milestones & priorities",
+      "Ritual / Focus Mode toggle",
+    ],
+    color: "indigo",
+  },
+  {
+    id: "crm",
+    title: "CRM & Contact Layer",
+    status: "ACTIVE",
+    iconKey: "Users",
+    features: [
+      "Contacts / Clients / Vendors",
+      "Interaction logs & history",
+      "Follow-up reminders",
+      "Task-linked networking",
+    ],
+    color: "emerald",
+  },
+  {
+    id: "docs",
+    title: "Documentation & Intel",
+    status: "ACTIVE",
+    iconKey: "Docs",
+    features: [
+      "Markdown notes & SOPs",
+      "Rich text formatting",
+      "Searchable knowledge base",
+      "Tag-based organization",
+    ],
+    color: "amber",
+  },
+  {
+    id: "analytics",
+    title: "Analytics & Insights",
+    status: "ACTIVE",
+    iconKey: "Analytics",
+    features: [
+      "Operational velocity charts",
+      "Project completion stats",
+      "Recharts: bars & pies",
+      "Real-time health reports",
+    ],
+    color: "rose",
+  },
+  {
+    id: "automation",
+    title: "Automation Layer",
+    status: "ACTIVE",
+    iconKey: "Active",
+    features: [
+      "Event-driven triggers",
+      "Smart agentic workflows",
+      "Batch status updates",
+      "GAS background syncing",
+    ],
+    color: "cyan",
+  },
+  {
+    id: "vault",
+    title: "Secure Vault",
+    status: "ACTIVE",
+    iconKey: "Vault",
+    features: [
+      "AES-256 encrypted storage",
+      "API tokens & secret keys",
+      "One-click copy to clip",
+      "Local data sovereignty",
+    ],
+    color: "slate",
+  },
+  {
+    id: "ai",
+    title: "AI Co-Pilot (WesAI)",
+    status: "ACTIVE",
+    iconKey: "Bot",
+    features: [
+      "Context-aware",
+      "Create/Update tasks",
+      "Generate reports",
+      "Conversational strategy",
+    ],
+    color: "violet",
+  },
+  {
+    id: "sovereign",
+    title: "Sovereign Layer",
+    status: "ACTIVE",
+    iconKey: "Link",
+    features: [
+      "Google Sheets backend",
+      "Offline-friendly",
+      "Zero-cost",
+      "Multi-tab support",
+    ],
+    color: "blue",
+  },
+  {
+    id: "strategy",
+    title: "Decision & Strategy",
+    status: "PARTIAL",
+    iconKey: "Strategy",
+    features: [
+      "Decision journal logs",
+      "Assumption tracking",
+      "Strategy vs Tactic separation",
+      "Expected outcome reviews",
+    ],
+    color: "fuchsia",
+  },
+  {
+    id: "awareness",
+    title: "Mental State Awareness",
+    status: "PENDING",
+    iconKey: "Activity",
+    features: [
+      "Energy & clarity tracking",
+      "Cognitive load limits",
+      "Daily check-in rituals",
+      "WesAI state coaching",
+    ],
+    color: "orange",
+  },
+  {
+    id: "assets",
+    title: "Asset & IP Registry",
+    status: "PENDING",
+    iconKey: "Vault",
+    features: [
+      "SOP & Framework library",
+      "Monetization potential score",
+      "Code snippet vault",
+      "Asset-to-Project links",
+    ],
+    color: "lime",
+  },
+  {
+    id: "reflection",
+    title: "Feedback & Reflection",
+    status: "PENDING",
+    iconKey: "History",
+    features: [
+      "Post-mortem close-outs",
+      "Enforced reflection loops",
+      "Mistake avoidance logs",
+      "Systemization triggers",
+    ],
+    color: "teal",
+  },
+  {
+    id: "life",
+    title: "Life Ops & Constraints",
+    status: "PENDING",
+    iconKey: "Heart",
+    features: [
+      "Health & recovery blocks",
+      "Personal goal tracking",
+      "Family commitments",
+      "Energy-based scheduling",
+    ],
+    color: "pink",
+  },
+];

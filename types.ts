@@ -12,7 +12,10 @@ export type Page =
   | "VAULT"
   | "AUTOMATION"
   | "REPORT"
-  | "BLUEPRINT";
+  | "BLUEPRINT"
+  | "STRATEGY"
+  | "AWARENESS"
+  | "ASSETS";
 
 export interface TaskEntry {
   id: string; // UUID
@@ -122,4 +125,40 @@ export interface Notification {
   message: string;
   type: "success" | "error" | "info";
   action?: NotificationAction;
+}
+
+export interface DecisionEntry {
+  id: string;
+  date: string;
+  title: string;
+  context: string;
+  options: string[];
+  decision: string;
+  expectedOutcome: string;
+  reviewDate: string;
+  status: "PENDING" | "REVIEWED" | "ARCHIVED";
+  impact: 1 | 2 | 3 | 4 | 5;
+  tags?: string[];
+}
+
+export interface MentalStateEntry {
+  id: string;
+  date: string;
+  energy: 1 | 2 | 3 | 4 | 5;
+  clarity: 1 | 2 | 3 | 4 | 5;
+  stress: 1 | 2 | 3 | 4 | 5;
+  notes?: string;
+}
+
+export interface AssetEntry {
+  id: string;
+  title: string;
+  type: "Framework" | "SOP" | "Tool" | "Content" | "Code";
+  status: "Draft" | "Active" | "Archived";
+  reusabilityScore: 1 | 2 | 3 | 4 | 5;
+  monetizationPotential: 1 | 2 | 3 | 4 | 5;
+  notes?: string;
+  createdAt: string;
+  updatedAt: string;
+  link?: string;
 }

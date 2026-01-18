@@ -18,6 +18,7 @@ import { InsightsView } from "./components/views/InsightsView";
 import { VaultView } from "./components/views/VaultView";
 import { AutomationView } from "./components/views/AutomationView";
 import { ReportView } from "./components/views/ReportView";
+import { StrategyView } from "./components/views/StrategyView";
 
 // Hooks
 import { useTasks } from "./hooks/useTasks";
@@ -227,6 +228,7 @@ const App: React.FC = () => {
           )}
 
           {ui.activePage === "REPORT" && <ReportView />}
+          {ui.activePage === "STRATEGY" && <StrategyView config={config} />}
         </main>
       </div>
 

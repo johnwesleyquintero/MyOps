@@ -1,0 +1,238 @@
+import React from "react";
+import { Icon, iconProps } from "../Icons";
+
+export const BlueprintView: React.FC = () => {
+  const modules = [
+    {
+      id: "tasks",
+      title: "Task & Project Management",
+      status: "ACTIVE",
+      icon: <Icon.Missions {...iconProps(24)} />,
+      features: [
+        "Table / Kanban / Gantt views",
+        "Dependencies & blockers",
+        "Milestones & priorities",
+        "Ritual / Focus Mode toggle",
+      ],
+      color: "indigo",
+    },
+    {
+      id: "crm",
+      title: "CRM & Contact Layer",
+      status: "PENDING",
+      icon: <Icon.Users {...iconProps(24)} />,
+      features: [
+        "Contacts / clients / vendors",
+        "Interaction logs",
+        "Follow-ups & reminders",
+        "Automation: task from interaction",
+      ],
+      color: "emerald",
+    },
+    {
+      id: "docs",
+      title: "Documentation & Knowledge Base",
+      status: "PARTIAL",
+      icon: <Icon.Docs {...iconProps(24)} />,
+      features: [
+        "Markdown notes & SOPs",
+        "Snapshots of dashboards",
+        "Searchable & versioned",
+        "Interlinking: tags, backlinks",
+      ],
+      color: "amber",
+    },
+    {
+      id: "analytics",
+      title: "Analytics & Insights",
+      status: "PARTIAL",
+      icon: <Icon.Analytics {...iconProps(24)} />,
+      features: [
+        "XP growth & streaks",
+        "Project completion %",
+        "Recharts: radar, pie, bars",
+        "Auto-diff snapshots",
+      ],
+      color: "rose",
+    },
+    {
+      id: "automation",
+      title: "Automation / Trigger Layer",
+      status: "PENDING",
+      icon: <Icon.Active {...iconProps(24)} />,
+      features: [
+        "Scheduled scripts",
+        "Batch updates",
+        "Smart agentic tasks",
+        "Alerts for deadlines",
+      ],
+      color: "cyan",
+    },
+    {
+      id: "vault",
+      title: "Secure Vault",
+      status: "PENDING",
+      icon: <Icon.Vault {...iconProps(24)} />,
+      features: [
+        "Passwords & keys",
+        "API tokens",
+        "Encrypted storage",
+        "WesAI retrieval",
+      ],
+      color: "slate",
+    },
+    {
+      id: "ai",
+      title: "AI Co-Pilot (WesAI)",
+      status: "ACTIVE",
+      icon: <Icon.Bot {...iconProps(24)} />,
+      features: [
+        "Context-aware",
+        "Create/Update tasks",
+        "Generate reports",
+        "Conversational strategy",
+      ],
+      color: "violet",
+    },
+    {
+      id: "sovereign",
+      title: "Sovereign Layer",
+      status: "ACTIVE",
+      icon: <Icon.Link {...iconProps(24)} />,
+      features: [
+        "Google Sheets backend",
+        "Offline-friendly",
+        "Zero-cost",
+        "Multi-tab support",
+      ],
+      color: "blue",
+    },
+  ];
+
+  return (
+    <div className="space-y-8 animate-in fade-in duration-500">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight text-notion-light-text dark:text-notion-dark-text">
+            Master <span className="opacity-70">Blueprint</span>
+          </h1>
+          <p className="text-notion-light-muted dark:text-notion-dark-muted mt-1 text-sm">
+            Solo Operator Command Center Roadmap
+          </p>
+        </div>
+        <div className="flex items-center gap-2 px-3 py-1.5 bg-notion-light-sidebar dark:bg-notion-dark-sidebar rounded-lg border border-notion-light-border dark:border-notion-dark-border">
+          <div className="w-1.5 h-1.5 rounded-full bg-notion-light-text dark:bg-notion-dark-text opacity-50 animate-pulse"></div>
+          <span className="text-[10px] font-bold text-notion-light-text dark:text-notion-dark-text opacity-70 uppercase tracking-widest">
+            Ascension Phase 1
+          </span>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {modules.map((mod) => (
+          <div
+            key={mod.id}
+            className="relative group bg-notion-light-bg dark:bg-notion-dark-bg border border-notion-light-border dark:border-notion-dark-border rounded-2xl p-6 hover:shadow-xl hover:border-notion-light-text/10 dark:hover:border-notion-dark-text/10 transition-all duration-300 overflow-hidden flex flex-col h-full"
+          >
+            <div
+              className={`absolute top-0 right-0 w-32 h-32 bg-${mod.color}-500/5 dark:bg-${mod.color}-400/5 rounded-full -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-700`}
+            ></div>
+
+            <div className="flex items-start justify-between mb-5 relative">
+              <div
+                className={`w-12 h-12 rounded-xl flex items-center justify-center bg-${mod.color}-100/50 dark:bg-${mod.color}-900/20 text-${mod.color}-600 dark:text-${mod.color}-400 border border-${mod.color}-200/50 dark:border-${mod.color}-800/30 transition-transform group-hover:scale-110 duration-300`}
+              >
+                {mod.icon}
+              </div>
+              <span
+                className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider shadow-sm ${
+                  mod.status === "ACTIVE"
+                    ? "bg-emerald-500/10 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400 border border-emerald-500/20 dark:border-emerald-500/30"
+                    : mod.status === "PARTIAL"
+                      ? "bg-amber-500/10 text-amber-700 dark:bg-amber-500/20 dark:text-amber-400 border border-amber-500/20 dark:border-amber-500/30"
+                      : "bg-notion-light-sidebar text-notion-light-muted dark:bg-notion-dark-sidebar dark:text-notion-dark-muted border border-notion-light-border dark:border-notion-dark-border"
+                }`}
+              >
+                {mod.status}
+              </span>
+            </div>
+
+            <h3 className="text-base font-bold text-notion-light-text dark:text-notion-dark-text mb-4 relative group-hover:text-notion-light-text/80 dark:group-hover:text-notion-dark-text/80 transition-colors">
+              {mod.title}
+            </h3>
+
+            <ul className="space-y-3 relative flex-grow">
+              {mod.features.map((f, i) => (
+                <li
+                  key={i}
+                  className="flex items-start gap-2.5 text-[12px] text-notion-light-muted dark:text-notion-dark-muted group/item"
+                >
+                  <div
+                    className={`mt-1.5 w-1.5 h-1.5 rounded-full bg-${mod.color}-400 opacity-60 group-hover/item:scale-125 transition-transform`}
+                  ></div>
+                  <span className="leading-tight">{f}</span>
+                </li>
+              ))}
+            </ul>
+
+            <div className="mt-8 pt-5 border-t border-notion-light-border dark:border-notion-dark-border flex items-center justify-between group-hover:border-notion-light-text/10 dark:group-hover:border-notion-dark-text/10 transition-colors">
+              <button className="notion-button notion-button-ghost text-[10px] uppercase tracking-widest group-hover:translate-x-1">
+                Initialize{" "}
+                <Icon.Next
+                  size={14}
+                  className="opacity-0 group-hover:opacity-100 transition-opacity"
+                />
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="bg-notion-light-sidebar dark:bg-notion-dark-sidebar rounded-2xl p-8 border border-notion-light-border dark:border-notion-dark-border relative overflow-hidden group shadow-sm hover:shadow-md transition-all">
+        <div className="absolute top-0 left-0 w-full h-1 bg-notion-light-text dark:bg-notion-dark-text opacity-20 group-hover:opacity-40 transition-opacity"></div>
+        <div className="relative z-10 flex flex-col md:flex-row gap-8 items-start">
+          <div className="flex-1">
+            <h2 className="text-xl font-bold text-notion-light-text dark:text-notion-dark-text mb-4 flex items-center gap-3">
+              <Icon.Bot
+                size={24}
+                className="text-notion-light-text dark:text-notion-dark-text opacity-70"
+              />
+              Operator Philosophy
+            </h2>
+            <p className="text-notion-light-muted dark:text-notion-dark-muted max-w-2xl leading-relaxed text-[15px]">
+              The Master Solo VA App is more than a tool; it's a sovereign
+              cockpit. By centralizing tasks, CRM, knowledge, and AI into a
+              single offline-friendly environment backed by your own data
+              (Google Sheets), you eliminate the "app-hopping" tax and achieve
+              maximum focus.
+            </p>
+            <div className="mt-8 flex flex-wrap gap-3">
+              {[
+                {
+                  label: "Zero Subscription Cost",
+                  icon: <Icon.Vault size={12} />,
+                },
+                { label: "100% Data Ownership", icon: <Icon.Link size={12} /> },
+                {
+                  label: "AI-Augmented Workflows",
+                  icon: <Icon.Bot size={12} />,
+                },
+              ].map((tag, idx) => (
+                <div
+                  key={idx}
+                  className="flex items-center gap-2 px-3.5 py-2 bg-notion-light-bg dark:bg-notion-dark-bg rounded-xl border border-notion-light-border dark:border-notion-dark-border text-[11px] font-bold text-notion-light-text dark:text-notion-dark-text uppercase tracking-wider hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover transition-colors cursor-default shadow-sm"
+                >
+                  <span className="opacity-60">{tag.icon}</span>
+                  {tag.label}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+        <div className="absolute right-0 bottom-0 opacity-[0.03] dark:opacity-[0.05] p-4 text-notion-light-text dark:text-notion-dark-text group-hover:scale-110 transition-transform duration-1000">
+          <Icon.Dashboard size={240} />
+        </div>
+      </div>
+    </div>
+  );
+};

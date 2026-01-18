@@ -1,13 +1,13 @@
-
-import { useState, useCallback } from 'react';
-import { Page, TaskEntry } from '../types';
+import { useState, useCallback } from "react";
+import { Page, TaskEntry } from "../types";
+import { SIDEBAR_COLLAPSED_KEY } from "@/constants";
 
 export const useUiState = () => {
-  const [activePage, setActivePage] = useState<Page>('DASHBOARD');
+  const [activePage, setActivePage] = useState<Page>("DASHBOARD");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => {
-    if (typeof window !== 'undefined') {
-      return localStorage.getItem('myops_sidebar_collapsed') === 'true';
+    if (typeof window !== "undefined") {
+      return localStorage.getItem(SIDEBAR_COLLAPSED_KEY) === "true";
     }
     return false;
   });
@@ -22,9 +22,9 @@ export const useUiState = () => {
   const [focusedTask, setFocusedTask] = useState<TaskEntry | null>(null);
 
   const toggleSidebarCollapse = useCallback(() => {
-    setIsSidebarCollapsed(prev => {
+    setIsSidebarCollapsed((prev) => {
       const newState = !prev;
-      localStorage.setItem('myops_sidebar_collapsed', String(newState));
+      localStorage.setItem(SIDEBAR_COLLAPSED_KEY, String(newState));
       return newState;
     });
   }, []);
@@ -41,26 +41,38 @@ export const useUiState = () => {
 
   const enterFocus = useCallback((entry: TaskEntry) => {
     setFocusedTask(entry);
-    setActivePage('FOCUS');
+    setActivePage("FOCUS");
   }, []);
 
   const exitFocus = useCallback(() => {
     setFocusedTask(null);
-    setActivePage('MISSIONS');
+    setActivePage("MISSIONS");
   }, []);
 
   return {
-    activePage, setActivePage,
-    isSidebarOpen, setIsSidebarOpen,
-    isSidebarCollapsed, toggleSidebarCollapse,
-    showSettings, setShowSettings,
-    showShortcuts, setShowShortcuts,
-    isTaskModalOpen, setIsTaskModalOpen,
-    isCmdPaletteOpen, setIsCmdPaletteOpen,
-    isAiChatOpen, setIsAiChatOpen,
-    editingEntry, setEditingEntry,
-    focusedTask, setFocusedTask,
-    openEdit, openCreate,
-    enterFocus, exitFocus
+    activePage,
+    setActivePage,
+    isSidebarOpen,
+    setIsSidebarOpen,
+    isSidebarCollapsed,
+    toggleSidebarCollapse,
+    showSettings,
+    setShowSettings,
+    showShortcuts,
+    setShowShortcuts,
+    isTaskModalOpen,
+    setIsTaskModalOpen,
+    isCmdPaletteOpen,
+    setIsCmdPaletteOpen,
+    isAiChatOpen,
+    setIsAiChatOpen,
+    editingEntry,
+    setEditingEntry,
+    focusedTask,
+    setFocusedTask,
+    openEdit,
+    openCreate,
+    enterFocus,
+    exitFocus,
   };
 };

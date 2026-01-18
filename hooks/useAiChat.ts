@@ -1,12 +1,19 @@
-
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect, useCallback } from "react";
 import { GoogleGenAI, Chat } from "@google/genai";
-import { AppConfig, TaskEntry } from '../types';
-import { WES_AI_SYSTEM_INSTRUCTION, WES_TOOLS } from '../constants/aiConfig';
+import {
+  AppConfig,
+  TaskEntry,
+  PriorityLevel,
+  Contact,
+  Note,
+  VaultEntry,
+  OperatorMetrics,
+} from "../types";
+import { WES_AI_SYSTEM_INSTRUCTION, WES_TOOLS } from "../constants/aiConfig";
 
 export interface Message {
   id: string;
-  role: 'user' | 'model';
+  role: "user" | "model";
   text: string;
   timestamp: Date;
 }
@@ -14,25 +21,37 @@ export interface Message {
 interface UseAiChatProps {
   config: AppConfig;
   entries: TaskEntry[];
+  contacts: Contact[];
+  notes: Note[];
+  vaultEntries: VaultEntry[];
+  metrics: OperatorMetrics;
   onSaveTransaction: (entry: TaskEntry, isUpdate: boolean) => Promise<boolean>;
   onDeleteTransaction: (entry: TaskEntry) => Promise<boolean>;
+  onSaveContact: (contact: Contact, isUpdate: boolean) => Promise<boolean>;
+  onSaveNote: (note: Note, isUpdate: boolean) => Promise<boolean>;
 }
 
-export const useAiChat = ({ 
-  config, 
-  entries, 
-  onSaveTransaction, 
-  onDeleteTransaction 
+export const useAiChat = ({
+  config,
+  entries,
+  contacts,
+  notes,
+  vaultEntries,
+  metrics,
+  onSaveTransaction,
+  onDeleteTransaction,
+  onSaveContact,
+  onSaveNote,
 }: UseAiChatProps) => {
   const [messages, setMessages] = useState<Message[]>([
     {
-      id: 'init',
-      role: 'model',
+      id: "init",
+      role: "model",
       text: "WesAI initialized. Systems optimal. What's the directive?",
-      timestamp: new Date()
-    }
+      timestamp: new Date(),
+    },
   ]);
-  const [inputValue, setInputValue] = useState('');
+  const [inputValue, setInputValue] = useState("");
   const [isThinking, setIsThinking] = useState(false);
   const [activeTool, setActiveTool] = useState<string | null>(null);
   const chatSession = useRef<Chat | null>(null);
@@ -42,68 +61,367 @@ export const useAiChat = ({
     try {
       const ai = new GoogleGenAI({ apiKey: config.geminiApiKey });
       chatSession.current = ai.chats.create({
-          model: 'gemini-3-flash-preview',
-          config: {
-              systemInstruction: WES_AI_SYSTEM_INSTRUCTION,
-              tools: WES_TOOLS,
-              thinkingConfig: { thinkingBudget: 0 }
-          }
+        model: "gemini-3-flash-preview",
+        config: {
+          systemInstruction: WES_AI_SYSTEM_INSTRUCTION,
+          tools: WES_TOOLS,
+          thinkingConfig: { thinkingBudget: 0 },
+        },
       });
-    } catch (e) { console.error("Neural initialization failed", e); }
+    } catch (e) {
+      console.error("Neural initialization failed", e);
+    }
   }, [config.geminiApiKey]);
 
   useEffect(() => {
     if (config.geminiApiKey) initSession();
   }, [config.geminiApiKey, initSession]);
 
-  const executeTool = async (name: string, args: any) => {
+  const executeTool = async (name: string, args: Record<string, unknown>) => {
     setActiveTool(name);
     try {
       switch (name) {
-        case 'get_tasks':
-          return { tasks: entries.map(({ id, description, status, priority, date, project }) => ({ id, description, status, priority, date, project })) };
-        case 'create_task':
-          const success = await onSaveTransaction({ 
-            id: '', description: args.description, project: args.project || 'Inbox', 
-            priority: args.priority || 'Medium', status: 'Backlog', 
-            date: args.date || new Date().toISOString().split('T')[0], dependencies: [] 
-          }, false);
-          return success ? { status: "Created successfully" } : { error: "Failed to create" };
-        case 'update_task':
-          const task = entries.find(e => e.id === args.id);
+        case "get_vault_entries":
+          return {
+            entries: vaultEntries.map(
+              ({ id, label, category, lastAccessed }) => ({
+                id,
+                label,
+                category,
+                lastAccessed,
+              }),
+            ),
+          };
+        case "get_insights":
+          return { metrics };
+        case "get_artifact_recommendations": {
+          const artifacts = [
+            {
+              name: "Initiator",
+              condition: "Create 5 missions",
+              progress: entries.length,
+              target: 5,
+              isUnlocked: entries.length >= 5,
+            },
+            {
+              name: "Finisher",
+              condition: "Complete 10 missions",
+              progress: metrics.totalTasksCompleted,
+              target: 10,
+              isUnlocked: metrics.totalTasksCompleted >= 10,
+            },
+            {
+              name: "Strategist",
+              condition: "3+ Active Projects",
+              progress: new Set(entries.map((e) => e.project)).size,
+              target: 3,
+              isUnlocked: new Set(entries.map((e) => e.project)).size >= 3,
+            },
+            {
+              name: "Knowledgeable",
+              condition: "Create 5 notes",
+              progress: notes.length,
+              target: 5,
+              isUnlocked: notes.length >= 5,
+            },
+            {
+              name: "Vault Keeper",
+              condition: "Store 3 secrets",
+              progress: vaultEntries.length,
+              target: 3,
+              isUnlocked: vaultEntries.length >= 3,
+            },
+            {
+              name: "Dependency",
+              condition: "Link 1st dependency",
+              progress: entries.some((e) => (e.dependencies?.length ?? 0) > 0)
+                ? 1
+                : 0,
+              target: 1,
+              isUnlocked: entries.some(
+                (e) => (e.dependencies?.length ?? 0) > 0,
+              ),
+            },
+            {
+              name: "Consistent",
+              condition: "3-Day Streak",
+              progress: metrics.streak,
+              target: 3,
+              isUnlocked: metrics.streak >= 3,
+            },
+            {
+              name: "Elite Operator",
+              condition: "Complete 25 missions",
+              progress: metrics.totalTasksCompleted,
+              target: 25,
+              isUnlocked: metrics.totalTasksCompleted >= 25,
+            },
+            {
+              name: "Networker",
+              condition: "Save 5 contacts",
+              progress: contacts.length,
+              target: 5,
+              isUnlocked: contacts.length >= 5,
+            },
+            {
+              name: "High Priority",
+              condition: "5 High Priority done",
+              progress: entries.filter(
+                (e) => e.priority === "High" && e.status === "Done",
+              ).length,
+              target: 5,
+              isUnlocked:
+                entries.filter(
+                  (e) => e.priority === "High" && e.status === "Done",
+                ).length >= 5,
+            },
+            {
+              name: "Veteran",
+              condition: "Reach Level 5",
+              progress: metrics.level,
+              target: 5,
+              isUnlocked: metrics.level >= 5,
+            },
+            {
+              name: "Archon",
+              condition: "Reach Level 10",
+              progress: metrics.level,
+              target: 10,
+              isUnlocked: metrics.level >= 10,
+            },
+          ];
+          const locked = artifacts.filter((a) => !a.isUnlocked);
+          return {
+            unlockedCount: artifacts.length - locked.length,
+            totalCount: artifacts.length,
+            lockedArtifacts: locked.map((a) => ({
+              name: a.name,
+              condition: a.condition,
+              missing: a.target - a.progress,
+            })),
+          };
+        }
+        case "get_focused_tasks": {
+          const today = new Date().toISOString().split("T")[0];
+          const focused = entries
+            .filter((t) => t.status !== "Done")
+            .map((t) => {
+              let reason = "";
+              let priorityScore = 0;
+
+              if (t.priority === "High") {
+                priorityScore += 3;
+                reason = "High Priority";
+              }
+              if (t.date < today) {
+                priorityScore += 5;
+                reason = reason ? `${reason} & Overdue` : "Overdue";
+              }
+              if (t.dependencies && t.dependencies.length > 0) {
+                const blocked = t.dependencies.some((depId) => {
+                  const dep = entries.find((e) => e.id === depId);
+                  return dep && dep.status !== "Done";
+                });
+                if (blocked) {
+                  priorityScore -= 2; // Lower priority if blocked
+                  reason = reason ? `${reason} (Blocked)` : "Blocked";
+                } else {
+                  priorityScore += 2; // Higher priority if deps are done
+                  reason = reason ? `${reason} (Ready)` : "Ready";
+                }
+              }
+
+              return { ...t, priorityScore, reason };
+            })
+            .sort((a, b) => b.priorityScore - a.priorityScore)
+            .slice(0, 5);
+
+          return { focused };
+        }
+        case "get_tasks":
+          return {
+            tasks: entries.map(
+              ({ id, description, status, priority, date, project }) => ({
+                id,
+                description,
+                status,
+                priority,
+                date,
+                project,
+              }),
+            ),
+          };
+        case "create_task": {
+          const success = await onSaveTransaction(
+            {
+              id: "",
+              description: args.description as string,
+              project: (args.project as string) || "Inbox",
+              priority: (args.priority as PriorityLevel) || "Medium",
+              status: "Backlog",
+              date:
+                (args.date as string) || new Date().toISOString().split("T")[0],
+              dependencies: [],
+            },
+            false,
+          );
+          return success
+            ? { status: "Created successfully" }
+            : { error: "Failed to create" };
+        }
+        case "update_task": {
+          const task = entries.find((e) => e.id === args.id);
           if (!task) return { error: "ID not found" };
-          const ok = await onSaveTransaction({ ...task, ...args }, true);
-          return ok ? { status: "Updated successfully" } : { error: "Failed to update" };
-        case 'delete_task':
-          const t = entries.find(e => e.id === args.id);
+          const ok = await onSaveTransaction(
+            { ...task, ...args } as TaskEntry,
+            true,
+          );
+          return ok
+            ? { status: "Updated successfully" }
+            : { error: "Failed to update" };
+        }
+        case "delete_task": {
+          const t = entries.find((e) => e.id === args.id);
           if (!t) return { error: "ID not found" };
           const delOk = await onDeleteTransaction(t);
-          return delOk ? { status: "Deleted successfully" } : { error: "Failed to delete" };
-        default: return { error: "Tool not found" };
+          return delOk
+            ? { status: "Deleted successfully" }
+            : { error: "Failed to delete" };
+        }
+        case "get_contacts":
+          return {
+            contacts: contacts.map((c) => ({
+              id: c.id,
+              name: c.name,
+              company: c.company,
+              type: c.type,
+              email: c.email,
+            })),
+          };
+        case "create_contact": {
+          const contactSuccess = await onSaveContact(
+            {
+              id: "",
+              name: args.name as string,
+              company: (args.company as string) || "",
+              type: args.type as Contact["type"],
+              email: (args.email as string) || "",
+              status: "Lead",
+              tags: [],
+              createdAt: new Date().toISOString(),
+              lastInteraction: new Date().toISOString(),
+              interactions: [],
+            },
+            false,
+          );
+          return contactSuccess
+            ? { status: "Contact created" }
+            : { error: "Failed to create contact" };
+        }
+        case "get_notes":
+          return {
+            notes: notes.map((n) => ({
+              id: n.id,
+              title: n.title,
+              tags: n.tags,
+              updatedAt: n.updatedAt,
+            })),
+          };
+        case "create_note": {
+          const noteSuccess = await onSaveNote(
+            {
+              id: "",
+              title: args.title as string,
+              content: args.content as string,
+              tags: (args.tags as string[]) || [],
+              lastModified: new Date().toISOString(),
+              createdAt: new Date().toISOString(),
+              updatedAt: new Date().toISOString(),
+            },
+            false,
+          );
+          return noteSuccess
+            ? { status: "Note created" }
+            : { error: "Failed to create note" };
+        }
+        default:
+          return { error: "Tool not found" };
       }
-    } finally { setActiveTool(null); }
+    } finally {
+      setActiveTool(null);
+    }
   };
 
   const sendMessage = async () => {
     if (!inputValue.trim() || !chatSession.current) return;
     const prompt = inputValue;
-    setInputValue('');
-    setMessages(prev => [...prev, { id: crypto.randomUUID(), role: 'user', text: prompt, timestamp: new Date() }]);
+    setInputValue("");
+    setMessages((prev) => [
+      ...prev,
+      {
+        id: crypto.randomUUID(),
+        role: "user",
+        text: prompt,
+        timestamp: new Date(),
+      },
+    ]);
     setIsThinking(true);
 
     try {
       let result = await chatSession.current.sendMessage({ message: prompt });
       while (result.functionCalls?.length) {
-        const responses = await Promise.all(result.functionCalls.map(async (call) => ({
-          functionResponse: { name: call.name, id: call.id, response: await executeTool(call.name, call.args) }
-        })));
+        const responses = await Promise.all(
+          result.functionCalls.map(async (call) => ({
+            functionResponse: {
+              name: call.name,
+              id: call.id,
+              response: await executeTool(call.name, call.args),
+            },
+          })),
+        );
         result = await chatSession.current.sendMessage({ message: responses });
       }
-      setMessages(prev => [...prev, { id: crypto.randomUUID(), role: 'model', text: result.text || "Directives processed.", timestamp: new Date() }]);
-    } catch (err: any) {
-      setMessages(prev => [...prev, { id: crypto.randomUUID(), role: 'model', text: `System Error: ${err.message}`, timestamp: new Date() }]);
-    } finally { setIsThinking(false); }
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: crypto.randomUUID(),
+          role: "model",
+          text: result.text || "Directives processed.",
+          timestamp: new Date(),
+        },
+      ]);
+    } catch (err: unknown) {
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: crypto.randomUUID(),
+          role: "model",
+          text: `Error: ${err instanceof Error ? err.message : "Failed to process directive."}`,
+          timestamp: new Date(),
+        },
+      ]);
+    } finally {
+      setIsThinking(false);
+    }
   };
 
-  return { messages, inputValue, setInputValue, isThinking, activeTool, sendMessage, resetChat: () => { setMessages([{ id: 'reset', role: 'model', text: "Systems re-zeroed.", timestamp: new Date() }]); initSession(); } };
+  return {
+    messages,
+    inputValue,
+    setInputValue,
+    isThinking,
+    activeTool,
+    sendMessage,
+    resetChat: () => {
+      setMessages([
+        {
+          id: "reset",
+          role: "model",
+          text: "Systems re-zeroed.",
+          timestamp: new Date(),
+        },
+      ]);
+      initSession();
+    },
+  };
 };

@@ -1,6 +1,6 @@
-
-import React from 'react';
-import { STATUSES } from '../constants';
+import React from "react";
+import { STATUSES } from "@/constants";
+import { Icon, iconProps } from "./Icons";
 
 interface FilterBarProps {
   searchQuery: string;
@@ -11,142 +11,163 @@ interface FilterBarProps {
   setSelectedStatus: (status: string) => void;
   selectedMonth: string;
   setSelectedMonth: (month: string) => void;
+  isAiSortEnabled?: boolean;
+  setIsAiSortEnabled?: (v: boolean) => void;
   availableCategories: string[];
 }
 
-export const FilterBar: React.FC<FilterBarProps> = ({ 
-  searchQuery, 
-  setSearchQuery, 
-  selectedCategory, 
+export const FilterBar: React.FC<FilterBarProps> = ({
+  searchQuery,
+  setSearchQuery,
+  selectedCategory,
   setSelectedCategory,
   selectedStatus,
   setSelectedStatus,
   selectedMonth,
   setSelectedMonth,
-  availableCategories
+  isAiSortEnabled,
+  setIsAiSortEnabled,
+  availableCategories,
 }) => {
-
-  const handleMonthChange = (direction: 'prev' | 'next') => {
+  const handleMonthChange = (direction: "prev" | "next") => {
     if (!selectedMonth) return;
     const date = new Date(`${selectedMonth}-01`); // Force 1st of month to avoid overflow
-    date.setMonth(date.getMonth() + (direction === 'next' ? 1 : -1));
+    date.setMonth(date.getMonth() + (direction === "next" ? 1 : -1));
     const newMonth = date.toISOString().slice(0, 7);
     setSelectedMonth(newMonth);
   };
 
-  const hasActiveFilters = searchQuery || selectedCategory || selectedStatus || (selectedMonth !== new Date().toISOString().slice(0, 7));
+  const hasActiveFilters =
+    searchQuery ||
+    selectedCategory ||
+    selectedStatus ||
+    selectedMonth !== new Date().toISOString().slice(0, 7);
 
   return (
-    <div className="flex flex-col lg:flex-row gap-4 mb-6 bg-white dark:bg-slate-900 p-4 border border-slate-200 dark:border-slate-800 rounded-lg shadow-sm items-center transition-colors">
-      
+    <div className="flex flex-col lg:flex-row gap-4 mb-6 bg-notion-light-bg dark:bg-notion-dark-bg p-3 border border-notion-light-border dark:border-notion-dark-border rounded-lg items-center transition-colors">
       {/* Search Input */}
       <div className="flex-[2] w-full relative group">
         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-          <svg className="h-4 w-4 text-slate-400 dark:text-slate-500 group-focus-within:text-slate-600 dark:group-focus-within:text-slate-300 transition-colors" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-          </svg>
+          <Icon.Search
+            {...iconProps(
+              14,
+              "text-notion-light-muted dark:text-notion-dark-muted",
+            )}
+          />
         </div>
         <input
           id="global-search"
           type="text"
-          className="block w-full pl-10 pr-8 py-2 border border-slate-300 dark:border-slate-700 rounded-md leading-5 bg-slate-50 dark:bg-slate-800 placeholder-slate-400 dark:placeholder-slate-500 text-slate-900 dark:text-slate-200 focus:outline-none focus:bg-white dark:focus:bg-slate-900 focus:border-slate-800 dark:focus:border-slate-500 focus:ring-1 focus:ring-slate-800 dark:focus:ring-slate-500 sm:text-sm transition-all"
-          placeholder="Search descriptions... (/)"
+          className="notion-input block w-full pl-9 pr-8"
+          placeholder="Search..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
         />
         {searchQuery && (
-          <button 
-            onClick={() => setSearchQuery('')}
-            className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 cursor-pointer"
+          <button
+            onClick={() => setSearchQuery("")}
+            className="absolute inset-y-0 right-0 pr-2 flex items-center text-notion-light-muted hover:text-notion-light-text dark:hover:text-notion-dark-text"
           >
-            <svg className="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
+            <Icon.Close {...iconProps(12)} />
           </button>
         )}
       </div>
 
       {/* Month Navigator Group */}
       <div className="flex items-center w-full lg:w-auto gap-1">
-        <button 
-          onClick={() => handleMonthChange('prev')}
-          className="p-2 border border-slate-300 dark:border-slate-700 rounded-l-md bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition-colors"
+        <button
+          onClick={() => handleMonthChange("prev")}
+          className="p-2 border border-notion-light-border dark:border-notion-dark-border rounded-l bg-notion-light-sidebar dark:bg-notion-dark-sidebar hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover text-notion-light-muted dark:text-notion-dark-muted transition-colors"
           title="Previous Month"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-          </svg>
+          <Icon.Prev {...iconProps(16)} />
         </button>
-        <input 
+        <input
           type="month"
-          className="block w-full lg:w-32 px-2 py-2 text-base border-y border-slate-300 dark:border-slate-700 focus:outline-none focus:border-slate-500 sm:text-sm bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 font-mono text-center rounded-none z-10"
+          className="notion-input block w-full lg:w-32 py-2 border-x-0 rounded-none text-center font-mono"
           value={selectedMonth}
           onChange={(e) => setSelectedMonth(e.target.value)}
         />
-        <button 
-          onClick={() => handleMonthChange('next')}
-          className="p-2 border border-slate-300 dark:border-slate-700 rounded-r-md bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition-colors"
+        <button
+          onClick={() => handleMonthChange("next")}
+          className="p-2 border border-notion-light-border dark:border-notion-dark-border rounded-r bg-notion-light-sidebar dark:bg-notion-dark-sidebar hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover text-notion-light-muted dark:text-notion-dark-muted transition-colors"
           title="Next Month"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-          </svg>
+          <Icon.Next {...iconProps(16)} />
         </button>
       </div>
+
+      {/* AI Sort Toggle */}
+      {setIsAiSortEnabled && (
+        <button
+          onClick={() => setIsAiSortEnabled(!isAiSortEnabled)}
+          className={`flex items-center gap-2 px-3 py-1.5 rounded border transition-all ${
+            isAiSortEnabled
+              ? "bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800 text-blue-600 dark:text-blue-400"
+              : "bg-notion-light-sidebar dark:bg-notion-dark-sidebar border-notion-light-border dark:border-notion-dark-border text-notion-light-muted dark:text-notion-dark-muted hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover"
+          }`}
+          title={isAiSortEnabled ? "Disable AI Sort" : "Enable AI Sort"}
+        >
+          <Icon.Ai {...iconProps(14, isAiSortEnabled ? "animate-pulse" : "")} />
+          <span className="text-[10px] font-bold uppercase tracking-widest hidden sm:inline">
+            AI Sort
+          </span>
+        </button>
+      )}
 
       <div className="flex gap-2 w-full lg:w-auto">
         {/* Status Dropdown */}
         <div className="w-1/2 lg:w-32 relative">
-            <select
-            className="block w-full pl-3 pr-8 py-2 text-base border border-slate-300 dark:border-slate-700 focus:outline-none focus:border-slate-800 dark:focus:border-slate-500 focus:ring-1 focus:ring-slate-800 dark:focus:ring-slate-500 sm:text-sm rounded-md bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-200 appearance-none transition-all"
+          <select
+            className="notion-input block w-full pl-2 pr-7 appearance-none"
             value={selectedStatus}
             onChange={(e) => setSelectedStatus(e.target.value)}
-            >
+          >
             <option value="">Status</option>
             {STATUSES.map((status) => (
-                <option key={status} value={status}>
+              <option key={status} value={status}>
                 {status}
-                </option>
+              </option>
             ))}
-            </select>
-            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-500">
-            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg>
-            </div>
+          </select>
+          <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-1.5 text-notion-light-muted">
+            <Icon.Down {...iconProps(12)} />
+          </div>
         </div>
 
         {/* Category Dropdown */}
         <div className="w-1/2 lg:w-40 relative">
-            <select
-            className="block w-full pl-3 pr-8 py-2 text-base border border-slate-300 dark:border-slate-700 focus:outline-none focus:border-slate-800 dark:focus:border-slate-500 focus:ring-1 focus:ring-slate-800 dark:focus:ring-slate-500 sm:text-sm rounded-md bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-200 appearance-none transition-all"
+          <select
+            className="notion-input block w-full pl-2 pr-7 appearance-none"
             value={selectedCategory}
             onChange={(e) => setSelectedCategory(e.target.value)}
-            >
+          >
             <option value="">Project</option>
             {availableCategories.map((category) => (
-                <option key={category} value={category}>
+              <option key={category} value={category}>
                 {category}
-                </option>
+              </option>
             ))}
-            </select>
-            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-500">
-            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg>
-            </div>
+          </select>
+          <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-1.5 text-notion-light-muted">
+            <Icon.Down {...iconProps(12)} />
+          </div>
         </div>
       </div>
 
       {/* Clear Button */}
       {hasActiveFilters && (
-         <button
-           onClick={() => { 
-             setSearchQuery(''); 
-             setSelectedCategory(''); 
-             setSelectedStatus('');
-             setSelectedMonth(new Date().toISOString().slice(0, 7)); 
-           }}
-           className="px-4 py-2 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 hover:text-red-600 dark:hover:text-red-400 border border-transparent hover:border-red-200 dark:hover:border-red-900 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-all whitespace-nowrap"
-         >
-           Reset
-         </button>
+        <button
+          onClick={() => {
+            setSearchQuery("");
+            setSelectedCategory("");
+            setSelectedStatus("");
+            setSelectedMonth(new Date().toISOString().slice(0, 7));
+          }}
+          className="px-4 py-2 notion-label hover:text-red-600 dark:hover:text-red-400 border border-transparent hover:border-red-200 dark:hover:border-red-900 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-all whitespace-nowrap"
+        >
+          Reset
+        </button>
       )}
     </div>
   );

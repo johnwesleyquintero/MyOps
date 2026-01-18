@@ -1,26 +1,44 @@
-
-import React, { useRef, useEffect } from 'react';
-import ReactMarkdown from 'react-markdown';
-import { AppConfig, TaskEntry } from '../types';
-import { useAiChat } from '../hooks/useAiChat';
-import { Icon, iconProps } from './Icons';
+import React, { useRef, useEffect } from "react";
+import ReactMarkdown from "react-markdown";
+import {
+  AppConfig,
+  TaskEntry,
+  Contact,
+  Note,
+  VaultEntry,
+  OperatorMetrics,
+} from "../types";
+import { useAiChat } from "../hooks/useAiChat";
+import { Icon, iconProps } from "./Icons";
 
 interface AiChatSidebarProps {
   isOpen: boolean;
   onClose: () => void;
   config: AppConfig;
   entries: TaskEntry[];
+  contacts: Contact[];
+  notes: Note[];
+  vaultEntries: VaultEntry[];
+  metrics: OperatorMetrics;
   onSaveTransaction: (entry: TaskEntry, isUpdate: boolean) => Promise<boolean>;
   onDeleteTransaction: (entry: TaskEntry) => Promise<boolean>;
+  onSaveContact: (contact: Contact, isUpdate: boolean) => Promise<boolean>;
+  onSaveNote: (note: Note, isUpdate: boolean) => Promise<boolean>;
 }
 
-export const AiChatSidebar: React.FC<AiChatSidebarProps> = ({ 
-    isOpen, 
-    onClose, 
-    config, 
-    entries,
-    onSaveTransaction,
-    onDeleteTransaction
+export const AiChatSidebar: React.FC<AiChatSidebarProps> = ({
+  isOpen,
+  onClose,
+  config,
+  entries,
+  contacts,
+  notes,
+  vaultEntries,
+  metrics,
+  onSaveTransaction,
+  onDeleteTransaction,
+  onSaveContact,
+  onSaveNote,
 }) => {
   const {
     messages,
@@ -29,20 +47,31 @@ export const AiChatSidebar: React.FC<AiChatSidebarProps> = ({
     isThinking,
     activeTool,
     sendMessage,
-    resetChat
-  } = useAiChat({ config, entries, onSaveTransaction, onDeleteTransaction });
-  
+    resetChat,
+  } = useAiChat({
+    config,
+    entries,
+    contacts,
+    notes,
+    vaultEntries,
+    metrics,
+    onSaveTransaction,
+    onDeleteTransaction,
+    onSaveContact,
+    onSaveNote,
+  });
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Auto-scroll
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, isOpen, isThinking]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();
-        sendMessage();
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
     }
   };
 
@@ -50,129 +79,200 @@ export const AiChatSidebar: React.FC<AiChatSidebarProps> = ({
     <>
       {/* Backdrop */}
       {isOpen && (
-        <div 
-            className="fixed inset-0 bg-slate-900/20 backdrop-blur-[1px] z-[60]"
-            onClick={onClose}
+        <div
+          className="fixed inset-0 bg-black/20 dark:bg-black/40 backdrop-blur-sm z-[60] animate-in fade-in duration-300"
+          onClick={onClose}
         />
       )}
 
       {/* Sidebar Drawer */}
-      <div className={`fixed top-0 right-0 h-full w-full sm:w-[400px] bg-white dark:bg-slate-900 border-l border-slate-200 dark:border-slate-800 shadow-2xl z-[70] transform transition-transform duration-300 ease-in-out flex flex-col ${isOpen ? 'translate-x-0' : 'translate-x-full'}`}>
-        
+      <div
+        className={`fixed top-0 right-0 h-full w-full sm:w-[450px] bg-notion-light-bg dark:bg-notion-dark-bg border-l border-notion-light-border dark:border-notion-dark-border shadow-2xl z-[70] transform transition-transform duration-500 cubic-bezier(0.4, 0, 0.2, 1) flex flex-col ${isOpen ? "translate-x-0" : "translate-x-full"}`}
+      >
         {/* Header */}
-        <div className="h-16 flex items-center justify-between px-6 border-b border-slate-100 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-900/80 backdrop-blur-md">
-            <div className="flex items-center gap-2">
-                <div className={`w-2 h-2 rounded-full ${config.geminiApiKey ? 'bg-indigo-500 animate-pulse-soft' : 'bg-red-500'}`}></div>
-                <h2 className="font-bold text-slate-800 dark:text-slate-100 tracking-tight">WesAI <span className="text-slate-400 font-normal">Neural Link</span></h2>
+        <div className="h-14 flex items-center justify-between px-6 border-b border-notion-light-border dark:border-notion-dark-border bg-notion-light-sidebar/50 dark:bg-notion-dark-sidebar/50 backdrop-blur-md">
+          <div className="flex items-center gap-3">
+            <div className="relative">
+              <div
+                className={`w-2.5 h-2.5 rounded-full ${config.geminiApiKey ? "bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.5)]" : "bg-red-500"} animate-pulse`}
+              ></div>
+              <div className="absolute inset-0 rounded-full bg-blue-500 animate-ping opacity-20"></div>
             </div>
-            <div className="flex items-center gap-1">
-                <button 
-                    onClick={resetChat}
-                    className="p-2 text-slate-400 hover:text-indigo-500 rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors"
-                    title="Reset Chat"
-                >
-                    <Icon.Reset {...iconProps(18)} />
-                </button>
-                <button 
-                    onClick={onClose}
-                    className="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors"
-                >
-                    <Icon.Close {...iconProps(18)} />
-                </button>
-            </div>
+            <h2 className="font-semibold text-notion-light-text dark:text-notion-dark-text tracking-tight flex items-center gap-2">
+              WesAI
+              <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-notion-light-border dark:bg-notion-dark-border text-notion-light-text/60 dark:text-notion-dark-text/60 font-medium uppercase tracking-wider">
+                Neural Link
+              </span>
+            </h2>
+          </div>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={resetChat}
+              className="p-2 text-notion-light-text/40 hover:text-notion-light-text dark:text-notion-dark-text/40 dark:hover:text-notion-dark-text rounded-lg hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover transition-all duration-200 group"
+              title="Reset Chat"
+            >
+              <Icon.Reset
+                {...iconProps(
+                  18,
+                  "group-hover:rotate-180 transition-transform duration-500",
+                )}
+              />
+            </button>
+            <button
+              onClick={onClose}
+              className="p-2 text-notion-light-text/40 hover:text-notion-light-text dark:text-notion-dark-text/40 dark:hover:text-notion-dark-text rounded-lg hover:bg-notion-light-border dark:hover:bg-notion-dark-border transition-all duration-200"
+            >
+              <Icon.Close {...iconProps(18)} />
+            </button>
+          </div>
         </div>
 
         {/* Chat Area */}
-        <div className="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-4 bg-white dark:bg-slate-900">
-            {messages.map((msg) => (
-                <div key={msg.id} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                    <div 
-                        className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm leading-relaxed shadow-sm ${
-                            msg.role === 'user' 
-                            ? 'bg-indigo-600 text-white rounded-br-none' 
-                            : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 rounded-bl-none border border-slate-200 dark:border-slate-700'
-                        }`}
+        <div className="flex-1 overflow-y-auto custom-scrollbar p-6 space-y-6 bg-notion-light-bg dark:bg-notion-dark-bg">
+          {messages.map((msg) => (
+            <div
+              key={msg.id}
+              className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"} animate-in fade-in slide-in-from-bottom-2 duration-300`}
+            >
+              <div
+                className={`max-w-[90%] rounded-2xl px-4 py-3 text-sm leading-relaxed shadow-sm transition-all duration-200 ${
+                  msg.role === "user"
+                    ? "bg-notion-light-text dark:bg-notion-dark-text text-white dark:text-notion-dark-bg rounded-br-none hover:shadow-md"
+                    : "bg-notion-light-sidebar dark:bg-notion-dark-sidebar text-notion-light-text dark:text-notion-dark-text rounded-bl-none border border-notion-light-border dark:border-notion-dark-border hover:border-notion-light-text/10 dark:hover:border-notion-dark-text/10"
+                }`}
+              >
+                {msg.role === "model" && (
+                  <div className="mb-2.5 flex items-center gap-2 text-notion-light-text dark:text-notion-dark-text">
+                    <div className="p-1 rounded-md bg-notion-light-border dark:bg-notion-dark-border">
+                      <Icon.Bot {...iconProps(14, "stroke-[2.5px]")} />
+                    </div>
+                    <span className="text-[10px] font-bold uppercase tracking-[0.2em]">
+                      WesAI
+                    </span>
+                  </div>
+                )}
+                {msg.role === "model" ? (
+                  <div className="prose prose-sm dark:prose-invert max-w-none prose-p:leading-relaxed prose-pre:bg-notion-light-bg dark:prose-pre:bg-notion-dark-bg prose-pre:border prose-pre:border-notion-light-border dark:prose-pre:border-notion-dark-border prose-code:text-notion-light-text dark:prose-code:text-notion-dark-text prose-code:bg-notion-light-border dark:prose-code:bg-notion-dark-border prose-code:px-1 prose-code:rounded">
+                    <ReactMarkdown
+                      components={{
+                        p: ({ ...props }) => (
+                          <p {...props} className="mb-3 last:mb-0" />
+                        ),
+                        ul: ({ ...props }) => (
+                          <ul
+                            {...props}
+                            className="list-disc list-inside mb-3 space-y-1"
+                          />
+                        ),
+                        ol: ({ ...props }) => (
+                          <ol
+                            {...props}
+                            className="list-decimal list-inside mb-3 space-y-1"
+                          />
+                        ),
+                        code: ({ ...props }) => (
+                          <code
+                            {...props}
+                            className="px-1.5 py-0.5 rounded font-mono text-[11px] bg-notion-light-border dark:bg-notion-dark-border text-notion-light-text dark:text-notion-dark-text"
+                          />
+                        ),
+                        strong: ({ ...props }) => (
+                          <strong
+                            {...props}
+                            className="font-bold text-notion-light-text dark:text-white"
+                          />
+                        ),
+                      }}
                     >
-                        {msg.role === 'model' && (
-                           <div className="mb-2 flex items-center gap-1.5 text-indigo-500 dark:text-indigo-400">
-                              <Icon.Bot {...iconProps(14, "stroke-[2.5px]")} />
-                              <span className="text-[10px] font-bold uppercase tracking-widest">WesAI</span>
-                           </div>
-                        )}
-                        {msg.role === 'model' ? (
-                            <div className="prose prose-sm dark:prose-invert max-w-none">
-                              <ReactMarkdown 
-                                  components={{
-                                      p: ({node, ...props}) => <p {...props} className="mb-2 last:mb-0" />,
-                                      ul: ({node, ...props}) => <ul {...props} className="list-disc list-inside mb-2" />,
-                                      ol: ({node, ...props}) => <ol {...props} className="list-decimal list-inside mb-2" />,
-                                      code: ({node, ...props}) => <code {...props} className="bg-slate-200 dark:bg-slate-900 px-1 py-0.5 rounded font-mono text-xs" />,
-                                      strong: ({node, ...props}) => <strong {...props} className="font-bold text-slate-900 dark:text-white" />
-                                  }}
-                              >
-                                  {msg.text}
-                              </ReactMarkdown>
-                            </div>
-                        ) : (
-                            msg.text
-                        )}
-                        <div className={`text-[10px] mt-1 opacity-60 ${msg.role === 'user' ? 'text-indigo-100 text-right' : 'text-slate-400'}`}>
-                            {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                        </div>
-                    </div>
+                      {msg.text}
+                    </ReactMarkdown>
+                  </div>
+                ) : (
+                  <div className="whitespace-pre-wrap">{msg.text}</div>
+                )}
+                <div
+                  className={`text-[10px] mt-2 font-medium opacity-50 ${msg.role === "user" ? "text-right" : "text-notion-light-text/60 dark:text-notion-dark-text/60"}`}
+                >
+                  {msg.timestamp.toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
                 </div>
-            ))}
-            
-            {/* Thinking / Tool Execution Indicator */}
-            {isThinking && (
-                <div className="flex justify-start animate-fade-in">
-                    <div className="bg-slate-50 dark:bg-slate-900/50 rounded-2xl rounded-bl-none px-4 py-3 border border-slate-100 dark:border-slate-800 flex items-center gap-2">
-                        {activeTool ? (
-                            <div className="flex items-center gap-2 text-xs text-indigo-500 font-mono font-bold uppercase tracking-wider">
-                                <Icon.Settings {...iconProps(14, "animate-spin")} />
-                                {activeTool}...
-                            </div>
-                        ) : (
-                            <div className="flex items-center gap-1 h-3">
-                                <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
-                                <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
-                                <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
-                            </div>
-                        )}
+              </div>
+            </div>
+          ))}
+
+          {/* Thinking / Tool Execution Indicator */}
+          {isThinking && (
+            <div className="flex justify-start animate-in fade-in slide-in-from-bottom-2 duration-300">
+              <div className="bg-notion-light-sidebar/50 dark:bg-notion-dark-sidebar/50 rounded-2xl rounded-bl-none px-5 py-4 border border-notion-light-border dark:border-notion-dark-border flex items-center gap-3 shadow-sm">
+                {activeTool ? (
+                  <div className="flex items-center gap-3 text-[11px] text-notion-light-text dark:text-notion-dark-text font-mono font-bold uppercase tracking-widest">
+                    <div className="relative">
+                      <Icon.Settings {...iconProps(16, "animate-spin")} />
+                      <div className="absolute inset-0 bg-notion-light-text/10 dark:bg-notion-dark-text/10 animate-ping rounded-full"></div>
                     </div>
-                </div>
-            )}
-            <div ref={messagesEndRef} />
+                    <span>Executing {activeTool}...</span>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-1.5 h-4">
+                    <span
+                      className="w-1.5 h-1.5 bg-notion-light-text/40 dark:bg-notion-dark-text/40 rounded-full animate-bounce"
+                      style={{ animationDelay: "0ms" }}
+                    ></span>
+                    <span
+                      className="w-1.5 h-1.5 bg-notion-light-text/40 dark:bg-notion-dark-text/40 rounded-full animate-bounce"
+                      style={{ animationDelay: "150ms" }}
+                    ></span>
+                    <span
+                      className="w-1.5 h-1.5 bg-notion-light-text/40 dark:bg-notion-dark-text/40 rounded-full animate-bounce"
+                      style={{ animationDelay: "300ms" }}
+                    ></span>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+          <div ref={messagesEndRef} />
         </div>
 
         {/* Input Area */}
-        <div className="p-4 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800">
-            <div className="relative">
-                <textarea 
-                    value={inputValue}
-                    onChange={(e) => setInputValue(e.target.value)}
-                    onKeyDown={handleKeyDown}
-                    placeholder={config.geminiApiKey ? "Orders, brother?" : "Configure API Key to chat..."}
-                    disabled={!config.geminiApiKey}
-                    rows={1}
-                    className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl pl-4 pr-12 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 resize-none custom-scrollbar text-slate-800 dark:text-slate-100 placeholder-slate-400 disabled:opacity-50 disabled:cursor-not-allowed"
-                    style={{ minHeight: '48px', maxHeight: '120px' }}
-                />
-                <button 
-                    onClick={sendMessage}
-                    disabled={!inputValue.trim() || isThinking || !config.geminiApiKey}
-                    className="absolute right-2 bottom-2 p-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm"
-                >
-                    <Icon.Send {...iconProps(18)} />
-                </button>
-            </div>
-            <div className="text-[10px] text-slate-400 text-center mt-2 flex justify-center gap-2">
-                <span>WesAI v2.3</span>
-                <span>•</span>
-                <span>Function Calling Active</span>
-            </div>
+        <div className="p-6 bg-notion-light-bg dark:bg-notion-dark-bg border-t border-notion-light-border dark:border-notion-dark-border">
+          <div className="relative group">
+            <textarea
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder={
+                config.geminiApiKey
+                  ? "Orders, brother?"
+                  : "Configure API Key to chat..."
+              }
+              disabled={!config.geminiApiKey}
+              rows={1}
+              className="w-full bg-notion-light-sidebar dark:bg-notion-dark-sidebar border border-notion-light-border dark:border-notion-dark-border rounded-xl pl-5 pr-14 py-4 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500/50 transition-all duration-300 resize-none custom-scrollbar text-notion-light-text dark:text-notion-dark-text placeholder-notion-light-text/30 dark:placeholder-notion-dark-text/30 disabled:opacity-50 disabled:cursor-not-allowed shadow-inner"
+              style={{ minHeight: "56px", maxHeight: "160px" }}
+            />
+            <button
+              onClick={sendMessage}
+              disabled={
+                !inputValue.trim() || isThinking || !config.geminiApiKey
+              }
+              className="absolute right-2.5 bottom-2.5 p-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg hover:shadow-blue-500/20 active:scale-95"
+            >
+              <Icon.Send {...iconProps(18)} />
+            </button>
+          </div>
+          <div className="text-[10px] text-notion-light-text/30 dark:text-notion-dark-text/30 text-center mt-3 flex justify-center items-center gap-3 font-medium uppercase tracking-widest">
+            <span className="hover:text-blue-500 transition-colors cursor-default">
+              WesAI v2.3
+            </span>
+            <span className="w-1 h-1 rounded-full bg-notion-light-border dark:bg-notion-dark-border"></span>
+            <span className="hover:text-blue-500 transition-colors cursor-default">
+              Neural Link Active
+            </span>
+          </div>
         </div>
-
       </div>
     </>
   );

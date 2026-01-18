@@ -1,6 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState } from "react";
 
-export type SortKey = 'date' | 'description' | 'project' | 'priority' | 'status';
+export type SortKey =
+  | "date"
+  | "description"
+  | "project"
+  | "priority"
+  | "status";
 
 export interface ColumnConfig {
   key: SortKey;
@@ -9,27 +14,60 @@ export interface ColumnConfig {
   width?: string;
 }
 
-export const useTableColumns = (defaultColumns: ColumnConfig[], storageKey: string) => {
-  const [columns, setColumns] = useState<ColumnConfig[]>(defaultColumns);
-
-  // Load from local storage on mount
-  useEffect(() => {
+export const useTableColumns = (
+  defaultColumns: ColumnConfig[],
+  storageKey: string,
+) => {
+  const [columns, setColumns] = useState<ColumnConfig[]>(() => {
     try {
       const saved = localStorage.getItem(storageKey);
       if (saved) {
         const parsed = JSON.parse(saved);
-        const merged = defaultColumns.map(def => {
+        const merged = defaultColumns.map((def) => {
           const savedCol = parsed.find((p: ColumnConfig) => p.key === def.key);
           return savedCol ? { ...def, ...savedCol } : def;
         });
-        const ordered = parsed.map((p: ColumnConfig) => merged.find(m => m.key === p.key)).filter(Boolean) as ColumnConfig[];
-        const missing = defaultColumns.filter(d => !ordered.find(o => o.key === d.key));
-        setColumns([...ordered, ...missing]);
+        const ordered = parsed
+          .map((p: ColumnConfig) => merged.find((m) => m.key === p.key))
+          .filter(Boolean) as ColumnConfig[];
+        const missing = defaultColumns.filter(
+          (d) => !ordered.find((o) => o.key === d.key),
+        );
+        return [...ordered, ...missing];
       }
-    } catch (e) {
-      console.warn("Failed to load column config", e);
+    } catch {
+      console.warn("Failed to load column config");
     }
-  }, [storageKey]);
+    return defaultColumns;
+  });
+
+  const [prevStorageKey, setPrevStorageKey] = useState(storageKey);
+
+  // If storageKey changes, reset columns from localStorage
+  if (storageKey !== prevStorageKey) {
+    setPrevStorageKey(storageKey);
+    try {
+      const saved = localStorage.getItem(storageKey);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        const merged = defaultColumns.map((def) => {
+          const savedCol = parsed.find((p: ColumnConfig) => p.key === def.key);
+          return savedCol ? { ...def, ...savedCol } : def;
+        });
+        const ordered = parsed
+          .map((p: ColumnConfig) => merged.find((m) => m.key === p.key))
+          .filter(Boolean) as ColumnConfig[];
+        const missing = defaultColumns.filter(
+          (d) => !ordered.find((o) => o.key === d.key),
+        );
+        setColumns([...ordered, ...missing]);
+      } else {
+        setColumns(defaultColumns);
+      }
+    } catch {
+      console.warn("Failed to sync column config");
+    }
+  }
 
   const saveColumns = (newCols: ColumnConfig[]) => {
     setColumns(newCols);
@@ -37,21 +75,26 @@ export const useTableColumns = (defaultColumns: ColumnConfig[], storageKey: stri
   };
 
   const toggleColumn = (key: SortKey) => {
-    const newCols = columns.map(c => c.key === key ? { ...c, visible: !c.visible } : c);
+    const newCols = columns.map((c) =>
+      c.key === key ? { ...c, visible: !c.visible } : c,
+    );
     saveColumns(newCols);
   };
 
-  const moveColumn = (index: number, direction: 'up' | 'down') => {
+  const moveColumn = (index: number, direction: "up" | "down") => {
     const newCols = [...columns];
-    const targetIndex = direction === 'up' ? index - 1 : index + 1;
+    const targetIndex = direction === "up" ? index - 1 : index + 1;
     if (targetIndex < 0 || targetIndex >= newCols.length) return;
-    [newCols[index], newCols[targetIndex]] = [newCols[targetIndex], newCols[index]];
+    [newCols[index], newCols[targetIndex]] = [
+      newCols[targetIndex],
+      newCols[index],
+    ];
     saveColumns(newCols);
   };
 
   return {
     columns,
     toggleColumn,
-    moveColumn
+    moveColumn,
   };
 };

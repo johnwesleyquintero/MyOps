@@ -1,27 +1,55 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
   <defs>
-    <!-- Background Gradient -->
-    <linearGradient id="sysGradient" x1="0" y1="0" x2="512" y2="512" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#334155" />
-      <stop offset="1" stop-color="#0f172a" />
+    <!-- Background Gradient (Notion Dark Palette) -->
+    <radialGradient id="bgGradient" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+      <stop offset="0%" stop-color="#202020" /> <!-- notion.dark.sidebar -->
+      <stop offset="100%" stop-color="#191919" /> <!-- notion.dark.bg -->
+    </radialGradient>
+    
+    <!-- Pulse Gradient (Accent Colors) -->
+    <linearGradient id="pulseGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2383e2" /> <!-- Blue Accent -->
+      <stop offset="100%" stop-color="#37352f" /> <!-- notion.light.text -->
     </linearGradient>
-    <!-- Accent Gradient for Pulse & Circle -->
-    <linearGradient id="accentGradient" x1="0" y1="0" x2="512" y2="512" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#6366f1" />
-      <stop offset="1" stop-color="#4338ca" />
-    </linearGradient>
+
+    <!-- Glass Glow Filter -->
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="15" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
   </defs>
-  <!-- Background: Sovereign Slate Container -->
-  <rect width="512" height="512" rx="128" fill="url(#sysGradient)" />
-  <!-- System Icon Group -->
-  <g transform="translate(106, 106)">
-    <!-- Left Pillar (slightly softened) -->
-    <rect x="0" y="0" width="80" height="300" rx="50" fill="#f1f5f9" />
-    <!-- Right Pillar (slightly softened) -->
-    <rect x="220" y="0" width="80" height="300" rx="50" fill="#f1f5f9" />
-    <!-- Execution Pulse (V) -->
-    <path d="M40 180 L150 280 L260 180" stroke="url(#accentGradient)" stroke-width="45" stroke-linecap="round" stroke-linejoin="round" />
-    <!-- Data Point (Top Center with subtle glow) -->
-    <circle cx="150" cy="50" r="40" fill="url(#accentGradient)" stroke="white" stroke-opacity="0.15" stroke-width="6" />
+
+  <!-- Background: Sleek Rounded Container -->
+  <rect width="512" height="512" rx="144" fill="url(#bgGradient)" />
+  
+  <!-- Outer Glow Ring (Subtle) -->
+  <circle cx="256" cy="256" r="220" stroke="#D3D3D3" stroke-opacity="0.05" stroke-width="2" fill="none" />
+
+  <!-- Main Icon Group -->
+  <g transform="translate(116, 116)">
+    <!-- Left Blade (System Pillar) -->
+    <rect x="0" y="20" width="60" height="240" rx="30" fill="#D3D3D3" fill-opacity="0.9" /> <!-- notion.dark.text -->
+    <rect x="10" y="30" width="40" height="220" rx="20" fill="#2383e2" fill-opacity="0.2" />
+    
+    <!-- Right Blade (System Pillar) -->
+    <rect x="220" y="20" width="60" height="240" rx="30" fill="#D3D3D3" fill-opacity="0.9" /> <!-- notion.dark.text -->
+    <rect x="230" y="30" width="40" height="220" rx="20" fill="#2383e2" fill-opacity="0.2" />
+
+    <!-- The Core Execution Pulse (V-Chevron) -->
+    <path d="M30 160 L140 270 L250 160" 
+          stroke="#2383e2" 
+          stroke-width="50" 
+          stroke-linecap="round" 
+          stroke-linejoin="round" 
+          filter="url(#glow)" />
+    
+    <!-- Floating Data Core -->
+    <circle cx="140" cy="60" r="45" fill="#2383e2" filter="url(#glow)" />
+    <circle cx="140" cy="60" r="25" fill="#FFFFFF" fill-opacity="0.9" />
+    
+    <!-- Decorative Data Bits -->
+    <rect x="130" y="140" width="20" height="20" rx="4" fill="#D3D3D3" fill-opacity="0.2" />
+    <rect x="100" y="170" width="12" height="12" rx="3" fill="#D3D3D3" fill-opacity="0.1" />
+    <rect x="168" y="170" width="12" height="12" rx="3" fill="#D3D3D3" fill-opacity="0.1" />
   </g>
 </svg>

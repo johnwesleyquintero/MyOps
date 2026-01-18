@@ -1,7 +1,6 @@
-
-import React from 'react';
-import { MetricSummary } from '../types';
-import { Icon, iconProps } from './Icons';
+import React from "react";
+import { MetricSummary } from "../types";
+import { Icon, iconProps } from "./Icons";
 
 interface SummaryCardsProps {
   metrics: MetricSummary;
@@ -10,61 +9,64 @@ interface SummaryCardsProps {
 export const SummaryCards: React.FC<SummaryCardsProps> = ({ metrics }) => {
   // Calculate completion percentage
   const totalActive = metrics.total;
-  const completionRate = totalActive > 0 ? Math.round((metrics.done / totalActive) * 100) : 0;
+  const completionRate =
+    totalActive > 0 ? Math.round((metrics.done / totalActive) * 100) : 0;
 
   return (
     <div className="mb-6">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
         {/* Backlog */}
-        <div className="bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-6 shadow-sm relative overflow-hidden group hover:shadow-md transition-all">
-          <div className="flex justify-between items-start mb-3">
-            <h3 className="text-slate-500 dark:text-slate-400 text-[11px] font-bold uppercase tracking-widest">Backlog</h3>
-            <div className="p-2 bg-slate-100 dark:bg-slate-700 rounded-lg text-slate-600 dark:text-slate-300">
-              <Icon.Backlog {...iconProps(18)} />
+        <div className="notion-card p-5 bg-notion-light-sidebar/50 dark:bg-notion-dark-sidebar/30 relative overflow-hidden group hover:shadow-md transition-all">
+          <div className="flex justify-between items-start mb-2">
+            <h3 className="notion-label">Backlog</h3>
+            <div className="p-1.5 bg-notion-light-hover dark:bg-notion-dark-hover rounded text-notion-light-muted dark:text-notion-dark-muted">
+              <Icon.Backlog {...iconProps(16)} />
             </div>
           </div>
-          <div className="text-3xl font-mono font-bold tracking-tight text-slate-700 dark:text-slate-100">
+          <div className="text-2xl font-bold tracking-tight text-notion-light-text dark:text-notion-dark-text">
             {metrics.backlog}
           </div>
         </div>
-        
+
         {/* Active / In Progress */}
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-6 shadow-sm relative overflow-hidden group hover:shadow-md transition-all">
-          <div className="flex justify-between items-start mb-3">
-            <h3 className="text-indigo-600/70 dark:text-indigo-400/80 text-[11px] font-bold uppercase tracking-widest">Active</h3>
-            <div className="p-2 bg-indigo-50 dark:bg-indigo-900/30 rounded-lg text-indigo-600 dark:text-indigo-300 group-hover:bg-indigo-100 dark:group-hover:bg-indigo-900/50 transition-colors">
-              <Icon.Active {...iconProps(18)} />
+        <div className="notion-card p-5 bg-notion-light-sidebar/50 dark:bg-notion-dark-sidebar/30 relative overflow-hidden group hover:shadow-md transition-all">
+          <div className="flex justify-between items-start mb-2">
+            <h3 className="notion-label">Active</h3>
+            <div className="p-1.5 bg-notion-light-hover dark:bg-notion-dark-hover rounded text-notion-light-muted dark:text-notion-dark-muted transition-colors">
+              <Icon.Active {...iconProps(16)} />
             </div>
           </div>
-          <div className="text-2xl font-mono font-bold text-indigo-600 dark:text-indigo-400 tracking-tight">
+          <div className="text-2xl font-bold text-notion-light-text dark:text-notion-dark-text tracking-tight">
             {metrics.inProgress}
           </div>
         </div>
 
         {/* Done */}
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-6 shadow-sm relative overflow-hidden group hover:shadow-md transition-all">
-          <div className="flex justify-between items-start mb-3">
-            <h3 className="text-emerald-600/70 dark:text-emerald-400/80 text-[11px] font-bold uppercase tracking-widest">Completed</h3>
-            <div className="p-2 bg-emerald-50 dark:bg-emerald-900/30 rounded-lg text-emerald-600 dark:text-emerald-300 group-hover:bg-emerald-100 dark:group-hover:bg-emerald-900/50 transition-colors">
-              <Icon.Completed {...iconProps(18)} />
+        <div className="notion-card p-5 bg-notion-light-sidebar/50 dark:bg-notion-dark-sidebar/30 relative overflow-hidden group hover:shadow-md transition-all">
+          <div className="flex justify-between items-start mb-2">
+            <h3 className="notion-label">Completed</h3>
+            <div className="p-1.5 bg-notion-light-hover dark:bg-notion-dark-hover rounded text-notion-light-muted dark:text-notion-dark-muted transition-colors">
+              <Icon.Completed {...iconProps(16)} />
             </div>
           </div>
-          <div className="text-2xl font-mono font-bold text-emerald-600 dark:text-emerald-400 tracking-tight">
+          <div className="text-2xl font-bold text-notion-light-text dark:text-notion-dark-text tracking-tight">
             {metrics.done}
           </div>
         </div>
       </div>
 
       {/* Completion Rate Bar */}
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-full px-4 py-2 shadow-sm flex items-center gap-4">
-        <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest whitespace-nowrap">Completion Rate</span>
-        <div className="flex-1 h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-          <div 
-            className="h-full bg-indigo-600 dark:bg-indigo-500 rounded-full transition-all duration-1000 ease-out" 
+      <div className="notion-card px-4 py-2.5 bg-notion-light-sidebar/50 dark:bg-notion-dark-sidebar/30 flex items-center gap-4">
+        <span className="notion-label whitespace-nowrap">Completion Rate</span>
+        <div className="flex-1 h-1.5 bg-notion-light-hover dark:bg-notion-dark-hover rounded-full overflow-hidden">
+          <div
+            className="h-full bg-notion-light-text dark:bg-notion-dark-text rounded-full transition-all duration-1000 ease-out"
             style={{ width: `${completionRate}%` }}
           />
         </div>
-        <span className="text-xs font-mono font-bold text-slate-700 dark:text-slate-200 w-8 text-right">{completionRate}%</span>
+        <span className="text-xs font-semibold text-notion-light-text dark:text-notion-dark-text w-8 text-right">
+          {completionRate}%
+        </span>
       </div>
     </div>
   );

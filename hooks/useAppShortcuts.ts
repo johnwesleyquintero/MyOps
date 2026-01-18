@@ -1,6 +1,5 @@
-
-import { useKeyboardShortcuts } from './useKeyboardShortcuts';
-import { Page, TaskEntry } from '../types';
+import { useKeyboardShortcuts } from "./useKeyboardShortcuts";
+import { Page } from "../types";
 
 interface AppShortcutsProps {
   activePage: Page;
@@ -19,41 +18,41 @@ export const useAppShortcuts = ({
   setActivePage,
   openCreate,
   setIsCmdPaletteOpen,
-  setShowShortcuts
+  setShowShortcuts,
 }: AppShortcutsProps) => {
   useKeyboardShortcuts([
-    { key: 'g d', action: () => setActivePage('DASHBOARD') },
-    { key: 'g m', action: () => setActivePage('MISSIONS') },
-    { 
-      key: 'c', 
+    { key: "g d", action: () => setActivePage("DASHBOARD") },
+    { key: "g m", action: () => setActivePage("MISSIONS") },
+    {
+      key: "c",
       action: () => {
-        if (!isTaskModalOpen && activePage !== 'FOCUS' && !isCmdPaletteOpen) {
+        if (!isTaskModalOpen && activePage !== "FOCUS" && !isCmdPaletteOpen) {
           openCreate();
         }
-      } 
+      },
     },
-    { 
-      key: '/', 
-      preventDefault: true, 
+    {
+      key: "/",
+      preventDefault: true,
       action: () => {
-        if (activePage === 'FOCUS' || isCmdPaletteOpen) return; 
-        if (activePage !== 'MISSIONS') setActivePage('MISSIONS');
+        if (activePage === "FOCUS" || isCmdPaletteOpen) return;
+        if (activePage !== "MISSIONS") setActivePage("MISSIONS");
         setTimeout(() => {
-          const searchInput = document.getElementById('global-search');
+          const searchInput = document.getElementById("global-search");
           if (searchInput) searchInput.focus();
         }, 50);
-      } 
+      },
     },
-    { 
-      key: 'k',
-      metaKey: true, 
+    {
+      key: "k",
+      metaKey: true,
       preventDefault: true,
       allowInInput: true,
       action: () => {
-         if (activePage === 'FOCUS') return;
-         setIsCmdPaletteOpen(prev => !prev);
-      }
+        if (activePage === "FOCUS") return;
+        setIsCmdPaletteOpen((prev) => !prev);
+      },
     },
-    { key: '?', action: () => setShowShortcuts(prev => !prev) },
+    { key: "?", action: () => setShowShortcuts((prev) => !prev) },
   ]);
 };

@@ -1,0 +1,16 @@
+export const INITIAL_CONFIG_KEY = "myops_config_v2";
+export const LOCAL_STORAGE_KEY = "myops_data_v2";
+export const TEMPLATE_STORAGE_KEY = "myops_templates_v2";
+export const COLUMN_CONFIG_KEY = "myops_column_config_v2";
+export const OPERATION_COLUMN_CONFIG_KEY = "myops_operation_config_v1";
+export const DEFAULT_GAS_URL = "";
+
+// Module specific cache keys
+export const NOTES_CACHE_KEY = "myops_notes_cache";
+export const CRM_CACHE_KEY = "myops_crm_contacts";
+export const INTERACTIONS_CACHE_KEY = "myops_crm_interactions";
+export const VAULT_CACHE_KEY = "myops_vault_cache";
+export const AUTOMATION_CACHE_KEY = "myops_automation_cache";
+export const APP_CONFIG_KEY = "myops_app_config";
+export const LIVE_CACHE_KEY = "myops_live_data_v1";
+export const SIDEBAR_COLLAPSED_KEY = "myops_sidebar_collapsed";

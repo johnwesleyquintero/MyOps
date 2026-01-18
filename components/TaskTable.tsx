@@ -1,16 +1,19 @@
-
-import React, { useState, useEffect, useRef, useCallback } from 'react';
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
-import { TaskEntry } from '../types';
-import { COLUMN_CONFIG_KEY } from '../constants';
-import { Icon, iconProps } from './Icons';
-import { getProjectBadgeStyle, PRIORITY_STYLES, PRIORITY_DOT_STYLES, STATUS_STYLES, STATUS_DOT_STYLES } from '../utils/styleUtils';
-import { formatRelativeDate } from '../utils/formatUtils';
-import { useTableColumns, ColumnConfig, SortKey } from '../hooks/useTableColumns';
-import { useSortableData } from '../hooks/useSortableData';
-import { processTextWithTags } from '../utils/textUtils';
-import { CopyIdButton } from './CopyIdButton';
+import React, { useState, useEffect, useRef } from "react";
+import { TaskEntry } from "../types";
+import {
+  COLUMN_CONFIG_KEY,
+  PRIORITY_DOTS,
+  STATUS_INDICATORS,
+} from "@/constants";
+import { Icon, iconProps } from "./Icons";
+import { getProjectBadgeStyle } from "../utils/styleUtils";
+import { formatRelativeDate } from "../utils/formatUtils";
+import {
+  useTableColumns,
+  ColumnConfig,
+  SortKey,
+} from "../hooks/useTableColumns";
+import { useSortableData } from "../hooks/useSortableData";
 
 interface TaskTableProps {
   entries: TaskEntry[];
@@ -20,27 +23,32 @@ interface TaskTableProps {
   onStatusUpdate?: (entry: TaskEntry) => void;
   onDescriptionUpdate?: (entry: TaskEntry, newDesc: string) => void;
   onFocus: (entry: TaskEntry) => void;
-  onDuplicate: (entry: TaskEntry) => void; 
-  allEntries?: TaskEntry[]; 
+  onDuplicate: (entry: TaskEntry) => void;
+  allEntries?: TaskEntry[];
 }
 
 const DEFAULT_COLUMNS: ColumnConfig[] = [
-  { key: 'date', label: 'Due', visible: true, width: 'w-32' },
-  { key: 'description', label: 'Mission', visible: true, width: 'min-w-[300px]' },
-  { key: 'project', label: 'Project', visible: true, width: 'w-32' },
-  { key: 'priority', label: 'Priority', visible: true, width: 'w-28' },
-  { key: 'status', label: 'Status', visible: true, width: 'w-32' },
+  { key: "date", label: "Due", visible: true, width: "w-32" },
+  {
+    key: "description",
+    label: "Mission",
+    visible: true,
+    width: "min-w-[300px]",
+  },
+  { key: "project", label: "Project", visible: true, width: "w-32" },
+  { key: "priority", label: "Priority", visible: true, width: "w-28" },
+  { key: "status", label: "Status", visible: true, width: "w-32" },
 ];
 
 const TableSkeleton = ({ colSpan }: { colSpan: number }) => (
-  <tbody className="divide-y divide-slate-100 dark:divide-slate-800 animate-pulse">
+  <tbody className="divide-y divide-notion-light-border dark:divide-notion-dark-border animate-pulse">
     {[...Array(5)].map((_, i) => (
       <tr key={i}>
-        <td colSpan={colSpan} className="px-6 py-4">
+        <td colSpan={colSpan} className="px-3 py-4">
           <div className="flex gap-4">
-            <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-24"></div>
-            <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-full"></div>
-            <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-20"></div>
+            <div className="h-4 bg-notion-light-hover dark:bg-notion-dark-hover rounded w-24"></div>
+            <div className="h-4 bg-notion-light-hover dark:bg-notion-dark-hover rounded w-full"></div>
+            <div className="h-4 bg-notion-light-hover dark:bg-notion-dark-hover rounded w-20"></div>
           </div>
         </td>
       </tr>
@@ -48,25 +56,34 @@ const TableSkeleton = ({ colSpan }: { colSpan: number }) => (
   </tbody>
 );
 
-export const TaskTable: React.FC<TaskTableProps> = ({ 
-  entries, 
-  isLoading, 
-  onEdit, 
+export const TaskTable: React.FC<TaskTableProps> = ({
+  entries,
+  isLoading,
+  onEdit,
+  onDelete,
   onStatusUpdate,
-  onDescriptionUpdate,
   onFocus,
   onDuplicate,
-  allEntries = []
 }) => {
-  const { columns, toggleColumn, moveColumn } = useTableColumns(DEFAULT_COLUMNS, COLUMN_CONFIG_KEY);
-  const { items: sortedEntries, requestSort, sortConfig } = useSortableData(entries);
+  const { columns, toggleColumn } = useTableColumns(
+    DEFAULT_COLUMNS,
+    COLUMN_CONFIG_KEY,
+  );
+  const {
+    items: sortedEntries,
+    requestSort,
+    sortConfig,
+  } = useSortableData(entries);
 
   const [isConfigOpen, setIsConfigOpen] = useState(false);
   const configRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (configRef.current && !configRef.current.contains(event.target as Node)) {
+      if (
+        configRef.current &&
+        !configRef.current.contains(event.target as Node)
+      ) {
         setIsConfigOpen(false);
       }
     };
@@ -74,140 +91,184 @@ export const TaskTable: React.FC<TaskTableProps> = ({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const getDependencyStatus = useCallback((entry: TaskEntry) => {
-      if (!entry.dependencies || entry.dependencies.length === 0) return null;
-      const blockers = entry.dependencies.filter(depId => {
-          const depTask = allEntries.find(e => e.id === depId);
-          return depTask && depTask.status !== 'Done';
-      });
-      return { blocked: blockers.length > 0, count: blockers.length };
-  }, [allEntries]);
-
-  const handleChecklistToggle = useCallback((entry: TaskEntry, checkboxIndex: number) => {
-    if (!onDescriptionUpdate) return;
-    const lines = entry.description.split('\n');
-    let counter = 0;
-    const newLines = lines.map(line => {
-        const match = line.match(/^(\s*[-*]\s*)\[([ x])\]/);
-        if (match) {
-            if (counter === checkboxIndex) {
-                const newStatus = match[2] === 'x' ? ' ' : 'x';
-                counter++;
-                return line.replace(`[${match[2]}]`, `[${newStatus}]`);
-            }
-            counter++;
-        }
-        return line;
-    });
-    onDescriptionUpdate(entry, newLines.join('\n'));
-  }, [onDescriptionUpdate]);
-
-  const renderCell = (entry: TaskEntry, key: SortKey) => {
-    switch(key) {
-      case 'date':
-        const { text, colorClass } = formatRelativeDate(entry.date);
-        return <span className={`font-mono text-[11px] font-bold tracking-tight whitespace-nowrap ${colorClass}`}>{text}</span>;
-      case 'description':
-        const dep = getDependencyStatus(entry);
-        let cbIdx = 0;
-        return (
-          <div className="flex items-start gap-2 max-w-lg relative group/cell">
-            <div className={`prose prose-sm max-w-none line-clamp-2 overflow-hidden flex-1 ${entry.status === 'Done' ? 'opacity-40 line-through text-slate-400' : 'text-slate-700 dark:text-slate-200'}`}>
-                <div onClick={() => onEdit(entry)} className="absolute inset-0 cursor-pointer z-0"></div>
-                <div className="relative z-10 pointer-events-none group-hover/cell:text-indigo-600 dark:group-hover/cell:text-indigo-400 transition-colors duration-200">
-                    <ReactMarkdown remarkPlugins={[remarkGfm]} components={{
-                        a: ({node, ...props}) => <a {...props} className="text-indigo-600 pointer-events-auto cursor-pointer" onClick={e => e.stopPropagation()} target="_blank" />,
-                        p: ({node, children}) => <span className="block">{React.Children.map(children, child => typeof child === 'string' ? processTextWithTags(child) : child)}</span>,
-                        input: (props) => props.type === 'checkbox' ? (
-                            <input type="checkbox" checked={props.checked} onChange={() => handleChecklistToggle(entry, cbIdx++)} onClick={e => e.stopPropagation()} className="mx-1 mt-0.5 align-middle rounded border-slate-300 dark:border-slate-600 text-indigo-600 focus:ring-indigo-500 w-3.5 h-3.5 cursor-pointer pointer-events-auto" />
-                        ) : <input {...props} />
-                    }}>{entry.description}</ReactMarkdown>
-                </div>
-            </div>
-            {dep && dep.blocked && (
-                <div className="flex-shrink-0 flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-bold border bg-rose-50 border-rose-100 text-rose-600 dark:bg-rose-900/20 dark:border-rose-900/40 dark:text-rose-400">
-                    <Icon.Link {...iconProps(10, "mr-0.5")} />
-                    {dep.count}
-                </div>
-            )}
-          </div>
-        );
-      case 'project':
-        return <span className={getProjectBadgeStyle(entry.project)}>{entry.project}</span>;
-      case 'priority':
-        return <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[10px] font-bold border transition-colors ${PRIORITY_STYLES[entry.priority]}`}><span className={`w-1.5 h-1.5 rounded-full ${PRIORITY_DOT_STYLES[entry.priority]} ring-2 ring-white/30`} />{entry.priority}</div>;
-      case 'status':
-        return <button onClick={() => onStatusUpdate?.(entry)} className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[10px] font-bold border hover:ring-2 hover:ring-indigo-100 dark:hover:ring-indigo-900/50 transition-all active:scale-95 ${STATUS_STYLES[entry.status]}`}><span className={`w-1.5 h-1.5 rounded-full ${STATUS_DOT_STYLES[entry.status]} ring-2 ring-white/30`} />{entry.status}</button>;
-      default: return null;
-    }
-  };
-
-  const visibleColumns = columns.filter(c => c.visible);
-
   return (
-    <div className="relative">
-      <div className="absolute -top-10 right-0 z-20" ref={configRef}>
-        <button onClick={() => setIsConfigOpen(!isConfigOpen)} className="flex items-center gap-2 px-3 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-bold text-slate-600 dark:text-slate-400 hover:border-slate-400 dark:hover:border-slate-600 transition-all shadow-sm group">
-          <Icon.Menu {...iconProps(14, "group-hover:text-indigo-600")} />
-          View
-        </button>
-        {isConfigOpen && (
-          <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl overflow-hidden animate-scale-in z-50">
-            <div className="bg-slate-50 dark:bg-slate-700/50 px-4 py-2 border-b border-slate-100 dark:border-slate-700 text-[10px] font-bold uppercase text-slate-500 tracking-wider">Configure Columns</div>
-            <div className="max-h-64 overflow-y-auto py-1">
-              {columns.map((col, idx) => (
-                <div key={col.key} className="flex items-center justify-between px-3 py-2 hover:bg-slate-50 dark:hover:bg-slate-700 group/item">
-                  <div className="flex items-center gap-3">
-                    <input type="checkbox" checked={col.visible} onChange={() => toggleColumn(col.key)} className="rounded border-slate-300 dark:border-slate-600 text-indigo-600 focus:ring-indigo-500 h-4.5 w-4.5 cursor-pointer" />
-                    <span className="text-sm font-medium text-slate-700 dark:text-slate-300">{col.label}</span>
-                  </div>
-                  <div className="flex items-center opacity-0 group-hover/item:opacity-100 transition-opacity">
-                    <button onClick={() => moveColumn(idx, 'up')} disabled={idx === 0} className="p-1 text-slate-400 hover:text-indigo-600 disabled:opacity-30"><Icon.Prev {...iconProps(12)} /></button>
-                    <button onClick={() => moveColumn(idx, 'down')} disabled={idx === columns.length - 1} className="p-1 text-slate-400 hover:text-indigo-600 disabled:opacity-30"><Icon.Next {...iconProps(12)} /></button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-      </div>
-
-      <div className="overflow-hidden bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm">
-        <div className="overflow-x-auto max-h-[600px] overflow-y-auto custom-scrollbar">
-          <table className="min-w-full text-sm text-left relative border-collapse">
-            <thead className="bg-slate-50/80 dark:bg-slate-800/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-700 sticky top-0 z-10 shadow-sm">
-              <tr>
-                {visibleColumns.map(col => (
-                  <th key={col.key} className="px-6 py-4 text-[10px] uppercase tracking-[0.1em] font-bold text-slate-500 cursor-pointer select-none hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-colors group/th" onClick={() => requestSort(col.key)}>
-                    <div className="flex items-center gap-1.5">
+    <div className="flex flex-col h-full overflow-hidden bg-notion-light-bg dark:bg-notion-dark-bg transition-colors">
+      <div className="flex-1 overflow-auto custom-scrollbar border border-notion-light-border dark:border-notion-dark-border rounded shadow-sm">
+        <table className="w-full text-left border-collapse table-fixed">
+          <thead className="sticky top-0 z-20 bg-notion-light-sidebar dark:bg-notion-dark-sidebar border-b border-notion-light-border dark:border-notion-dark-border">
+            <tr>
+              {columns
+                .filter((c) => c.visible)
+                .map((col) => (
+                  <th
+                    key={col.key}
+                    className={`${col.width} px-3 py-2 text-[10px] font-bold text-notion-light-muted dark:text-notion-dark-muted uppercase tracking-widest cursor-pointer hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover transition-colors group`}
+                    onClick={() => requestSort(col.key as SortKey)}
+                  >
+                    <div className="flex items-center gap-2">
                       {col.label}
-                      <div className={`transition-all duration-300 ${sortConfig.key === col.key ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-1'}`}>
-                        <Icon.Down {...iconProps(11, sortConfig.direction === 'asc' ? 'rotate-180 text-indigo-500' : 'text-indigo-500')} />
-                      </div>
+                      {sortConfig?.key === col.key && (
+                        <span className="text-notion-light-text dark:text-notion-dark-text">
+                          {sortConfig.direction === "asc" ? "↑" : "↓"}
+                        </span>
+                      )}
                     </div>
                   </th>
                 ))}
-                <th className="px-6 py-4 w-16 sticky right-0 bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 shadow-[inset_1px_0_0_0_rgba(226,232,240,0.5)]"></th>
-              </tr>
-            </thead>
-            {isLoading ? <TableSkeleton colSpan={visibleColumns.length + 1} /> : (
-              <tbody className="divide-y divide-slate-100 dark:divide-slate-800/50">
-                {sortedEntries.map((entry) => (
-                  <tr key={entry.id} className={`group hover:bg-indigo-50/30 dark:hover:bg-indigo-900/10 transition-colors duration-150 ${entry.status === 'Done' ? 'opacity-50' : ''}`}>
-                    {visibleColumns.map(col => <td key={col.key} className="px-6 py-4 align-middle transition-colors">{renderCell(entry, col.key)}</td>)}
-                    <td className="px-6 py-4 text-right sticky right-0 bg-white dark:bg-slate-900 group-hover:bg-indigo-50/30 dark:group-hover:bg-indigo-900/10 shadow-[inset_1px_0_0_0_rgba(241,245,249,1)] dark:shadow-[inset_1px_0_0_0_rgba(15,23,42,1)] transition-colors">
-                      <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 translate-x-2 group-hover:translate-x-0 transition-all duration-300">
-                        <CopyIdButton id={entry.id} className="text-slate-400 hover:text-indigo-600 p-1.5 rounded-lg hover:bg-indigo-50 dark:hover:bg-indigo-900/40" />
-                        <button onClick={() => onDuplicate(entry)} className="text-slate-400 hover:text-indigo-600 p-1.5 rounded-lg hover:bg-indigo-50 dark:hover:bg-indigo-900/40" title="Duplicate"><Icon.Copy {...iconProps(14, "stroke-[2.5px]")} /></button>
-                        <button onClick={() => onEdit(entry)} className="text-slate-400 hover:text-indigo-600 p-1.5 rounded-lg hover:bg-indigo-50 dark:hover:bg-indigo-900/40" title="Edit"><Icon.Edit {...iconProps(14, "stroke-[2.5px]")} /></button>
+              <th className="w-28 px-3 py-2 bg-notion-light-sidebar dark:bg-notion-dark-sidebar border-b border-notion-light-border dark:border-notion-dark-border">
+                <div className="flex items-center justify-end gap-2">
+                  <span className="text-[10px] font-bold text-notion-light-muted dark:text-notion-dark-muted uppercase tracking-widest">
+                    Actions
+                  </span>
+                  <div className="relative" ref={configRef}>
+                    <button
+                      onClick={() => setIsConfigOpen(!isConfigOpen)}
+                      className="p-1 hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover rounded transition-colors"
+                    >
+                      <Icon.Settings
+                        {...iconProps(14, "text-notion-light-muted")}
+                      />
+                    </button>
+                    {isConfigOpen && (
+                      <div className="absolute right-0 top-full mt-1 w-48 bg-notion-light-bg dark:bg-notion-dark-bg border border-notion-light-border dark:border-notion-dark-border rounded shadow-xl z-50 p-2 animate-in fade-in zoom-in-95 duration-100">
+                        <div className="text-[10px] font-bold text-notion-light-muted dark:text-notion-dark-muted uppercase tracking-wider px-2 py-1 border-b border-notion-light-border dark:border-notion-dark-border mb-1">
+                          Display Columns
+                        </div>
+                        {columns.map((col) => (
+                          <label
+                            key={col.key}
+                            className="flex items-center gap-2 px-2 py-1.5 hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover rounded cursor-pointer transition-colors"
+                          >
+                            <input
+                              type="checkbox"
+                              checked={col.visible}
+                              onChange={() => toggleColumn(col.key)}
+                              className="w-3 h-3 rounded border-notion-light-border text-notion-light-text focus:ring-0 focus:ring-offset-0"
+                            />
+                            <span className="text-xs text-notion-light-text dark:text-notion-dark-text">
+                              {col.label}
+                            </span>
+                          </label>
+                        ))}
                       </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            )}
-          </table>
-        </div>
+                    )}
+                  </div>
+                </div>
+              </th>
+            </tr>
+          </thead>
+          {isLoading ? (
+            <TableSkeleton
+              colSpan={columns.filter((c) => c.visible).length + 1}
+            />
+          ) : (
+            <tbody className="divide-y divide-notion-light-border dark:divide-notion-dark-border">
+              {sortedEntries.map((task) => (
+                <tr
+                  key={task.id}
+                  className="group hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover transition-colors"
+                >
+                  {columns
+                    .filter((c) => c.visible)
+                    .map((col) => (
+                      <td
+                        key={col.key}
+                        className="px-3 py-2 align-top text-sm"
+                        onClick={() => {
+                          if (col.key !== "description") onEdit(task);
+                        }}
+                      >
+                        {col.key === "date" && (
+                          <div className="flex flex-col">
+                            <span
+                              className={`text-[10px] font-medium ${formatRelativeDate(task.date).colorClass}`}
+                            >
+                              {formatRelativeDate(task.date).text}
+                            </span>
+                          </div>
+                        )}
+                        {col.key === "description" && (
+                          <div
+                            className="relative pr-8 cursor-pointer group/desc"
+                            onClick={() => onEdit(task)}
+                          >
+                            <p className="text-notion-light-text dark:text-notion-dark-text font-medium leading-relaxed group-hover/desc:text-notion-light-text dark:group-hover/desc:text-notion-dark-text transition-colors">
+                              {task.description.split("\n")[0]}
+                            </p>
+                          </div>
+                        )}
+                        {col.key === "project" && (
+                          <span
+                            className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium border ${getProjectBadgeStyle(task.project)}`}
+                          >
+                            {task.project}
+                          </span>
+                        )}
+                        {col.key === "priority" && (
+                          <div className="flex items-center gap-1.5">
+                            <div
+                              className={`w-1.5 h-1.5 rounded-full ${PRIORITY_DOTS[task.priority]}`}
+                            />
+                            <span className="text-xs text-notion-light-text dark:text-notion-dark-text">
+                              {task.priority}
+                            </span>
+                          </div>
+                        )}
+                        {col.key === "status" && (
+                          <div
+                            className="flex items-center gap-1.5 cursor-pointer group/status"
+                            onClick={() =>
+                              onStatusUpdate && onStatusUpdate(task)
+                            }
+                          >
+                            <div
+                              className={`w-1.5 h-1.5 rounded-full ${STATUS_INDICATORS[task.status]} group-hover/status:ring-2 group-hover/status:ring-offset-1 group-hover/status:ring-current transition-all`}
+                            />
+                            <span className="text-xs text-notion-light-text dark:text-notion-dark-text group-hover/status:underline">
+                              {task.status}
+                            </span>
+                          </div>
+                        )}
+                      </td>
+                    ))}
+                  <td className="px-3 py-2 align-top">
+                    <div className="flex items-center justify-end gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <button
+                        onClick={() => onEdit(task)}
+                        className="text-notion-light-muted hover:text-notion-light-text dark:hover:text-notion-dark-text p-1 rounded hover:bg-notion-light-sidebar dark:hover:bg-notion-dark-sidebar"
+                        title="Edit Mission"
+                      >
+                        <Icon.Edit {...iconProps(14)} />
+                      </button>
+                      <button
+                        onClick={() => onDuplicate(task)}
+                        className="text-notion-light-muted hover:text-notion-light-text dark:hover:text-notion-dark-text p-1 rounded hover:bg-notion-light-sidebar dark:hover:bg-notion-dark-sidebar"
+                        title="Duplicate Mission"
+                      >
+                        <Icon.Copy {...iconProps(14)} />
+                      </button>
+                      <button
+                        onClick={() => onFocus(task)}
+                        className="text-notion-light-muted hover:text-notion-light-text dark:hover:text-notion-dark-text p-1 rounded hover:bg-notion-light-sidebar dark:hover:bg-notion-dark-sidebar"
+                        title="Focus Mode"
+                      >
+                        <Icon.Focus {...iconProps(14)} />
+                      </button>
+                      <div className="w-px h-3 bg-notion-light-border dark:bg-notion-dark-border mx-0.5" />
+                      <button
+                        onClick={() => onDelete(task)}
+                        className="text-notion-light-muted hover:text-red-500 p-1 rounded hover:bg-red-500/10"
+                        title="Terminate Mission"
+                      >
+                        <Icon.Delete {...iconProps(14)} />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          )}
+        </table>
       </div>
     </div>
   );

@@ -1,7 +1,4 @@
-
-import { useEffect, useState, useRef } from 'react';
-
-type KeyHandler = (e: KeyboardEvent) => void;
+import { useEffect, useState, useRef } from "react";
 
 interface ShortcutConfig {
   key: string;
@@ -21,33 +18,40 @@ export const useKeyboardShortcuts = (shortcuts: ShortcutConfig[]) => {
     const handleKeyDown = (e: KeyboardEvent) => {
       // 1. Check if user is typing in an input/textarea
       const target = e.target as HTMLElement;
-      const isInput = target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable;
+      const isInput =
+        target.tagName === "INPUT" ||
+        target.tagName === "TEXTAREA" ||
+        target.isContentEditable;
 
       const currentTime = new Date().getTime();
-      const isSequence = lastKey && (currentTime - lastKeyTime.current < 1000); // 1 second window for sequences
+      const isSequence = lastKey && currentTime - lastKeyTime.current < 1000; // 1 second window for sequences
 
       // Iterate through defined shortcuts
-      shortcuts.forEach(config => {
+      shortcuts.forEach((config) => {
         // Match Modifiers
         const ctrlMatch = !!config.ctrlKey === e.ctrlKey;
         const metaMatch = !!config.metaKey === e.metaKey;
         const shiftMatch = !!config.shiftKey === e.shiftKey;
-        
+
         // Match Key
-        // We accept special syntax like "g then d" handled by local state, 
+        // We accept special syntax like "g then d" handled by local state,
         // or standard keys
         let keyMatch = false;
 
         // Check for sequence definitions (e.g. key: "g d")
-        if (config.key.includes(' ')) {
-           const [first, second] = config.key.split(' ');
-           if (isSequence && lastKey === first && e.key.toLowerCase() === second) {
-             keyMatch = true;
-           }
+        if (config.key.includes(" ")) {
+          const [first, second] = config.key.split(" ");
+          if (
+            isSequence &&
+            lastKey === first &&
+            e.key.toLowerCase() === second
+          ) {
+            keyMatch = true;
+          }
         } else {
-           if (e.key.toLowerCase() === config.key.toLowerCase()) {
-             keyMatch = true;
-           }
+          if (e.key.toLowerCase() === config.key.toLowerCase()) {
+            keyMatch = true;
+          }
         }
 
         // Execution Guard
@@ -59,7 +63,7 @@ export const useKeyboardShortcuts = (shortcuts: ShortcutConfig[]) => {
 
           if (config.preventDefault) e.preventDefault();
           config.action();
-          
+
           // Reset sequence
           setLastKey(null);
         }
@@ -72,7 +76,7 @@ export const useKeyboardShortcuts = (shortcuts: ShortcutConfig[]) => {
       }
     };
 
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
   }, [shortcuts, lastKey]);
 };

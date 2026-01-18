@@ -1,13 +1,12 @@
+import { useEffect } from "react";
 
-import { useEffect } from 'react';
-
-export const useTheme = (theme: 'LIGHT' | 'DARK') => {
+export const useTheme = (theme: "LIGHT" | "DARK") => {
   useEffect(() => {
     const root = window.document.documentElement;
-    if (theme === 'DARK') {
-      root.classList.add('dark');
+    if (theme === "DARK") {
+      root.classList.add("dark");
     } else {
-      root.classList.remove('dark');
+      root.classList.remove("dark");
     }
   }, [theme]);
 };

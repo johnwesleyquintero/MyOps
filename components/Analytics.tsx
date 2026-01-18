@@ -1,5 +1,5 @@
-import React from 'react';
-import { TaskEntry } from '../types';
+import React from "react";
+import { TaskEntry } from "../types";
 
 interface AnalyticsProps {
   entries: TaskEntry[];

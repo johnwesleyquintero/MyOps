@@ -1,8 +1,7 @@
-
-import React, { useMemo } from 'react';
-import { TaskEntry } from '../types';
-import { PRIORITY_DOTS } from '../constants';
-import { getProjectStyle } from '../utils/formatUtils';
+import React, { useMemo } from "react";
+import { TaskEntry } from "../types";
+import { PRIORITY_DOTS } from "@/constants";
+import { getProjectStyle } from "../utils/formatUtils";
 
 interface GanttChartProps {
   entries: TaskEntry[];
@@ -13,14 +12,14 @@ export const GanttChart: React.FC<GanttChartProps> = ({ entries, onEdit }) => {
   // Logic: 14 day rolling window.
   // Start: Today - 3 days.
   // End: Today + 11 days.
-  
-  const today = new Date();
-  today.setHours(0,0,0,0);
-  
-  const startDate = new Date(today);
-  startDate.setDate(today.getDate() - 3);
 
   const dates = useMemo(() => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const startDate = new Date(today);
+    startDate.setDate(today.getDate() - 3);
+
     const arr = [];
     for (let i = 0; i < 14; i++) {
       const d = new Date(startDate);
@@ -28,16 +27,22 @@ export const GanttChart: React.FC<GanttChartProps> = ({ entries, onEdit }) => {
       arr.push(d);
     }
     return arr;
-  }, []); // Static window based on today
+  }, []); // Static window based on today at mount
+
+  const today = useMemo(() => {
+    const d = new Date();
+    d.setHours(0, 0, 0, 0);
+    return d;
+  }, []);
 
   // Group by Project
   const groupedData = useMemo(() => {
     const groups: Record<string, TaskEntry[]> = {};
-    entries.forEach(e => {
-        // Only include items relevant to the window for cleaner view? 
-        // Or show all projects, but only tasks in window.
-        if (!groups[e.project]) groups[e.project] = [];
-        groups[e.project].push(e);
+    entries.forEach((e) => {
+      // Only include items relevant to the window for cleaner view?
+      // Or show all projects, but only tasks in window.
+      if (!groups[e.project]) groups[e.project] = [];
+      groups[e.project].push(e);
     });
     return groups;
   }, [entries]);
@@ -46,98 +51,108 @@ export const GanttChart: React.FC<GanttChartProps> = ({ entries, onEdit }) => {
 
   // Helper to check if task is on this date
   const getTaskForDate = (taskList: TaskEntry[], date: Date) => {
-    const dateStr = date.toISOString().split('T')[0]; // YYYY-MM-DD
-    return taskList.filter(t => t.date === dateStr);
+    const dateStr = date.toISOString().split("T")[0]; // YYYY-MM-DD
+    return taskList.filter((t) => t.date === dateStr);
   };
 
   return (
-    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm overflow-hidden flex flex-col h-[calc(100vh-250px)] transition-colors">
-       {/* Timeline Header */}
-       <div className="flex border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800">
-          <div className="w-40 flex-shrink-0 p-4 border-r border-slate-200 dark:border-slate-800 font-bold text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider bg-slate-50 dark:bg-slate-800 sticky left-0 z-10">
-            Project
-          </div>
-          <div className="flex-1 flex overflow-hidden">
-             {dates.map((d, i) => {
-               const isToday = d.getTime() === today.getTime();
-               const isWeekend = d.getDay() === 0 || d.getDay() === 6;
-               return (
-                 <div 
-                    key={i} 
-                    className={`flex-1 min-w-[60px] text-center py-3 border-r border-slate-100 dark:border-slate-800 flex flex-col justify-center ${isToday ? 'bg-indigo-50 dark:bg-indigo-900/20' : isWeekend ? 'bg-slate-50/50 dark:bg-slate-800/50' : 'bg-white dark:bg-slate-900'}`}
-                 >
-                    <span className={`text-[10px] font-bold uppercase ${isToday ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-400 dark:text-slate-500'}`}>
-                      {d.toLocaleDateString('en-US', { weekday: 'short' })}
-                    </span>
-                    <span className={`text-xs font-mono font-bold ${isToday ? 'text-indigo-700 dark:text-indigo-300' : 'text-slate-600 dark:text-slate-400'}`}>
-                      {d.getDate()}
-                    </span>
-                 </div>
-               );
-             })}
-          </div>
-       </div>
-
-       {/* Timeline Body */}
-       <div className="flex-1 overflow-y-auto custom-scrollbar bg-white dark:bg-slate-900">
-          {projects.length === 0 ? (
-             <div className="flex items-center justify-center h-full text-slate-400 text-sm">No active projects in this view</div>
-          ) : (
-            projects.map(proj => (
-              <div key={proj} className="flex border-b border-slate-100 dark:border-slate-800 min-h-[60px]">
-                 {/* Y-Axis Label */}
-                 <div className="w-40 flex-shrink-0 p-3 border-r border-slate-200 dark:border-slate-800 flex items-center bg-white dark:bg-slate-900 sticky left-0 z-10">
-                    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-bold border ${getProjectStyle(proj)}`}>
-                        {proj}
-                    </span>
-                 </div>
-
-                 {/* Grid */}
-                 <div className="flex-1 flex relative">
-                    {/* Background Grid Lines */}
-                    <div className="absolute inset-0 flex pointer-events-none">
-                       {dates.map((d, i) => {
-                          const isToday = d.getTime() === today.getTime();
-                          const isWeekend = d.getDay() === 0 || d.getDay() === 6;
-                          return (
-                            <div 
-                                key={i} 
-                                className={`flex-1 min-w-[60px] border-r border-slate-50 dark:border-slate-800/50 ${isToday ? 'bg-indigo-50/20 dark:bg-indigo-900/10' : isWeekend ? 'bg-slate-50/30 dark:bg-slate-800/20' : ''}`}
-                            />
-                          );
-                       })}
-                    </div>
-
-                    {/* Task Markers */}
-                    <div className="flex w-full z-0">
-                        {dates.map((d, i) => {
-                           const tasksOnDay = getTaskForDate(groupedData[proj], d);
-                           return (
-                             <div key={i} className="flex-1 min-w-[60px] p-1 flex flex-col gap-1 items-center justify-center">
-                                {tasksOnDay.map(task => (
-                                   <button
-                                     key={task.id}
-                                     onClick={() => onEdit(task)}
-                                     className={`w-full text-left p-1 rounded border shadow-sm text-[9px] leading-tight truncate hover:z-20 hover:scale-105 transition-all ${
-                                        task.status === 'Done' ? 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-400 opacity-60' : 
-                                        task.priority === 'High' ? 'bg-rose-50 dark:bg-rose-900/20 border-rose-200 dark:border-rose-800 text-rose-700 dark:text-rose-400' :
-                                        'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300'
-                                     }`}
-                                     title={task.description}
-                                   >
-                                     <div className={`w-1.5 h-1.5 rounded-full inline-block mr-1 ${PRIORITY_DOTS[task.priority]}`}></div>
-                                     {task.description}
-                                   </button>
-                                ))}
-                             </div>
-                           )
-                        })}
-                    </div>
-                 </div>
+    <div className="notion-card flex flex-col h-[calc(100vh-250px)] transition-colors overflow-hidden">
+      {/* Timeline Header */}
+      <div className="flex border-b border-notion-light-border dark:border-notion-dark-border bg-notion-light-sidebar/50 dark:bg-notion-dark-sidebar/30">
+        <div className="w-40 flex-shrink-0 p-3 border-r border-notion-light-border dark:border-notion-dark-border notion-label sticky left-0 z-10 bg-notion-light-sidebar dark:bg-notion-dark-sidebar">
+          Project
+        </div>
+        <div className="flex-1 flex overflow-hidden">
+          {dates.map((d, i) => {
+            const isToday = d.getTime() === today.getTime();
+            const isWeekend = d.getDay() === 0 || d.getDay() === 6;
+            return (
+              <div
+                key={i}
+                className={`flex-1 min-w-[60px] text-center py-2 border-r border-notion-light-border/30 dark:border-notion-dark-border/30 flex flex-col justify-center ${
+                  isToday
+                    ? "bg-notion-light-text/5 dark:bg-notion-dark-text/5"
+                    : isWeekend
+                      ? "bg-notion-light-sidebar/30 dark:bg-notion-dark-sidebar/30"
+                      : ""
+                }`}
+              >
+                <span
+                  className={`text-[9px] font-bold uppercase ${
+                    isToday
+                      ? "text-notion-light-text dark:text-notion-dark-text"
+                      : "text-notion-light-muted dark:text-notion-dark-muted"
+                  }`}
+                >
+                  {d.toLocaleDateString("en-US", { weekday: "short" })}
+                </span>
+                <span
+                  className={`text-xs font-medium ${
+                    isToday
+                      ? "text-notion-light-text dark:text-notion-dark-text underline decoration-2 underline-offset-4 decoration-notion-light-text/30"
+                      : "text-notion-light-text dark:text-notion-dark-text"
+                  }`}
+                >
+                  {d.getDate()}
+                </span>
               </div>
-            ))
-          )}
-       </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Timeline Body */}
+      <div className="flex-1 overflow-y-auto bg-notion-light-bg dark:bg-notion-dark-bg">
+        {projects.length === 0 ? (
+          <div className="flex items-center justify-center h-full text-notion-light-muted dark:text-notion-dark-muted text-sm">
+            No active projects
+          </div>
+        ) : (
+          projects.map((proj) => (
+            <div
+              key={proj}
+              className="flex border-b border-notion-light-border/30 dark:border-notion-dark-border/30 min-h-[50px]"
+            >
+              {/* Y-Axis Label */}
+              <div className="w-40 flex-shrink-0 p-2 border-r border-notion-light-border dark:border-notion-dark-border flex items-center bg-notion-light-bg dark:bg-notion-dark-bg sticky left-0 z-10">
+                <span
+                  className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium border ${getProjectStyle(proj)}`}
+                >
+                  {proj}
+                </span>
+              </div>
+
+              {/* Grid */}
+              <div className="flex-1 flex overflow-x-hidden">
+                {dates.map((d, i) => {
+                  const dayTasks = getTaskForDate(groupedData[proj], d);
+                  return (
+                    <div
+                      key={i}
+                      className="flex-1 min-w-[60px] border-r border-notion-light-border/20 dark:border-notion-dark-border/20 p-1 flex flex-col gap-1"
+                    >
+                      {dayTasks.map((t) => (
+                        <div
+                          key={t.id}
+                          onClick={() => onEdit(t)}
+                          className="h-8 bg-notion-light-hover dark:bg-notion-dark-hover border border-notion-light-border dark:border-notion-dark-border rounded px-1.5 flex items-center gap-1.5 cursor-pointer hover:bg-notion-light-sidebar dark:hover:bg-notion-dark-sidebar transition-colors overflow-hidden group"
+                        >
+                          <div
+                            className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${PRIORITY_DOTS[t.priority]}`}
+                          />
+                          <span className="text-[10px] text-notion-light-text dark:text-notion-dark-text truncate">
+                            {t.description.split("\n")[0]}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          ))
+        )}
+      </div>
     </div>
   );
 };

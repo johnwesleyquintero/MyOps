@@ -1,21 +1,12 @@
-import { TaskEntry, AppConfig } from '../types';
-import { LOCAL_STORAGE_KEY } from '../constants';
-import { getMockData } from './mockFactory';
-
-// Helper to send POST requests
-const postToGas = async (url: string, payload: any) => {
-  await fetch(url, {
-    method: 'POST',
-    mode: 'no-cors',
-    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-    body: JSON.stringify(payload),
-  });
-};
+import { TaskEntry, AppConfig } from "../types";
+import { LOCAL_STORAGE_KEY } from "@/constants";
+import { getMockData } from "./mockFactory";
+import { fetchFromGas, postToGas } from "../utils/gasUtils";
 
 export const fetchTasks = async (config: AppConfig): Promise<TaskEntry[]> => {
-  if (config.mode === 'DEMO') {
+  if (config.mode === "DEMO") {
     // Minimal delay for responsiveness check
-    await new Promise(resolve => setTimeout(resolve, 50)); 
+    await new Promise((resolve) => setTimeout(resolve, 50));
     const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
     if (!stored) {
       const initialData = getMockData();
@@ -24,86 +15,75 @@ export const fetchTasks = async (config: AppConfig): Promise<TaskEntry[]> => {
     }
     return JSON.parse(stored);
   } else {
-    // LIVE MODE
-    if (!config.gasDeploymentUrl) throw new Error("GAS URL not configured");
-    if (!config.apiToken) throw new Error("API Token required");
-
-    try {
-      const urlWithToken = `${config.gasDeploymentUrl}?token=${encodeURIComponent(config.apiToken)}&t=${new Date().getTime()}`;
-      
-      const response = await fetch(urlWithToken, { method: 'GET', redirect: 'follow' });
-      if (!response.ok) throw new Error("Network response was not ok");
-      
-      const text = await response.text();
-      let data;
-      try {
-        data = JSON.parse(text);
-      } catch (e) {
-        throw new Error("Invalid response from server.");
-      }
-      
-      if (data && data.status === "error") throw new Error(data.message);
-      
-      const entries = Array.isArray(data) ? data : [];
-      return entries;
-
-    } catch (error) {
-      console.error("Fetch Error:", error);
-      throw error;
-    }
+    return fetchFromGas<TaskEntry>(config, "tasks");
   }
 };
 
-export const addTask = async (entry: TaskEntry, config: AppConfig): Promise<TaskEntry> => {
+export const addTask = async (
+  entry: TaskEntry,
+  config: AppConfig,
+): Promise<TaskEntry> => {
   const entryWithId = { ...entry, id: entry.id || crypto.randomUUID() };
 
-  if (config.mode === 'DEMO') {
-    await new Promise(resolve => setTimeout(resolve, 50));
+  if (config.mode === "DEMO") {
+    await new Promise((resolve) => setTimeout(resolve, 50));
     const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
     const current = stored ? JSON.parse(stored) : [];
-    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify([entryWithId, ...current]));
+    localStorage.setItem(
+      LOCAL_STORAGE_KEY,
+      JSON.stringify([entryWithId, ...current]),
+    );
   } else {
     if (!config.gasDeploymentUrl) throw new Error("GAS URL not configured");
-    await postToGas(config.gasDeploymentUrl, { 
-      action: 'create', 
+    await postToGas(config.gasDeploymentUrl, {
+      action: "create",
+      module: "tasks",
       entry: entryWithId,
-      token: config.apiToken 
+      token: config.apiToken,
     });
   }
-  
+
   return entryWithId;
 };
 
-export const updateTask = async (entry: TaskEntry, config: AppConfig): Promise<void> => {
-  if (config.mode === 'DEMO') {
-    await new Promise(resolve => setTimeout(resolve, 50));
+export const updateTask = async (
+  entry: TaskEntry,
+  config: AppConfig,
+): Promise<void> => {
+  if (config.mode === "DEMO") {
+    await new Promise((resolve) => setTimeout(resolve, 50));
     const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
     let current: TaskEntry[] = stored ? JSON.parse(stored) : [];
-    current = current.map(e => e.id === entry.id ? entry : e);
+    current = current.map((e) => (e.id === entry.id ? entry : e));
     localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(current));
   } else {
     if (!config.gasDeploymentUrl) throw new Error("GAS URL not configured");
-    await postToGas(config.gasDeploymentUrl, { 
-      action: 'update', 
+    await postToGas(config.gasDeploymentUrl, {
+      action: "update",
+      module: "tasks",
       entry,
-      token: config.apiToken 
+      token: config.apiToken,
     });
   }
 };
 
-export const deleteTask = async (id: string, config: AppConfig): Promise<void> => {
-  if (config.mode === 'DEMO') {
-    await new Promise(resolve => setTimeout(resolve, 50));
+export const deleteTask = async (
+  entry: TaskEntry,
+  config: AppConfig,
+): Promise<void> => {
+  if (config.mode === "DEMO") {
+    await new Promise((resolve) => setTimeout(resolve, 50));
     const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
     let current: TaskEntry[] = stored ? JSON.parse(stored) : [];
-    current = current.filter(e => e.id !== id);
+    current = current.filter((e) => e.id !== entry.id);
     localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(current));
   } else {
     if (!config.gasDeploymentUrl) throw new Error("GAS URL not configured");
-    await postToGas(config.gasDeploymentUrl, { 
-      action: 'delete', 
-      entry: { id },
-      token: config.apiToken 
+    await postToGas(config.gasDeploymentUrl, {
+      action: "delete",
+      module: "tasks",
+      entry,
+      token: config.apiToken,
     });
   }
 };

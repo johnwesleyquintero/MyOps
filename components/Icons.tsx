@@ -1,28 +1,26 @@
-
-import React from 'react';
-import { 
-  LayoutDashboard, 
-  ClipboardList, 
-  Settings, 
-  Zap, 
-  CheckCircle2, 
-  Inbox, 
-  AlertCircle, 
-  MessageSquareText, 
-  Plus, 
-  Search, 
-  ChevronLeft, 
-  ChevronRight, 
-  Trash2, 
-  Copy, 
-  Edit3, 
-  Focus, 
-  Send, 
-  RotateCcw, 
-  Play, 
-  Pause, 
-  X, 
-  Bot, 
+import {
+  LayoutDashboard,
+  ClipboardList,
+  Settings,
+  Zap,
+  CheckCircle2,
+  Inbox,
+  AlertCircle,
+  MessageSquareText,
+  Plus,
+  Search,
+  ChevronLeft,
+  ChevronRight,
+  Trash2,
+  Copy,
+  Edit3,
+  Focus,
+  Send,
+  RotateCcw,
+  Play,
+  Pause,
+  X,
+  Bot,
   ArrowUpRight,
   Menu,
   MoreVertical,
@@ -38,8 +36,18 @@ import {
   // Removed CopyIcon and DuplicateIcon (DuplicateIcon does not exist in lucide-react)
   Undo2,
   ChevronDown,
-  Monitor
-} from 'lucide-react';
+  Monitor,
+  Users,
+  BookOpen,
+  BarChart3,
+  Lock,
+  Map,
+  Moon,
+  Sun,
+  Tag,
+  Book,
+  FileCheck,
+} from "lucide-react";
 
 export const Icon = {
   Dashboard: LayoutDashboard,
@@ -78,12 +86,25 @@ export const Icon = {
   Template: FileText,
   Undo: Undo2,
   Down: ChevronDown,
-  Preview: Monitor
+  Preview: Monitor,
+  Users: Users,
+  Docs: BookOpen,
+  Analytics: BarChart3,
+  Vault: Lock,
+  Blueprint: Map,
+  Ai: Bot,
+  Zap: Zap,
+  Layout: LayoutDashboard,
+  Moon: Moon,
+  Sun: Sun,
+  Tag: Tag,
+  Knowledge: Book,
+  Report: FileCheck,
 };
 
 // Standard props helper for consistent sizing
 export const iconProps = (size = 18, className = "") => ({
   size,
   className,
-  strokeWidth: 2
+  strokeWidth: 2,
 });

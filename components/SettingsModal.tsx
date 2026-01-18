@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { AppConfig } from '../types';
-import { ConnectionSettings } from './settings/ConnectionSettings';
-import { BackendCodeView } from './settings/BackendCodeView';
+import React, { useState, useEffect } from "react";
+import { AppConfig } from "../types";
+import { ConnectionSettings } from "./settings/ConnectionSettings";
+import { BackendCodeView } from "./settings/BackendCodeView";
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -10,9 +10,14 @@ interface SettingsModalProps {
   onSave: (config: AppConfig) => void;
 }
 
-export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, config, onSave }) => {
+export const SettingsModal: React.FC<SettingsModalProps> = ({
+  isOpen,
+  onClose,
+  config,
+  onSave,
+}) => {
   const [localConfig, setLocalConfig] = useState<AppConfig>(config);
-  const [activeTab, setActiveTab] = useState<'CONFIG' | 'CODE'>('CONFIG');
+  const [activeTab, setActiveTab] = useState<"CONFIG" | "CODE">("CONFIG");
 
   useEffect(() => {
     setLocalConfig(config);
@@ -21,34 +26,35 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, c
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-      <div className="bg-white dark:bg-slate-900 w-full max-w-2xl rounded-lg shadow-xl m-4 flex flex-col max-h-[90vh] border border-slate-200 dark:border-slate-700">
-        
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-[2px] animate-in fade-in duration-200">
+      <div className="bg-notion-light-bg dark:bg-notion-dark-bg w-full max-w-2xl rounded-lg shadow-2xl m-4 flex flex-col max-h-[90vh] border border-notion-light-border dark:border-notion-dark-border animate-in zoom-in-95 duration-200">
         {/* Header with Tabs */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-slate-700">
-           <h2 className="text-xl font-bold text-slate-900 dark:text-white">System Setup</h2>
-           <div className="flex bg-slate-100 dark:bg-slate-800 rounded-lg p-1">
-             <button
-               onClick={() => setActiveTab('CONFIG')}
-               className={`px-4 py-1.5 text-xs font-bold rounded-md transition-all ${activeTab === 'CONFIG' ? 'bg-white dark:bg-slate-600 text-slate-900 dark:text-white shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'}`}
-             >
-               CONNECTION
-             </button>
-             <button
-               onClick={() => setActiveTab('CODE')}
-               className={`px-4 py-1.5 text-xs font-bold rounded-md transition-all ${activeTab === 'CODE' ? 'bg-white dark:bg-slate-600 text-slate-900 dark:text-white shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'}`}
-             >
-               BACKEND CODE
-             </button>
-           </div>
+        <div className="flex items-center justify-between px-6 py-4 border-b border-notion-light-border dark:border-notion-dark-border bg-notion-light-sidebar dark:bg-notion-dark-sidebar">
+          <h2 className="text-sm font-semibold text-notion-light-text dark:text-notion-dark-text">
+            Settings
+          </h2>
+          <div className="flex bg-notion-light-hover dark:bg-notion-dark-hover rounded p-0.5">
+            <button
+              onClick={() => setActiveTab("CONFIG")}
+              className={`px-3 py-1 text-[10px] font-bold rounded transition-all ${activeTab === "CONFIG" ? "bg-notion-light-bg dark:bg-notion-dark-bg text-notion-light-text dark:text-notion-dark-text shadow-sm" : "text-notion-light-muted dark:text-notion-dark-muted hover:text-notion-light-text dark:hover:text-notion-dark-text"}`}
+            >
+              CONNECTION
+            </button>
+            <button
+              onClick={() => setActiveTab("CODE")}
+              className={`px-3 py-1 text-[10px] font-bold rounded transition-all ${activeTab === "CODE" ? "bg-notion-light-bg dark:bg-notion-dark-bg text-notion-light-text dark:text-notion-dark-text shadow-sm" : "text-notion-light-muted dark:text-notion-dark-muted hover:text-notion-light-text dark:hover:text-notion-dark-text"}`}
+            >
+              BACKEND CODE
+            </button>
+          </div>
         </div>
-        
+
         {/* Content Area - Scrollable */}
-        <div className="p-6 overflow-y-auto">
-          {activeTab === 'CONFIG' ? (
-            <ConnectionSettings 
-              config={localConfig} 
-              onChange={setLocalConfig} 
+        <div className="p-6 overflow-y-auto custom-scrollbar">
+          {activeTab === "CONFIG" ? (
+            <ConnectionSettings
+              config={localConfig}
+              onChange={setLocalConfig}
             />
           ) : (
             <BackendCodeView />
@@ -56,18 +62,18 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, c
         </div>
 
         {/* Footer */}
-        <div className="flex justify-end gap-3 px-6 py-4 border-t border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 rounded-b-lg">
+        <div className="flex justify-end gap-3 px-6 py-4 border-t border-notion-light-border dark:border-notion-dark-border bg-notion-light-sidebar dark:bg-notion-dark-sidebar rounded-b-lg">
           <button
             onClick={onClose}
-            className="px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-slate-800 dark:hover:text-white"
+            className="px-4 py-1.5 text-xs font-medium text-notion-light-muted hover:text-notion-light-text dark:hover:text-notion-dark-text transition-colors"
           >
             Cancel
           </button>
           <button
             onClick={() => onSave(localConfig)}
-            className="px-4 py-2 text-sm font-medium text-white bg-slate-900 dark:bg-indigo-600 rounded hover:bg-slate-800 dark:hover:bg-indigo-500 shadow-sm"
+            className="px-4 py-1.5 text-xs font-semibold bg-notion-light-text dark:bg-notion-dark-text text-white dark:text-notion-dark-bg rounded hover:opacity-90 transition-opacity"
           >
-            Save Configuration
+            Save Changes
           </button>
         </div>
       </div>

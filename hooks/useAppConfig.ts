@@ -1,16 +1,15 @@
+import { useState, useEffect } from "react";
+import { AppConfig } from "../types";
+import { INITIAL_CONFIG_KEY, DEFAULT_GAS_URL } from "@/constants";
 
-import { useState, useEffect } from 'react';
-import { AppConfig } from '../types';
-import { INITIAL_CONFIG_KEY, DEFAULT_GAS_URL } from '../constants';
-
-const DEFAULT_CONFIG: AppConfig = { 
-  mode: 'DEMO', // Changed from LIVE to DEMO for smoother first-run
-  gasDeploymentUrl: DEFAULT_GAS_URL, 
-  apiToken: '',
-  currency: 'USD',
-  locale: 'en-US',
-  theme: 'LIGHT',
-  geminiApiKey: ''
+const DEFAULT_CONFIG: AppConfig = {
+  mode: "DEMO", // Changed from LIVE to DEMO for smoother first-run
+  gasDeploymentUrl: DEFAULT_GAS_URL,
+  apiToken: "",
+  currency: "USD",
+  locale: "en-US",
+  theme: "LIGHT",
+  geminiApiKey: "",
 };
 
 export const useAppConfig = () => {
@@ -19,7 +18,7 @@ export const useAppConfig = () => {
       const saved = localStorage.getItem(INITIAL_CONFIG_KEY);
       if (saved) return { ...DEFAULT_CONFIG, ...JSON.parse(saved) };
     } catch (e) {
-      console.warn('Failed to parse config from local storage', e);
+      console.warn("Failed to parse config from local storage", e);
     }
     return DEFAULT_CONFIG;
   });
@@ -30,6 +29,6 @@ export const useAppConfig = () => {
 
   return {
     config,
-    setConfig
+    setConfig,
   };
 };

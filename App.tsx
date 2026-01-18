@@ -20,6 +20,7 @@ import { AutomationView } from "./components/views/AutomationView";
 import { ReportView } from "./components/views/ReportView";
 import { StrategyView } from "./components/views/StrategyView";
 import { AwarenessView } from "./components/views/AwarenessView";
+import { WesAiView } from "./components/views/WesAiView";
 
 // Hooks
 import { useTasks } from "./hooks/useTasks";
@@ -234,6 +235,22 @@ const App: React.FC = () => {
 
           {ui.activePage === "REPORT" && <ReportView />}
           {ui.activePage === "STRATEGY" && <StrategyView config={config} />}
+          {ui.activePage === "WESAI" && (
+            <WesAiView
+              config={config}
+              entries={entries}
+              contacts={crm.contacts}
+              notes={notes.notes}
+              vaultEntries={vault.vaultEntries}
+              metrics={operatorMetrics}
+              decisions={decisions}
+              mentalStates={mentalStates}
+              onSaveTransaction={saveTransaction}
+              onDeleteTransaction={removeTransaction}
+              onSaveContact={crm.saveContact}
+              onSaveNote={notes.saveNote}
+            />
+          )}
           {ui.activePage === "AWARENESS" && <AwarenessView config={config} />}
         </main>
       </div>

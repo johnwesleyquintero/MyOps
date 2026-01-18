@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import {
   AppConfig,
@@ -69,18 +69,66 @@ export const AiChatSidebar: React.FC<AiChatSidebarProps> = ({
     onSaveNote,
   });
 
+  const [attachments, setAttachments] = useState<string[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Auto-scroll
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, isOpen, isThinking]);
 
+  const handleSendMessage = () => {
+    if (!inputValue.trim() && attachments.length === 0) return;
+    sendMessage(inputValue, attachments.length > 0 ? attachments : undefined);
+    setAttachments([]);
+  };
+
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
-      sendMessage();
+      handleSendMessage();
     }
+  };
+
+  const handlePaste = (e: React.ClipboardEvent) => {
+    const items = e.clipboardData.items;
+    for (let i = 0; i < items.length; i++) {
+      if (items[i].type.indexOf("image") !== -1) {
+        const blob = items[i].getAsFile();
+        if (blob) {
+          const reader = new FileReader();
+          reader.onload = (event) => {
+            if (event.target?.result) {
+              setAttachments((prev) => [
+                ...prev,
+                event.target!.result as string,
+              ]);
+            }
+          };
+          reader.readAsDataURL(blob);
+        }
+      }
+    }
+  };
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (files) {
+      Array.from(files).forEach((file) => {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          if (event.target?.result) {
+            setAttachments((prev) => [...prev, event.target!.result as string]);
+          }
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+  };
+
+  const removeAttachment = (index: number) => {
+    setAttachments((prev) => prev.filter((_, i) => i !== index));
   };
 
   return (
@@ -198,6 +246,25 @@ export const AiChatSidebar: React.FC<AiChatSidebarProps> = ({
                 ) : (
                   <div className="whitespace-pre-wrap">{msg.text}</div>
                 )}
+
+                {msg.attachments && msg.attachments.length > 0 && (
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {msg.attachments.map((img, idx) => (
+                      <div
+                        key={idx}
+                        className="relative group overflow-hidden rounded-lg border border-white/10 shadow-inner"
+                      >
+                        <img
+                          src={img}
+                          alt="Attachment"
+                          className="w-32 h-32 object-cover"
+                        />
+                        <div className="absolute inset-0 bg-blue-500/10 pointer-events-none mix-blend-overlay"></div>
+                        <div className="absolute inset-0 bg-[linear-gradient(transparent_0%,rgba(0,100,255,0.1)_50%,transparent_100%)] bg-[length:100%_4px] animate-[scan_2s_linear_infinite] pointer-events-none"></div>
+                      </div>
+                    ))}
+                  </div>
+                )}
                 <div
                   className={`text-[10px] mt-2 font-medium opacity-50 ${msg.role === "user" ? "text-right" : "text-notion-light-text/60 dark:text-notion-dark-text/60"}`}
                 >
@@ -246,30 +313,68 @@ export const AiChatSidebar: React.FC<AiChatSidebarProps> = ({
 
         {/* Input Area */}
         <div className="p-6 bg-notion-light-bg dark:bg-notion-dark-bg border-t border-notion-light-border dark:border-notion-dark-border">
-          <div className="relative group">
-            <textarea
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder={
-                config.geminiApiKey
-                  ? "Orders, brother?"
-                  : "Configure API Key to chat..."
-              }
-              disabled={!config.geminiApiKey}
-              rows={1}
-              className="w-full bg-notion-light-sidebar dark:bg-notion-dark-sidebar border border-notion-light-border dark:border-notion-dark-border rounded-xl pl-5 pr-14 py-4 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500/50 transition-all duration-300 resize-none custom-scrollbar text-notion-light-text dark:text-notion-dark-text placeholder-notion-light-text/30 dark:placeholder-notion-dark-text/30 disabled:opacity-50 disabled:cursor-not-allowed shadow-inner"
-              style={{ minHeight: "56px", maxHeight: "160px" }}
-            />
+          {attachments.length > 0 && (
+            <div className="flex flex-wrap gap-2 mb-3">
+              {attachments.map((img, idx) => (
+                <div key={idx} className="relative group">
+                  <img
+                    src={img}
+                    alt="Preview"
+                    className="w-12 h-12 object-cover rounded-lg border border-notion-light-border dark:border-notion-dark-border"
+                  />
+                  <button
+                    onClick={() => removeAttachment(idx)}
+                    className="absolute -top-1.5 -right-1.5 bg-red-500 text-white rounded-full p-0.5 shadow-md opacity-0 group-hover:opacity-100 transition-opacity"
+                  >
+                    <Icon.Close {...iconProps(10)} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <div className="relative group flex items-end gap-2">
             <button
-              onClick={sendMessage}
-              disabled={
-                !inputValue.trim() || isThinking || !config.geminiApiKey
-              }
-              className="absolute right-2.5 bottom-2.5 p-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg hover:shadow-blue-500/20 active:scale-95"
+              onClick={() => fileInputRef.current?.click()}
+              className="p-2.5 rounded-xl hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover text-notion-light-muted dark:text-notion-dark-muted transition-all"
+              title="Upload Image"
             >
-              <Icon.Send {...iconProps(18)} />
+              <Icon.Add {...iconProps(18)} />
             </button>
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleFileUpload}
+              accept="image/*"
+              multiple
+              className="hidden"
+            />
+            <div className="relative flex-1">
+              <textarea
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                onKeyDown={handleKeyDown}
+                onPaste={handlePaste}
+                placeholder={
+                  config.geminiApiKey ? "Directives..." : "Configure API Key..."
+                }
+                disabled={!config.geminiApiKey}
+                rows={1}
+                className="w-full bg-notion-light-sidebar dark:bg-notion-dark-sidebar border border-notion-light-border dark:border-notion-dark-border rounded-xl pl-4 pr-12 py-3.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500/50 transition-all duration-300 resize-none custom-scrollbar text-notion-light-text dark:text-notion-dark-text placeholder-notion-light-text/30 dark:placeholder-notion-dark-text/30 disabled:opacity-50 disabled:cursor-not-allowed shadow-inner"
+                style={{ minHeight: "48px", maxHeight: "160px" }}
+              />
+              <button
+                onClick={handleSendMessage}
+                disabled={
+                  (!inputValue.trim() && attachments.length === 0) ||
+                  isThinking ||
+                  !config.geminiApiKey
+                }
+                className="absolute right-2 bottom-2 p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg hover:shadow-blue-500/20 active:scale-95"
+              >
+                <Icon.Send {...iconProps(16)} />
+              </button>
+            </div>
           </div>
           <div className="text-[10px] text-notion-light-text/30 dark:text-notion-dark-text/30 text-center mt-3 flex justify-center items-center gap-3 font-medium uppercase tracking-widest">
             <span className="hover:text-blue-500 transition-colors cursor-default">

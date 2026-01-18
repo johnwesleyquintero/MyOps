@@ -74,6 +74,13 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
         action: () => onNavigate("MISSIONS"),
       },
       {
+        id: "nav-wesai",
+        type: "NAVIGATION",
+        label: "Go to WesAI Co-Pilot",
+        icon: <Icon.Ai {...iconProps(16)} />,
+        action: () => onNavigate("WESAI"),
+      },
+      {
         id: "nav-report",
         type: "NAVIGATION",
         label: "Go to Health Report",

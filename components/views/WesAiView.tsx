@@ -1,0 +1,327 @@
+import React, { useState, useRef, useEffect } from "react";
+import { ViewHeader } from "../ViewHeader";
+import { Icon, iconProps } from "../Icons";
+import { useAiChat } from "../../hooks/useAiChat";
+import {
+  AppConfig,
+  TaskEntry,
+  Contact,
+  Note,
+  VaultEntry,
+  OperatorMetrics,
+  DecisionEntry,
+  MentalStateEntry,
+} from "../../types";
+import ReactMarkdown from "react-markdown";
+
+interface WesAiViewProps {
+  config: AppConfig;
+  entries: TaskEntry[];
+  contacts: Contact[];
+  notes: Note[];
+  vaultEntries: VaultEntry[];
+  metrics: OperatorMetrics;
+  decisions: DecisionEntry[];
+  mentalStates: MentalStateEntry[];
+  onSaveTransaction: (entry: TaskEntry, isUpdate: boolean) => Promise<boolean>;
+  onDeleteTransaction: (entry: TaskEntry) => Promise<boolean>;
+  onSaveContact: (contact: Contact, isUpdate: boolean) => Promise<boolean>;
+  onSaveNote: (note: Note, isUpdate: boolean) => Promise<boolean>;
+}
+
+export const WesAiView: React.FC<WesAiViewProps> = ({
+  config,
+  entries,
+  contacts,
+  notes,
+  vaultEntries,
+  metrics,
+  decisions,
+  mentalStates,
+  onSaveTransaction,
+  onDeleteTransaction,
+  onSaveContact,
+  onSaveNote,
+}) => {
+  const {
+    messages,
+    inputValue,
+    setInputValue,
+    isThinking,
+    sendMessage,
+    resetChat,
+  } = useAiChat({
+    config,
+    entries,
+    contacts,
+    notes,
+    vaultEntries,
+    metrics,
+    decisions,
+    mentalStates,
+    onSaveTransaction,
+    onDeleteTransaction,
+    onSaveContact,
+    onSaveNote,
+  });
+
+  const [attachments, setAttachments] = useState<string[]>([]);
+  const [isDragging, setIsDragging] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages, isThinking]);
+
+  const handleSendMessage = () => {
+    if (!inputValue.trim() && attachments.length === 0) return;
+    sendMessage(inputValue, attachments.length > 0 ? attachments : undefined);
+    setAttachments([]);
+  };
+
+  const handlePaste = (e: React.ClipboardEvent) => {
+    const items = e.clipboardData.items;
+    for (let i = 0; i < items.length; i++) {
+      if (items[i].type.indexOf("image") !== -1) {
+        const blob = items[i].getAsFile();
+        if (blob) {
+          const reader = new FileReader();
+          reader.onload = (event) => {
+            if (event.target?.result) {
+              setAttachments((prev) => [
+                ...prev,
+                event.target!.result as string,
+              ]);
+            }
+          };
+          reader.readAsDataURL(blob);
+        }
+      }
+    }
+  };
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (files) {
+      Array.from(files).forEach((file) => {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          if (event.target?.result) {
+            setAttachments((prev) => [...prev, event.target!.result as string]);
+          }
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = () => {
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const files = e.dataTransfer.files;
+    if (files) {
+      Array.from(files).forEach((file) => {
+        if (file.type.startsWith("image/")) {
+          const reader = new FileReader();
+          reader.onload = (event) => {
+            if (event.target?.result) {
+              setAttachments((prev) => [
+                ...prev,
+                event.target!.result as string,
+              ]);
+            }
+          };
+          reader.readAsDataURL(file);
+        }
+      });
+    }
+  };
+
+  const removeAttachment = (index: number) => {
+    setAttachments((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  return (
+    <div
+      className={`flex flex-col h-[calc(100vh-180px)] transition-all duration-300 ${isDragging ? "scale-[0.99] opacity-70" : ""}`}
+      onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
+      onDrop={handleDrop}
+    >
+      {isDragging && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-blue-600/20 backdrop-blur-sm border-4 border-dashed border-blue-500 rounded-3xl pointer-events-none">
+          <div className="bg-white dark:bg-notion-dark-sidebar p-8 rounded-2xl shadow-2xl flex flex-col items-center gap-4 animate-bounce">
+            <Icon.Add {...iconProps(48, "text-blue-500")} />
+            <span className="text-xl font-black uppercase tracking-widest text-blue-500">
+              Drop to Analyze
+            </span>
+          </div>
+        </div>
+      )}
+
+      <ViewHeader
+        title="WesAI Co-Pilot"
+        subTitle="Advanced tactical intelligence and visual analysis"
+      >
+        <button
+          onClick={resetChat}
+          className="notion-button notion-button-ghost text-[10px]"
+          title="Reset Neural Link"
+        >
+          RESET
+        </button>
+      </ViewHeader>
+
+      <div className="flex-1 overflow-y-auto pr-2 mb-4 custom-scrollbar space-y-4">
+        {messages.map((msg) => (
+          <div
+            key={msg.id}
+            className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
+          >
+            <div
+              className={`max-w-[80%] rounded-2xl p-4 ${
+                msg.role === "user"
+                  ? "bg-blue-600 text-white shadow-lg"
+                  : "bg-notion-light-sidebar dark:bg-notion-dark-sidebar border border-notion-light-border dark:border-notion-dark-border text-notion-light-text dark:text-notion-dark-text shadow-sm"
+              }`}
+            >
+              <div className="flex items-center gap-2 mb-2 opacity-60 text-[10px] font-bold uppercase tracking-widest">
+                {msg.role === "model" && <Icon.Ai {...iconProps(12)} />}
+                {msg.role === "model" ? "WesAI" : "Operator"} •{" "}
+                {msg.timestamp.toLocaleTimeString()}
+              </div>
+
+              <div className="text-sm leading-relaxed prose prose-sm dark:prose-invert max-w-none">
+                <ReactMarkdown>{msg.text}</ReactMarkdown>
+              </div>
+
+              {msg.attachments && msg.attachments.length > 0 && (
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {msg.attachments.map((img, idx) => (
+                    <div
+                      key={idx}
+                      className="relative group overflow-hidden rounded-lg border border-white/20 shadow-inner"
+                    >
+                      <img
+                        src={img}
+                        alt="Attachment"
+                        className="w-48 h-48 object-cover"
+                      />
+                      <div className="absolute inset-0 bg-blue-500/10 pointer-events-none mix-blend-overlay"></div>
+                      <div className="absolute inset-0 bg-[linear-gradient(transparent_0%,rgba(0,100,255,0.1)_50%,transparent_100%)] bg-[length:100%_4px] animate-[scan_2s_linear_infinite] pointer-events-none"></div>
+                      <div className="absolute top-2 right-2 flex gap-1">
+                        <div className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse"></div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        ))}
+        {isThinking && (
+          <div className="flex justify-start">
+            <div className="bg-notion-light-sidebar dark:bg-notion-dark-sidebar border border-notion-light-border dark:border-notion-dark-border rounded-2xl p-4 shadow-sm">
+              <div className="flex items-center gap-3">
+                <div className="flex gap-1">
+                  <div className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+                  <div className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+                  <div className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-bounce"></div>
+                </div>
+                <span className="text-[10px] font-bold uppercase tracking-widest opacity-60">
+                  WesAI is thinking...
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
+        <div ref={messagesEndRef} />
+      </div>
+
+      <div className="bg-notion-light-sidebar dark:bg-notion-dark-sidebar border border-notion-light-border dark:border-notion-dark-border rounded-2xl p-4 shadow-lg">
+        {attachments.length > 0 && (
+          <div className="flex flex-wrap gap-2 mb-4">
+            {attachments.map((img, idx) => (
+              <div key={idx} className="relative group">
+                <img
+                  src={img}
+                  alt="Preview"
+                  className="w-20 h-20 object-cover rounded-lg border border-notion-light-border dark:border-notion-dark-border"
+                />
+                <button
+                  onClick={() => removeAttachment(idx)}
+                  className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 shadow-md opacity-0 group-hover:opacity-100 transition-opacity"
+                >
+                  <Icon.Close {...iconProps(12)} />
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+
+        <div className="flex items-end gap-3">
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            className="p-2.5 rounded-xl notion-button-ghost flex-shrink-0"
+            title="Upload Image"
+          >
+            <Icon.Add {...iconProps(20)} />
+          </button>
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleFileUpload}
+            accept="image/*"
+            multiple
+            className="hidden"
+          />
+          <textarea
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            onPaste={handlePaste}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                handleSendMessage();
+              }
+            }}
+            placeholder="Send a directive, or paste an image..."
+            className="flex-1 bg-transparent border-none focus:ring-0 resize-none py-2 text-sm max-h-32 custom-scrollbar"
+            rows={1}
+          />
+          <button
+            onClick={handleSendMessage}
+            disabled={
+              (!inputValue.trim() && attachments.length === 0) || isThinking
+            }
+            className={`p-2.5 rounded-xl transition-all ${
+              (inputValue.trim() || attachments.length > 0) && !isThinking
+                ? "bg-blue-600 text-white shadow-md hover:bg-blue-700 active:scale-95"
+                : "bg-notion-light-border dark:bg-notion-dark-border text-notion-light-muted dark:text-notion-dark-muted cursor-not-allowed"
+            }`}
+          >
+            <Icon.Send {...iconProps(20)} />
+          </button>
+        </div>
+        <div className="mt-2 text-[10px] opacity-40 text-center font-medium">
+          PRO TIP: You can paste images directly from your clipboard (Ctrl+V) or
+          drop them here.
+        </div>
+      </div>
+    </div>
+  );
+};

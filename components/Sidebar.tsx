@@ -166,6 +166,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
           )}
 
           {renderNavItem(
+            "WESAI",
+            "WesAI Co-Pilot",
+            <Icon.Ai {...iconProps(18)} />,
+          )}
+
+          {renderNavItem(
             "AWARENESS",
             "Mental State",
             <Icon.Strategy {...iconProps(18)} />,

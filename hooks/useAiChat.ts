@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { GoogleGenAI, Chat } from "@google/genai";
+import { GoogleGenAI, Chat, Part } from "@google/genai";
 import {
   AppConfig,
   TaskEntry,
@@ -18,6 +18,7 @@ export interface Message {
   role: "user" | "model";
   text: string;
   timestamp: Date;
+  attachments?: string[];
 }
 
 interface UseAiChatProps {
@@ -386,10 +387,15 @@ export const useAiChat = ({
     }
   };
 
-  const sendMessage = async () => {
-    if (!inputValue.trim() || !chatSession.current) return;
-    const prompt = inputValue;
-    setInputValue("");
+  const sendMessage = async (overrideText?: string, attachments?: string[]) => {
+    const textToSend = overrideText !== undefined ? overrideText : inputValue;
+    if (!textToSend.trim() && (!attachments || attachments.length === 0))
+      return;
+    if (!chatSession.current) return;
+
+    const prompt = textToSend;
+    if (overrideText === undefined) setInputValue("");
+
     setMessages((prev) => [
       ...prev,
       {
@@ -397,12 +403,33 @@ export const useAiChat = ({
         role: "user",
         text: prompt,
         timestamp: new Date(),
+        attachments,
       },
     ]);
     setIsThinking(true);
 
     try {
-      let result = await chatSession.current.sendMessage({ message: prompt });
+      // Build message parts for multimodal support
+      const messageParts: Part[] = [{ text: prompt }];
+
+      if (attachments && attachments.length > 0) {
+        attachments.forEach((base64) => {
+          // Remove data:image/xxx;base64, prefix
+          const match = base64.match(/^data:([^;]+);base64,(.+)$/);
+          if (match) {
+            messageParts.push({
+              inlineData: {
+                mimeType: match[1],
+                data: match[2],
+              },
+            });
+          }
+        });
+      }
+
+      let result = await chatSession.current.sendMessage({
+        message: messageParts,
+      });
       while (result.functionCalls?.length) {
         const responses = await Promise.all(
           result.functionCalls.map(async (call) => ({

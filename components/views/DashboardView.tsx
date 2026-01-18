@@ -87,10 +87,10 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               for immediate execution. Let's clear the board."
             </p>
             <button
-              onClick={() => onNavigate("MISSIONS")}
+              onClick={() => onNavigate("WESAI")}
               className="notion-button w-full justify-center text-[11px] uppercase tracking-widest"
             >
-              MISSION CONTROL &rarr;
+              LAUNCH CO-PILOT &rarr;
             </button>
           </div>
           <ExpenseCategoryList entries={entries} />

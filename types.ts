@@ -15,6 +15,7 @@ export type Page =
   | "BLUEPRINT"
   | "STRATEGY"
   | "AWARENESS"
+  | "WESAI"
   | "ASSETS";
 
 export interface TaskEntry {

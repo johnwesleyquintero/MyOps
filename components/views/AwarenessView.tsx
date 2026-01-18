@@ -5,6 +5,7 @@ import {
   saveMentalState,
 } from "@/services/awarenessService";
 import { ViewHeader } from "../ViewHeader";
+import { toast } from "sonner";
 
 interface AwarenessViewProps {
   config: AppConfig;
@@ -34,6 +35,7 @@ export const AwarenessView: React.FC<AwarenessViewProps> = ({ config }) => {
         }
       } catch (e) {
         console.error("Failed to load awareness data", e);
+        toast.error("Failed to load history");
       } finally {
         setIsLoading(false);
       }
@@ -48,9 +50,12 @@ export const AwarenessView: React.FC<AwarenessViewProps> = ({ config }) => {
         const filtered = prev.filter((e) => e.date !== saved.date);
         return [saved, ...filtered];
       });
-      alert("Mental state logged. System updated.");
+      toast.success("Mental state logged", {
+        description: "Your capacity constraints have been updated.",
+      });
     } catch (e) {
       console.error("Failed to save mental state", e);
+      toast.error("Failed to save state");
     }
   };
 

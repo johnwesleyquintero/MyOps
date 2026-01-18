@@ -15,7 +15,7 @@ const SLACK_WEBHOOK_URL = ""; // <--- PASTE YOUR WEBHOOK URL HERE
 
 function setupSystem() {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
-  const modules = ['tasks', 'contacts', 'interactions', 'notes', 'vault', 'automations', 'strategy'];
+  const modules = ['tasks', 'contacts', 'interactions', 'notes', 'vault', 'automations', 'strategy', 'awareness'];
   
   modules.forEach(m => {
     let sheet = ss.getSheetByName(m);
@@ -30,6 +30,7 @@ function setupSystem() {
       if (m === 'vault') headers = ['ID', 'Label', 'Category', 'Value', 'CreatedAt'];
       if (m === 'automations') headers = ['ID', 'Name', 'Trigger', 'Action', 'Status', 'LastRun'];
       if (m === 'strategy') headers = ['ID', 'Date', 'Title', 'Context', 'Options', 'Decision', 'ExpectedOutcome', 'ReviewDate', 'Status', 'Impact', 'Tags'];
+      if (m === 'awareness') headers = ['ID', 'Date', 'Energy', 'Clarity', 'Notes'];
       
       if (headers.length > 0) {
         sheet.getRange(1, 1, 1, headers.length).setValues([headers]).setFontWeight('bold');
@@ -233,6 +234,16 @@ function mapRowToEntry(row, module) {
         reviewDate: row[7], status: row[8], impact: row[9], tags: tags
       };
     }
+
+    if (module === 'awareness') {
+      return {
+        id: row[0],
+        date: row[1],
+        energy: row[2],
+        clarity: row[3],
+        notes: row[4]
+      };
+    }
   } catch (e) {
     return null;
   }
@@ -273,6 +284,11 @@ function mapEntryToRow(entry, module) {
       entry.id, entry.date, entry.title, entry.context, JSON.stringify(entry.options || []),
       entry.decision, entry.expectedOutcome, entry.reviewDate, entry.status, entry.impact,
       JSON.stringify(entry.tags || [])
+    ];
+  }
+  if (module === 'awareness') {
+    return [
+      entry.id, entry.date, entry.energy, entry.clarity, entry.notes || ""
     ];
   }
   return [];

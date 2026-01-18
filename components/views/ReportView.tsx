@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Icon, iconProps } from "../Icons";
 import { ViewHeader } from "../ViewHeader";
+import { toast } from "sonner";
 import reportData from "../../code-check-report.json";
 
 interface CheckResult {
@@ -50,6 +51,9 @@ export const ReportView: React.FC = () => {
     const md = generateMarkdown();
     navigator.clipboard.writeText(md);
     setCopied(true);
+    toast.success("Report copied", {
+      description: "Markdown has been copied to your clipboard.",
+    });
     setTimeout(() => setCopied(false), 2000);
   };
 

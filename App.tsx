@@ -2,13 +2,13 @@ import React from "react";
 import { TaskEntry, AppConfig } from "./types";
 import { TaskModal } from "./components/TaskModal";
 import { SettingsModal } from "./components/SettingsModal";
-import { ToastContainer } from "./components/Toast";
 import { Header } from "./components/Header";
 import { Sidebar } from "./components/Sidebar";
 import { ShortcutsModal } from "./components/ShortcutsModal";
 import { FocusMode } from "./components/FocusMode";
 import { CommandPalette } from "./components/CommandPalette";
 import { AiChatSidebar } from "./components/AiChatSidebar";
+import { Toaster } from "sonner";
 import { DashboardView } from "./components/views/DashboardView";
 import { MissionControlView } from "./components/views/MissionControlView";
 import { BlueprintView } from "./components/views/BlueprintView";
@@ -42,7 +42,7 @@ import { useAwareness } from "./hooks/useAwareness";
 
 const App: React.FC = () => {
   const { config, setConfig } = useAppConfig();
-  const { notifications, showToast, removeNotification } = useNotifications();
+  const { showToast } = useNotifications();
 
   useTheme(config.theme);
   const ui = useUiState();
@@ -116,11 +116,6 @@ const App: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-notion-light-bg dark:bg-notion-dark-bg text-notion-light-text dark:text-notion-dark-text font-sans selection:bg-blue-100 dark:selection:bg-blue-900/30 transition-colors duration-200">
-      <ToastContainer
-        notifications={notifications}
-        removeNotification={removeNotification}
-      />
-
       <Sidebar
         activePage={ui.activePage}
         setActivePage={ui.setActivePage}
@@ -314,6 +309,11 @@ const App: React.FC = () => {
       <ShortcutsModal
         isOpen={ui.showShortcuts}
         onClose={() => ui.setShowShortcuts(false)}
+      />
+      <Toaster
+        position="bottom-right"
+        richColors
+        theme={config.theme.toLowerCase() as "light" | "dark"}
       />
     </div>
   );

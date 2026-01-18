@@ -1,13 +1,18 @@
 import React, { useState } from "react";
 import { TaskEntry } from "../../types";
 import { ViewMode } from "../../hooks/useMissionControl";
-import { generateAndDownloadCSV } from "../../utils/exportUtils";
+import {
+  generateAndDownloadCSV,
+  generateMarkdownTable,
+} from "../../utils/exportUtils";
 import { FilterBar } from "../FilterBar";
 import { TaskTable } from "../TaskTable";
 import { KanbanBoard } from "../KanbanBoard";
 import { GanttChart } from "../GanttChart";
 import { ConfirmationModal } from "../ConfirmationModal";
 import { ViewHeader } from "../ViewHeader";
+import { Icon, iconProps } from "../Icons";
+import { toast } from "sonner";
 
 interface MissionControlViewProps {
   entries: TaskEntry[];
@@ -65,6 +70,25 @@ export const MissionControlView: React.FC<MissionControlViewProps> = ({
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
   const [transitioning, setTransitioning] = useState<boolean>(false);
+  const [copiedMd, setCopiedMd] = useState<boolean>(false);
+
+  const handleCopyMarkdown = async () => {
+    if (filteredEntries.length === 0) {
+      toast.error("No missions to copy");
+      return;
+    }
+
+    const mdTable = generateMarkdownTable(filteredEntries);
+    try {
+      await navigator.clipboard.writeText(mdTable);
+      setCopiedMd(true);
+      toast.success("Missions copied to clipboard as Markdown table");
+      setTimeout(() => setCopiedMd(false), 2000);
+    } catch (err) {
+      console.error("Failed to copy:", err);
+      toast.error("Failed to copy to clipboard");
+    }
+  };
 
   // Trigger a brief transition state when view changes
   const handleViewChange = (newMode: ViewMode) => {
@@ -93,18 +117,32 @@ export const MissionControlView: React.FC<MissionControlViewProps> = ({
           {viewMode === "TABLE" && filteredEntries.length > 0 && (
             <button
               onClick={() => setIsDeleteModalOpen(true)}
-              className="notion-button notion-button-ghost text-red-600 dark:text-red-400"
+              className="notion-button notion-button-ghost text-red-600 dark:text-red-400 flex items-center gap-1.5"
               title="Clear View"
             >
-              CLEAR
+              <Icon.Delete {...iconProps(14)} />
+              <span>CLEAR</span>
             </button>
           )}
           <button
             onClick={() => generateAndDownloadCSV(filteredEntries)}
-            className="notion-button notion-button-ghost"
+            className="notion-button notion-button-ghost flex items-center gap-1.5"
             title="Export CSV"
           >
-            EXPORT
+            <Icon.Download {...iconProps(14)} />
+            <span>EXPORT</span>
+          </button>
+          <button
+            onClick={handleCopyMarkdown}
+            className="notion-button notion-button-ghost flex items-center gap-1.5"
+            title="Copy as Markdown Table"
+          >
+            {copiedMd ? (
+              <Icon.Check {...iconProps(14, "text-emerald-500")} />
+            ) : (
+              <Icon.Copy {...iconProps(14)} />
+            )}
+            <span>{copiedMd ? "COPIED!" : "COPY"}</span>
           </button>
         </div>
       </ViewHeader>

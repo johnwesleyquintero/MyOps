@@ -43,3 +43,28 @@ export const generateAndDownloadCSV = (entries: TaskEntry[]) => {
 
   return true;
 };
+
+export const generateMarkdownTable = (entries: TaskEntry[]) => {
+  if (entries.length === 0) return "";
+
+  const headers = ["Due Date", "Task", "Project", "Priority", "Status"];
+
+  const escapeMarkdown = (text: string | undefined) => {
+    if (!text) return "";
+    return text.replace(/[|]/g, "\\|");
+  };
+
+  const rows = entries.map((row) => [
+    row.date || "N/A",
+    escapeMarkdown(row.description),
+    escapeMarkdown(row.project),
+    row.priority,
+    row.status,
+  ]);
+
+  const headerRow = `| ${headers.join(" | ")} |`;
+  const separatorRow = `| ${headers.map(() => "---").join(" | ")} |`;
+  const dataRows = rows.map((row) => `| ${row.join(" | ")} |`).join("\n");
+
+  return `${headerRow}\n${separatorRow}\n${dataRows}`;
+};

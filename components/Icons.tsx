@@ -54,6 +54,7 @@ import {
   Activity,
   History,
   Heart,
+  Download,
 } from "lucide-react";
 
 export const Icon = {
@@ -96,6 +97,7 @@ export const Icon = {
   List: List,
   Code: Code2,
   Template: FileText,
+  Download: Download,
   Undo: Undo2,
   Down: ChevronDown,
   Preview: Monitor,

@@ -50,7 +50,7 @@ export const generateAreaPath = (
   const firstX = firstPoint.split(",")[0];
   const lastX = lastPoint.split(",")[0];
 
-  return `${points} L ${lastX},${height} L ${firstX},${height} Z`;
+  return `M ${points} L ${lastX},${height} L ${firstX},${height} Z`;
 };
 
 export const calculateDailyTrend = (

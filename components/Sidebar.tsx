@@ -103,10 +103,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
             className="flex-shrink-0 relative group cursor-pointer flex items-center gap-2"
             onClick={() => setActivePage("DASHBOARD")}
           >
-            <img 
-              src="/favicon.svg" 
-              alt="MyOps Logo" 
-              className="w-8 h-8 rounded-lg shadow-sm group-hover:scale-110 transition-transform duration-300" 
+            <img
+              src="/favicon.svg"
+              alt="MyOps Logo"
+              className="w-8 h-8 rounded-lg shadow-sm group-hover:scale-110 transition-transform duration-300"
             />
             <h1
               className={`text-notion-light-text dark:text-notion-dark-text font-bold tracking-tight text-sm leading-none transition-all duration-300 ${isCollapsed ? "max-w-0 opacity-0" : "max-w-xs opacity-100"}`}

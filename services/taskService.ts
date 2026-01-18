@@ -68,14 +68,18 @@ export const updateTask = async (
 };
 
 export const deleteTask = async (
-  entry: TaskEntry,
+  entryOrId: string | TaskEntry,
   config: AppConfig,
 ): Promise<void> => {
+  const id = typeof entryOrId === "string" ? entryOrId : entryOrId.id;
+  const entry =
+    typeof entryOrId === "string" ? ({ id } as TaskEntry) : entryOrId;
+
   if (config.mode === "DEMO") {
     await new Promise((resolve) => setTimeout(resolve, 50));
     const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
     let current: TaskEntry[] = stored ? JSON.parse(stored) : [];
-    current = current.filter((e) => e.id !== entry.id);
+    current = current.filter((e) => e.id !== id);
     localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(current));
   } else {
     if (!config.gasDeploymentUrl) throw new Error("GAS URL not configured");

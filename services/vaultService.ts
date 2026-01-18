@@ -84,7 +84,7 @@ export const vaultService = {
       localStorage.setItem(VAULT_CACHE_KEY, JSON.stringify(updated));
       return true;
     }
-    
+
     if (!config.gasDeploymentUrl) return false;
     await postToGas(config.gasDeploymentUrl, {
       action: isUpdate ? "update" : "create",
@@ -103,7 +103,7 @@ export const vaultService = {
       localStorage.setItem(VAULT_CACHE_KEY, JSON.stringify(updated));
       return true;
     }
-    
+
     if (!config.gasDeploymentUrl) return false;
     await postToGas(config.gasDeploymentUrl, {
       action: "delete",

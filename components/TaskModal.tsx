@@ -1,4 +1,6 @@
-import React from "react";
+import React, { useEffect } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { TaskEntry, PriorityLevel, StatusLevel } from "../types";
 import { DEFAULT_PROJECTS, PRIORITIES, STATUSES } from "@/constants";
 import { CopyIdButton } from "./CopyIdButton";
@@ -31,6 +33,13 @@ export const TaskModal: React.FC<TaskModalProps> = ({
   const { textareaRef } = useMarkdownEditor(formData.description, (newText) =>
     setFormData({ ...formData, description: newText }),
   );
+
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = "auto";
+      textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+    }
+  }, [formData.description, textareaRef]);
 
   const handleSubmit = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
@@ -68,7 +77,7 @@ export const TaskModal: React.FC<TaskModalProps> = ({
         if (e.target === e.currentTarget) onClose();
       }}
     >
-      <div className="notion-card w-full max-w-2xl shadow-2xl flex flex-col max-h-[90vh] overflow-hidden animate-in zoom-in-95 duration-200">
+      <div className="notion-card w-full max-w-4xl shadow-2xl flex flex-col max-h-[90vh] overflow-hidden animate-in zoom-in-95 duration-200">
         {/* Modal Header */}
         <div className="px-4 py-3 border-b border-notion-light-border dark:border-notion-dark-border flex items-center justify-between bg-notion-light-sidebar dark:bg-notion-dark-sidebar">
           <div className="flex items-center gap-3">
@@ -100,74 +109,108 @@ export const TaskModal: React.FC<TaskModalProps> = ({
         {/* Modal Body */}
         <form
           onSubmit={handleSubmit}
-          className="flex-1 overflow-y-auto p-6 space-y-6"
+          className="flex-1 overflow-y-auto p-6 space-y-8"
         >
-          {/* Main Content Area */}
-          <div className="space-y-4">
-            <div className="relative group">
-              <textarea
-                ref={textareaRef}
-                className="w-full bg-transparent text-lg font-medium text-notion-light-text dark:text-notion-dark-text placeholder-notion-light-muted dark:placeholder-notion-dark-muted border-none focus:ring-0 p-0 resize-none min-h-[40px]"
-                placeholder="What needs to be done?"
-                value={formData.description}
-                onChange={(e) =>
-                  setFormData({ ...formData, description: e.target.value })
-                }
-                autoFocus
-                rows={1}
-                onInput={(e) => {
-                  const target = e.target as HTMLTextAreaElement;
-                  target.style.height = "auto";
-                  target.style.height = `${target.scrollHeight}px`;
-                }}
-              />
+          {/* Main Content Area: Editor & Preview */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 min-h-[300px]">
+            {/* Left: Editor */}
+            <div className="flex flex-col space-y-3">
+              <div className="flex items-center justify-between">
+                <label className="notion-label">Description (Markdown)</label>
+                <span className="text-[10px] text-notion-light-muted dark:text-notion-dark-muted font-mono">
+                  Editor
+                </span>
+              </div>
+              <div className="flex-1 relative group bg-notion-light-sidebar/30 dark:bg-notion-dark-sidebar/30 rounded-lg p-3 border border-notion-light-border/50 dark:border-notion-dark-border/50 focus-within:border-notion-light-border dark:focus-within:border-notion-dark-border transition-colors">
+                <textarea
+                  ref={textareaRef}
+                  className="w-full bg-transparent text-sm text-notion-light-text dark:text-notion-dark-text placeholder-notion-light-muted dark:placeholder-notion-dark-muted border-none focus:ring-0 p-0 resize-none min-h-[100px] font-mono leading-relaxed overflow-hidden"
+                  placeholder="What needs to be done? Support Markdown..."
+                  value={formData.description}
+                  onChange={(e) =>
+                    setFormData({ ...formData, description: e.target.value })
+                  }
+                  autoFocus
+                />
+              </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-6 pt-4 border-t border-notion-light-border dark:border-notion-dark-border">
-              {/* Project Selection */}
-              <div className="space-y-1.5">
-                <label className="notion-label">Project</label>
-                <div className="relative">
-                  <select
-                    className="notion-input w-full appearance-none"
-                    value={isCustomProject ? "custom" : formData.project}
-                    onChange={(e) => {
-                      if (e.target.value === "custom") {
-                        setIsCustomProject(true);
-                        setFormData({ ...formData, project: "" });
-                      } else {
-                        setIsCustomProject(false);
-                        setFormData({ ...formData, project: e.target.value });
-                      }
-                    }}
-                  >
-                    {DEFAULT_PROJECTS.map((p) => (
-                      <option key={p} value={p}>
-                        {p}
-                      </option>
-                    ))}
-                    <option value="custom">+ New Project</option>
-                  </select>
-                  {isCustomProject && (
-                    <input
-                      type="text"
-                      className="notion-input mt-2 w-full"
-                      placeholder="Project name..."
-                      value={formData.project}
-                      onChange={(e) =>
-                        setFormData({ ...formData, project: e.target.value })
-                      }
-                      autoFocus
-                    />
-                  )}
-                </div>
+            {/* Right: Preview */}
+            <div className="flex flex-col space-y-3">
+              <div className="flex items-center justify-between">
+                <label className="notion-label">Preview</label>
+                <span className="text-[10px] text-notion-light-muted dark:text-notion-dark-muted font-mono">
+                  Live View
+                </span>
               </div>
+              <div className="flex-1 markdown-preview bg-notion-light-sidebar/10 dark:bg-notion-dark-sidebar/10 rounded-lg p-4 border border-notion-light-border/30 dark:border-notion-dark-border/30 overflow-y-auto min-h-[100px]">
+                {formData.description ? (
+                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                    {formData.description}
+                  </ReactMarkdown>
+                ) : (
+                  <span className="text-notion-light-muted/50 dark:text-notion-dark-muted/50 italic text-xs">
+                    No content to preview...
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
 
-              {/* Status Selection */}
-              <div className="space-y-1.5">
-                <label className="notion-label">Status</label>
+          {/* Metadata Grid */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 pt-8 border-t border-notion-light-border/50 dark:border-notion-dark-border/50">
+            {/* Project Selection */}
+            <div className="space-y-2">
+              <label className="notion-label flex items-center gap-1.5">
+                <Icon.Folder {...iconProps(12)} /> Project
+              </label>
+              <div className="relative">
                 <select
-                  className="notion-input w-full appearance-none"
+                  className="notion-input w-full appearance-none pr-8 text-xs"
+                  value={isCustomProject ? "custom" : formData.project}
+                  onChange={(e) => {
+                    if (e.target.value === "custom") {
+                      setIsCustomProject(true);
+                      setFormData({ ...formData, project: "" });
+                    } else {
+                      setIsCustomProject(false);
+                      setFormData({ ...formData, project: e.target.value });
+                    }
+                  }}
+                >
+                  {DEFAULT_PROJECTS.map((p) => (
+                    <option key={p} value={p}>
+                      {p}
+                    </option>
+                  ))}
+                  <option value="custom">+ New Project</option>
+                </select>
+                <div className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-notion-light-muted">
+                  <Icon.ChevronDown {...iconProps(12)} />
+                </div>
+                {isCustomProject && (
+                  <input
+                    type="text"
+                    className="notion-input mt-2 w-full text-xs"
+                    placeholder="Project name..."
+                    value={formData.project}
+                    onChange={(e) =>
+                      setFormData({ ...formData, project: e.target.value })
+                    }
+                    autoFocus
+                  />
+                )}
+              </div>
+            </div>
+
+            {/* Status Selection */}
+            <div className="space-y-2">
+              <label className="notion-label flex items-center gap-1.5">
+                <Icon.Clock {...iconProps(12)} /> Status
+              </label>
+              <div className="relative">
+                <select
+                  className="notion-input w-full appearance-none pr-8 text-xs"
                   value={formData.status}
                   onChange={(e) =>
                     setFormData({
@@ -182,13 +225,20 @@ export const TaskModal: React.FC<TaskModalProps> = ({
                     </option>
                   ))}
                 </select>
+                <div className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-notion-light-muted">
+                  <Icon.ChevronDown {...iconProps(12)} />
+                </div>
               </div>
+            </div>
 
-              {/* Priority Selection */}
-              <div className="space-y-1.5">
-                <label className="notion-label">Priority</label>
+            {/* Priority Selection */}
+            <div className="space-y-2">
+              <label className="notion-label flex items-center gap-1.5">
+                <Icon.Flag {...iconProps(12)} /> Priority
+              </label>
+              <div className="relative">
                 <select
-                  className="notion-input w-full appearance-none"
+                  className="notion-input w-full appearance-none pr-8 text-xs"
                   value={formData.priority}
                   onChange={(e) =>
                     setFormData({
@@ -203,20 +253,25 @@ export const TaskModal: React.FC<TaskModalProps> = ({
                     </option>
                   ))}
                 </select>
+                <div className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-notion-light-muted">
+                  <Icon.ChevronDown {...iconProps(12)} />
+                </div>
               </div>
+            </div>
 
-              {/* Date Input */}
-              <div className="space-y-1.5">
-                <label className="notion-label">Due Date</label>
-                <input
-                  type="date"
-                  className="notion-input w-full"
-                  value={formData.date}
-                  onChange={(e) =>
-                    setFormData({ ...formData, date: e.target.value })
-                  }
-                />
-              </div>
+            {/* Date Input */}
+            <div className="space-y-2">
+              <label className="notion-label flex items-center gap-1.5">
+                <Icon.Calendar {...iconProps(12)} /> Due Date
+              </label>
+              <input
+                type="date"
+                className="notion-input w-full text-xs"
+                value={formData.date}
+                onChange={(e) =>
+                  setFormData({ ...formData, date: e.target.value })
+                }
+              />
             </div>
           </div>
         </form>

@@ -37,7 +37,7 @@ export const automationService = {
       );
       return defaultAutomations;
     }
-    
+
     return fetchFromGas<Automation>(config, "automations");
   },
 
@@ -65,7 +65,7 @@ export const automationService = {
       localStorage.setItem(AUTOMATION_CACHE_KEY, JSON.stringify(updated));
       return true;
     }
-    
+
     if (!config.gasDeploymentUrl) return false;
     await postToGas(config.gasDeploymentUrl, {
       action: isUpdate ? "update" : "create",
@@ -83,7 +83,7 @@ export const automationService = {
       localStorage.setItem(AUTOMATION_CACHE_KEY, JSON.stringify(updated));
       return true;
     }
-    
+
     if (!config.gasDeploymentUrl) return false;
     await postToGas(config.gasDeploymentUrl, {
       action: "delete",

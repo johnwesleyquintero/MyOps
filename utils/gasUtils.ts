@@ -1,6 +1,9 @@
 import { AppConfig } from "../types";
 
-export const postToGas = async (url: string, payload: Record<string, unknown>) => {
+export const postToGas = async (
+  url: string,
+  payload: Record<string, unknown>,
+) => {
   await fetch(url, {
     method: "POST",
     mode: "no-cors",
@@ -9,7 +12,10 @@ export const postToGas = async (url: string, payload: Record<string, unknown>) =
   });
 };
 
-export const fetchFromGas = async <T>(config: AppConfig, module: string): Promise<T[]> => {
+export const fetchFromGas = async <T>(
+  config: AppConfig,
+  module: string,
+): Promise<T[]> => {
   if (!config.gasDeploymentUrl) throw new Error("GAS URL not configured");
   if (!config.apiToken) throw new Error("API Token required");
 

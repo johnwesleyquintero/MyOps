@@ -64,7 +64,7 @@ export const crmService = {
       localStorage.setItem(CRM_CACHE_KEY, JSON.stringify(updated));
       return true;
     }
-    
+
     if (!config.gasDeploymentUrl) return false;
     await postToGas(config.gasDeploymentUrl, {
       action: isUpdate ? "update" : "create",
@@ -84,7 +84,7 @@ export const crmService = {
       const all: Interaction[] = cached ? JSON.parse(cached) : [];
       return all.filter((i) => i.contactId === contactId);
     }
-    
+
     const all = await fetchFromGas<Interaction>(config, "interactions");
     return all.filter((i) => i.contactId === contactId);
   },
@@ -103,7 +103,7 @@ export const crmService = {
       localStorage.setItem(INTERACTIONS_CACHE_KEY, JSON.stringify(updated));
       return true;
     }
-    
+
     if (!config.gasDeploymentUrl) return false;
     await postToGas(config.gasDeploymentUrl, {
       action: "create",

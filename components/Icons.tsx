@@ -47,6 +47,9 @@ import {
   Tag,
   Book,
   FileCheck,
+  Folder,
+  Clock,
+  Flag,
 } from "lucide-react";
 
 export const Icon = {
@@ -77,7 +80,12 @@ export const Icon = {
   More: MoreVertical,
   Check: Check,
   Date: Calendar,
+  Calendar: Calendar,
   Project: Layers,
+  Folder: Folder,
+  Clock: Clock,
+  Flag: Flag,
+  ChevronDown: ChevronDown,
   Link: Link,
   Bold: Bold,
   Italic: Italic,

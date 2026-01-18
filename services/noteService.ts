@@ -34,7 +34,7 @@ export const noteService = {
       localStorage.setItem(NOTES_CACHE_KEY, JSON.stringify(mockNotes));
       return mockNotes;
     }
-    
+
     return fetchFromGas<Note>(config, "notes");
   },
 
@@ -71,7 +71,7 @@ export const noteService = {
       localStorage.setItem(NOTES_CACHE_KEY, JSON.stringify(updated));
       return true;
     }
-    
+
     if (!config.gasDeploymentUrl) return false;
     await postToGas(config.gasDeploymentUrl, {
       action: isUpdate ? "update" : "create",
@@ -89,7 +89,7 @@ export const noteService = {
       localStorage.setItem(NOTES_CACHE_KEY, JSON.stringify(updated));
       return true;
     }
-    
+
     if (!config.gasDeploymentUrl) return false;
     await postToGas(config.gasDeploymentUrl, {
       action: "delete",

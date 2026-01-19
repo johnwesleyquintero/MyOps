@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { VaultEntry } from "../../types";
 import { Icon } from "../Icons";
 import { ViewHeader } from "../ViewHeader";
+import { toast } from "sonner";
 
 interface VaultViewProps {
   entries: VaultEntry[];
@@ -44,12 +45,35 @@ export const VaultView: React.FC<VaultViewProps> = ({
       setIsAdding(false);
       setNewLabel("");
       setNewValue("");
+      toast.success("Item secured", {
+        description: `"${newLabel}" has been added to your vault.`,
+        icon: <Icon.Vault size={14} />,
+      });
+    } else {
+      toast.error("Failed to secure item");
     }
   };
 
-  const copyToClipboard = (val: string) => {
+  const handleDelete = async (id: string, label: string) => {
+    if (window.confirm(`Are you sure you want to delete "${label}"?`)) {
+      const success = await onDeleteEntry(id);
+      if (success) {
+        toast.success("Item deleted", {
+          description: `"${label}" has been removed from your vault.`,
+          icon: <Icon.Delete size={14} />,
+        });
+      } else {
+        toast.error("Failed to delete item");
+      }
+    }
+  };
+
+  const copyToClipboard = (val: string, label: string) => {
     navigator.clipboard.writeText(val);
-    // showToast is not passed here, but we can use a local alert or just assume it works
+    toast.success(`${label} copied to clipboard`, {
+      description: "The secret value is now in your clipboard.",
+      icon: <Icon.Copy size={16} />,
+    });
   };
 
   return (
@@ -170,7 +194,7 @@ export const VaultView: React.FC<VaultViewProps> = ({
                     </h3>
                   </div>
                   <button
-                    onClick={() => onDeleteEntry(entry.id)}
+                    onClick={() => handleDelete(entry.id, entry.label)}
                     className="p-2.5 text-notion-light-muted dark:text-notion-dark-muted hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/10 rounded-xl transition-all opacity-100 md:opacity-0 md:group-hover:opacity-100"
                   >
                     <Icon.Delete size={18} />
@@ -197,7 +221,9 @@ export const VaultView: React.FC<VaultViewProps> = ({
                         )}
                       </button>
                       <button
-                        onClick={() => copyToClipboard(entry.value)}
+                        onClick={() =>
+                          copyToClipboard(entry.value, entry.label)
+                        }
                         className="p-2 text-notion-light-muted dark:text-notion-dark-muted hover:text-notion-light-text dark:hover:text-notion-dark-text hover:bg-notion-light-border dark:hover:bg-notion-dark-border rounded-lg transition-all"
                         title="Copy to clipboard"
                       >

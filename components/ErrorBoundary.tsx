@@ -1,5 +1,6 @@
 import React, { Component, ErrorInfo, ReactNode } from "react";
 import { Icon } from "./Icons";
+import { toast } from "sonner";
 
 interface Props {
   children: ReactNode;
@@ -67,6 +68,10 @@ ${errorInfo.componentStack}
 
     navigator.clipboard.writeText(md).then(() => {
       this.setState({ copied: true });
+      toast.success("Error report copied", {
+        description: "Paste it into the support channel or AI assistant.",
+        icon: <Icon.Copy size={14} />,
+      });
       setTimeout(() => this.setState({ copied: false }), 2000);
     });
   };

@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { ViewHeader } from "../ViewHeader";
 import { Icon, iconProps } from "../Icons";
+import { toast } from "sonner";
 import { useAiChat } from "../../hooks/useAiChat";
 import {
   AppConfig,
@@ -88,6 +89,10 @@ export const WesAiView: React.FC<WesAiViewProps> = ({
   const handleCopy = (text: string, id: string) => {
     navigator.clipboard.writeText(text);
     setCopiedId(id);
+    toast.success("Message copied", {
+      description: "Text content has been copied to your clipboard.",
+      icon: <Icon.Copy size={14} />,
+    });
     setTimeout(() => setCopiedId(null), 2000);
   };
 

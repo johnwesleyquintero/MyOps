@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import { toast } from "sonner";
+import { Icon } from "./Icons";
 
 interface CopyIdButtonProps {
   id: string;
@@ -18,6 +20,11 @@ export const CopyIdButton: React.FC<CopyIdButtonProps> = ({
     e.preventDefault();
     navigator.clipboard.writeText(id);
     setCopied(true);
+    toast.success("Task ID copied", {
+      description:
+        "You can now paste this into WesAI to reference the mission.",
+      icon: <Icon.Copy size={14} />,
+    });
     setTimeout(() => setCopied(false), 2000);
   };
 

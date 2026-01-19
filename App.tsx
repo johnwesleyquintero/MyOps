@@ -105,11 +105,18 @@ const App: React.FC = () => {
     return (
       <FocusMode
         task={ui.focusedTask}
-        onExit={ui.exitFocus}
+        onExit={() => {
+          ui.exitFocus();
+          showToast("Focus Mode Disengaged", "info");
+        }}
         onUpdate={async (u) => {
           await saveTransaction(u, true);
+          showToast("Session notes archived", "success");
         }}
-        onComplete={taskActions.handleFocusComplete}
+        onComplete={async (u) => {
+          await taskActions.handleFocusComplete(u);
+          showToast("Mission Accomplished", "success");
+        }}
       />
     );
   }
@@ -149,10 +156,14 @@ const App: React.FC = () => {
               onDelete={removeTransaction}
               onStatusUpdate={taskActions.handleStatusUpdate}
               onDescriptionUpdate={taskActions.handleDescriptionUpdate}
-              onFocus={ui.enterFocus}
+              onFocus={(e) => {
+                ui.enterFocus(e);
+                showToast("Focus Mode Engaged", "info");
+              }}
               onDuplicate={(e) => {
                 ui.setEditingEntry(taskActions.handleDuplicate(e));
                 ui.setIsTaskModalOpen(true);
+                showToast("Mission Cloned", "success");
               }}
               onNavigate={ui.setActivePage}
             />
@@ -168,10 +179,14 @@ const App: React.FC = () => {
               onBulkDelete={bulkRemoveTransactions}
               onStatusUpdate={taskActions.handleStatusUpdate}
               onDescriptionUpdate={taskActions.handleDescriptionUpdate}
-              onFocus={ui.enterFocus}
+              onFocus={(e) => {
+                ui.enterFocus(e);
+                showToast("Focus Mode Engaged", "info");
+              }}
               onDuplicate={(e) => {
                 ui.setEditingEntry(taskActions.handleDuplicate(e));
                 ui.setIsTaskModalOpen(true);
+                showToast("Mission Cloned", "success");
               }}
               onAdd={ui.openCreate}
               {...missionControl}
@@ -286,7 +301,10 @@ const App: React.FC = () => {
           ui.setIsCmdPaletteOpen(false);
         }}
         onSettings={() => ui.setShowSettings(true)}
-        onToggleFocus={ui.enterFocus}
+        onToggleFocus={(e) => {
+          ui.enterFocus(e);
+          showToast("Focus Mode Engaged", "info");
+        }}
       />
 
       <TaskModal

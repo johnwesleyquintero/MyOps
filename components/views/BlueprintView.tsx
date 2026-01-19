@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Icon, iconProps } from "../Icons";
 import { BLUEPRINT_MODULES } from "@/constants";
 import { ViewHeader } from "../ViewHeader";
+import { toast } from "sonner";
 
 export const BlueprintView: React.FC = () => {
   const [copied, setCopied] = useState(false);
@@ -23,6 +24,10 @@ export const BlueprintView: React.FC = () => {
 
     navigator.clipboard.writeText(md).then(() => {
       setCopied(true);
+      toast.success("Roadmap copied to clipboard", {
+        description: "The full Master Blueprint has been copied as Markdown.",
+        icon: <Icon.Copy size={14} />,
+      });
       setTimeout(() => setCopied(false), 2000);
     });
   };

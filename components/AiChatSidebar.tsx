@@ -12,6 +12,7 @@ import {
 } from "../types";
 import { useAiChat } from "../hooks/useAiChat";
 import { Icon, iconProps } from "./Icons";
+import { toast } from "sonner";
 
 interface AiChatSidebarProps {
   isOpen: boolean;
@@ -88,6 +89,10 @@ export const AiChatSidebar: React.FC<AiChatSidebarProps> = ({
   const handleCopy = (text: string, id: string) => {
     navigator.clipboard.writeText(text);
     setCopiedId(id);
+    toast.success("Message copied", {
+      description: "Text content has been copied to your clipboard.",
+      icon: <Icon.Copy size={14} />,
+    });
     setTimeout(() => setCopiedId(null), 2000);
   };
 

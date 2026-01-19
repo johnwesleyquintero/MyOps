@@ -5,6 +5,7 @@ import { Note } from "../../types";
 import { Icon } from "../Icons";
 import { useMarkdownEditor } from "../../hooks/useMarkdownEditor";
 import { ViewHeader } from "../ViewHeader";
+import { toast } from "sonner";
 
 interface KnowledgeViewProps {
   notes: Note[];
@@ -67,6 +68,10 @@ export const KnowledgeView: React.FC<KnowledgeViewProps> = ({
     try {
       await navigator.clipboard.writeText(markdown);
       setIsCopied(true);
+      toast.success("Document copied", {
+        description: "Note content copied as Markdown.",
+        icon: <Icon.Copy size={14} />,
+      });
       setTimeout(() => setIsCopied(false), 2000);
     } catch (err) {
       console.error("Failed to copy markdown: ", err);
@@ -122,6 +127,27 @@ export const KnowledgeView: React.FC<KnowledgeViewProps> = ({
       } else {
         // If we were updating, we update the raw selected note with the new data
         setRawSelectedNote(noteData);
+      }
+      toast.success(selectedNote ? "Note updated" : "Note created", {
+        description: `"${noteData.title}" has been saved to your knowledge base.`,
+        icon: <Icon.Missions size={14} />,
+      });
+    } else {
+      toast.error("Failed to save note");
+    }
+  };
+
+  const handleDelete = async (id: string, title: string) => {
+    if (window.confirm(`Are you sure you want to delete "${title}"?`)) {
+      const success = await onDeleteNote(id);
+      if (success) {
+        setRawSelectedNote(null);
+        toast.success("Note deleted", {
+          description: `"${title}" has been removed.`,
+          icon: <Icon.Delete size={14} />,
+        });
+      } else {
+        toast.error("Failed to delete note");
       }
     }
   };
@@ -319,7 +345,8 @@ export const KnowledgeView: React.FC<KnowledgeViewProps> = ({
                       </button>
                       <button
                         onClick={() =>
-                          selectedNote && onDeleteNote(selectedNote.id)
+                          selectedNote &&
+                          handleDelete(selectedNote.id, selectedNote.title)
                         }
                         className="p-3 sm:p-2 text-notion-light-muted hover:text-red-600 dark:hover:text-red-400 transition-colors"
                         title="Delete Document"

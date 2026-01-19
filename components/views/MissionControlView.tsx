@@ -105,6 +105,10 @@ export const MissionControlView: React.FC<MissionControlViewProps> = ({
     await onBulkDelete(filteredEntries);
     setIsProcessing(false);
     setIsDeleteModalOpen(false);
+    toast.success("View cleared", {
+      description: `${filteredEntries.length} missions have been removed.`,
+      icon: <Icon.Delete size={14} />,
+    });
   };
 
   return (

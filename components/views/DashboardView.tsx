@@ -6,6 +6,7 @@ import { ExpenseCategoryList } from "../analytics/ExpenseCategoryList";
 import { TaskTable } from "../TaskTable";
 import { Icon, iconProps } from "../Icons";
 import { ViewHeader } from "../ViewHeader";
+import { toast } from "sonner";
 
 interface DashboardViewProps {
   entries: TaskEntry[];
@@ -87,7 +88,13 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               for immediate execution. Let's clear the board."
             </p>
             <button
-              onClick={() => onNavigate("WESAI")}
+              onClick={() => {
+                onNavigate("WESAI");
+                toast.info("Connecting to WesAI...", {
+                  description: "Initializing agentic co-pilot session.",
+                  icon: <Icon.Ai size={14} />,
+                });
+              }}
               className="notion-button w-full justify-center text-[11px] uppercase tracking-widest"
             >
               LAUNCH CO-PILOT &rarr;

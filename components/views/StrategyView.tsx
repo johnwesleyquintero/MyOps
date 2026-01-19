@@ -9,6 +9,7 @@ import {
 } from "@/services/strategyService";
 import ReactMarkdown from "react-markdown";
 import { ViewHeader } from "../ViewHeader";
+import { toast } from "sonner";
 
 interface StrategyViewProps {
   config: AppConfig;
@@ -42,14 +43,17 @@ export const StrategyView: React.FC<StrategyViewProps> = ({ config }) => {
     try {
       if (entry.id) {
         await updateDecision(entry, config);
+        toast.success("Decision updated");
       } else {
         await addDecision(entry, config);
+        toast.success("Decision logged");
       }
       loadDecisions();
       setIsModalOpen(false);
       setEditingDecision(null);
     } catch (error) {
       console.error("Failed to save decision", error);
+      toast.error("Failed to save decision");
     }
   };
 
@@ -58,8 +62,10 @@ export const StrategyView: React.FC<StrategyViewProps> = ({ config }) => {
       try {
         await deleteDecision(id, config);
         loadDecisions();
+        toast.success("Decision deleted");
       } catch (error) {
         console.error("Failed to delete decision", error);
+        toast.error("Failed to delete decision");
       }
     }
   };

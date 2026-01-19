@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import { GAS_BACKEND_CODE } from "../../assets/gasSource";
+import { toast } from "sonner";
+import { Icon } from "../Icons";
 
 export const BackendCodeView: React.FC = () => {
   const [copyFeedback, setCopyFeedback] = useState<string>("Copy Code");
@@ -7,6 +9,10 @@ export const BackendCodeView: React.FC = () => {
   const handleCopyCode = () => {
     navigator.clipboard.writeText(GAS_BACKEND_CODE);
     setCopyFeedback("Copied!");
+    toast.success("Backend code copied", {
+      description: "Paste this into your Google Apps Script editor.",
+      icon: <Icon.Copy size={14} />,
+    });
     setTimeout(() => setCopyFeedback("Copy Code"), 2000);
   };
 

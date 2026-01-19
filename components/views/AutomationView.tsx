@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Icon } from "../Icons";
 import { Automation } from "../../types";
 import { ViewHeader } from "../ViewHeader";
+import { toast } from "sonner";
 
 const AUTOMATION_TEMPLATES = [
   {
@@ -80,19 +81,63 @@ export const AutomationView: React.FC<AutomationViewProps> = ({
       status: "Active",
     });
     setIsModalOpen(true);
+    toast.info("Template loaded", {
+      description: "Customize the trigger and action, then save to activate.",
+      icon: <Icon.Settings size={14} />,
+    });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (editingAutomation) {
-      const success = await onSave(
-        editingAutomation as Automation,
-        !!editingAutomation.id,
-      );
+      const isUpdate = !!editingAutomation.id;
+      const success = await onSave(editingAutomation as Automation, isUpdate);
       if (success) {
         setIsModalOpen(false);
         setEditingAutomation(null);
+        toast.success(isUpdate ? "Automation updated" : "Automation created", {
+          description: `"${editingAutomation.name}" is now ${editingAutomation.status?.toLowerCase()}.`,
+          icon: <Icon.Zap size={14} />,
+        });
+      } else {
+        toast.error("Failed to save automation");
       }
+    }
+  };
+
+  const handleDeleteClick = async (id: string, name: string) => {
+    if (window.confirm(`Are you sure you want to delete "${name}"?`)) {
+      const success = await onDelete(id);
+      if (success) {
+        toast.success("Automation deleted", {
+          description: `"${name}" has been removed from your workflows.`,
+          icon: <Icon.Delete size={14} />,
+        });
+      } else {
+        toast.error("Failed to delete automation");
+      }
+    }
+  };
+
+  const handleToggleClick = async (
+    id: string,
+    currentStatus: string,
+    name: string,
+  ) => {
+    const success = await onToggle(id);
+    if (success) {
+      const newStatus = currentStatus === "Active" ? "Paused" : "Active";
+      toast.info(`Automation ${newStatus.toLowerCase()}`, {
+        description: `"${name}" is now ${newStatus.toLowerCase()}.`,
+        icon:
+          newStatus === "Active" ? (
+            <Icon.Zap size={14} />
+          ) : (
+            <Icon.Pause size={14} />
+          ),
+      });
+    } else {
+      toast.error("Failed to toggle automation");
     }
   };
 
@@ -180,7 +225,9 @@ export const AutomationView: React.FC<AutomationViewProps> = ({
                   </div>
                   <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end border-t sm:border-t-0 border-notion-light-border dark:border-notion-dark-border pt-3 sm:pt-0">
                     <button
-                      onClick={() => onToggle(auto.id)}
+                      onClick={() =>
+                        handleToggleClick(auto.id, auto.status, auto.name)
+                      }
                       className={`flex-1 sm:flex-none px-4 sm:px-3 py-2 sm:py-1 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all border shadow-sm ${
                         auto.status === "Active"
                           ? "bg-notion-light-text dark:bg-notion-dark-text text-notion-light-bg dark:text-notion-dark-bg border-transparent"
@@ -190,7 +237,7 @@ export const AutomationView: React.FC<AutomationViewProps> = ({
                       {auto.status}
                     </button>
                     <button
-                      onClick={() => onDelete(auto.id)}
+                      onClick={() => handleDeleteClick(auto.id, auto.name)}
                       className="p-2 text-notion-light-muted hover:text-red-600 dark:hover:text-red-400 hover:bg-red-500/10 dark:hover:bg-red-500/20 rounded-xl transition-all sm:opacity-0 sm:group-hover:opacity-100"
                     >
                       <Icon.Delete size={16} />

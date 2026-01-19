@@ -4,6 +4,7 @@ import { Icon } from "../Icons";
 import { ContactModal } from "../ContactModal";
 import { InteractionModal } from "../InteractionModal";
 import { ViewHeader } from "../ViewHeader";
+import { toast } from "sonner";
 
 interface CrmViewProps {
   contacts: Contact[];
@@ -70,6 +71,14 @@ export const CrmView: React.FC<CrmViewProps> = ({
     const success = await onSaveInteraction(interaction);
     if (success && selectedContact) {
       await loadInteractions(selectedContact.id);
+      toast.success("Interaction saved", {
+        description: `Successfully recorded ${interaction.type.toLowerCase()} for ${selectedContact.name}.`,
+        icon: <Icon.Chat size={14} />,
+      });
+    } else if (!success) {
+      toast.error("Failed to save interaction", {
+        description: "Please check your connection and try again.",
+      });
     }
     return success;
   };
@@ -122,6 +131,14 @@ export const CrmView: React.FC<CrmViewProps> = ({
       if (selectedContact?.id === contact.id) {
         setSelectedContact(contact);
       }
+      toast.success(isUpdate ? "Contact updated" : "Contact created", {
+        description: `${contact.name} has been saved to your CRM.`,
+        icon: <Icon.Users size={14} />,
+      });
+    } else {
+      toast.error("Failed to save contact", {
+        description: "Please check your connection and try again.",
+      });
     }
     return success;
   };

@@ -24,9 +24,7 @@
         navigator.serviceWorker.getRegistrations().then((registrations) => {
           for (let registration of registrations) {
             registration.unregister();
-            console.log(
-              "[MyOps] Stale Service Worker unregistered",
-            );
+            console.log("[MyOps] Stale Service Worker unregistered");
           }
         });
       }

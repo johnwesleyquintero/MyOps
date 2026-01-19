@@ -132,7 +132,7 @@ export const BLUEPRINT_MODULES: BlueprintModule[] = [
     iconKey: "Activity",
     features: [
       "Energy & clarity tracking",
-      "Cognitive load limits",
+      "Mindset Briefing widget",
       "Daily check-in rituals",
       "WesAI state coaching",
     ],

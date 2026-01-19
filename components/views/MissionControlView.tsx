@@ -13,6 +13,22 @@ import { ConfirmationModal } from "../ConfirmationModal";
 import { ViewHeader } from "../ViewHeader";
 import { Icon, iconProps } from "../Icons";
 import { toast } from "sonner";
+import { useTableColumns, ColumnConfig } from "../../hooks/useTableColumns";
+import { COLUMN_CONFIG_KEY } from "../../constants/storage";
+import { ColumnConfigDropdown } from "../ColumnConfigDropdown";
+
+const MISSION_CONTROL_COLUMNS: ColumnConfig[] = [
+  { key: "date", label: "Date", visible: true, width: "w-32" },
+  {
+    key: "description",
+    label: "Mission Description",
+    visible: true,
+    width: "min-w-[400px]",
+  },
+  { key: "project", label: "Project", visible: true, width: "w-40" },
+  { key: "priority", label: "Priority", visible: true, width: "w-32" },
+  { key: "status", label: "Status", visible: true, width: "w-32" },
+];
 
 interface MissionControlViewProps {
   entries: TaskEntry[];
@@ -72,6 +88,11 @@ export const MissionControlView: React.FC<MissionControlViewProps> = ({
   const [transitioning, setTransitioning] = useState<boolean>(false);
   const [copiedMd, setCopiedMd] = useState<boolean>(false);
 
+  const { columns, toggleColumn } = useTableColumns(
+    MISSION_CONTROL_COLUMNS,
+    COLUMN_CONFIG_KEY,
+  );
+
   const handleCopyMarkdown = async () => {
     if (filteredEntries.length === 0) {
       toast.error("No missions to copy");
@@ -121,35 +142,37 @@ export const MissionControlView: React.FC<MissionControlViewProps> = ({
           {viewMode === "TABLE" && filteredEntries.length > 0 && (
             <button
               onClick={() => setIsDeleteModalOpen(true)}
-              className="notion-button notion-button-ghost text-red-600 dark:text-red-400 flex items-center gap-1.5 px-2 py-1 md:px-3 md:py-1.5"
+              className="notion-button notion-button-ghost text-red-600 dark:text-red-400 flex items-center justify-center p-2"
               title="Clear View"
             >
-              <Icon.Delete {...iconProps(14)} />
-              <span className="text-xs md:text-sm">CLEAR</span>
+              <Icon.Delete {...iconProps(16)} />
             </button>
           )}
           <button
             onClick={() => generateAndDownloadCSV(filteredEntries)}
-            className="notion-button notion-button-ghost flex items-center gap-1.5 px-2 py-1 md:px-3 md:py-1.5"
+            className="notion-button notion-button-ghost flex items-center justify-center p-2"
             title="Export CSV"
           >
-            <Icon.Download {...iconProps(14)} />
-            <span className="text-xs md:text-sm">EXPORT</span>
+            <Icon.Download {...iconProps(16)} />
           </button>
           <button
             onClick={handleCopyMarkdown}
-            className="notion-button notion-button-ghost flex items-center gap-1.5 px-2 py-1 md:px-3 md:py-1.5"
+            className="notion-button notion-button-ghost flex items-center justify-center p-2"
             title="Copy as Markdown Table"
           >
             {copiedMd ? (
-              <Icon.Check {...iconProps(14, "text-emerald-500")} />
+              <Icon.Check {...iconProps(16, "text-emerald-500")} />
             ) : (
-              <Icon.Copy {...iconProps(14)} />
+              <Icon.Copy {...iconProps(16)} />
             )}
-            <span className="text-xs md:text-sm">
-              {copiedMd ? "COPIED!" : "COPY"}
-            </span>
           </button>
+          {viewMode === "TABLE" && (
+            <ColumnConfigDropdown
+              columns={columns}
+              toggleColumn={toggleColumn}
+              className="notion-button notion-button-ghost flex items-center justify-center p-2"
+            />
+          )}
         </div>
       </ViewHeader>
 
@@ -201,6 +224,9 @@ export const MissionControlView: React.FC<MissionControlViewProps> = ({
             onFocus={onFocus}
             onDuplicate={onDuplicate}
             allEntries={entries}
+            externalColumns={columns}
+            externalToggleColumn={toggleColumn}
+            showConfigGear={false}
           />
         )}
 

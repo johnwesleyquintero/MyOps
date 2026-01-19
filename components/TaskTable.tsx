@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React from "react";
 import { TaskEntry } from "../types";
 import {
   COLUMN_CONFIG_KEY,
@@ -14,6 +14,7 @@ import {
   SortKey,
 } from "../hooks/useTableColumns";
 import { useSortableData } from "../hooks/useSortableData";
+import { ColumnConfigDropdown } from "./ColumnConfigDropdown";
 
 interface TaskTableProps {
   entries: TaskEntry[];
@@ -25,6 +26,10 @@ interface TaskTableProps {
   onFocus: (entry: TaskEntry) => void;
   onDuplicate: (entry: TaskEntry) => void;
   allEntries?: TaskEntry[];
+  // Optional external column control
+  externalColumns?: ColumnConfig[];
+  externalToggleColumn?: (key: SortKey) => void;
+  showConfigGear?: boolean;
 }
 
 const DEFAULT_COLUMNS: ColumnConfig[] = [
@@ -64,32 +69,21 @@ export const TaskTable: React.FC<TaskTableProps> = ({
   onStatusUpdate,
   onFocus,
   onDuplicate,
+  externalColumns,
+  externalToggleColumn,
+  showConfigGear = true,
 }) => {
-  const { columns, toggleColumn } = useTableColumns(
-    DEFAULT_COLUMNS,
-    COLUMN_CONFIG_KEY,
-  );
+  const { columns: internalColumns, toggleColumn: internalToggleColumn } =
+    useTableColumns(DEFAULT_COLUMNS, COLUMN_CONFIG_KEY);
+
+  const columns = externalColumns || internalColumns;
+  const toggleColumn = externalToggleColumn || internalToggleColumn;
+
   const {
     items: sortedEntries,
     requestSort,
     sortConfig,
   } = useSortableData(entries);
-
-  const [isConfigOpen, setIsConfigOpen] = useState(false);
-  const configRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        configRef.current &&
-        !configRef.current.contains(event.target as Node)
-      ) {
-        setIsConfigOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
 
   return (
     <div className="flex flex-col h-full overflow-hidden bg-notion-light-bg dark:bg-notion-dark-bg transition-colors">
@@ -120,39 +114,12 @@ export const TaskTable: React.FC<TaskTableProps> = ({
                   <span className="text-[10px] font-bold text-notion-light-muted dark:text-notion-dark-muted uppercase tracking-widest">
                     Actions
                   </span>
-                  <div className="relative" ref={configRef}>
-                    <button
-                      onClick={() => setIsConfigOpen(!isConfigOpen)}
-                      className="p-1 hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover rounded transition-colors"
-                    >
-                      <Icon.Settings
-                        {...iconProps(14, "text-notion-light-muted")}
-                      />
-                    </button>
-                    {isConfigOpen && (
-                      <div className="absolute right-0 top-full mt-1 w-48 bg-notion-light-bg dark:bg-notion-dark-bg border border-notion-light-border dark:border-notion-dark-border rounded shadow-xl z-50 p-2 animate-in fade-in zoom-in-95 duration-100">
-                        <div className="text-[10px] font-bold text-notion-light-muted dark:text-notion-dark-muted uppercase tracking-wider px-2 py-1 border-b border-notion-light-border dark:border-notion-dark-border mb-1">
-                          Display Columns
-                        </div>
-                        {columns.map((col) => (
-                          <label
-                            key={col.key}
-                            className="flex items-center gap-2 px-2 py-1.5 hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover rounded cursor-pointer transition-colors"
-                          >
-                            <input
-                              type="checkbox"
-                              checked={col.visible}
-                              onChange={() => toggleColumn(col.key)}
-                              className="w-3 h-3 rounded border-notion-light-border text-notion-light-text focus:ring-0 focus:ring-offset-0"
-                            />
-                            <span className="text-xs text-notion-light-text dark:text-notion-dark-text">
-                              {col.label}
-                            </span>
-                          </label>
-                        ))}
-                      </div>
-                    )}
-                  </div>
+                  {showConfigGear && (
+                    <ColumnConfigDropdown
+                      columns={columns}
+                      toggleColumn={toggleColumn}
+                    />
+                  )}
                 </div>
               </th>
             </tr>

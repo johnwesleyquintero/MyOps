@@ -5,6 +5,7 @@ import {
   saveMentalState,
 } from "@/services/awarenessService";
 import { ViewHeader } from "../ViewHeader";
+import { Icon } from "../Icons";
 import { toast } from "sonner";
 
 interface AwarenessViewProps {
@@ -68,118 +69,210 @@ export const AwarenessView: React.FC<AwarenessViewProps> = ({ config }) => {
   }
 
   return (
-    <div className="max-w-2xl mx-auto px-4 sm:px-0 space-y-12 animate-in fade-in duration-500">
+    <div className="animate-fade-in space-y-8">
       <ViewHeader
         title="Mental Awareness"
-        subTitle="Constraints Awareness Check-in"
+        subTitle="Constraints Awareness & Capacity Check-in"
       />
 
-      <div className="bg-notion-light-bg dark:bg-notion-dark-bg border border-notion-light-border dark:border-notion-dark-border rounded-3xl p-6 sm:p-8 shadow-xl">
-        <div className="space-y-8">
-          {/* Energy Level */}
-          <div className="space-y-4">
-            <label className="text-[10px] font-black uppercase tracking-[0.2em] opacity-40">
-              Energy Level
-            </label>
-            <div className="grid grid-cols-3 gap-3">
-              {(["low", "medium", "high"] as const).map((level) => (
-                <button
-                  key={level}
-                  onClick={() =>
-                    setTodayEntry({ ...todayEntry, energy: level })
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
+        {/* Left: Check-in Form */}
+        <div className="lg:col-span-2 space-y-6">
+          <div className="notion-card p-6 sm:p-8">
+            <div className="flex items-center gap-3 mb-8">
+              <div className="p-2.5 bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 rounded-xl">
+                <Icon.Play size={20} />
+              </div>
+              <div>
+                <h3 className="text-sm font-black uppercase tracking-widest text-notion-light-text dark:text-notion-dark-text">
+                  Daily Check-in
+                </h3>
+                <p className="text-[10px] font-bold text-notion-light-muted dark:text-notion-dark-muted uppercase tracking-wider">
+                  Operational Readiness Assessment
+                </p>
+              </div>
+            </div>
+
+            <div className="space-y-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                {/* Energy Level */}
+                <div className="space-y-4">
+                  <label className="text-[10px] font-black uppercase tracking-[0.2em] opacity-40">
+                    Energy Level
+                  </label>
+                  <div className="grid grid-cols-3 gap-3">
+                    {(["low", "medium", "high"] as const).map((level) => (
+                      <button
+                        key={level}
+                        onClick={() =>
+                          setTodayEntry({ ...todayEntry, energy: level })
+                        }
+                        className={`py-4 rounded-2xl border-2 transition-all font-bold capitalize ${
+                          todayEntry.energy === level
+                            ? "border-indigo-500 bg-indigo-500/10 text-indigo-600 dark:text-indigo-400"
+                            : "border-notion-light-border dark:border-notion-dark-border hover:border-notion-light-muted dark:hover:border-notion-dark-muted"
+                        }`}
+                      >
+                        {level}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Clarity Level */}
+                <div className="space-y-4">
+                  <label className="text-[10px] font-black uppercase tracking-[0.2em] opacity-40">
+                    Clarity level
+                  </label>
+                  <div className="grid grid-cols-3 gap-3">
+                    {(["foggy", "neutral", "sharp"] as const).map((level) => (
+                      <button
+                        key={level}
+                        onClick={() =>
+                          setTodayEntry({ ...todayEntry, clarity: level })
+                        }
+                        className={`py-4 rounded-2xl border-2 transition-all font-bold capitalize ${
+                          todayEntry.clarity === level
+                            ? "border-fuchsia-500 bg-fuchsia-500/10 text-fuchsia-600 dark:text-fuchsia-400"
+                            : "border-notion-light-border dark:border-notion-dark-border hover:border-notion-light-muted dark:hover:border-notion-dark-muted"
+                        }`}
+                      >
+                        {level}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Optional Notes */}
+              <div className="space-y-4">
+                <label className="text-[10px] font-black uppercase tracking-[0.2em] opacity-40">
+                  Context (Optional)
+                </label>
+                <textarea
+                  value={todayEntry.notes || ""}
+                  onChange={(e) =>
+                    setTodayEntry({ ...todayEntry, notes: e.target.value })
                   }
-                  className={`py-4 rounded-2xl border-2 transition-all font-bold capitalize ${
-                    todayEntry.energy === level
-                      ? "border-indigo-500 bg-indigo-500/10 text-indigo-600 dark:text-indigo-400"
-                      : "border-notion-light-border dark:border-notion-dark-border hover:border-notion-light-muted dark:hover:border-notion-dark-muted"
-                  }`}
-                >
-                  {level}
-                </button>
-              ))}
+                  placeholder="Any specific constraints today?"
+                  className="notion-input w-full min-h-[100px] bg-notion-light-sidebar dark:bg-notion-dark-sidebar border-none focus:ring-2 focus:ring-indigo-500/50 rounded-2xl p-4"
+                />
+              </div>
+
+              <button
+                onClick={handleSave}
+                className="w-full notion-button notion-button-primary py-4 rounded-2xl font-black uppercase tracking-widest text-sm shadow-lg shadow-indigo-500/20 active:scale-[0.98] transition-all"
+              >
+                Lock Daily Check-in
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Right: Status & History */}
+        <div className="lg:col-span-1 flex flex-col gap-6">
+          {/* Readiness Briefing */}
+          <div className="notion-card p-6 bg-gradient-to-br from-indigo-600 to-fuchsia-700 dark:from-indigo-700 dark:to-fuchsia-900 text-white border-none shadow-lg relative overflow-hidden group">
+            <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:scale-110 transition-transform duration-500">
+              <Icon.Ai size={100} />
+            </div>
+            <div className="relative z-10">
+              <div className="flex items-center gap-2 mb-6">
+                <div className="p-2 bg-white/20 rounded-lg backdrop-blur-md border border-white/10">
+                  <Icon.Ai size={18} />
+                </div>
+                <div>
+                  <h3 className="text-[10px] font-black uppercase tracking-[0.2em] opacity-70">
+                    Mindset Briefing
+                  </h3>
+                  <span className="text-[9px] font-bold text-white/50 uppercase tracking-widest">
+                    Operational Capacity
+                  </span>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <p className="text-sm font-medium leading-relaxed italic border-l-2 border-white/30 pl-4 py-1">
+                  {todayEntry.energy === "high" &&
+                  todayEntry.clarity === "sharp"
+                    ? "Systems at 100%. Peak operational capacity detected. Focus on high-complexity missions."
+                    : todayEntry.energy === "low" ||
+                        todayEntry.clarity === "foggy"
+                      ? "Resource constraints detected. Prioritize low-complexity maintenance or recovery protocols."
+                      : "Balanced state. Steady progress on standard objectives is recommended."}
+                </p>
+
+                <div className="grid grid-cols-2 gap-4 pt-2">
+                  <div className="bg-white/10 p-3 rounded-xl backdrop-blur-sm border border-white/5">
+                    <span className="text-[10px] opacity-70 block uppercase font-bold tracking-tighter mb-1">
+                      Energy
+                    </span>
+                    <span className="text-lg font-bold capitalize">
+                      {todayEntry.energy}
+                    </span>
+                  </div>
+                  <div className="bg-white/10 p-3 rounded-xl backdrop-blur-sm border border-white/5">
+                    <span className="text-[10px] opacity-70 block uppercase font-bold tracking-tighter mb-1">
+                      Clarity
+                    </span>
+                    <span className="text-lg font-bold capitalize">
+                      {todayEntry.clarity}
+                    </span>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
-          {/* Clarity Level */}
-          <div className="space-y-4">
-            <label className="text-[10px] font-black uppercase tracking-[0.2em] opacity-40">
-              Clarity level
-            </label>
-            <div className="grid grid-cols-3 gap-3">
-              {(["foggy", "neutral", "sharp"] as const).map((level) => (
-                <button
-                  key={level}
-                  onClick={() =>
-                    setTodayEntry({ ...todayEntry, clarity: level })
-                  }
-                  className={`py-4 rounded-2xl border-2 transition-all font-bold capitalize ${
-                    todayEntry.clarity === level
-                      ? "border-fuchsia-500 bg-fuchsia-500/10 text-fuchsia-600 dark:text-fuchsia-400"
-                      : "border-notion-light-border dark:border-notion-dark-border hover:border-notion-light-muted dark:hover:border-notion-dark-muted"
-                  }`}
+          {/* History Widget */}
+          <div className="notion-card p-6 flex-1">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-xs font-black uppercase tracking-widest text-notion-light-text dark:text-notion-dark-text">
+                Recent History
+              </h3>
+              <Icon.History size={16} className="opacity-30" />
+            </div>
+
+            <div className="space-y-3">
+              {history.slice(0, 5).map((entry) => (
+                <div
+                  key={entry.date}
+                  className="flex items-center gap-4 p-3 rounded-xl bg-notion-light-sidebar dark:bg-notion-dark-sidebar border border-notion-light-border dark:border-notion-dark-border group hover:border-indigo-500/30 transition-all"
                 >
-                  {level}
-                </button>
+                  <div
+                    className={`w-2.5 h-2.5 rounded-full shadow-sm ${
+                      entry.energy === "high"
+                        ? "bg-emerald-500"
+                        : entry.energy === "medium"
+                          ? "bg-amber-500"
+                          : "bg-rose-500"
+                    }`}
+                  />
+                  <div className="flex-1">
+                    <div className="flex justify-between items-center">
+                      <span className="text-[10px] font-bold text-notion-light-text dark:text-notion-dark-text uppercase tracking-widest">
+                        {new Date(entry.date).toLocaleDateString(undefined, {
+                          weekday: "short",
+                          month: "short",
+                          day: "numeric",
+                        })}
+                      </span>
+                      <span className="text-[9px] font-black uppercase tracking-widest opacity-40">
+                        {entry.clarity}
+                      </span>
+                    </div>
+                  </div>
+                </div>
               ))}
+              {history.length === 0 && (
+                <div className="py-10 text-center opacity-40 italic text-xs">
+                  No historical data available
+                </div>
+              )}
             </div>
           </div>
-
-          {/* Optional Notes */}
-          <div className="space-y-4">
-            <label className="text-[10px] font-black uppercase tracking-[0.2em] opacity-40">
-              Context (Optional)
-            </label>
-            <textarea
-              value={todayEntry.notes || ""}
-              onChange={(e) =>
-                setTodayEntry({ ...todayEntry, notes: e.target.value })
-              }
-              placeholder="Any specific constraints today?"
-              className="notion-input w-full min-h-[100px] bg-notion-light-sidebar dark:bg-notion-dark-sidebar border-none focus:ring-2 focus:ring-indigo-500/50"
-            />
-          </div>
-
-          <button
-            onClick={handleSave}
-            className="w-full notion-button notion-button-primary py-4 rounded-2xl font-black uppercase tracking-widest text-sm shadow-lg shadow-indigo-500/20"
-          >
-            Lock Daily Check-in
-          </button>
         </div>
       </div>
-
-      {/* History mini-view */}
-      {history.length > 0 && (
-        <div className="space-y-4">
-          <h3 className="text-xs font-black uppercase tracking-widest opacity-30 text-center">
-            Recent Operating States
-          </h3>
-          <div className="grid grid-cols-4 sm:grid-cols-7 gap-2">
-            {history.slice(0, 7).map((entry) => (
-              <div
-                key={entry.date}
-                className="flex flex-col items-center p-2 rounded-xl bg-notion-light-sidebar dark:bg-notion-dark-sidebar border border-notion-light-border dark:border-notion-dark-border"
-                title={`${entry.date}: Energy ${entry.energy}, Clarity ${entry.clarity}`}
-              >
-                <div
-                  className={`w-3 h-3 rounded-full mb-1 ${
-                    entry.energy === "high"
-                      ? "bg-emerald-500"
-                      : entry.energy === "medium"
-                        ? "bg-amber-500"
-                        : "bg-rose-500"
-                  }`}
-                />
-                <span className="text-[8px] opacity-50">
-                  {new Date(entry.date).toLocaleDateString(undefined, {
-                    weekday: "short",
-                  })}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
     </div>
   );
 };

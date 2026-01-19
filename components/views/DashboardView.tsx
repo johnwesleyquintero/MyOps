@@ -7,6 +7,22 @@ import { TaskTable } from "../TaskTable";
 import { Icon, iconProps } from "../Icons";
 import { ViewHeader } from "../ViewHeader";
 import { toast } from "sonner";
+import { useTableColumns, ColumnConfig } from "../../hooks/useTableColumns";
+import { COLUMN_CONFIG_KEY } from "../../constants/storage";
+import { ColumnConfigDropdown } from "../ColumnConfigDropdown";
+
+const DEFAULT_COLUMNS = [
+  { key: "date", label: "Due", visible: true, width: "w-32" },
+  {
+    key: "description",
+    label: "Mission",
+    visible: true,
+    width: "min-w-[300px]",
+  },
+  { key: "project", label: "Project", visible: true, width: "w-32" },
+  { key: "priority", label: "Priority", visible: true, width: "w-28" },
+  { key: "status", label: "Status", visible: true, width: "w-32" },
+];
 
 interface DashboardViewProps {
   entries: TaskEntry[];
@@ -65,6 +81,11 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   }, [entries]);
 
   const xpProgress = (operatorMetrics.xp % 1000) / 10; // Simple XP bar logic
+
+  const { columns, toggleColumn } = useTableColumns(
+    DEFAULT_COLUMNS as ColumnConfig[],
+    COLUMN_CONFIG_KEY,
+  );
 
   return (
     <div className="animate-fade-in space-y-8">
@@ -268,18 +289,26 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               </span>
             </div>
           </div>
-          <button
-            onClick={() => onNavigate("MISSIONS")}
-            className="text-notion-light-muted dark:text-notion-dark-muted text-[10px] font-black uppercase tracking-widest hover:text-blue-500 dark:hover:text-blue-400 flex items-center gap-2 transition-all group bg-notion-light-sidebar dark:bg-notion-dark-sidebar px-4 py-2 rounded-xl border border-notion-light-border dark:border-notion-dark-border shadow-sm"
-          >
-            Full Board{" "}
-            <Icon.Layout
-              {...iconProps(
-                14,
-                "group-hover:translate-x-0.5 transition-transform",
-              )}
+          <div className="flex items-center gap-2">
+            <ColumnConfigDropdown
+              columns={columns}
+              toggleColumn={toggleColumn}
+              label="Columns"
+              className="text-notion-light-muted dark:text-notion-dark-muted text-[10px] font-black uppercase tracking-widest hover:text-blue-500 dark:hover:text-blue-400 flex items-center gap-2 transition-all group bg-notion-light-sidebar dark:bg-notion-dark-sidebar px-4 py-2 rounded-xl border border-notion-light-border dark:border-notion-dark-border shadow-sm"
             />
-          </button>
+            <button
+              onClick={() => onNavigate("MISSIONS")}
+              className="text-notion-light-muted dark:text-notion-dark-muted text-[10px] font-black uppercase tracking-widest hover:text-blue-500 dark:hover:text-blue-400 flex items-center gap-2 transition-all group bg-notion-light-sidebar dark:bg-notion-dark-sidebar px-4 py-2 rounded-xl border border-notion-light-border dark:border-notion-dark-border shadow-sm"
+            >
+              Full Board{" "}
+              <Icon.Layout
+                {...iconProps(
+                  14,
+                  "group-hover:translate-x-0.5 transition-transform",
+                )}
+              />
+            </button>
+          </div>
         </div>
         <div className="notion-card overflow-hidden transition-all duration-300 hover:shadow-lg border-notion-light-border dark:border-notion-dark-border">
           <TaskTable
@@ -292,6 +321,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             onFocus={onFocus}
             onDuplicate={onDuplicate}
             allEntries={entries}
+            externalColumns={columns}
+            externalToggleColumn={toggleColumn}
+            showConfigGear={false}
           />
           {tacticalFocus.length === 0 && !isLoading && (
             <div className="p-20 text-center bg-notion-light-sidebar/30 dark:bg-notion-dark-sidebar/10">

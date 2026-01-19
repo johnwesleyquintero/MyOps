@@ -10,7 +10,9 @@ interface MissionTrendChartProps {
   entries: TaskEntry[];
 }
 
-export const MissionTrendChart: React.FC<MissionTrendChartProps> = ({ entries }) => {
+export const MissionTrendChart: React.FC<MissionTrendChartProps> = ({
+  entries,
+}) => {
   // SVG Geometry Constants
   const width = 600;
   const height = 150;

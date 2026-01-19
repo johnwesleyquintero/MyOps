@@ -2,18 +2,20 @@ import React, { useMemo } from "react";
 import { TaskEntry } from "../../types";
 import { calculateProjectDistribution } from "../../utils/analyticsUtils";
 
-
 interface ProjectDistributionListProps {
   entries: TaskEntry[];
   currency?: string;
   locale?: string;
 }
 
-export const ProjectDistributionList: React.FC<ProjectDistributionListProps> = ({
-  entries,
-}) => {
+export const ProjectDistributionList: React.FC<
+  ProjectDistributionListProps
+> = ({ entries }) => {
   // Using calculateProjectDistribution to get top projects by volume
-  const categoryData = useMemo(() => calculateProjectDistribution(entries), [entries]);
+  const categoryData = useMemo(
+    () => calculateProjectDistribution(entries),
+    [entries],
+  );
 
   return (
     <div className="notion-card p-5 transition-colors duration-300 h-full flex flex-col">

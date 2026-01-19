@@ -144,7 +144,7 @@ export const CrmView: React.FC<CrmViewProps> = ({
       >
         <button
           onClick={handleAdd}
-          className="notion-button notion-button-primary"
+          className="w-full md:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-notion-light-sidebar dark:bg-notion-dark-sidebar border border-notion-light-border dark:border-notion-dark-border text-notion-light-text dark:text-notion-dark-text rounded-2xl font-black text-sm uppercase tracking-widest shadow-sm hover:bg-notion-light-border dark:hover:bg-notion-dark-border transition-all active:scale-95"
         >
           <Icon.Add
             size={16}
@@ -252,68 +252,74 @@ export const CrmView: React.FC<CrmViewProps> = ({
               {/* Back button for mobile */}
               <button
                 onClick={() => setSelectedContact(null)}
-                className="lg:hidden flex items-center gap-2 px-6 py-4 text-notion-light-muted hover:text-notion-light-text border-b border-notion-light-border dark:border-notion-dark-border"
+                className="lg:hidden flex items-center gap-2 px-4 py-3 text-notion-light-muted hover:text-notion-light-text border-b border-notion-light-border dark:border-notion-dark-border bg-notion-light-sidebar/10 dark:bg-notion-dark-sidebar/10 active:bg-notion-light-hover dark:active:bg-notion-dark-hover transition-colors w-full text-left font-bold relative z-10"
               >
                 <Icon.Prev size={16} /> Back to Contacts
               </button>
 
               {/* Profile Header */}
-              <div className="p-10 border-b border-notion-light-border dark:border-notion-dark-border bg-notion-light-sidebar/30 dark:bg-notion-dark-sidebar/30 relative overflow-hidden">
+              <div className="p-6 md:p-10 border-b border-notion-light-border dark:border-notion-dark-border bg-notion-light-sidebar/30 dark:bg-notion-dark-sidebar/30 relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-64 h-64 bg-notion-light-text/5 dark:bg-notion-dark-text/5 rounded-full -mr-32 -mt-32 blur-3xl pointer-events-none"></div>
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 relative z-10">
-                  <div className="flex items-center gap-8">
-                    <div className="w-20 h-20 bg-notion-light-text dark:bg-notion-dark-text text-white dark:text-notion-dark-bg rounded flex items-center justify-center text-3xl font-bold shadow-xl border-4 border-white dark:border-notion-dark-bg ring-1 ring-notion-light-border dark:ring-notion-dark-border">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
+                  <div className="flex items-center gap-4 md:gap-8">
+                    <div className="w-16 h-16 md:w-20 md:h-20 bg-notion-light-text dark:bg-notion-dark-text text-white dark:text-notion-dark-bg rounded flex items-center justify-center text-2xl md:text-3xl font-bold shadow-xl border-4 border-white dark:border-notion-dark-bg ring-1 ring-notion-light-border dark:ring-notion-dark-border flex-shrink-0">
                       {selectedContact.name.charAt(0)}
                     </div>
                     <div>
-                      <h2 className="text-2xl font-black text-notion-light-text dark:text-notion-dark-text tracking-tight">
+                      <h2 className="text-xl md:text-2xl font-black text-notion-light-text dark:text-notion-dark-text tracking-tight">
                         {selectedContact.name}
                       </h2>
-                      <div className="flex flex-wrap items-center gap-3 mt-2">
-                        <span className="text-[13px] font-bold text-notion-light-muted dark:text-notion-dark-muted bg-notion-light-bg dark:bg-notion-dark-bg px-2.5 py-1 rounded border border-notion-light-border dark:border-notion-dark-border shadow-sm">
+                      <div className="flex flex-wrap items-center gap-2 md:gap-3 mt-1.5">
+                        <span className="text-[12px] md:text-[13px] font-bold text-notion-light-muted dark:text-notion-dark-muted bg-notion-light-bg dark:bg-notion-dark-bg px-2 py-0.5 md:px-2.5 md:py-1 rounded border border-notion-light-border dark:border-notion-dark-border shadow-sm truncate max-w-[150px] md:max-w-none">
                           {selectedContact.company || "Independent Operator"}
                         </span>
-                        <div className="w-1.5 h-1.5 rounded-full bg-notion-light-border dark:bg-notion-dark-border"></div>
+                        <div className="hidden xs:block w-1.5 h-1.5 rounded-full bg-notion-light-border dark:bg-notion-dark-border"></div>
                         <span
-                          className={`text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider shadow-sm border ${typeColors[selectedContact.type]}`}
+                          className={`text-[9px] md:text-[10px] font-bold px-2 py-0.5 md:px-3 md:py-1 rounded-full uppercase tracking-wider shadow-sm border ${typeColors[selectedContact.type]}`}
                         >
                           {selectedContact.type}
                         </span>
                       </div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2 md:gap-3">
                     <button
                       onClick={() => handleEdit(selectedContact)}
-                      className="p-3 bg-notion-light-bg dark:bg-notion-dark-bg text-notion-light-muted hover:text-notion-light-text dark:hover:text-notion-dark-text hover:border-notion-light-text/30 dark:hover:border-notion-dark-text/30 border border-notion-light-border dark:border-notion-dark-border rounded transition-all shadow-sm hover:shadow-md"
+                      className="flex-1 md:flex-none flex items-center justify-center gap-2 p-3 bg-notion-light-bg dark:bg-notion-dark-bg text-notion-light-muted hover:text-notion-light-text dark:hover:text-notion-dark-text hover:border-notion-light-text/30 dark:hover:border-notion-dark-text/30 border border-notion-light-border dark:border-notion-dark-border rounded transition-all shadow-sm hover:shadow-md"
                     >
-                      <Icon.Edit size={20} />
+                      <Icon.Edit size={18} />
+                      <span className="md:hidden text-xs font-bold uppercase tracking-widest">
+                        Edit
+                      </span>
                     </button>
-                    <button className="p-3 bg-notion-light-bg dark:bg-notion-dark-bg text-notion-light-muted hover:text-red-500 hover:border-red-500/50 border border-notion-light-border dark:border-notion-dark-border rounded transition-all shadow-sm hover:shadow-md">
-                      <Icon.Delete size={20} />
+                    <button className="flex-1 md:flex-none flex items-center justify-center gap-2 p-3 bg-notion-light-bg dark:bg-notion-dark-bg text-notion-light-muted hover:text-red-500 hover:border-red-500/50 border border-notion-light-border dark:border-notion-dark-border rounded transition-all shadow-sm hover:shadow-md">
+                      <Icon.Delete size={18} />
+                      <span className="md:hidden text-xs font-bold uppercase tracking-widest">
+                        Delete
+                      </span>
                     </button>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mt-10 relative z-10">
-                  <div className="flex items-center gap-4 p-4 bg-notion-light-bg dark:bg-notion-dark-bg border border-notion-light-border dark:border-notion-dark-border rounded hover:border-notion-light-text/30 dark:hover:border-notion-dark-text/30 transition-colors shadow-sm">
-                    <div className="p-2.5 bg-notion-light-sidebar dark:bg-notion-dark-sidebar text-notion-light-text dark:text-notion-dark-text rounded border border-notion-light-border dark:border-notion-dark-border">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5 mt-8 md:mt-10 relative z-10">
+                  <div className="flex items-center gap-4 p-3 md:p-4 bg-notion-light-bg dark:bg-notion-dark-bg border border-notion-light-border dark:border-notion-dark-border rounded hover:border-notion-light-text/30 dark:hover:border-notion-dark-text/30 transition-colors shadow-sm overflow-hidden">
+                    <div className="p-2 md:p-2.5 bg-notion-light-sidebar dark:bg-notion-dark-sidebar text-notion-light-text dark:text-notion-dark-text rounded border border-notion-light-border dark:border-notion-dark-border flex-shrink-0">
                       <Icon.Chat size={16} />
                     </div>
                     <div className="overflow-hidden">
                       <p className="notion-label mb-0.5">Primary Email</p>
-                      <p className="text-[14px] font-bold text-notion-light-text dark:text-notion-dark-text truncate">
+                      <p className="text-[13px] md:text-[14px] font-bold text-notion-light-text dark:text-notion-dark-text truncate">
                         {selectedContact.email || "N/A"}
                       </p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-4 p-4 bg-notion-light-bg dark:bg-notion-dark-bg border border-notion-light-border dark:border-notion-dark-border rounded hover:border-notion-light-text/30 dark:hover:border-notion-dark-text/30 transition-colors shadow-sm">
-                    <div className="p-2.5 bg-notion-light-sidebar dark:bg-notion-dark-sidebar text-notion-light-text dark:text-notion-dark-text rounded border border-notion-light-border dark:border-notion-dark-border">
+                  <div className="flex items-center gap-4 p-3 md:p-4 bg-notion-light-bg dark:bg-notion-dark-bg border border-notion-light-border dark:border-notion-dark-border rounded hover:border-notion-light-text/30 dark:hover:border-notion-dark-text/30 transition-colors shadow-sm overflow-hidden">
+                    <div className="p-2 md:p-2.5 bg-notion-light-sidebar dark:bg-notion-dark-sidebar text-notion-light-text dark:text-notion-dark-text rounded border border-notion-light-border dark:border-notion-dark-border flex-shrink-0">
                       <Icon.Add size={16} />
                     </div>
                     <div className="overflow-hidden">
                       <p className="notion-label mb-0.5">Phone Number</p>
-                      <p className="text-[14px] font-bold text-notion-light-text dark:text-notion-dark-text truncate">
+                      <p className="text-[13px] md:text-[14px] font-bold text-notion-light-text dark:text-notion-dark-text truncate">
                         {selectedContact.phone || "N/A"}
                       </p>
                     </div>
@@ -322,14 +328,14 @@ export const CrmView: React.FC<CrmViewProps> = ({
               </div>
 
               {/* Interaction Log Section */}
-              <div className="flex-1 p-10 bg-notion-light-bg dark:bg-notion-dark-bg">
-                <div className="flex items-center justify-between mb-8">
+              <div className="flex-1 p-6 md:p-10 bg-notion-light-bg dark:bg-notion-dark-bg">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
                   <h3 className="notion-label uppercase tracking-[0.2em]">
                     Interaction Log
                   </h3>
                   <button
                     onClick={handleAddInteraction}
-                    className="text-[12px] font-bold text-notion-light-text dark:text-notion-dark-text flex items-center gap-2 hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover transition-colors bg-notion-light-sidebar dark:bg-notion-dark-sidebar px-3 py-1.5 rounded border border-notion-light-border dark:border-notion-dark-border shadow-sm"
+                    className="w-full sm:w-auto text-[11px] md:text-[12px] font-bold text-notion-light-text dark:text-notion-dark-text flex items-center justify-center gap-2 hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover transition-colors bg-notion-light-sidebar dark:bg-notion-dark-sidebar px-4 py-2.5 md:px-3 md:py-1.5 rounded border border-notion-light-border dark:border-notion-dark-border shadow-sm"
                   >
                     <Icon.Add size={14} /> Log Interaction
                   </button>

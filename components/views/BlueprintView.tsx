@@ -33,37 +33,39 @@ export const BlueprintView: React.FC = () => {
         title="Master Blueprint"
         subTitle="Solo Operator Command Center Roadmap"
       >
-        <button
-          onClick={copyAsMarkdown}
-          className="flex items-center gap-2 px-3 py-1.5 bg-notion-light-bg dark:bg-notion-dark-bg hover:bg-notion-light-sidebar dark:hover:bg-notion-dark-sidebar rounded-lg border border-notion-light-border dark:border-notion-dark-border text-[10px] font-bold text-notion-light-text dark:text-notion-dark-text transition-all group"
-          title="Copy Roadmap as Markdown"
-        >
-          {copied ? (
-            <Icon.Check size={14} className="text-emerald-500" />
-          ) : (
-            <Icon.Copy
-              size={14}
-              className="opacity-60 group-hover:opacity-100"
-            />
-          )}
-          <span className="uppercase tracking-widest">
-            {copied ? "Copied!" : "COPY"}
-          </span>
-        </button>
+        <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
+          <button
+            onClick={copyAsMarkdown}
+            className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2 bg-notion-light-bg dark:bg-notion-dark-bg hover:bg-notion-light-sidebar dark:hover:bg-notion-dark-sidebar rounded-xl border border-notion-light-border dark:border-notion-dark-border text-[10px] font-bold text-notion-light-text dark:text-notion-dark-text transition-all group active:scale-95"
+            title="Copy Roadmap as Markdown"
+          >
+            {copied ? (
+              <Icon.Check size={14} className="text-emerald-500" />
+            ) : (
+              <Icon.Copy
+                size={14}
+                className="opacity-60 group-hover:opacity-100"
+              />
+            )}
+            <span className="uppercase tracking-widest">
+              {copied ? "Copied!" : "COPY ROADMAP"}
+            </span>
+          </button>
 
-        <div className="flex items-center gap-2 px-3 py-1.5 bg-notion-light-sidebar dark:bg-notion-dark-sidebar rounded-lg border border-notion-light-border dark:border-notion-dark-border">
-          <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)] animate-pulse"></div>
-          <span className="text-[10px] font-bold text-notion-light-text dark:text-notion-dark-text opacity-70 uppercase tracking-widest">
-            System v2.2 - Deployment Ready
-          </span>
+          <div className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2 bg-notion-light-sidebar dark:bg-notion-dark-sidebar rounded-xl border border-notion-light-border dark:border-notion-dark-border">
+            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)] animate-pulse"></div>
+            <span className="text-[10px] font-bold text-notion-light-text dark:text-notion-dark-text opacity-70 uppercase tracking-widest">
+              v2.2 Deployment Ready
+            </span>
+          </div>
         </div>
       </ViewHeader>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {BLUEPRINT_MODULES.map((mod) => (
           <div
             key={mod.id}
-            className="relative group bg-notion-light-bg dark:bg-notion-dark-bg border border-notion-light-border dark:border-notion-dark-border rounded-2xl p-6 hover:shadow-xl hover:border-notion-light-text/10 dark:hover:border-notion-dark-text/10 transition-all duration-300 overflow-hidden flex flex-col h-full"
+            className="relative group bg-notion-light-bg dark:bg-notion-dark-bg border border-notion-light-border dark:border-notion-dark-border rounded-2xl p-5 sm:p-6 hover:shadow-xl hover:border-notion-light-text/10 dark:hover:border-notion-dark-text/10 transition-all duration-300 overflow-hidden flex flex-col h-full"
           >
             <div
               className={`absolute top-0 right-0 w-32 h-32 bg-${mod.color}-500/5 dark:bg-${mod.color}-400/5 rounded-full -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-700`}
@@ -125,7 +127,7 @@ export const BlueprintView: React.FC = () => {
         ))}
       </div>
 
-      <div className="bg-notion-light-sidebar dark:bg-notion-dark-sidebar rounded-2xl p-8 border border-notion-light-border dark:border-notion-dark-border relative overflow-hidden group shadow-sm hover:shadow-md transition-all">
+      <div className="bg-notion-light-sidebar dark:bg-notion-dark-sidebar rounded-2xl p-6 sm:p-8 border border-notion-light-border dark:border-notion-dark-border relative overflow-hidden group shadow-sm hover:shadow-md transition-all">
         <div className="absolute top-0 left-0 w-full h-1 bg-notion-light-text dark:bg-notion-dark-text opacity-20 group-hover:opacity-40 transition-opacity"></div>
         <div className="relative z-10 flex flex-col md:flex-row gap-8 items-start">
           <div className="flex-1">

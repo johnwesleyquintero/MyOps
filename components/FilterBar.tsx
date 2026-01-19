@@ -101,7 +101,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
       {setIsAiSortEnabled && (
         <button
           onClick={() => setIsAiSortEnabled(!isAiSortEnabled)}
-          className={`flex items-center gap-2 px-3 py-1.5 rounded border transition-all ${
+          className={`flex items-center gap-2 px-3 py-1.5 rounded border transition-all w-full lg:w-auto justify-center ${
             isAiSortEnabled
               ? "bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800 text-blue-600 dark:text-blue-400"
               : "bg-notion-light-sidebar dark:bg-notion-dark-sidebar border-notion-light-border dark:border-notion-dark-border text-notion-light-muted dark:text-notion-dark-muted hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover"
@@ -109,7 +109,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
           title={isAiSortEnabled ? "Disable AI Sort" : "Enable AI Sort"}
         >
           <Icon.Ai {...iconProps(14, isAiSortEnabled ? "animate-pulse" : "")} />
-          <span className="text-[10px] font-bold uppercase tracking-widest hidden sm:inline">
+          <span className="text-[10px] font-bold uppercase tracking-widest">
             AI Sort
           </span>
         </button>
@@ -117,9 +117,9 @@ export const FilterBar: React.FC<FilterBarProps> = ({
 
       <div className="flex gap-2 w-full lg:w-auto">
         {/* Status Dropdown */}
-        <div className="w-1/2 lg:w-32 relative">
+        <div className="flex-1 lg:w-32 relative">
           <select
-            className="notion-input block w-full pl-2 pr-7 appearance-none"
+            className="notion-input block w-full pl-2 pr-7 appearance-none text-xs"
             value={selectedStatus}
             onChange={(e) => setSelectedStatus(e.target.value)}
           >
@@ -136,9 +136,9 @@ export const FilterBar: React.FC<FilterBarProps> = ({
         </div>
 
         {/* Category Dropdown */}
-        <div className="w-1/2 lg:w-40 relative">
+        <div className="flex-1 lg:w-40 relative">
           <select
-            className="notion-input block w-full pl-2 pr-7 appearance-none"
+            className="notion-input block w-full pl-2 pr-7 appearance-none text-xs"
             value={selectedCategory}
             onChange={(e) => setSelectedCategory(e.target.value)}
           >
@@ -164,9 +164,9 @@ export const FilterBar: React.FC<FilterBarProps> = ({
             setSelectedStatus("");
             setSelectedMonth(new Date().toISOString().slice(0, 7));
           }}
-          className="px-4 py-2 notion-label hover:text-red-600 dark:hover:text-red-400 border border-transparent hover:border-red-200 dark:hover:border-red-900 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-all whitespace-nowrap"
+          className="w-full lg:w-auto px-4 py-2 notion-label hover:text-red-600 dark:hover:text-red-400 border border-transparent hover:border-red-200 dark:hover:border-red-900 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-all whitespace-nowrap text-center"
         >
-          Reset
+          Reset Filters
         </button>
       )}
     </div>

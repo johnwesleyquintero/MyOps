@@ -96,7 +96,7 @@ export const ReportView: React.FC = () => {
       >
         <button
           onClick={handleCopyMd}
-          className={`notion-button transition-all ${
+          className={`notion-button w-full sm:w-auto justify-center transition-all ${
             copied
               ? "bg-emerald-500/10 dark:bg-emerald-500/20 border border-emerald-500/30 dark:border-emerald-500/40 text-emerald-600 dark:text-emerald-400"
               : "notion-button-ghost border border-notion-light-border dark:border-notion-dark-border"
@@ -116,7 +116,7 @@ export const ReportView: React.FC = () => {
         </button>
       </ViewHeader>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {report?.results.map((res, idx) => (
           <div
             key={idx}

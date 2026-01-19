@@ -113,28 +113,28 @@ export const MissionControlView: React.FC<MissionControlViewProps> = ({
         title="Mission Control"
         subTitle="Manage and track your active missions and tasks"
       >
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2 mt-2 md:mt-0">
           {viewMode === "TABLE" && filteredEntries.length > 0 && (
             <button
               onClick={() => setIsDeleteModalOpen(true)}
-              className="notion-button notion-button-ghost text-red-600 dark:text-red-400 flex items-center gap-1.5"
+              className="notion-button notion-button-ghost text-red-600 dark:text-red-400 flex items-center gap-1.5 px-2 py-1 md:px-3 md:py-1.5"
               title="Clear View"
             >
               <Icon.Delete {...iconProps(14)} />
-              <span>CLEAR</span>
+              <span className="text-xs md:text-sm">CLEAR</span>
             </button>
           )}
           <button
             onClick={() => generateAndDownloadCSV(filteredEntries)}
-            className="notion-button notion-button-ghost flex items-center gap-1.5"
+            className="notion-button notion-button-ghost flex items-center gap-1.5 px-2 py-1 md:px-3 md:py-1.5"
             title="Export CSV"
           >
             <Icon.Download {...iconProps(14)} />
-            <span>EXPORT</span>
+            <span className="text-xs md:text-sm">EXPORT</span>
           </button>
           <button
             onClick={handleCopyMarkdown}
-            className="notion-button notion-button-ghost flex items-center gap-1.5"
+            className="notion-button notion-button-ghost flex items-center gap-1.5 px-2 py-1 md:px-3 md:py-1.5"
             title="Copy as Markdown Table"
           >
             {copiedMd ? (
@@ -142,19 +142,25 @@ export const MissionControlView: React.FC<MissionControlViewProps> = ({
             ) : (
               <Icon.Copy {...iconProps(14)} />
             )}
-            <span>{copiedMd ? "COPIED!" : "COPY"}</span>
+            <span className="text-xs md:text-sm">
+              {copiedMd ? "COPIED!" : "COPY"}
+            </span>
           </button>
         </div>
       </ViewHeader>
 
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
         {/* Notion-style View Tabs */}
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1 bg-notion-light-sidebar/50 dark:bg-notion-dark-sidebar/30 p-1 rounded-lg w-full md:w-auto">
           {(["TABLE", "KANBAN", "GANTT"] as ViewMode[]).map((mode) => (
             <button
               key={mode}
               onClick={() => handleViewChange(mode)}
-              className={`px-3 py-1.5 text-sm font-medium rounded transition-colors ${viewMode === mode ? "bg-notion-light-hover dark:bg-notion-dark-hover text-notion-light-text dark:text-notion-dark-text" : "text-notion-light-muted dark:text-notion-dark-muted hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover"}`}
+              className={`flex-1 md:flex-none px-3 py-1.5 text-xs md:text-sm font-medium rounded transition-all ${
+                viewMode === mode
+                  ? "bg-notion-light-bg dark:bg-notion-dark-bg text-notion-light-text dark:text-notion-dark-text shadow-sm"
+                  : "text-notion-light-muted dark:text-notion-dark-muted hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover"
+              }`}
             >
               {mode.charAt(0) + mode.slice(1).toLowerCase()}
             </button>

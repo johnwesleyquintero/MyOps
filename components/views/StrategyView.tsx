@@ -75,7 +75,7 @@ export const StrategyView: React.FC<StrategyViewProps> = ({ config }) => {
             setEditingDecision(null);
             setIsModalOpen(true);
           }}
-          className="notion-button notion-button-primary flex items-center gap-2"
+          className="notion-button notion-button-primary w-full sm:w-auto justify-center flex items-center gap-2"
         >
           <Icon.Add size={18} />
           <span>Log Decision</span>
@@ -256,7 +256,7 @@ const DecisionModal: React.FC<DecisionModalProps> = ({
         </div>
 
         <div className="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="space-y-1.5">
               <label className="text-[10px] font-bold uppercase tracking-widest opacity-60">
                 Type
@@ -353,7 +353,7 @@ const DecisionModal: React.FC<DecisionModalProps> = ({
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1.5">
               <label className="text-[10px] font-bold uppercase tracking-widest opacity-60">
                 Expected Outcome
@@ -382,7 +382,7 @@ const DecisionModal: React.FC<DecisionModalProps> = ({
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1.5">
               <label className="text-[10px] font-bold uppercase tracking-widest opacity-60">
                 Status
@@ -398,8 +398,8 @@ const DecisionModal: React.FC<DecisionModalProps> = ({
                 className="notion-input w-full"
               >
                 <option value="PENDING">Pending</option>
-                <option value="REVIEWED">Reviewed</option>
-                <option value="ARCHIVED">Archived</option>
+                <option value="COMPLETED">Completed</option>
+                <option value="ABORTED">Aborted</option>
               </select>
             </div>
             <div className="space-y-1.5">
@@ -407,17 +407,18 @@ const DecisionModal: React.FC<DecisionModalProps> = ({
                 Impact (1-5)
               </label>
               <input
-                type="range"
+                type="number"
                 min="1"
                 max="5"
                 value={formData.impact}
                 onChange={(e) =>
                   setFormData({
                     ...formData,
-                    impact: parseInt(e.target.value) as DecisionEntry["impact"],
+                    impact: (parseInt(e.target.value) ||
+                      3) as DecisionEntry["impact"],
                   })
                 }
-                className="w-full h-2 bg-notion-light-border dark:bg-notion-dark-border rounded-lg appearance-none cursor-pointer accent-fuchsia-500"
+                className="notion-input w-full"
               />
             </div>
           </div>
@@ -435,7 +436,7 @@ const DecisionModal: React.FC<DecisionModalProps> = ({
             className="notion-button notion-button-primary"
             disabled={!formData.title}
           >
-            Save Decision
+            {initialData ? "Update Log" : "Save Decision"}
           </button>
         </div>
       </div>

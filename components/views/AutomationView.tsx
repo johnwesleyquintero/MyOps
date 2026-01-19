@@ -59,7 +59,7 @@ export const AutomationView: React.FC<AutomationViewProps> = ({
       >
         <button
           onClick={handleAdd}
-          className="px-4 py-2 bg-notion-light-sidebar dark:bg-notion-dark-sidebar text-notion-light-text dark:text-notion-dark-text text-[10px] font-black uppercase tracking-widest border border-notion-light-border dark:border-notion-dark-border rounded-xl hover:bg-notion-light-border dark:hover:bg-notion-dark-border transition-all active:scale-95 shadow-sm"
+          className="w-full md:w-auto px-4 py-2.5 md:py-2 bg-notion-light-sidebar dark:bg-notion-dark-sidebar text-notion-light-text dark:text-notion-dark-text text-[10px] font-black uppercase tracking-widest border border-notion-light-border dark:border-notion-dark-border rounded-xl hover:bg-notion-light-border dark:hover:bg-notion-dark-border transition-all active:scale-95 shadow-sm mt-2 md:mt-0"
         >
           + New Trigger
         </button>
@@ -103,11 +103,11 @@ export const AutomationView: React.FC<AutomationViewProps> = ({
               automations.map((auto) => (
                 <div
                   key={auto.id}
-                  className="p-5 bg-notion-light-bg dark:bg-notion-dark-bg border border-notion-light-border dark:border-notion-dark-border rounded-2xl flex items-center justify-between group hover:shadow-md hover:border-notion-light-text/10 dark:hover:border-notion-dark-text/10 transition-all animate-in fade-in slide-in-from-bottom-2"
+                  className="p-4 md:p-5 bg-notion-light-bg dark:bg-notion-dark-bg border border-notion-light-border dark:border-notion-dark-border rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 group hover:shadow-md hover:border-notion-light-text/10 dark:hover:border-notion-dark-text/10 transition-all animate-in fade-in slide-in-from-bottom-2"
                 >
-                  <div className="flex items-center gap-5">
+                  <div className="flex items-center gap-4 md:gap-5 w-full sm:w-auto">
                     <div
-                      className="w-11 h-11 bg-notion-light-sidebar dark:bg-notion-dark-sidebar rounded-xl flex items-center justify-center border border-notion-light-border dark:border-notion-dark-border cursor-pointer hover:border-notion-light-text/30 dark:hover:border-notion-dark-text/30 transition-all shadow-sm group/icon"
+                      className="w-10 h-10 md:w-11 md:h-11 bg-notion-light-sidebar dark:bg-notion-dark-sidebar rounded-xl flex items-center justify-center border border-notion-light-border dark:border-notion-dark-border cursor-pointer hover:border-notion-light-text/30 dark:hover:border-notion-dark-text/30 transition-all shadow-sm group/icon flex-shrink-0"
                       onClick={() => handleEdit(auto)}
                     >
                       <Icon.Settings
@@ -115,28 +115,28 @@ export const AutomationView: React.FC<AutomationViewProps> = ({
                         className={`transition-all group-hover/icon:rotate-90 duration-500 ${auto.status === "Active" ? "text-notion-light-text dark:text-notion-dark-text" : "text-notion-light-muted dark:text-notion-dark-muted"}`}
                       />
                     </div>
-                    <div>
-                      <h4 className="text-sm font-black text-notion-light-text dark:text-notion-dark-text tracking-tight">
+                    <div className="min-w-0 flex-1">
+                      <h4 className="text-sm font-black text-notion-light-text dark:text-notion-dark-text tracking-tight truncate">
                         {auto.name}
                       </h4>
-                      <div className="flex items-center gap-2 mt-1.5">
-                        <span className="text-[10px] font-black uppercase tracking-widest text-notion-light-text dark:text-notion-dark-text bg-notion-light-sidebar dark:bg-notion-dark-sidebar px-1.5 py-0.5 rounded">
+                      <div className="flex flex-wrap items-center gap-1.5 md:gap-2 mt-1.5">
+                        <span className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-notion-light-text dark:text-notion-dark-text bg-notion-light-sidebar dark:bg-notion-dark-sidebar px-1.5 py-0.5 rounded truncate max-w-[100px] md:max-w-none">
                           {auto.trigger}
                         </span>
                         <Icon.Next
                           size={10}
-                          className="text-notion-light-muted dark:text-notion-dark-muted opacity-30"
+                          className="text-notion-light-muted dark:text-notion-dark-muted opacity-30 flex-shrink-0"
                         />
-                        <span className="text-[10px] font-black uppercase tracking-widest text-notion-light-text dark:text-notion-dark-text opacity-70">
+                        <span className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-notion-light-text dark:text-notion-dark-text opacity-70 truncate max-w-[100px] md:max-w-none">
                           {auto.action}
                         </span>
                       </div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end border-t sm:border-t-0 border-notion-light-border dark:border-notion-dark-border pt-3 sm:pt-0">
                     <button
                       onClick={() => onToggle(auto.id)}
-                      className={`px-3 py-1 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all border shadow-sm ${
+                      className={`flex-1 sm:flex-none px-4 sm:px-3 py-2 sm:py-1 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all border shadow-sm ${
                         auto.status === "Active"
                           ? "bg-notion-light-text dark:bg-notion-dark-text text-notion-light-bg dark:text-notion-dark-bg border-transparent"
                           : "bg-notion-light-sidebar dark:bg-notion-dark-sidebar text-notion-light-muted dark:text-notion-dark-muted border-notion-light-border dark:border-notion-dark-border opacity-60"
@@ -146,7 +146,7 @@ export const AutomationView: React.FC<AutomationViewProps> = ({
                     </button>
                     <button
                       onClick={() => onDelete(auto.id)}
-                      className="p-2 text-notion-light-muted hover:text-red-600 dark:hover:text-red-400 hover:bg-red-500/10 dark:hover:bg-red-500/20 rounded-xl transition-all opacity-0 group-hover:opacity-100"
+                      className="p-2 text-notion-light-muted hover:text-red-600 dark:hover:text-red-400 hover:bg-red-500/10 dark:hover:bg-red-500/20 rounded-xl transition-all sm:opacity-0 sm:group-hover:opacity-100"
                     >
                       <Icon.Delete size={16} />
                     </button>

@@ -51,11 +51,11 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
   };
 
   return (
-    <div className="flex flex-col md:flex-row gap-4 overflow-x-auto pb-4 h-[calc(100vh-250px)] custom-scrollbar">
+    <div className="flex flex-col md:flex-row gap-4 overflow-x-auto pb-4 h-[calc(100vh-250px)] custom-scrollbar snap-x snap-mandatory">
       {(["Backlog", "In Progress", "Done"] as StatusLevel[]).map((status) => (
         <div
           key={status}
-          className="flex-1 min-w-[300px] flex flex-col rounded bg-notion-light-sidebar dark:bg-notion-dark-sidebar/50 border border-notion-light-border dark:border-notion-dark-border/50"
+          className="flex-1 min-w-[85vw] md:min-w-[300px] flex flex-col rounded bg-notion-light-sidebar dark:bg-notion-dark-sidebar/50 border border-notion-light-border dark:border-notion-dark-border/50 snap-center"
         >
           <div className="p-3 flex justify-between items-center border-b border-notion-light-border/50 dark:border-notion-dark-border/30">
             <div className="flex items-center gap-2">

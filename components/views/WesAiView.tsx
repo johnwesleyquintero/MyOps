@@ -200,7 +200,7 @@ export const WesAiView: React.FC<WesAiViewProps> = ({
             className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
           >
             <div
-              className={`max-w-[80%] rounded-2xl p-4 transition-all duration-200 group/msg ${
+              className={`max-w-[90%] sm:max-w-[80%] rounded-2xl p-4 transition-all duration-200 group/msg ${
                 msg.role === "user"
                   ? "bg-chatgpt-light-user dark:bg-chatgpt-dark-user text-notion-light-text dark:text-notion-dark-text border border-chatgpt-light-border dark:border-chatgpt-dark-border shadow-sm hover:shadow-md"
                   : "bg-chatgpt-light-assistant dark:bg-chatgpt-dark-assistant text-notion-light-text dark:text-notion-dark-text border border-chatgpt-light-border dark:border-chatgpt-dark-border shadow-sm"
@@ -273,7 +273,7 @@ export const WesAiView: React.FC<WesAiViewProps> = ({
                       <img
                         src={img}
                         alt="Attachment"
-                        className="w-48 h-48 object-cover"
+                        className="w-32 h-32 sm:w-48 sm:h-48 object-cover"
                       />
                       <div className="absolute inset-0 bg-blue-500/10 pointer-events-none mix-blend-overlay"></div>
                       <div className="absolute inset-0 bg-[linear-gradient(transparent_0%,rgba(0,100,255,0.1)_50%,transparent_100%)] bg-[length:100%_4px] animate-[scan_2s_linear_infinite] pointer-events-none"></div>
@@ -364,12 +364,12 @@ export const WesAiView: React.FC<WesAiViewProps> = ({
               isThinking ||
               !config.geminiApiKey
             }
-            className="p-3 bg-notion-light-text dark:bg-notion-dark-text text-white dark:text-notion-dark-bg rounded-xl hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg active:scale-95"
+            className="p-3 bg-notion-light-text dark:bg-notion-dark-text text-white dark:text-notion-dark-bg rounded-xl hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg active:scale-95 flex-shrink-0"
           >
             <Icon.Send {...iconProps(20)} />
           </button>
         </div>
-        <div className="mt-2 text-[10px] opacity-40 text-center font-medium">
+        <div className="mt-2 text-[10px] opacity-40 text-center font-medium hidden sm:block">
           PRO TIP: You can paste images directly from your clipboard (Ctrl+V) or
           drop them here.
         </div>

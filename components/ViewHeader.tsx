@@ -18,10 +18,10 @@ export const ViewHeader: React.FC<ViewHeaderProps> = ({
   return (
     <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
       <div>
-        <h1 className="text-3xl font-black tracking-tight text-notion-light-text dark:text-notion-dark-text uppercase">
+        <h1 className="text-2xl md:text-3xl font-black tracking-tight text-notion-light-text dark:text-notion-dark-text uppercase">
           {firstWord}{" "}
           {remainingWords && (
-            <span className="opacity-50 uppercase tracking-widest text-2xl">
+            <span className="opacity-50 uppercase tracking-widest text-xl md:text-2xl">
               {remainingWords}
             </span>
           )}

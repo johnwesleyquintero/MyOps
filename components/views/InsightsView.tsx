@@ -203,7 +203,7 @@ export const InsightsView: React.FC<InsightsViewProps> = ({
         title="Operator Insights"
         subTitle="Analyze your growth and operational velocity"
       >
-        <div className="px-4 py-2 bg-notion-light-sidebar dark:bg-notion-dark-sidebar rounded-xl border border-notion-light-border dark:border-notion-dark-border">
+        <div className="w-full sm:w-auto px-4 py-2 bg-notion-light-sidebar dark:bg-notion-dark-sidebar rounded-xl border border-notion-light-border dark:border-notion-dark-border flex flex-col items-center sm:items-start">
           <span className="text-[10px] font-black text-notion-light-muted dark:text-notion-dark-muted uppercase tracking-widest block">
             Last Sync
           </span>
@@ -300,7 +300,7 @@ export const InsightsView: React.FC<InsightsViewProps> = ({
       </div>
 
       {/* Top Section: Operator Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-notion-light-bg dark:bg-notion-dark-bg p-6 rounded-2xl border border-notion-light-border dark:border-notion-dark-border">
           <div className="flex items-center gap-3 mb-4">
             <div className="p-2 bg-notion-light-sidebar dark:bg-notion-dark-sidebar text-notion-light-text dark:text-notion-dark-text rounded-lg border border-notion-light-border dark:border-notion-dark-border">
@@ -543,8 +543,8 @@ export const InsightsView: React.FC<InsightsViewProps> = ({
       </div>
 
       {/* Artifacts Gallery */}
-      <div className="bg-notion-light-bg dark:bg-notion-dark-bg p-8 rounded-2xl border border-notion-light-border dark:border-notion-dark-border">
-        <div className="flex items-center justify-between mb-8">
+      <div className="bg-notion-light-bg dark:bg-notion-dark-bg p-4 sm:p-8 rounded-2xl border border-notion-light-border dark:border-notion-dark-border">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
           <div>
             <h2 className="text-xl font-black text-notion-light-text dark:text-notion-dark-text uppercase tracking-widest">
               Artifact <span className="opacity-50">Gallery</span>
@@ -553,16 +553,16 @@ export const InsightsView: React.FC<InsightsViewProps> = ({
               Earned operational badges and rare items
             </p>
           </div>
-          <div className="flex items-center gap-2 px-3 py-1 bg-notion-light-sidebar dark:bg-notion-dark-sidebar text-notion-light-text dark:text-notion-dark-text rounded-lg border border-notion-light-border dark:border-notion-dark-border text-[10px] font-black uppercase tracking-widest">
+          <div className="w-fit flex items-center gap-2 px-3 py-1 bg-notion-light-sidebar dark:bg-notion-dark-sidebar text-notion-light-text dark:text-notion-dark-text rounded-lg border border-notion-light-border dark:border-notion-dark-border text-[10px] font-black uppercase tracking-widest">
             {unlockedCount} / {artifacts.length} Discovered
           </div>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4">
           {artifacts.map((artifact, index) => (
             <div
               key={index}
-              className={`group relative flex flex-col items-center justify-center p-6 rounded-2xl border transition-all duration-300 ${
+              className={`group relative flex flex-col items-center justify-center p-4 sm:p-6 rounded-2xl border transition-all duration-300 ${
                 artifact.isUnlocked
                   ? "bg-notion-light-bg dark:bg-notion-dark-bg border-notion-light-border dark:border-notion-dark-border text-notion-light-text dark:text-notion-dark-text shadow-sm hover:shadow-md hover:scale-[1.02]"
                   : "bg-notion-light-sidebar dark:bg-notion-dark-sidebar border-notion-light-border dark:border-notion-dark-border text-notion-light-muted dark:text-notion-dark-muted grayscale opacity-40"
@@ -574,13 +574,19 @@ export const InsightsView: React.FC<InsightsViewProps> = ({
                 {artifact.icon}
               </div>
               <span
-                className={`text-[10px] font-black uppercase tracking-widest text-center leading-tight ${artifact.isUnlocked ? "text-notion-light-text dark:text-notion-dark-text" : "text-notion-light-muted dark:text-notion-dark-muted"}`}
+                className={`text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-center leading-tight ${artifact.isUnlocked ? "text-notion-light-text dark:text-notion-dark-text" : "text-notion-light-muted dark:text-notion-dark-muted"}`}
               >
                 {artifact.name}
               </span>
 
-              {/* Tooltip on Hover */}
-              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-32 p-2 bg-notion-light-text dark:bg-notion-dark-text text-notion-light-bg dark:text-notion-dark-bg text-[10px] font-bold rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10 text-center shadow-xl border border-notion-light-border dark:border-notion-dark-border">
+              {!artifact.isUnlocked && (
+                <span className="mt-1.5 text-[8px] font-bold opacity-40 uppercase tracking-tighter text-center sm:hidden">
+                  {artifact.condition}
+                </span>
+              )}
+
+              {/* Tooltip on Hover (Desktop only) */}
+              <div className="absolute hidden sm:block bottom-full left-1/2 -translate-x-1/2 mb-2 w-32 p-2 bg-notion-light-text dark:bg-notion-dark-text text-notion-light-bg dark:text-notion-dark-bg text-[10px] font-bold rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10 text-center shadow-xl border border-notion-light-border dark:border-notion-dark-border">
                 <p className="uppercase tracking-widest mb-1 opacity-50">
                   {artifact.isUnlocked ? "Unlocked" : "Locked"}
                 </p>

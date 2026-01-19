@@ -33,7 +33,10 @@ export const KnowledgeView: React.FC<KnowledgeViewProps> = ({
     if (rawSelectedNote) return rawSelectedNote;
     // When editing/creating and no specific note is selected, we treat it as a new note
     if (isEditing && !rawSelectedNote) return null;
-    // Otherwise, default to the first note if available
+    // On mobile, if no note is explicitly selected, we don't default to the first one
+    // to allow the list view to show
+    if (typeof window !== "undefined" && window.innerWidth < 1024) return null;
+    // Otherwise, default to the first note if available (desktop view)
     return notes.length > 0 && !isLoading ? notes[0] : null;
   }, [rawSelectedNote, isEditing, notes, isLoading]);
 
@@ -139,9 +142,12 @@ export const KnowledgeView: React.FC<KnowledgeViewProps> = ({
       >
         <button
           onClick={handleCreateNew}
-          className="notion-button notion-button-primary px-6 py-2.5 shadow-sm"
+          className="w-full md:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-notion-light-sidebar dark:bg-notion-dark-sidebar border border-notion-light-border dark:border-notion-dark-border text-notion-light-text dark:text-notion-dark-text rounded-2xl font-black text-sm uppercase tracking-widest shadow-sm hover:bg-notion-light-border dark:hover:bg-notion-dark-border transition-all active:scale-95"
         >
-          <Icon.Add size={18} />
+          <Icon.Add
+            size={18}
+            className="group-hover:rotate-90 transition-transform duration-300"
+          />
           New Document
         </button>
       </ViewHeader>
@@ -149,7 +155,7 @@ export const KnowledgeView: React.FC<KnowledgeViewProps> = ({
       <div className="flex flex-col lg:flex-row gap-8 items-start">
         {/* Sidebar */}
         <div
-          className={`w-full lg:w-80 xl:w-96 flex-shrink-0 space-y-4 ${selectedNote || isEditing ? "hidden lg:block" : "block"}`}
+          className={`w-full lg:w-80 xl:w-96 flex-shrink-0 space-y-4 ${rawSelectedNote || isEditing ? "hidden lg:block" : "block"}`}
         >
           <div className="relative group">
             <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-notion-light-muted dark:text-notion-dark-muted group-focus-within:text-notion-light-text dark:group-focus-within:text-notion-dark-text transition-colors">
@@ -228,9 +234,9 @@ export const KnowledgeView: React.FC<KnowledgeViewProps> = ({
 
         {/* Content Area */}
         <div
-          className={`flex-1 min-w-0 w-full ${!selectedNote && !isEditing ? "hidden lg:block" : "block"}`}
+          className={`flex-1 min-w-0 w-full ${!rawSelectedNote && !isEditing ? "hidden lg:block" : "block"}`}
         >
-          {selectedNote || isEditing ? (
+          {rawSelectedNote || isEditing ? (
             <div className="notion-card overflow-hidden shadow-sm">
               {/* Back button for mobile */}
               <button
@@ -238,29 +244,29 @@ export const KnowledgeView: React.FC<KnowledgeViewProps> = ({
                   setRawSelectedNote(null);
                   setIsEditing(false);
                 }}
-                className="lg:hidden flex items-center gap-2 px-6 py-4 text-notion-light-muted hover:text-notion-light-text border-b border-notion-light-border dark:border-notion-dark-border"
+                className="lg:hidden flex items-center gap-2 px-4 py-4 text-notion-light-muted hover:text-notion-light-text border-b border-notion-light-border dark:border-notion-dark-border bg-notion-light-sidebar/10 dark:bg-notion-dark-sidebar/10 active:bg-notion-light-hover dark:active:bg-notion-dark-hover transition-colors w-full text-left font-bold relative z-10"
               >
                 <Icon.Prev size={16} /> Back to Documents
               </button>
 
               {/* Toolbar */}
-              <div className="px-6 py-4 border-b border-notion-light-border dark:border-notion-dark-border flex items-center justify-between bg-notion-light-sidebar/50 dark:bg-notion-dark-sidebar/30">
-                <div className="flex items-center gap-4">
+              <div className="px-4 sm:px-6 py-4 border-b border-notion-light-border dark:border-notion-dark-border flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-notion-light-sidebar/50 dark:bg-notion-dark-sidebar/30">
+                <div className="flex items-center gap-4 min-w-0">
                   {isEditing ? (
                     <input
                       type="text"
                       value={editTitle}
                       onChange={(e) => setEditTitle(e.target.value)}
                       placeholder="Document Title"
-                      className="bg-transparent border-none outline-none font-black text-xl text-notion-light-text dark:text-notion-dark-text placeholder:text-notion-light-muted/30 w-full md:w-96"
+                      className="bg-transparent border-none outline-none font-black text-xl text-notion-light-text dark:text-notion-dark-text placeholder:text-notion-light-muted/30 w-full"
                     />
                   ) : (
-                    <h2 className="font-black text-xl text-notion-light-text dark:text-notion-dark-text uppercase tracking-tight">
+                    <h2 className="font-black text-xl text-notion-light-text dark:text-notion-dark-text uppercase tracking-tight truncate">
                       {selectedNote?.title}
                     </h2>
                   )}
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 justify-end">
                   {isEditing ? (
                     <>
                       <button
@@ -268,13 +274,13 @@ export const KnowledgeView: React.FC<KnowledgeViewProps> = ({
                           setIsEditing(false);
                           if (!selectedNote) setRawSelectedNote(null);
                         }}
-                        className="notion-button notion-button-ghost text-xs uppercase tracking-widest"
+                        className="notion-button notion-button-ghost text-[10px] uppercase tracking-widest px-3 py-2"
                       >
                         Cancel
                       </button>
                       <button
                         onClick={handleSave}
-                        className="notion-button notion-button-primary px-4 shadow-sm text-xs uppercase tracking-widest"
+                        className="notion-button notion-button-primary px-4 py-2 shadow-sm text-[10px] uppercase tracking-widest"
                       >
                         Save SOP
                       </button>
@@ -283,7 +289,7 @@ export const KnowledgeView: React.FC<KnowledgeViewProps> = ({
                     <>
                       <button
                         onClick={handleCopyMarkdown}
-                        className={`p-2 transition-all flex items-center gap-2 ${
+                        className={`p-3 sm:p-2 transition-all flex items-center gap-2 ${
                           isCopied
                             ? "text-green-500"
                             : "text-notion-light-muted hover:text-notion-light-text dark:hover:text-notion-dark-text"
@@ -306,7 +312,7 @@ export const KnowledgeView: React.FC<KnowledgeViewProps> = ({
                           }
                           setIsEditing(true);
                         }}
-                        className="p-2 text-notion-light-muted hover:text-notion-light-text dark:hover:text-notion-dark-text transition-colors"
+                        className="p-3 sm:p-2 text-notion-light-muted hover:text-notion-light-text dark:hover:text-notion-dark-text transition-colors"
                         title="Edit Document"
                       >
                         <Icon.Edit size={18} />
@@ -315,7 +321,7 @@ export const KnowledgeView: React.FC<KnowledgeViewProps> = ({
                         onClick={() =>
                           selectedNote && onDeleteNote(selectedNote.id)
                         }
-                        className="p-2 text-notion-light-muted hover:text-red-600 dark:hover:text-red-400 transition-colors"
+                        className="p-3 sm:p-2 text-notion-light-muted hover:text-red-600 dark:hover:text-red-400 transition-colors"
                         title="Delete Document"
                       >
                         <Icon.Delete size={18} />

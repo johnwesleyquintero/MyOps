@@ -58,11 +58,11 @@ export const GanttChart: React.FC<GanttChartProps> = ({ entries, onEdit }) => {
   return (
     <div className="notion-card flex flex-col h-[calc(100vh-250px)] transition-colors overflow-hidden">
       {/* Timeline Header */}
-      <div className="flex border-b border-notion-light-border dark:border-notion-dark-border bg-notion-light-sidebar/50 dark:bg-notion-dark-sidebar/30">
-        <div className="w-40 flex-shrink-0 p-3 border-r border-notion-light-border dark:border-notion-dark-border notion-label sticky left-0 z-10 bg-notion-light-sidebar dark:bg-notion-dark-sidebar">
+      <div className="flex border-b border-notion-light-border dark:border-notion-dark-border bg-notion-light-sidebar/50 dark:bg-notion-dark-sidebar/30 overflow-x-auto custom-scrollbar">
+        <div className="w-24 md:w-40 flex-shrink-0 p-3 border-r border-notion-light-border dark:border-notion-dark-border notion-label sticky left-0 z-20 bg-notion-light-sidebar dark:bg-notion-dark-sidebar shadow-[4px_0_8px_-4px_rgba(0,0,0,0.1)]">
           Project
         </div>
-        <div className="flex-1 flex overflow-hidden">
+        <div className="flex-1 flex">
           {dates.map((d, i) => {
             const isToday = d.getTime() === today.getTime();
             const isWeekend = d.getDay() === 0 || d.getDay() === 6;
@@ -102,7 +102,7 @@ export const GanttChart: React.FC<GanttChartProps> = ({ entries, onEdit }) => {
       </div>
 
       {/* Timeline Body */}
-      <div className="flex-1 overflow-y-auto bg-notion-light-bg dark:bg-notion-dark-bg">
+      <div className="flex-1 overflow-y-auto overflow-x-auto bg-notion-light-bg dark:bg-notion-dark-bg custom-scrollbar">
         {projects.length === 0 ? (
           <div className="flex items-center justify-center h-full text-notion-light-muted dark:text-notion-dark-muted text-sm">
             No active projects
@@ -111,19 +111,19 @@ export const GanttChart: React.FC<GanttChartProps> = ({ entries, onEdit }) => {
           projects.map((proj) => (
             <div
               key={proj}
-              className="flex border-b border-notion-light-border/30 dark:border-notion-dark-border/30 min-h-[50px]"
+              className="flex border-b border-notion-light-border/30 dark:border-notion-dark-border/30 min-h-[50px] w-max min-w-full"
             >
               {/* Y-Axis Label */}
-              <div className="w-40 flex-shrink-0 p-2 border-r border-notion-light-border dark:border-notion-dark-border flex items-center bg-notion-light-bg dark:bg-notion-dark-bg sticky left-0 z-10">
+              <div className="w-24 md:w-40 flex-shrink-0 p-2 border-r border-notion-light-border dark:border-notion-dark-border flex items-center bg-notion-light-bg dark:bg-notion-dark-bg sticky left-0 z-10 shadow-[4px_0_8px_-4px_rgba(0,0,0,0.1)]">
                 <span
-                  className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium border ${getProjectStyle(proj)}`}
+                  className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium border ${getProjectStyle(proj)} truncate`}
                 >
                   {proj}
                 </span>
               </div>
 
               {/* Grid */}
-              <div className="flex-1 flex overflow-x-hidden">
+              <div className="flex-1 flex">
                 {dates.map((d, i) => {
                   const dayTasks = getTaskForDate(groupedData[proj], d);
                   return (

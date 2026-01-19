@@ -68,13 +68,13 @@ export const AwarenessView: React.FC<AwarenessViewProps> = ({ config }) => {
   }
 
   return (
-    <div className="max-w-2xl mx-auto space-y-12 animate-in fade-in duration-500">
+    <div className="max-w-2xl mx-auto px-4 sm:px-0 space-y-12 animate-in fade-in duration-500">
       <ViewHeader
         title="Mental Awareness"
         subTitle="Constraints Awareness Check-in"
       />
 
-      <div className="bg-notion-light-bg dark:bg-notion-dark-bg border border-notion-light-border dark:border-notion-dark-border rounded-3xl p-8 shadow-xl">
+      <div className="bg-notion-light-bg dark:bg-notion-dark-bg border border-notion-light-border dark:border-notion-dark-border rounded-3xl p-6 sm:p-8 shadow-xl">
         <div className="space-y-8">
           {/* Energy Level */}
           <div className="space-y-4">
@@ -154,7 +154,7 @@ export const AwarenessView: React.FC<AwarenessViewProps> = ({ config }) => {
           <h3 className="text-xs font-black uppercase tracking-widest opacity-30 text-center">
             Recent Operating States
           </h3>
-          <div className="grid grid-cols-7 gap-2">
+          <div className="grid grid-cols-4 sm:grid-cols-7 gap-2">
             {history.slice(0, 7).map((entry) => (
               <div
                 key={entry.date}

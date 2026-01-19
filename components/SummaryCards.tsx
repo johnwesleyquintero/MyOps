@@ -14,7 +14,7 @@ export const SummaryCards: React.FC<SummaryCardsProps> = ({ metrics }) => {
 
   return (
     <div className="mb-6">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-4">
         {/* Backlog */}
         <div className="notion-card p-5 bg-notion-light-sidebar/50 dark:bg-notion-dark-sidebar/30 relative overflow-hidden group hover:shadow-md transition-all">
           <div className="flex justify-between items-start mb-2">

@@ -60,7 +60,7 @@ export const VaultView: React.FC<VaultViewProps> = ({
       >
         <button
           onClick={() => setIsAdding(true)}
-          className="flex items-center gap-2 px-6 py-3 bg-notion-light-sidebar dark:bg-notion-dark-sidebar border border-notion-light-border dark:border-notion-dark-border text-notion-light-text dark:text-notion-dark-text rounded-2xl font-black text-sm uppercase tracking-widest shadow-sm hover:bg-notion-light-border dark:hover:bg-notion-dark-border transition-all active:scale-95"
+          className="w-full md:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-notion-light-sidebar dark:bg-notion-dark-sidebar border border-notion-light-border dark:border-notion-dark-border text-notion-light-text dark:text-notion-dark-text rounded-2xl font-black text-sm uppercase tracking-widest shadow-sm hover:bg-notion-light-border dark:hover:bg-notion-dark-border transition-all active:scale-95"
         >
           <Icon.Vault size={20} />
           Secure New Item
@@ -171,7 +171,7 @@ export const VaultView: React.FC<VaultViewProps> = ({
                   </div>
                   <button
                     onClick={() => onDeleteEntry(entry.id)}
-                    className="p-2.5 text-notion-light-muted dark:text-notion-dark-muted hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/10 rounded-xl transition-all opacity-0 group-hover:opacity-100"
+                    className="p-2.5 text-notion-light-muted dark:text-notion-dark-muted hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/10 rounded-xl transition-all opacity-100 md:opacity-0 md:group-hover:opacity-100"
                   >
                     <Icon.Delete size={18} />
                   </button>
@@ -213,10 +213,12 @@ export const VaultView: React.FC<VaultViewProps> = ({
                     {new Date(entry.createdAt).toLocaleDateString(undefined, {
                       month: "short",
                       day: "numeric",
-                      year: "numeric",
                     })}
+                    <span className="hidden sm:inline">
+                      , {new Date(entry.createdAt).getFullYear()}
+                    </span>
                   </span>
-                  <div className="flex -space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="flex -space-x-1 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
                     <div className="w-5 h-5 rounded-full border-2 border-notion-light-bg dark:border-notion-dark-bg bg-notion-light-sidebar dark:bg-notion-dark-sidebar flex items-center justify-center">
                       <Icon.Vault
                         size={10}

@@ -50,13 +50,17 @@ export const useCrm = (
 
   const saveInteraction = async (interaction: Interaction) => {
     try {
+      const isUpdate = !!interaction.id;
       const success = await crmService.saveInteraction(interaction, config);
       if (success) {
-        showToast("Interaction logged", "success");
+        showToast(
+          isUpdate ? "Interaction updated" : "Interaction logged",
+          "success",
+        );
         return true;
       }
     } catch {
-      showToast("Failed to log interaction", "error");
+      showToast("Failed to save interaction", "error");
     }
     return false;
   };

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Interaction } from "../types";
 import { Icon as Icons } from "./Icons";
 
@@ -7,6 +7,7 @@ interface InteractionModalProps {
   onClose: () => void;
   onSubmit: (interaction: Interaction) => Promise<boolean>;
   contactId: string;
+  initialData?: Interaction | null;
 }
 
 export const InteractionModal: React.FC<InteractionModalProps> = ({
@@ -14,6 +15,7 @@ export const InteractionModal: React.FC<InteractionModalProps> = ({
   onClose,
   onSubmit,
   contactId,
+  initialData,
 }) => {
   const [formData, setFormData] = useState<Partial<Interaction>>({
     type: "Call",
@@ -22,6 +24,22 @@ export const InteractionModal: React.FC<InteractionModalProps> = ({
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (initialData) {
+      setFormData({
+        type: initialData.type,
+        notes: initialData.notes,
+        date: initialData.date.split("T")[0],
+      });
+    } else {
+      setFormData({
+        type: "Call",
+        notes: "",
+        date: new Date().toISOString().split("T")[0],
+      });
+    }
+  }, [initialData, isOpen]);
 
   if (!isOpen) return null;
 
@@ -32,7 +50,7 @@ export const InteractionModal: React.FC<InteractionModalProps> = ({
     setIsSubmitting(true);
     try {
       const interactionToSave: Interaction = {
-        id: Math.random().toString(36).substr(2, 9),
+        id: initialData?.id || Math.random().toString(36).substr(2, 9),
         contactId,
         type: (formData.type as Interaction["type"]) || "Call",
         notes: formData.notes || "",
@@ -40,11 +58,6 @@ export const InteractionModal: React.FC<InteractionModalProps> = ({
       };
       const success = await onSubmit(interactionToSave);
       if (success) {
-        setFormData({
-          type: "Call",
-          notes: "",
-          date: new Date().toISOString().split("T")[0],
-        });
         onClose();
       }
     } finally {
@@ -60,7 +73,7 @@ export const InteractionModal: React.FC<InteractionModalProps> = ({
       >
         <div className="px-6 py-4 border-b border-notion-light-border dark:border-notion-dark-border flex justify-between items-center bg-notion-light-sidebar/50 dark:bg-notion-dark-sidebar/50">
           <h2 className="text-lg font-bold text-notion-light-text dark:text-notion-dark-text">
-            Log Interaction
+            {initialData ? "Edit Interaction" : "Log Interaction"}
           </h2>
           <button
             onClick={onClose}
@@ -134,7 +147,11 @@ export const InteractionModal: React.FC<InteractionModalProps> = ({
               disabled={isSubmitting || !formData.notes}
               className="notion-button notion-button-primary disabled:opacity-50"
             >
-              {isSubmitting ? "Logging..." : "Save Log"}
+              {isSubmitting
+                ? initialData
+                  ? "Updating..."
+                  : "Logging..."
+                : "Save Log"}
             </button>
           </div>
         </form>

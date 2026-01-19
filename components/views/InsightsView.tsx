@@ -214,7 +214,7 @@ export const InsightsView: React.FC<InsightsViewProps> = ({
       </ViewHeader>
 
       {/* Gamification Layer */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         <div className="bg-notion-light-text dark:bg-notion-dark-text rounded-2xl p-6 text-notion-light-bg dark:text-notion-dark-bg shadow-xl relative overflow-hidden">
           <div className="absolute right-[-10%] top-[-10%] opacity-10 rotate-12">
             <Icon.Active size={120} />
@@ -558,7 +558,7 @@ export const InsightsView: React.FC<InsightsViewProps> = ({
           </div>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
           {artifacts.map((artifact, index) => (
             <div
               key={index}

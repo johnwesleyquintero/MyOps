@@ -102,7 +102,7 @@ export const TaskTable: React.FC<TaskTableProps> = ({
                 .map((col) => (
                   <th
                     key={col.key}
-                    className={`${col.width} px-3 py-2 text-[10px] font-bold text-notion-light-muted dark:text-notion-dark-muted uppercase tracking-widest cursor-pointer hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover transition-colors group`}
+                    className={`${col.width} px-3 py-2 text-[10px] font-bold text-notion-light-muted dark:text-notion-dark-muted uppercase tracking-widest cursor-pointer hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover transition-colors group ${["project", "priority"].includes(col.key) ? "hidden md:table-cell" : ""}`}
                     onClick={() => requestSort(col.key as SortKey)}
                   >
                     <div className="flex items-center gap-2">
@@ -173,7 +173,7 @@ export const TaskTable: React.FC<TaskTableProps> = ({
                     .map((col) => (
                       <td
                         key={col.key}
-                        className="px-3 py-2 align-top text-sm"
+                        className={`px-3 py-2 align-top text-sm ${["project", "priority"].includes(col.key) ? "hidden md:table-cell" : ""}`}
                         onClick={() => {
                           if (col.key !== "description") onEdit(task);
                         }}

@@ -148,7 +148,9 @@ export const KnowledgeView: React.FC<KnowledgeViewProps> = ({
 
       <div className="flex flex-col lg:flex-row gap-8 items-start">
         {/* Sidebar */}
-        <div className="w-full lg:w-80 xl:w-96 flex-shrink-0 space-y-4">
+        <div
+          className={`w-full lg:w-80 xl:w-96 flex-shrink-0 space-y-4 ${selectedNote || isEditing ? "hidden lg:block" : "block"}`}
+        >
           <div className="relative group">
             <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-notion-light-muted dark:text-notion-dark-muted group-focus-within:text-notion-light-text dark:group-focus-within:text-notion-dark-text transition-colors">
               <Icon.Search size={16} />
@@ -225,9 +227,22 @@ export const KnowledgeView: React.FC<KnowledgeViewProps> = ({
         </div>
 
         {/* Content Area */}
-        <div className="flex-1 min-w-0 w-full">
+        <div
+          className={`flex-1 min-w-0 w-full ${!selectedNote && !isEditing ? "hidden lg:block" : "block"}`}
+        >
           {selectedNote || isEditing ? (
             <div className="notion-card overflow-hidden shadow-sm">
+              {/* Back button for mobile */}
+              <button
+                onClick={() => {
+                  setRawSelectedNote(null);
+                  setIsEditing(false);
+                }}
+                className="lg:hidden flex items-center gap-2 px-6 py-4 text-notion-light-muted hover:text-notion-light-text border-b border-notion-light-border dark:border-notion-dark-border"
+              >
+                <Icon.Prev size={16} /> Back to Documents
+              </button>
+
               {/* Toolbar */}
               <div className="px-6 py-4 border-b border-notion-light-border dark:border-notion-dark-border flex items-center justify-between bg-notion-light-sidebar/50 dark:bg-notion-dark-sidebar/30">
                 <div className="flex items-center gap-4">

@@ -70,7 +70,7 @@ export const TaskModal: React.FC<TaskModalProps> = ({
         if (e.target === e.currentTarget) onClose();
       }}
     >
-      <div className="notion-card w-full max-w-4xl shadow-2xl flex flex-col max-h-[90vh] overflow-hidden animate-in zoom-in-95 duration-200">
+      <div className="notion-card w-full max-w-4xl shadow-2xl flex flex-col h-full md:h-auto md:max-h-[90vh] overflow-hidden animate-in zoom-in-95 duration-200 rounded-none md:rounded-2xl">
         {/* Modal Header */}
         <div className="px-4 py-3 border-b border-notion-light-border dark:border-notion-dark-border flex items-center justify-between bg-notion-light-sidebar dark:bg-notion-dark-sidebar">
           <div className="flex items-center gap-3">

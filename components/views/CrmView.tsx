@@ -36,6 +36,8 @@ export const CrmView: React.FC<CrmViewProps> = ({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingContact, setEditingContact] = useState<Contact | null>(null);
   const [isInteractionModalOpen, setIsInteractionModalOpen] = useState(false);
+  const [editingInteraction, setEditingInteraction] =
+    useState<Interaction | null>(null);
   const [interactions, setInteractions] = useState<Interaction[]>([]);
   const [isInteractionsLoading, setIsInteractionsLoading] = useState(false);
 
@@ -70,6 +72,16 @@ export const CrmView: React.FC<CrmViewProps> = ({
       await loadInteractions(selectedContact.id);
     }
     return success;
+  };
+
+  const handleAddInteraction = () => {
+    setEditingInteraction(null);
+    setIsInteractionModalOpen(true);
+  };
+
+  const handleEditInteraction = (interaction: Interaction) => {
+    setEditingInteraction(interaction);
+    setIsInteractionModalOpen(true);
   };
 
   const getInteractionIcon = (type: Interaction["type"]) => {
@@ -144,7 +156,9 @@ export const CrmView: React.FC<CrmViewProps> = ({
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Contact List */}
-        <div className="lg:col-span-1 space-y-5">
+        <div
+          className={`lg:col-span-1 space-y-5 ${selectedContact ? "hidden lg:block" : "block"}`}
+        >
           <div className="relative group">
             <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-notion-light-muted dark:text-notion-dark-muted group-focus-within:text-notion-light-text dark:group-focus-within:text-notion-dark-text transition-colors">
               <Icon.Search size={16} />
@@ -230,9 +244,19 @@ export const CrmView: React.FC<CrmViewProps> = ({
         </div>
 
         {/* Contact Detail / Activity */}
-        <div className="lg:col-span-2">
+        <div
+          className={`lg:col-span-2 ${!selectedContact ? "hidden lg:block" : "block"}`}
+        >
           {selectedContact ? (
             <div className="notion-card overflow-hidden min-h-[70vh] flex flex-col shadow-xl animate-in zoom-in-95 duration-300">
+              {/* Back button for mobile */}
+              <button
+                onClick={() => setSelectedContact(null)}
+                className="lg:hidden flex items-center gap-2 px-6 py-4 text-notion-light-muted hover:text-notion-light-text border-b border-notion-light-border dark:border-notion-dark-border"
+              >
+                <Icon.Prev size={16} /> Back to Contacts
+              </button>
+
               {/* Profile Header */}
               <div className="p-10 border-b border-notion-light-border dark:border-notion-dark-border bg-notion-light-sidebar/30 dark:bg-notion-dark-sidebar/30 relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-64 h-64 bg-notion-light-text/5 dark:bg-notion-dark-text/5 rounded-full -mr-32 -mt-32 blur-3xl pointer-events-none"></div>
@@ -304,7 +328,7 @@ export const CrmView: React.FC<CrmViewProps> = ({
                     Interaction Log
                   </h3>
                   <button
-                    onClick={() => setIsInteractionModalOpen(true)}
+                    onClick={handleAddInteraction}
                     className="text-[12px] font-bold text-notion-light-text dark:text-notion-dark-text flex items-center gap-2 hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover transition-colors bg-notion-light-sidebar dark:bg-notion-dark-sidebar px-3 py-1.5 rounded border border-notion-light-border dark:border-notion-dark-border shadow-sm"
                   >
                     <Icon.Add size={14} /> Log Interaction
@@ -329,9 +353,19 @@ export const CrmView: React.FC<CrmViewProps> = ({
                         </div>
                         <div className="p-5 bg-notion-light-sidebar/40 dark:bg-notion-dark-sidebar/40 rounded border border-notion-light-border dark:border-notion-dark-border group-hover/item:shadow-md group-hover/item:border-notion-light-text/20 dark:group-hover/item:border-notion-dark-text/20 transition-all">
                           <div className="flex items-center justify-between mb-3">
-                            <span className="text-[14px] font-bold text-notion-light-text dark:text-notion-dark-text">
-                              {interaction.type}
-                            </span>
+                            <div className="flex items-center gap-3">
+                              <span className="text-[14px] font-bold text-notion-light-text dark:text-notion-dark-text">
+                                {interaction.type}
+                              </span>
+                              <button
+                                onClick={() =>
+                                  handleEditInteraction(interaction)
+                                }
+                                className="opacity-0 group-hover/item:opacity-100 p-1 hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover rounded text-notion-light-muted hover:text-notion-light-text transition-all"
+                              >
+                                <Icon.Edit size={12} />
+                              </button>
+                            </div>
                             <span className="notion-label bg-notion-light-bg dark:bg-notion-dark-bg px-2 py-0.5 rounded border border-notion-light-border dark:border-notion-dark-border">
                               {new Date(interaction.date).toLocaleDateString()}
                             </span>
@@ -385,6 +419,7 @@ export const CrmView: React.FC<CrmViewProps> = ({
           onClose={() => setIsInteractionModalOpen(false)}
           onSubmit={handleSaveInteraction}
           contactId={selectedContact.id}
+          initialData={editingInteraction}
         />
       )}
     </div>

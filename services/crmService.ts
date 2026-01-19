@@ -96,17 +96,27 @@ export const crmService = {
     if (config.mode === "DEMO") {
       const cached = localStorage.getItem(INTERACTIONS_CACHE_KEY);
       const all: Interaction[] = cached ? JSON.parse(cached) : [];
-      const updated = [
-        ...all,
-        { ...interaction, id: Math.random().toString(36).substr(2, 9) },
-      ];
+      let updated;
+
+      if (interaction.id) {
+        updated = all.map((i) => (i.id === interaction.id ? interaction : i));
+      } else {
+        updated = [
+          ...all,
+          {
+            ...interaction,
+            id: Math.random().toString(36).substr(2, 9),
+          },
+        ];
+      }
+
       localStorage.setItem(INTERACTIONS_CACHE_KEY, JSON.stringify(updated));
       return true;
     }
 
     if (!config.gasDeploymentUrl) return false;
     await postToGas(config.gasDeploymentUrl, {
-      action: "create",
+      action: interaction.id ? "update" : "create",
       module: "interactions",
       entry: interaction,
       token: config.apiToken,

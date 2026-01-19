@@ -235,9 +235,14 @@ export const OperationTable: React.FC<OperationTableProps> = ({
   const SortHeader: React.FC<{ col: ColumnConfig }> = ({ col }) => {
     const isActive = sortConfig.key === col.key;
     const isAsc = sortConfig.direction === "asc";
+
+    // Hide certain columns on mobile
+    const mobileHiddenKeys = ["project", "priority"];
+    const isMobileHidden = mobileHiddenKeys.includes(col.key);
+
     return (
       <th
-        className="px-6 py-3 bg-notion-light-sidebar dark:bg-notion-dark-sidebar text-[11px] uppercase tracking-widest font-bold text-notion-light-muted dark:text-notion-dark-muted cursor-pointer group/th select-none hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover transition-colors whitespace-nowrap border-b border-notion-light-border dark:border-notion-dark-border"
+        className={`px-4 md:px-6 py-3 bg-notion-light-sidebar dark:bg-notion-dark-sidebar text-[10px] md:text-[11px] uppercase tracking-widest font-bold text-notion-light-muted dark:text-notion-dark-muted cursor-pointer group/th select-none hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover transition-colors whitespace-nowrap border-b border-notion-light-border dark:border-notion-dark-border ${isMobileHidden ? "hidden md:table-cell" : ""}`}
         onClick={() => handleSort(col.key)}
       >
         <div
@@ -501,8 +506,8 @@ export const OperationTable: React.FC<OperationTableProps> = ({
                   >
                     {visibleColumns.map((col) => (
                       <td
-                        key="{`${entry.id}-${col.key}`}"
-                        className={`px-6 py-3 align-middle ${col.width || ""}`}
+                        key={`${entry.id}-${col.key}`}
+                        className={`px-4 md:px-6 py-3 align-middle ${col.width || ""} ${["project", "priority"].includes(col.key) ? "hidden md:table-cell" : ""}`}
                       >
                         {renderCell(entry, col.key)}
                       </td>

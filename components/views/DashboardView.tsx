@@ -1,8 +1,8 @@
 import React, { useMemo } from "react";
-import { TaskEntry, MetricSummary, Page } from "@/types";
+import { TaskEntry, MetricSummary, Page, OperatorMetrics } from "@/types";
 import { SummaryCards } from "../SummaryCards";
-import { CashFlowChart } from "../analytics/CashFlowChart";
-import { ExpenseCategoryList } from "../analytics/ExpenseCategoryList";
+import { MissionTrendChart } from "../analytics/MissionTrendChart";
+import { ProjectDistributionList } from "../analytics/ProjectDistributionList";
 import { TaskTable } from "../TaskTable";
 import { Icon, iconProps } from "../Icons";
 import { ViewHeader } from "../ViewHeader";
@@ -11,6 +11,7 @@ import { toast } from "sonner";
 interface DashboardViewProps {
   entries: TaskEntry[];
   metrics: MetricSummary;
+  operatorMetrics: OperatorMetrics;
   isLoading: boolean;
   onEdit: (entry: TaskEntry) => void;
   onDelete: (entry: TaskEntry) => void;
@@ -19,11 +20,13 @@ interface DashboardViewProps {
   onFocus: (entry: TaskEntry) => void;
   onDuplicate: (entry: TaskEntry) => void;
   onNavigate: (page: Page) => void;
+  onOpenCreate: () => void;
 }
 
 export const DashboardView: React.FC<DashboardViewProps> = ({
   entries,
   metrics,
+  operatorMetrics,
   isLoading,
   onEdit,
   onDelete,
@@ -32,6 +35,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   onFocus,
   onDuplicate,
   onNavigate,
+  onOpenCreate,
 }) => {
   const tacticalFocus = useMemo(() => {
     const today = new Date().toISOString().split("T")[0];
@@ -60,32 +64,162 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       .slice(0, 5);
   }, [entries]);
 
+  const xpProgress = (operatorMetrics.xp % 1000) / 10; // Simple XP bar logic
+
   return (
-    <div className="animate-fade-in space-y-6">
+    <div className="animate-fade-in space-y-8">
       <ViewHeader
         title="Command Center"
         subTitle="Operational overview and tactical focus"
       />
-      <SummaryCards metrics={metrics} />
 
-      {/* Analytics Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      {/* Top Row: Core Metrics & Operator Status */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
         <div className="lg:col-span-2">
-          <CashFlowChart entries={entries} />
+          <SummaryCards metrics={metrics} />
         </div>
-        <div className="space-y-6">
-          <div className="bg-notion-light-sidebar dark:bg-notion-dark-sidebar p-6 rounded-2xl border border-notion-light-border dark:border-notion-dark-border shadow-sm hover:shadow-md transition-shadow duration-300">
+        <div className="notion-card p-6 bg-gradient-to-br from-blue-600 to-indigo-700 dark:from-blue-700 dark:to-indigo-900 text-white border-none shadow-lg relative overflow-hidden group flex flex-col justify-center">
+          <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:scale-110 transition-transform duration-500">
+            <Icon.Rank size={120} />
+          </div>
+          <div className="relative z-10">
+            <div className="flex justify-between items-start mb-6">
+              <div>
+                <span className="text-[10px] font-black uppercase tracking-[0.2em] opacity-70">
+                  Operator Status
+                </span>
+                <h3 className="text-2xl font-bold tracking-tight mt-1">
+                  Level {operatorMetrics.level}
+                </h3>
+              </div>
+              <div className="px-3 py-1 bg-white/20 rounded-full text-[10px] font-bold backdrop-blur-md border border-white/10 uppercase tracking-widest">
+                Specialist
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <div className="flex justify-between text-[10px] font-bold uppercase tracking-widest mb-1.5 opacity-80">
+                  <span>XP Progress</span>
+                  <span>{operatorMetrics.xp % 1000} / 1000</span>
+                </div>
+                <div className="h-2 bg-black/20 rounded-full overflow-hidden border border-white/5">
+                  <div
+                    className="h-full bg-white rounded-full transition-all duration-1000"
+                    style={{ width: `${xpProgress}%` }}
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4 pt-2">
+                <div className="bg-white/10 p-3 rounded-xl backdrop-blur-sm border border-white/5">
+                  <span className="text-[10px] opacity-70 block uppercase font-bold tracking-tighter mb-1">
+                    Streak
+                  </span>
+                  <div className="flex items-center gap-2">
+                    <Icon.Streak size={16} className="text-orange-400" />
+                    <span className="text-lg font-bold">
+                      {operatorMetrics.streak}d
+                    </span>
+                  </div>
+                </div>
+                <div className="bg-white/10 p-3 rounded-xl backdrop-blur-sm border border-white/5">
+                  <span className="text-[10px] opacity-70 block uppercase font-bold tracking-tighter mb-1">
+                    Artifacts
+                  </span>
+                  <div className="flex items-center gap-2">
+                    <Icon.Vault size={16} className="text-emerald-400" />
+                    <span className="text-lg font-bold">
+                      {operatorMetrics.artifactsGained}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Middle Row: Quick Actions & Intelligence */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Quick Actions */}
+        <div className="lg:col-span-1 space-y-4">
+          <div className="flex items-center gap-2 px-1">
+            <h3 className="text-[11px] font-bold text-notion-light-text/40 dark:text-notion-dark-text/40 uppercase tracking-[0.2em]">
+              Quick Actions
+            </h3>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <button
+              onClick={onOpenCreate}
+              className="flex flex-col items-center justify-center p-4 bg-notion-light-sidebar dark:bg-notion-dark-sidebar rounded-2xl border border-notion-light-border dark:border-notion-dark-border hover:border-blue-500/50 dark:hover:border-blue-400/50 hover:bg-blue-50/30 dark:hover:bg-blue-900/10 transition-all group"
+            >
+              <div className="p-2 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-lg mb-2 group-hover:scale-110 transition-transform">
+                <Icon.Plus size={18} />
+              </div>
+              <span className="text-[10px] font-bold uppercase tracking-widest text-notion-light-text dark:text-notion-dark-text">
+                New Mission
+              </span>
+            </button>
+            <button
+              onClick={() => onNavigate("KNOWLEDGE")}
+              className="flex flex-col items-center justify-center p-4 bg-notion-light-sidebar dark:bg-notion-dark-sidebar rounded-2xl border border-notion-light-border dark:border-notion-dark-border hover:border-amber-500/50 dark:hover:border-amber-400/50 hover:bg-amber-50/30 dark:hover:bg-amber-900/10 transition-all group"
+            >
+              <div className="p-2 bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 rounded-lg mb-2 group-hover:scale-110 transition-transform">
+                <Icon.Notes size={18} />
+              </div>
+              <span className="text-[10px] font-bold uppercase tracking-widest text-notion-light-text dark:text-notion-dark-text">
+                New Note
+              </span>
+            </button>
+            <button
+              onClick={() => onNavigate("CRM")}
+              className="flex flex-col items-center justify-center p-4 bg-notion-light-sidebar dark:bg-notion-dark-sidebar rounded-2xl border border-notion-light-border dark:border-notion-dark-border hover:border-emerald-500/50 dark:hover:border-emerald-400/50 hover:bg-emerald-50/30 dark:hover:bg-emerald-900/10 transition-all group"
+            >
+              <div className="p-2 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 rounded-lg mb-2 group-hover:scale-110 transition-transform">
+                <Icon.Contacts size={18} />
+              </div>
+              <span className="text-[10px] font-bold uppercase tracking-widest text-notion-light-text dark:text-notion-dark-text">
+                Log Contact
+              </span>
+            </button>
+            <button
+              onClick={() => onNavigate("VAULT")}
+              className="flex flex-col items-center justify-center p-4 bg-notion-light-sidebar dark:bg-notion-dark-sidebar rounded-2xl border border-notion-light-border dark:border-notion-dark-border hover:border-purple-500/50 dark:hover:border-purple-400/50 hover:bg-purple-50/30 dark:hover:bg-purple-900/10 transition-all group"
+            >
+              <div className="p-2 bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 rounded-lg mb-2 group-hover:scale-110 transition-transform">
+                <Icon.Vault size={18} />
+              </div>
+              <span className="text-[10px] font-bold uppercase tracking-widest text-notion-light-text dark:text-notion-dark-text">
+                Secure Vault
+              </span>
+            </button>
+          </div>
+        </div>
+
+        {/* intelligence */}
+        <div className="lg:col-span-2 flex flex-col gap-6">
+          <div className="bg-notion-light-sidebar dark:bg-notion-dark-sidebar p-6 rounded-2xl border border-notion-light-border dark:border-notion-dark-border shadow-sm hover:shadow-md transition-shadow duration-300 relative overflow-hidden flex-1">
+            <div className="absolute top-0 right-0 p-4 opacity-5">
+              <Icon.Ai size={80} />
+            </div>
             <div className="flex items-center gap-3 mb-4">
-              <div className="p-2 bg-notion-light-text/5 dark:bg-notion-dark-text/5 rounded-lg text-notion-light-text dark:text-notion-dark-text">
+              <div className="p-2 bg-blue-600 text-white rounded-lg shadow-lg shadow-blue-500/20">
                 <Icon.Ai {...iconProps(18)} />
               </div>
-              <h3 className="font-semibold text-sm text-notion-light-text dark:text-notion-dark-text tracking-tight">
-                WesAI Briefing
-              </h3>
+              <div>
+                <h3 className="font-bold text-sm text-notion-light-text dark:text-notion-dark-text tracking-tight">
+                  WesAI Briefing
+                </h3>
+                <span className="text-[9px] font-black uppercase tracking-widest text-blue-500">
+                  Agentic Co-Pilot Active
+                </span>
+              </div>
             </div>
-            <p className="text-sm text-notion-light-text/70 dark:text-notion-dark-text/70 mb-5 leading-relaxed italic">
+            <p className="text-sm text-notion-light-text/80 dark:text-notion-dark-text/80 mb-6 leading-relaxed italic border-l-2 border-blue-500/30 pl-4 py-1">
               "We've got {tacticalFocus.length} high-impact targets identified
-              for immediate execution. Let's clear the board."
+              for immediate execution. Your current streak is{" "}
+              {operatorMetrics.streak} days—let's keep the momentum."
             </p>
             <button
               onClick={() => {
@@ -95,33 +229,48 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   icon: <Icon.Ai size={14} />,
                 });
               }}
-              className="notion-button w-full justify-center text-[11px] uppercase tracking-widest"
+              className="notion-button bg-blue-600 hover:bg-blue-700 text-white border-none w-full justify-center text-[10px] font-black uppercase tracking-[0.2em] shadow-lg shadow-blue-500/20 active:scale-[0.98] transition-all"
             >
-              LAUNCH CO-PILOT &rarr;
+              LAUNCH CO-PILOT SESSION &rarr;
             </button>
           </div>
-          <ExpenseCategoryList entries={entries} />
         </div>
       </div>
 
+      {/* Analytics Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
+        <div className="lg:col-span-2">
+          <MissionTrendChart entries={entries} />
+        </div>
+        <div>
+          <ProjectDistributionList entries={entries} />
+        </div>
+      </div>
+
+      {/* Bottom Section: Tactical Focus */}
       <div>
-        <div className="flex justify-between items-center mb-4 mt-8">
+        <div className="flex justify-between items-center mb-4 mt-4">
           <div className="flex items-center gap-2">
-            <div className="p-1 rounded bg-notion-light-border dark:bg-notion-dark-border">
+            <div className="p-1.5 rounded-lg bg-notion-light-sidebar dark:bg-notion-dark-sidebar border border-notion-light-border dark:border-notion-dark-border">
               <Icon.Missions
                 {...iconProps(
-                  14,
+                  16,
                   "text-notion-light-text/60 dark:text-notion-dark-text/60",
                 )}
               />
             </div>
-            <h3 className="text-[11px] font-bold text-notion-light-text/50 dark:text-notion-dark-text/50 uppercase tracking-[0.2em]">
-              Tactical Focus
-            </h3>
+            <div>
+              <h3 className="text-[11px] font-black text-notion-light-text/40 dark:text-notion-dark-text/40 uppercase tracking-[0.2em]">
+                Tactical Focus
+              </h3>
+              <span className="text-[9px] font-bold text-notion-light-muted dark:text-notion-dark-muted">
+                TOP 5 PRIORITIES
+              </span>
+            </div>
           </div>
           <button
             onClick={() => onNavigate("MISSIONS")}
-            className="text-notion-light-muted dark:text-notion-dark-muted text-xs font-bold hover:text-notion-light-text dark:hover:text-notion-dark-text flex items-center gap-1.5 transition-colors group"
+            className="text-notion-light-muted dark:text-notion-dark-muted text-[10px] font-black uppercase tracking-widest hover:text-blue-500 dark:hover:text-blue-400 flex items-center gap-2 transition-all group bg-notion-light-sidebar dark:bg-notion-dark-sidebar px-4 py-2 rounded-xl border border-notion-light-border dark:border-notion-dark-border shadow-sm"
           >
             Full Board{" "}
             <Icon.Layout
@@ -132,7 +281,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             />
           </button>
         </div>
-        <div className="notion-card overflow-hidden transition-all duration-300 hover:shadow-md">
+        <div className="notion-card overflow-hidden transition-all duration-300 hover:shadow-lg border-notion-light-border dark:border-notion-dark-border">
           <TaskTable
             entries={tacticalFocus}
             isLoading={isLoading}
@@ -145,17 +294,16 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             allEntries={entries}
           />
           {tacticalFocus.length === 0 && !isLoading && (
-            <div className="p-16 text-center">
-              <div className="inline-flex p-5 bg-notion-light-sidebar dark:bg-notion-dark-sidebar rounded-full mb-6 animate-in zoom-in duration-500">
-                <Icon.Check
-                  {...iconProps(
-                    40,
-                    "text-notion-light-text/40 dark:text-notion-dark-text/40",
-                  )}
-                />
+            <div className="p-20 text-center bg-notion-light-sidebar/30 dark:bg-notion-dark-sidebar/10">
+              <div className="inline-flex p-6 bg-emerald-500/10 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 rounded-full mb-6 animate-pulse">
+                <Icon.Check {...iconProps(48)} />
               </div>
-              <p className="text-notion-light-text/50 dark:text-notion-dark-text/50 font-medium tracking-tight">
-                All clear, operator. No pending high-priority tasks.
+              <h4 className="text-lg font-bold text-notion-light-text dark:text-notion-dark-text mb-2">
+                All Systems Clear
+              </h4>
+              <p className="text-sm text-notion-light-text/50 dark:text-notion-dark-text/50 max-w-xs mx-auto">
+                No pending high-priority missions. Take this time to strategize
+                or explore new opportunities.
               </p>
             </div>
           )}

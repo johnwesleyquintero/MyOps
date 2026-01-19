@@ -6,11 +6,11 @@ import {
   generateAreaPath,
 } from "../../utils/analyticsUtils";
 
-interface CashFlowChartProps {
+interface MissionTrendChartProps {
   entries: TaskEntry[];
 }
 
-export const CashFlowChart: React.FC<CashFlowChartProps> = ({ entries }) => {
+export const MissionTrendChart: React.FC<MissionTrendChartProps> = ({ entries }) => {
   // SVG Geometry Constants
   const width = 600;
   const height = 150;
@@ -28,11 +28,11 @@ export const CashFlowChart: React.FC<CashFlowChartProps> = ({ entries }) => {
   );
 
   return (
-    <div className="lg:col-span-2 notion-card p-5 flex flex-col justify-between transition-colors duration-300">
+    <div className="notion-card p-5 flex flex-col justify-between transition-colors duration-300 h-full">
       <div className="flex justify-between items-center mb-4">
-        <h3 className="notion-label">Task Volume Trend</h3>
+        <h3 className="notion-label">Mission Volume Trend</h3>
         <span className="text-xs text-notion-light-muted dark:text-notion-dark-muted font-mono">
-          Daily Activity
+          Operational Velocity
         </span>
       </div>
 

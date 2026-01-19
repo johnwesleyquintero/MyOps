@@ -13,10 +13,10 @@ export const SummaryCards: React.FC<SummaryCardsProps> = ({ metrics }) => {
     totalActive > 0 ? Math.round((metrics.done / totalActive) * 100) : 0;
 
   return (
-    <div className="mb-6">
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-4">
+    <div className="flex flex-col h-full">
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-4 flex-1">
         {/* Backlog */}
-        <div className="notion-card p-5 bg-notion-light-sidebar/50 dark:bg-notion-dark-sidebar/30 relative overflow-hidden group hover:shadow-md transition-all">
+        <div className="notion-card p-5 bg-notion-light-sidebar/50 dark:bg-notion-dark-sidebar/30 relative overflow-hidden group hover:shadow-md transition-all flex flex-col justify-between">
           <div className="flex justify-between items-start mb-2">
             <h3 className="notion-label">Backlog</h3>
             <div className="p-1.5 bg-notion-light-hover dark:bg-notion-dark-hover rounded text-notion-light-muted dark:text-notion-dark-muted">
@@ -29,7 +29,7 @@ export const SummaryCards: React.FC<SummaryCardsProps> = ({ metrics }) => {
         </div>
 
         {/* Active / In Progress */}
-        <div className="notion-card p-5 bg-notion-light-sidebar/50 dark:bg-notion-dark-sidebar/30 relative overflow-hidden group hover:shadow-md transition-all">
+        <div className="notion-card p-5 bg-notion-light-sidebar/50 dark:bg-notion-dark-sidebar/30 relative overflow-hidden group hover:shadow-md transition-all flex flex-col justify-between">
           <div className="flex justify-between items-start mb-2">
             <h3 className="notion-label">Active</h3>
             <div className="p-1.5 bg-notion-light-hover dark:bg-notion-dark-hover rounded text-notion-light-muted dark:text-notion-dark-muted transition-colors">
@@ -42,7 +42,7 @@ export const SummaryCards: React.FC<SummaryCardsProps> = ({ metrics }) => {
         </div>
 
         {/* Done */}
-        <div className="notion-card p-5 bg-notion-light-sidebar/50 dark:bg-notion-dark-sidebar/30 relative overflow-hidden group hover:shadow-md transition-all">
+        <div className="notion-card p-5 bg-notion-light-sidebar/50 dark:bg-notion-dark-sidebar/30 relative overflow-hidden group hover:shadow-md transition-all flex flex-col justify-between">
           <div className="flex justify-between items-start mb-2">
             <h3 className="notion-label">Completed</h3>
             <div className="p-1.5 bg-notion-light-hover dark:bg-notion-dark-hover rounded text-notion-light-muted dark:text-notion-dark-muted transition-colors">

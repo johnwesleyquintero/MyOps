@@ -72,10 +72,10 @@ export const calculateDailyTrend = (
   }));
 };
 
-export const calculateTopExpenses = (
+export const calculateProjectDistribution = (
   entries: TaskEntry[],
 ): { cat: string; val: number; pct: number }[] => {
-  // Adapted to calculate Top Projects by task count instead of expenses
+  // Adapted to calculate Top Projects by task count
   const map = new Map<string, number>();
   let total = 0;
 

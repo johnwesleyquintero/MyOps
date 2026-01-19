@@ -151,6 +151,7 @@ const App: React.FC = () => {
             <DashboardView
               entries={entries}
               metrics={metrics}
+              operatorMetrics={operatorMetrics}
               isLoading={isLoading}
               onEdit={ui.openEdit}
               onDelete={removeTransaction}
@@ -166,6 +167,7 @@ const App: React.FC = () => {
                 showToast("Mission Cloned", "success");
               }}
               onNavigate={ui.setActivePage}
+              onOpenCreate={ui.openCreate}
             />
           )}
 

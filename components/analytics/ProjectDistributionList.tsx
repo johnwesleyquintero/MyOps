@@ -1,26 +1,27 @@
 import React, { useMemo } from "react";
 import { TaskEntry } from "../../types";
-import { calculateTopExpenses } from "../../utils/analyticsUtils";
+import { calculateProjectDistribution } from "../../utils/analyticsUtils";
 
-interface ExpenseCategoryListProps {
+
+interface ProjectDistributionListProps {
   entries: TaskEntry[];
   currency?: string;
   locale?: string;
 }
 
-export const ExpenseCategoryList: React.FC<ExpenseCategoryListProps> = ({
+export const ProjectDistributionList: React.FC<ProjectDistributionListProps> = ({
   entries,
 }) => {
-  // Using calculateTopExpenses to get top projects by volume
-  const categoryData = useMemo(() => calculateTopExpenses(entries), [entries]);
+  // Using calculateProjectDistribution to get top projects by volume
+  const categoryData = useMemo(() => calculateProjectDistribution(entries), [entries]);
 
   return (
-    <div className="notion-card p-5 transition-colors duration-300">
-      <h3 className="notion-label mb-4">Top Projects</h3>
-      <div className="space-y-3">
+    <div className="notion-card p-5 transition-colors duration-300 h-full flex flex-col">
+      <h3 className="notion-label mb-4">Project Distribution</h3>
+      <div className="space-y-3 flex-1 overflow-y-auto scrollbar-thin">
         {categoryData.length === 0 ? (
           <div className="text-sm text-notion-light-muted dark:text-notion-dark-muted italic">
-            No activity in this view
+            No active projects
           </div>
         ) : (
           categoryData.map((item) => (
@@ -30,7 +31,7 @@ export const ExpenseCategoryList: React.FC<ExpenseCategoryListProps> = ({
                   {item.cat}
                 </span>
                 <span className="font-mono text-notion-light-muted dark:text-notion-dark-muted">
-                  {item.val} tasks
+                  {item.val} missions
                 </span>
               </div>
               <div className="w-full bg-notion-light-hover dark:bg-notion-dark-hover rounded-full h-1.5 overflow-hidden">

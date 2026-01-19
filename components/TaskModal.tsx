@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { TaskEntry, PriorityLevel, StatusLevel } from "../types";
@@ -7,6 +7,7 @@ import { CopyIdButton } from "./CopyIdButton";
 import { useTaskForm } from "../hooks/useTaskForm";
 import { useMarkdownEditor } from "../hooks/useMarkdownEditor";
 import { Icon, iconProps } from "./Icons";
+import { toast } from "sonner";
 
 interface TaskModalProps {
   isOpen: boolean;
@@ -29,6 +30,20 @@ export const TaskModal: React.FC<TaskModalProps> = ({
 }) => {
   const { formData, setFormData, isCustomProject, setIsCustomProject } =
     useTaskForm(initialData, entries);
+
+  const [copiedMd, setCopiedMd] = useState(false);
+
+  const handleCopyMarkdown = async () => {
+    const md = `### ${formData.description}\n\n- **Project:** ${formData.project}\n- **Priority:** ${formData.priority}\n- **Status:** ${formData.status}\n- **Due Date:** ${formData.date || "N/A"}`;
+    try {
+      await navigator.clipboard.writeText(md);
+      setCopiedMd(true);
+      toast.success("Markdown copied to clipboard");
+      setTimeout(() => setCopiedMd(false), 2000);
+    } catch {
+      toast.error("Failed to copy markdown");
+    }
+  };
 
   const { textareaRef } = useMarkdownEditor(formData.description, (newText) =>
     setFormData({ ...formData, description: newText }),
@@ -86,6 +101,17 @@ export const TaskModal: React.FC<TaskModalProps> = ({
                   id={initialData.id}
                   className="text-xs text-notion-light-muted hover:text-notion-light-text dark:hover:text-notion-dark-text"
                 />
+                <button
+                  onClick={handleCopyMarkdown}
+                  className="p-1 text-notion-light-muted hover:text-notion-light-text dark:hover:text-notion-dark-text transition-colors"
+                  title="Copy Task as Markdown"
+                >
+                  {copiedMd ? (
+                    <Icon.Check {...iconProps(14, "text-emerald-500")} />
+                  ) : (
+                    <Icon.Copy {...iconProps(14)} />
+                  )}
+                </button>
               </div>
             )}
           </div>

@@ -69,7 +69,7 @@ function testSlack() {
 
 function doGet(e) {
   if (!e || !e.parameter) {
-    return ContentService.createTextOutput("MyOps System Online.");
+    return ContentService.createTextOutput("MyOps Online.");
   }
 
   const token = e.parameter.token;
@@ -93,7 +93,7 @@ function doGet(e) {
 
 function doPost(e) {
   if (!e || !e.postData) {
-    return ContentService.createTextOutput("MyOps System Online.");
+    return ContentService.createTextOutput("MyOps Online.");
   }
 
   const lock = LockService.getScriptLock();

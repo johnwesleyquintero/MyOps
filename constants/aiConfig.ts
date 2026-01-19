@@ -202,7 +202,7 @@ const getFocusedTasksTool: FunctionDeclaration = {
 const getDecisionsTool: FunctionDeclaration = {
   name: "get_decisions",
   description:
-    "Get the list of strategic and tactical decisions from the judgment ledger.",
+    "Get the list of strategic and tactical decisions from the judgment journal.",
   parameters: {
     type: Type.OBJECT,
     properties: {},

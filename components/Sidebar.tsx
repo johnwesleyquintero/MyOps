@@ -108,11 +108,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
               alt="MyOps Logo"
               className="w-8 h-8 rounded-lg shadow-sm group-hover:scale-110 transition-transform duration-300"
             />
-            <h1
-              className={`text-notion-light-text dark:text-notion-dark-text font-bold tracking-tight text-sm leading-none transition-all duration-300 ${isCollapsed ? "max-w-0 opacity-0" : "max-w-xs opacity-100"}`}
-            >
-              MyOps
-            </h1>
+            <div className={`flex flex-col transition-all duration-300 ${isCollapsed ? "max-w-0 opacity-0" : "max-w-xs opacity-100"}`}>
+              <h1 className="text-notion-light-text dark:text-notion-dark-text font-black tracking-tighter text-base leading-none">
+                MyOps
+              </h1>
+              <p className="text-[9px] text-notion-light-muted dark:text-notion-dark-muted font-bold uppercase tracking-widest mt-0.5 whitespace-nowrap">
+                Master Solo VA
+              </p>
+            </div>
           </div>
         </div>
 

@@ -3,6 +3,41 @@ import { Icon } from "../Icons";
 import { Automation } from "../../types";
 import { ViewHeader } from "../ViewHeader";
 
+const AUTOMATION_TEMPLATES = [
+  {
+    name: "Lead-to-Mission",
+    trigger: "Webhook",
+    action: "Create Task",
+    description: "Convert incoming webhooks into active mission tasks.",
+    icon: "Zap",
+    color: "blue",
+  },
+  {
+    name: "Vault Sync",
+    trigger: "Scheduled",
+    action: "Category Update",
+    description: "Automatically categorize transactions in your Vault.",
+    icon: "Vault",
+    color: "emerald",
+  },
+  {
+    name: "Empire Pulse",
+    trigger: "Daily 00:00",
+    action: "Generate Report",
+    description: "Daily automated summary of your empire's performance.",
+    icon: "Strategy",
+    color: "fuchsia",
+  },
+  {
+    name: "AI Co-pilot Sync",
+    trigger: "Manual",
+    action: "Update Blueprint",
+    description: "Sync AI suggestions directly into your Master Blueprint.",
+    icon: "Bot",
+    color: "amber",
+  },
+];
+
 interface AutomationViewProps {
   automations: Automation[];
   isLoading: boolean;
@@ -34,6 +69,16 @@ export const AutomationView: React.FC<AutomationViewProps> = ({
 
   const handleEdit = (auto: Automation) => {
     setEditingAutomation(auto);
+    setIsModalOpen(true);
+  };
+
+  const handleUseTemplate = (template: (typeof AUTOMATION_TEMPLATES)[0]) => {
+    setEditingAutomation({
+      name: template.name,
+      trigger: template.trigger,
+      action: template.action,
+      status: "Active",
+    });
     setIsModalOpen(true);
   };
 
@@ -230,6 +275,66 @@ export const AutomationView: React.FC<AutomationViewProps> = ({
               ))}
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* Template Gallery */}
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <h3 className="font-black text-notion-light-text dark:text-notion-dark-text flex items-center gap-3 text-xs uppercase tracking-[0.15em]">
+            <div className="p-1.5 bg-notion-light-sidebar dark:bg-notion-dark-sidebar rounded-lg border border-notion-light-border dark:border-notion-dark-border">
+              <Icon.Add
+                size={14}
+                className="text-notion-light-text dark:text-notion-dark-text"
+              />
+            </div>
+            Ready-to-Deploy Templates
+          </h3>
+          <span className="text-[9px] font-black text-notion-light-muted dark:text-notion-dark-muted uppercase tracking-widest bg-notion-light-sidebar dark:bg-notion-dark-sidebar px-2 py-1 rounded-md border border-notion-light-border dark:border-notion-dark-border">
+            Quick Start
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {AUTOMATION_TEMPLATES.map((template) => (
+            <div
+              key={template.name}
+              className="bg-notion-light-bg dark:bg-notion-dark-bg border border-notion-light-border dark:border-notion-dark-border rounded-2xl p-5 hover:shadow-xl hover:border-notion-light-text/10 dark:hover:border-notion-dark-text/10 transition-all duration-300 group flex flex-col justify-between"
+            >
+              <div>
+                <div className="flex items-start justify-between mb-4">
+                  <div
+                    className={`w-10 h-10 rounded-xl flex items-center justify-center bg-${template.color}-500/10 text-${template.color}-600 dark:text-${template.color}-400 border border-${template.color}-500/20`}
+                  >
+                    {template.icon === "Zap" && <Icon.Zap size={18} />}
+                    {template.icon === "Vault" && <Icon.Vault size={18} />}
+                    {template.icon === "Strategy" && (
+                      <Icon.Strategy size={18} />
+                    )}
+                    {template.icon === "Bot" && <Icon.Bot size={18} />}
+                  </div>
+                  <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+                    <Icon.Next
+                      size={14}
+                      className="text-notion-light-muted dark:text-notion-dark-muted"
+                    />
+                  </div>
+                </div>
+                <h4 className="text-sm font-black text-notion-light-text dark:text-notion-dark-text mb-2 uppercase tracking-tight">
+                  {template.name}
+                </h4>
+                <p className="text-[10px] font-bold text-notion-light-muted dark:text-notion-dark-muted leading-relaxed mb-4">
+                  {template.description}
+                </p>
+              </div>
+              <button
+                onClick={() => handleUseTemplate(template)}
+                className="w-full py-2 bg-notion-light-sidebar dark:bg-notion-dark-sidebar hover:bg-notion-light-text dark:hover:bg-notion-dark-text hover:text-notion-light-bg dark:hover:text-notion-dark-bg text-notion-light-text dark:text-notion-dark-text text-[10px] font-black uppercase tracking-widest border border-notion-light-border dark:border-notion-dark-border rounded-xl transition-all active:scale-95"
+              >
+                Use Template
+              </button>
+            </div>
+          ))}
         </div>
       </div>
 

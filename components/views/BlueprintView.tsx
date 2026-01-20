@@ -3,8 +3,13 @@ import { Icon, iconProps } from "../Icons";
 import { BLUEPRINT_MODULES } from "@/constants";
 import { ViewHeader } from "../ViewHeader";
 import { toast } from "sonner";
+import { Page } from "../../types";
 
-export const BlueprintView: React.FC = () => {
+interface BlueprintViewProps {
+  onNavigate?: (page: Page) => void;
+}
+
+export const BlueprintView: React.FC<BlueprintViewProps> = ({ onNavigate }) => {
   const [copied, setCopied] = useState(false);
 
   const copyAsMarkdown = () => {
@@ -120,8 +125,22 @@ export const BlueprintView: React.FC = () => {
             </ul>
 
             <div className="mt-8 pt-5 border-t border-notion-light-border dark:border-notion-dark-border flex items-center justify-between group-hover:border-notion-light-text/10 dark:group-hover:border-notion-dark-text/10 transition-colors">
-              <button className="notion-button notion-button-ghost text-[10px] uppercase tracking-widest group-hover:translate-x-1">
-                Initialize{" "}
+              <button
+                onClick={() => {
+                  if (mod.status === "ACTIVE" && onNavigate) {
+                    onNavigate(mod.id.toUpperCase() as Page);
+                  } else {
+                    toast.info(`${mod.title} initialization`, {
+                      description:
+                        mod.status === "ACTIVE"
+                          ? "Module is already active."
+                          : "This module is in the roadmap and will be available soon.",
+                    });
+                  }
+                }}
+                className="notion-button notion-button-ghost text-[10px] uppercase tracking-widest group-hover:translate-x-1"
+              >
+                {mod.status === "ACTIVE" ? "Open Module" : "Initialize"}{" "}
                 <Icon.Next
                   size={14}
                   className="opacity-0 group-hover:opacity-100 transition-opacity"

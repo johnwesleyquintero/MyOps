@@ -21,6 +21,7 @@ import { ReportView } from "./components/views/ReportView";
 import { StrategyView } from "./components/views/StrategyView";
 import { AwarenessView } from "./components/views/AwarenessView";
 import { WesAiView } from "./components/views/WesAiView";
+import { AssetsView } from "./components/views/AssetsView";
 
 // Hooks
 import { useTasks } from "./hooks/useTasks";
@@ -39,6 +40,7 @@ import { useVault } from "./hooks/useVault";
 import { useAutomation } from "./hooks/useAutomation";
 import { useDecisions } from "./hooks/useDecisions";
 import { useAwareness } from "./hooks/useAwareness";
+import { useAssets } from "./hooks/useAssets";
 
 const App: React.FC = () => {
   const { config, setConfig } = useAppConfig();
@@ -53,6 +55,12 @@ const App: React.FC = () => {
   const automation = useAutomation(config, showToast);
   const { decisions } = useDecisions(config);
   const { mentalStates } = useAwareness(config);
+  const {
+    assets,
+    isLoading: isAssetsLoading,
+    saveAsset,
+    deleteAsset,
+  } = useAssets(config, showToast);
 
   const {
     entries,
@@ -195,7 +203,9 @@ const App: React.FC = () => {
             />
           )}
 
-          {ui.activePage === "BLUEPRINT" && <BlueprintView />}
+          {ui.activePage === "BLUEPRINT" && (
+            <BlueprintView onNavigate={ui.setActivePage} />
+          )}
 
           {ui.activePage === "CRM" && (
             <CrmView
@@ -250,6 +260,14 @@ const App: React.FC = () => {
 
           {ui.activePage === "REPORT" && <ReportView />}
           {ui.activePage === "STRATEGY" && <StrategyView config={config} />}
+          {ui.activePage === "ASSETS" && (
+            <AssetsView
+              assets={assets}
+              isLoading={isAssetsLoading}
+              onSave={saveAsset}
+              onDelete={deleteAsset}
+            />
+          )}
           {ui.activePage === "WESAI" && (
             <WesAiView
               config={config}

@@ -177,6 +177,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
           )}
 
           {renderNavItem(
+            "ASSETS",
+            "Asset Registry",
+            <Icon.Project {...iconProps(18)} />,
+          )}
+
+          {renderNavItem(
             "AWARENESS",
             "Mental State",
             <Icon.Activity {...iconProps(18)} />,

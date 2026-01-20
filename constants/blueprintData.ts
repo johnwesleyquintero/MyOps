@@ -141,7 +141,7 @@ export const BLUEPRINT_MODULES: BlueprintModule[] = [
   {
     id: "assets",
     title: "Asset & IP Registry",
-    status: "PENDING",
+    status: "ACTIVE",
     iconKey: "Project",
     features: [
       "SOP & Framework library",

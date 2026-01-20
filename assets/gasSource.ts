@@ -15,7 +15,7 @@ const SLACK_WEBHOOK_URL = ""; // <--- PASTE YOUR WEBHOOK URL HERE
 
 function setupSystem() {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
-  const modules = ['tasks', 'contacts', 'interactions', 'notes', 'vault', 'automations', 'strategy', 'awareness'];
+  const modules = ['tasks', 'contacts', 'interactions', 'notes', 'vault', 'automations', 'strategy', 'awareness', 'assets'];
   
   modules.forEach(m => {
     let sheet = ss.getSheetByName(m);
@@ -31,6 +31,7 @@ function setupSystem() {
       if (m === 'automations') headers = ['ID', 'Name', 'Trigger', 'Action', 'Status', 'LastRun'];
       if (m === 'strategy') headers = ['ID', 'Date', 'Title', 'Context', 'Options', 'Decision', 'ExpectedOutcome', 'ReviewDate', 'Status', 'Impact', 'Tags'];
       if (m === 'awareness') headers = ['ID', 'Date', 'Energy', 'Clarity', 'Notes'];
+      if (m === 'assets') headers = ['ID', 'Title', 'Type', 'Status', 'ReusabilityScore', 'MonetizationPotential', 'Notes', 'CreatedAt', 'UpdatedAt', 'Link'];
       
       if (headers.length > 0) {
         sheet.getRange(1, 1, 1, headers.length).setValues([headers]).setFontWeight('bold');
@@ -244,6 +245,21 @@ function mapRowToEntry(row, module) {
         notes: row[4]
       };
     }
+
+    if (module === 'assets') {
+      return {
+        id: row[0],
+        title: row[1],
+        type: row[2],
+        status: row[3],
+        reusabilityScore: row[4],
+        monetizationPotential: row[5],
+        notes: row[6],
+        createdAt: row[7],
+        updatedAt: row[8],
+        link: row[9]
+      };
+    }
   } catch (e) {
     return null;
   }
@@ -289,6 +305,13 @@ function mapEntryToRow(entry, module) {
   if (module === 'awareness') {
     return [
       entry.id, entry.date, entry.energy, entry.clarity, entry.notes || ""
+    ];
+  }
+  if (module === 'assets') {
+    return [
+      entry.id, entry.title, entry.type, entry.status, entry.reusabilityScore,
+      entry.monetizationPotential, entry.notes || "", entry.createdAt || new Date().toISOString(),
+      entry.updatedAt || new Date().toISOString(), entry.link || ""
     ];
   }
   return [];

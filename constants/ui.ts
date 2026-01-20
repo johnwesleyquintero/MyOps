@@ -6,15 +6,15 @@ export const UI_MODAL_ANIMATION = "animate-scale-in";
 
 // Priority and Status Styles (Tailwind Classes)
 export const PRIORITY_COLORS: Record<PriorityLevel, string> = {
-  High: "text-red-700 bg-red-500/10 border-red-500/25 dark:bg-red-500/20 dark:border-red-500/30 dark:text-red-400",
+  High: "text-indigo-700 bg-indigo-500/10 border-indigo-500/25 dark:bg-indigo-500/20 dark:border-indigo-500/30 dark:text-indigo-400",
   Medium:
-    "text-amber-700 bg-amber-500/10 border-amber-500/25 dark:bg-amber-500/20 dark:border-amber-500/30 dark:text-amber-400",
+    "text-sky-700 bg-sky-500/10 border-sky-500/25 dark:bg-sky-500/20 dark:border-sky-500/30 dark:text-sky-400",
   Low: "text-slate-600 bg-slate-500/10 border-slate-500/20 dark:bg-slate-500/20 dark:border-slate-500/30 dark:text-slate-400",
 };
 
 export const PRIORITY_DOTS: Record<PriorityLevel, string> = {
-  High: "bg-red-500",
-  Medium: "bg-amber-500",
+  High: "bg-indigo-500",
+  Medium: "bg-sky-500",
   Low: "bg-slate-400 dark:bg-slate-500",
 };
 
@@ -71,33 +71,33 @@ export const MODULE_COLORS: Record<
   }
 > = {
   tasks: module("indigo"),
-  crm: module("emerald"),
-  docs: module("amber"),
-  analytics: module("sky"),
-  automation: module("cyan"),
+  crm: module("blue"),
+  docs: module("emerald"),
+  analytics: module("indigo"),
+  automation: module("blue"),
   ai: module("violet"),
-  strategy: module("fuchsia"),
-  sovereign: module("blue"),
+  strategy: module("purple"),
+  sovereign: module("cyan"),
 
   vault: neutral(),
-  report: module("sky"),
-  assets: module("lime"),
+  report: module("indigo"),
+  assets: module("teal"),
 
-  awareness: module("orange"),
+  awareness: module("sky"),
   reflection: module("teal"),
-  life: module("pink"),
+  life: module("emerald"),
 
   integrations: module("purple"),
   integration: module("purple"),
 
-  energy_high: module("red"),
-  energy_medium: module("amber"),
+  energy_high: module("emerald"),
+  energy_medium: module("sky"),
   energy_low: neutral(),
 
   status_active: module("emerald"),
   status_idle: neutral(),
 
-  error: module("red"),
+  error: module("indigo"),
   success: module("emerald"),
 };
 
@@ -106,5 +106,5 @@ export const PROJECT_COLOR_PALETTE = [
   "bg-slate-500/10 text-slate-600 border-slate-500/20 dark:bg-slate-500/20 dark:text-slate-400 dark:border-slate-500/30",
   "bg-blue-500/10 text-blue-600 border-blue-500/20 dark:bg-blue-500/20 dark:text-blue-400 dark:border-blue-500/30",
   "bg-emerald-500/10 text-emerald-600 border-emerald-500/20 dark:bg-emerald-500/20 dark:text-emerald-400 dark:border-emerald-500/30",
-  "bg-amber-500/10 text-amber-600 border-amber-500/20 dark:bg-amber-500/20 dark:text-amber-400 dark:border-amber-500/30",
+  "bg-indigo-500/10 text-indigo-600 border-indigo-500/20 dark:bg-indigo-500/20 dark:text-indigo-400 dark:border-indigo-500/30",
 ];

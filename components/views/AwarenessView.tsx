@@ -19,7 +19,7 @@ export const AwarenessView: React.FC<AwarenessViewProps> = ({ config }) => {
   const [isLoading, setIsLoading] = useState(true);
 
   const colors = MODULE_COLORS.awareness;
-  const clarityColors = MODULE_COLORS.strategy; // Using strategy's fuchsia for clarity differentiation
+  const clarityColors = MODULE_COLORS.ai; // Using AI's violet for a cooler clarity differentiation
 
   const [todayEntry, setTodayEntry] = useState<MentalStateEntry>({
     id: "",
@@ -281,10 +281,10 @@ export const AwarenessView: React.FC<AwarenessViewProps> = ({ config }) => {
                   <div
                     className={`w-2.5 h-2.5 rounded-full shadow-sm ${
                       entry.energy === "high"
-                        ? MODULE_COLORS.crm.dot
+                        ? MODULE_COLORS.energy_high.dot
                         : entry.energy === "medium"
-                          ? MODULE_COLORS.docs.dot
-                          : MODULE_COLORS.error.dot
+                          ? MODULE_COLORS.energy_medium.dot
+                          : MODULE_COLORS.energy_low.dot
                     }`}
                   />
                   <div className="flex-1">

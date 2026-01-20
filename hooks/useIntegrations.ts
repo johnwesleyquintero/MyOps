@@ -14,7 +14,7 @@ export const useIntegrations = (
     try {
       const data = await integrationService.getIntegrations(config);
       setIntegrations(data);
-    } catch (error) {
+    } catch {
       showToast("Failed to load integrations", "error");
     } finally {
       setIsLoading(false);
@@ -43,7 +43,7 @@ export const useIntegrations = (
         loadIntegrations();
         return true;
       }
-    } catch (error) {
+    } catch {
       showToast("Failed to save integration", "error");
     }
     return false;
@@ -57,7 +57,7 @@ export const useIntegrations = (
         loadIntegrations();
         return true;
       }
-    } catch (error) {
+    } catch {
       showToast("Failed to delete integration", "error");
     }
     return false;
@@ -89,7 +89,7 @@ export const useIntegrations = (
       } else {
         showToast("Connection failed", "error");
       }
-    } catch (error) {
+    } catch {
       showToast("Connection test error", "error");
     }
     return false;

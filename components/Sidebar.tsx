@@ -1,5 +1,5 @@
 import React from "react";
-import { Page, AppConfig } from "../types";
+import { Page } from "../types";
 import { Icon, iconProps } from "./Icons";
 
 interface SidebarProps {
@@ -185,7 +185,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           {renderNavItem(
             "INTEGRATIONS",
             "Integration Hub",
-            <Icon.Zap {...iconProps(18)} />,
+            <Icon.Link {...iconProps(18)} />,
           )}
 
           <div

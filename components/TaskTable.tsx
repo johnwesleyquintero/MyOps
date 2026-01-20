@@ -9,6 +9,7 @@ import {
 import { Icon, iconProps } from "./Icons";
 import { getProjectBadgeStyle } from "../utils/styleUtils";
 import { formatRelativeDate } from "../utils/formatUtils";
+import { Button } from "./ui";
 import {
   useTableColumns,
   ColumnConfig,
@@ -207,35 +208,43 @@ export const TaskTable: React.FC<TaskTableProps> = ({
                     ))}
                   <td className="px-3 py-2 align-top">
                     <div className="flex items-center justify-end gap-0.5 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
-                      <button
+                      <Button
                         onClick={() => onEdit(task)}
-                        className={`text-notion-light-muted hover:${colors.text} p-1 rounded ${colors.lightBg}`}
+                        variant="custom"
+                        size="icon"
+                        className={`text-notion-light-muted hover:${colors.text} ${colors.lightBg} rounded-lg`}
                         title="Edit Mission"
                       >
                         <Icon.Edit {...iconProps(14)} />
-                      </button>
-                      <button
+                      </Button>
+                      <Button
                         onClick={() => onDuplicate(task)}
-                        className={`text-notion-light-muted hover:${colors.text} p-1 rounded ${colors.lightBg}`}
+                        variant="custom"
+                        size="icon"
+                        className={`text-notion-light-muted hover:${colors.text} ${colors.lightBg} rounded-lg`}
                         title="Duplicate Mission"
                       >
                         <Icon.Copy {...iconProps(14)} />
-                      </button>
-                      <button
+                      </Button>
+                      <Button
                         onClick={() => onFocus(task)}
-                        className={`text-notion-light-muted hover:${colors.text} p-1 rounded ${colors.lightBg}`}
+                        variant="custom"
+                        size="icon"
+                        className={`text-notion-light-muted hover:${colors.text} ${colors.lightBg} rounded-lg`}
                         title="Focus Mode"
                       >
                         <Icon.Focus {...iconProps(14)} />
-                      </button>
+                      </Button>
                       <div className="w-px h-3 bg-notion-light-border dark:bg-notion-dark-border mx-0.5" />
-                      <button
+                      <Button
                         onClick={() => onDelete(task)}
-                        className="text-notion-light-muted hover:text-red-500 p-1 rounded hover:bg-red-500/10"
+                        variant="custom"
+                        size="icon"
+                        className="text-notion-light-muted hover:text-red-500 hover:bg-red-500/10 rounded-lg"
                         title="Terminate Mission"
                       >
                         <Icon.Delete {...iconProps(14)} />
-                      </button>
+                      </Button>
                     </div>
                   </td>
                 </tr>

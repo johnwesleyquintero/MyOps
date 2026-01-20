@@ -6,6 +6,7 @@ import { ProjectDistributionList } from "../analytics/ProjectDistributionList";
 import { TaskTable } from "../TaskTable";
 import { Icon, iconProps } from "../Icons";
 import { ViewHeader } from "../ViewHeader";
+import { Button, Card } from "../ui";
 import { toast } from "sonner";
 import { useTableColumns, ColumnConfig } from "../../hooks/useTableColumns";
 import { COLUMN_CONFIG_KEY } from "../../constants/storage";
@@ -266,7 +267,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 —let's keep the momentum."
               </p>
             </div>
-            <button
+            <Button
               onClick={() => {
                 onNavigate("WESAI");
                 toast.info("Connecting to WesAI...", {
@@ -274,14 +275,15 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   icon: <Icon.Ai size={14} />,
                 });
               }}
-              className="notion-button bg-violet-600 dark:bg-violet-500 hover:bg-violet-700 dark:hover:bg-violet-400 text-white border-none w-full justify-center py-5 text-[11px] font-black uppercase tracking-[0.3em] shadow-xl shadow-violet-500/30 active:scale-[0.98] transition-all group/btn relative overflow-hidden"
+              variant="custom"
+              className="bg-violet-600 dark:bg-violet-500 hover:bg-violet-700 dark:hover:bg-violet-400 text-white border-none w-full justify-center py-5 text-[11px] font-black uppercase tracking-[0.3em] shadow-xl shadow-violet-500/30 active:scale-[0.98] group/btn relative overflow-hidden"
             >
               <span className="relative z-10 flex items-center gap-2">
                 LAUNCH CO-PILOT SESSION{" "}
                 <Icon.Ai size={16} className="animate-pulse" />
               </span>
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
-            </button>
+            </Button>
           </div>
         </div>
       </div>
@@ -324,9 +326,10 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               label="Columns"
               className="text-notion-light-text/60 dark:text-notion-dark-text/60 text-[10px] font-black uppercase tracking-widest hover:text-indigo-600 dark:hover:text-indigo-400 flex items-center gap-2 transition-all group bg-notion-light-sidebar dark:bg-notion-dark-sidebar px-4 py-2 rounded-xl border border-notion-light-border dark:border-notion-dark-border shadow-sm"
             />
-            <button
+            <Button
               onClick={() => onNavigate("MISSIONS")}
-              className="text-notion-light-text/60 dark:text-notion-dark-text/60 text-[10px] font-black uppercase tracking-widest hover:text-indigo-600 dark:hover:text-indigo-400 flex items-center gap-2 transition-all group bg-notion-light-sidebar dark:bg-notion-dark-sidebar px-4 py-2 rounded-xl border border-notion-light-border dark:border-notion-dark-border shadow-sm"
+              variant="secondary"
+              className="text-[10px] font-black uppercase tracking-widest hover:text-indigo-600 dark:hover:text-indigo-400"
             >
               Full Board{" "}
               <Icon.Layout
@@ -335,10 +338,13 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   "group-hover:translate-x-0.5 transition-transform",
                 )}
               />
-            </button>
+            </Button>
           </div>
         </div>
-        <div className="notion-card overflow-hidden transition-all duration-300 hover:shadow-lg border-notion-light-border dark:border-notion-dark-border">
+        <Card
+          padding="none"
+          className="overflow-hidden transition-all duration-300 hover:shadow-lg"
+        >
           <TaskTable
             entries={tacticalFocus}
             isLoading={isLoading}
@@ -369,7 +375,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               </p>
             </div>
           )}
-        </div>
+        </Card>
       </div>
     </div>
   );

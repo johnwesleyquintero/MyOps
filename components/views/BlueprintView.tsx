@@ -4,6 +4,7 @@ import { BLUEPRINT_MODULES, MODULE_COLORS } from "@/constants";
 import { ViewHeader } from "../ViewHeader";
 import { toast } from "sonner";
 import { Page } from "../../types";
+import { Button, Card, Badge } from "../ui";
 
 interface BlueprintViewProps {
   onNavigate?: (page: Page) => void;
@@ -46,9 +47,10 @@ export const BlueprintView: React.FC<BlueprintViewProps> = ({ onNavigate }) => {
         subTitle="Solo Operator Command Center Roadmap"
       >
         <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
-          <button
+          <Button
             onClick={copyAsMarkdown}
-            className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2 bg-notion-light-bg dark:bg-notion-dark-bg hover:bg-notion-light-sidebar dark:hover:bg-notion-dark-sidebar rounded-xl border border-notion-light-border dark:border-notion-dark-border text-[10px] font-bold text-notion-light-text dark:text-notion-dark-text transition-all group active:scale-95"
+            variant="secondary"
+            className="w-full sm:w-auto group"
             title="Copy Roadmap as Markdown"
           >
             {copied ? (
@@ -59,10 +61,10 @@ export const BlueprintView: React.FC<BlueprintViewProps> = ({ onNavigate }) => {
                 className="opacity-60 group-hover:opacity-100"
               />
             )}
-            <span className="uppercase tracking-widest">
+            <span className="uppercase tracking-widest text-[10px] font-bold">
               {copied ? "Copied!" : "COPY ROADMAP"}
             </span>
-          </button>
+          </Button>
 
           <div className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2 bg-notion-light-sidebar dark:bg-notion-dark-sidebar rounded-xl border border-notion-light-border dark:border-notion-dark-border">
             <div
@@ -79,9 +81,10 @@ export const BlueprintView: React.FC<BlueprintViewProps> = ({ onNavigate }) => {
         {BLUEPRINT_MODULES.map((mod) => {
           const colors = MODULE_COLORS[mod.id] || MODULE_COLORS.tasks;
           return (
-            <div
+            <Card
               key={mod.id}
-              className={`relative group bg-notion-light-bg dark:bg-notion-dark-bg border border-notion-light-border dark:border-notion-dark-border rounded-2xl p-5 sm:p-6 hover:shadow-xl ${colors.border.replace("border-", "hover:border-")} transition-all duration-300 overflow-hidden flex flex-col h-full`}
+              className={`relative group h-full flex flex-col ${colors.border.replace("border-", "hover:border-")}`}
+              hoverEffect
             >
               <div
                 className={`absolute top-0 right-0 w-32 h-32 ${colors.bg} rounded-full -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-700 opacity-50`}
@@ -102,8 +105,9 @@ export const BlueprintView: React.FC<BlueprintViewProps> = ({ onNavigate }) => {
                     <Icon.Missions {...iconProps(24)} />
                   )}
                 </div>
-                <span
-                  className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider shadow-sm ${
+                <Badge
+                  variant="custom"
+                  className={`shadow-sm ${
                     mod.status === "ACTIVE"
                       ? `${crmColors.bg} ${crmColors.text} border ${crmColors.border}`
                       : mod.status === "PARTIAL"
@@ -112,7 +116,7 @@ export const BlueprintView: React.FC<BlueprintViewProps> = ({ onNavigate }) => {
                   }`}
                 >
                   {mod.status}
-                </span>
+                </Badge>
               </div>
 
               <h3 className="text-base font-bold text-notion-light-text dark:text-notion-dark-text mb-4 relative group-hover:text-notion-light-text/80 dark:group-hover:text-notion-dark-text/80 transition-colors">
@@ -134,10 +138,11 @@ export const BlueprintView: React.FC<BlueprintViewProps> = ({ onNavigate }) => {
               </ul>
 
               <div className="mt-8 pt-5 border-t border-notion-light-border dark:border-notion-dark-border flex items-center justify-between group-hover:border-notion-light-text/10 dark:group-hover:border-notion-dark-text/10 transition-colors">
-                <button
+                <Button
                   onClick={() => {
                     if (mod.status === "ACTIVE" && onNavigate) {
-                      const targetPage = mod.pageId || (mod.id.toUpperCase() as Page);
+                      const targetPage =
+                        mod.pageId || (mod.id.toUpperCase() as Page);
                       onNavigate(targetPage);
                     } else {
                       toast.info(`${mod.title} initialization`, {
@@ -148,21 +153,27 @@ export const BlueprintView: React.FC<BlueprintViewProps> = ({ onNavigate }) => {
                       });
                     }
                   }}
-                  className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest ${colors.hoverBg} ${colors.text} transition-all active:scale-95 flex items-center gap-2 group-hover:translate-x-1 ${colors.bg.replace("bg-", "hover:bg-")}`}
+                  variant="custom"
+                  size="sm"
+                  className={`rounded-lg font-black uppercase tracking-widest ${colors.hoverBg} ${colors.text} group-hover:translate-x-1 ${colors.bg.replace("bg-", "hover:bg-")}`}
                 >
                   {mod.status === "ACTIVE" ? "Open Module" : "Initialize"}{" "}
                   <Icon.Next
                     size={14}
                     className="opacity-0 group-hover:opacity-100 transition-opacity"
                   />
-                </button>
+                </Button>
               </div>
-            </div>
+            </Card>
           );
         })}
       </div>
 
-      <div className="bg-notion-light-sidebar dark:bg-notion-dark-sidebar rounded-2xl p-6 sm:p-8 border border-notion-light-border dark:border-notion-dark-border relative overflow-hidden group shadow-sm hover:shadow-md transition-all">
+      <Card
+        className="bg-notion-light-sidebar dark:bg-notion-dark-sidebar relative group shadow-sm"
+        hoverEffect
+        padding="lg"
+      >
         <div className="absolute top-0 left-0 w-full h-1 bg-notion-light-text dark:bg-notion-dark-text opacity-20 group-hover:opacity-40 transition-opacity"></div>
         <div className="relative z-10 flex flex-col md:flex-row gap-8 items-start">
           <div className="flex-1">
@@ -206,7 +217,7 @@ export const BlueprintView: React.FC<BlueprintViewProps> = ({ onNavigate }) => {
         <div className="absolute right-0 bottom-0 opacity-[0.03] dark:opacity-[0.05] p-4 text-notion-light-text dark:text-notion-dark-text group-hover:scale-110 transition-transform duration-1000">
           <Icon.Dashboard size={240} />
         </div>
-      </div>
+      </Card>
     </div>
   );
 };

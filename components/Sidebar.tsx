@@ -183,6 +183,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
           )}
 
           {renderNavItem(
+            "REFLECTION",
+            "Reflection Logs",
+            <Icon.History {...iconProps(18)} />,
+          )}
+
+          {renderNavItem(
             "AWARENESS",
             "Mental State",
             <Icon.Activity {...iconProps(18)} />,
@@ -205,6 +211,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
             "Master Blueprint",
             <Icon.Blueprint {...iconProps(18)} />,
           )}
+
+          {renderNavItem("LIFE", "Life Ops", <Icon.Heart {...iconProps(18)} />)}
 
           {renderNavItem(
             "STRATEGY",

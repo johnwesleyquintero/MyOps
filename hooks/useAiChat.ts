@@ -10,6 +10,9 @@ import {
   OperatorMetrics,
   DecisionEntry,
   MentalStateEntry,
+  AssetEntry,
+  ReflectionEntry,
+  LifeConstraintEntry,
 } from "../types";
 import { WES_AI_SYSTEM_INSTRUCTION, WES_TOOLS } from "../constants/aiConfig";
 
@@ -30,10 +33,18 @@ interface UseAiChatProps {
   metrics: OperatorMetrics;
   decisions: DecisionEntry[];
   mentalStates: MentalStateEntry[];
+  assets: AssetEntry[];
+  reflections: ReflectionEntry[];
+  lifeConstraints: LifeConstraintEntry[];
   onSaveTransaction: (entry: TaskEntry, isUpdate: boolean) => Promise<boolean>;
   onDeleteTransaction: (entry: TaskEntry) => Promise<boolean>;
   onSaveContact: (contact: Contact, isUpdate: boolean) => Promise<boolean>;
   onSaveNote: (note: Note, isUpdate: boolean) => Promise<boolean>;
+  onSaveAsset: (asset: AssetEntry, isUpdate: boolean) => Promise<boolean>;
+  onSaveReflection: (
+    reflection: ReflectionEntry,
+    isUpdate: boolean,
+  ) => Promise<boolean>;
 }
 
 const STORAGE_KEY = "wes_ai_chat_history";
@@ -51,10 +62,15 @@ export const useAiChat = ({
   metrics,
   decisions,
   mentalStates,
+  assets,
+  reflections,
+  lifeConstraints,
   onSaveTransaction,
   onDeleteTransaction,
   onSaveContact,
   onSaveNote,
+  onSaveAsset,
+  onSaveReflection,
 }: UseAiChatProps) => {
   const [messages, setMessages] = useState<Message[]>(() => {
     const saved = localStorage.getItem(STORAGE_KEY);
@@ -405,6 +421,78 @@ export const useAiChat = ({
                   "No mental state data available. Suggest the user perform a check-in.",
               };
         }
+        case "get_assets":
+          return {
+            assets: assets.map((a) => ({
+              id: a.id,
+              title: a.title,
+              type: a.type,
+              status: a.status,
+              reusabilityScore: a.reusabilityScore,
+              monetizationPotential: a.monetizationPotential,
+            })),
+          };
+        case "create_asset": {
+          const assetSuccess = await onSaveAsset(
+            {
+              id: "",
+              title: args.title as string,
+              type: args.type as AssetEntry["type"],
+              status: "Active",
+              reusabilityScore: 3,
+              monetizationPotential: 3,
+              notes: (args.notes as string) || "",
+              createdAt: new Date().toISOString(),
+              updatedAt: new Date().toISOString(),
+            },
+            false,
+          );
+          return assetSuccess
+            ? { status: "Asset created" }
+            : { error: "Failed to create asset" };
+        }
+        case "get_reflections":
+          return {
+            reflections: reflections.map((r) => ({
+              id: r.id,
+              date: r.date,
+              title: r.title,
+              type: r.type,
+            })),
+          };
+        case "create_reflection": {
+          const reflectionSuccess = await onSaveReflection(
+            {
+              id: "",
+              date: new Date().toISOString().split("T")[0],
+              title: args.title as string,
+              type: args.type as ReflectionEntry["type"],
+              content: args.content as string,
+              learnings: [],
+              actionItems: [],
+              createdAt: new Date().toISOString(),
+              updatedAt: new Date().toISOString(),
+            },
+            false,
+          );
+          return reflectionSuccess
+            ? { status: "Reflection created" }
+            : { error: "Failed to create reflection" };
+        }
+        case "get_life_constraints":
+          return {
+            constraints: lifeConstraints
+              .filter((c) => c.isActive)
+              .map((c) => ({
+                id: c.id,
+                title: c.title,
+                category: c.category,
+                startTime: c.startTime,
+                endTime: c.endTime,
+                daysOfWeek: c.daysOfWeek,
+                energyRequirement: c.energyRequirement,
+              })),
+          };
         default:
           return { error: "Tool not found" };
       }

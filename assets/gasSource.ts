@@ -15,7 +15,7 @@ const SLACK_WEBHOOK_URL = ""; // <--- PASTE YOUR WEBHOOK URL HERE
 
 function setupSystem() {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
-  const modules = ['tasks', 'contacts', 'interactions', 'notes', 'vault', 'automations', 'strategy', 'awareness', 'assets'];
+  const modules = ['tasks', 'contacts', 'interactions', 'notes', 'vault', 'automations', 'strategy', 'awareness', 'assets', 'reflections', 'life_ops'];
   
   modules.forEach(m => {
     let sheet = ss.getSheetByName(m);
@@ -32,6 +32,8 @@ function setupSystem() {
       if (m === 'strategy') headers = ['ID', 'Date', 'Title', 'Context', 'Options', 'Decision', 'ExpectedOutcome', 'ReviewDate', 'Status', 'Impact', 'Tags'];
       if (m === 'awareness') headers = ['ID', 'Date', 'Energy', 'Clarity', 'Notes'];
       if (m === 'assets') headers = ['ID', 'Title', 'Type', 'Status', 'ReusabilityScore', 'MonetizationPotential', 'Notes', 'CreatedAt', 'UpdatedAt', 'Link'];
+      if (m === 'reflections') headers = ['ID', 'Date', 'Title', 'Type', 'Content', 'Learnings', 'ActionItems', 'LinkedTaskId', 'LinkedProjectId', 'CreatedAt', 'UpdatedAt'];
+      if (m === 'life_ops') headers = ['ID', 'Title', 'Category', 'StartTime', 'EndTime', 'DaysOfWeek', 'EnergyRequirement', 'Notes', 'IsActive', 'CreatedAt', 'UpdatedAt'];
       
       if (headers.length > 0) {
         sheet.getRange(1, 1, 1, headers.length).setValues([headers]).setFontWeight('bold');
@@ -260,6 +262,33 @@ function mapRowToEntry(row, module) {
         link: row[9]
       };
     }
+
+    if (module === 'reflections') {
+      let learnings = [];
+      try { if (row[5] && row[5] !== "") learnings = JSON.parse(row[5]); } catch (e) {}
+      let actionItems = [];
+      try { if (row[6] && row[6] !== "") actionItems = JSON.parse(row[6]); } catch (e) {}
+      
+      return {
+        id: row[0], date: row[1], title: row[2], type: row[3],
+        content: row[4], learnings: learnings, actionItems: actionItems,
+        linkedTaskId: row[7], linkedProjectId: row[8],
+        createdAt: row[9], updatedAt: row[10]
+      };
+    }
+
+    if (module === 'life_ops') {
+      let days = [];
+      try { if (row[5] && row[5] !== "") days = JSON.parse(row[5]); } catch (e) {}
+      
+      return {
+        id: row[0], title: row[1], category: row[2],
+        startTime: row[3], endTime: row[4], daysOfWeek: days,
+        energyRequirement: row[6], notes: row[7],
+        isActive: row[8] === true || row[8] === "true",
+        createdAt: row[9], updatedAt: row[10]
+      };
+    }
   } catch (e) {
     return null;
   }
@@ -312,6 +341,21 @@ function mapEntryToRow(entry, module) {
       entry.id, entry.title, entry.type, entry.status, entry.reusabilityScore,
       entry.monetizationPotential, entry.notes || "", entry.createdAt || new Date().toISOString(),
       entry.updatedAt || new Date().toISOString(), entry.link || ""
+    ];
+  }
+  if (module === 'reflections') {
+    return [
+      entry.id, entry.date, entry.title, entry.type, entry.content,
+      JSON.stringify(entry.learnings || []), JSON.stringify(entry.actionItems || []),
+      entry.linkedTaskId || "", entry.linkedProjectId || "",
+      entry.createdAt || new Date().toISOString(), entry.updatedAt || new Date().toISOString()
+    ];
+  }
+  if (module === 'life_ops') {
+    return [
+      entry.id, entry.title, entry.category, entry.startTime || "", entry.endTime || "",
+      JSON.stringify(entry.daysOfWeek || []), entry.energyRequirement, entry.notes || "",
+      entry.isActive, entry.createdAt || new Date().toISOString(), entry.updatedAt || new Date().toISOString()
     ];
   }
   return [];

@@ -154,7 +154,7 @@ export const BLUEPRINT_MODULES: BlueprintModule[] = [
   {
     id: "reflection",
     title: "Feedback & Reflection",
-    status: "PENDING",
+    status: "ACTIVE",
     iconKey: "History",
     features: [
       "Post-mortem close-outs",
@@ -167,7 +167,7 @@ export const BLUEPRINT_MODULES: BlueprintModule[] = [
   {
     id: "life",
     title: "Life Ops & Constraints",
-    status: "PENDING",
+    status: "ACTIVE",
     iconKey: "Heart",
     features: [
       "Health & recovery blocks",

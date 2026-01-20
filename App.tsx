@@ -22,6 +22,8 @@ import { StrategyView } from "./components/views/StrategyView";
 import { AwarenessView } from "./components/views/AwarenessView";
 import { WesAiView } from "./components/views/WesAiView";
 import { AssetsView } from "./components/views/AssetsView";
+import { ReflectionView } from "./components/views/ReflectionView";
+import { LifeView } from "./components/views/LifeView";
 
 // Hooks
 import { useTasks } from "./hooks/useTasks";
@@ -41,6 +43,8 @@ import { useAutomation } from "./hooks/useAutomation";
 import { useDecisions } from "./hooks/useDecisions";
 import { useAwareness } from "./hooks/useAwareness";
 import { useAssets } from "./hooks/useAssets";
+import { useReflection } from "./hooks/useReflection";
+import { useLifeOps } from "./hooks/useLifeOps";
 
 const App: React.FC = () => {
   const { config, setConfig } = useAppConfig();
@@ -61,6 +65,20 @@ const App: React.FC = () => {
     saveAsset,
     deleteAsset,
   } = useAssets(config, showToast);
+
+  const {
+    reflections,
+    isLoading: isReflectionsLoading,
+    saveReflection,
+    deleteReflection,
+  } = useReflection(config, showToast);
+
+  const {
+    constraints,
+    isLoading: isLifeOpsLoading,
+    saveConstraint,
+    deleteConstraint,
+  } = useLifeOps(config, showToast);
 
   const {
     entries,
@@ -268,6 +286,24 @@ const App: React.FC = () => {
               onDelete={deleteAsset}
             />
           )}
+          {ui.activePage === "REFLECTION" && (
+            <ReflectionView
+              reflections={reflections}
+              isLoading={isReflectionsLoading}
+              onSave={saveReflection}
+              onDelete={deleteReflection}
+            />
+          )}
+
+          {ui.activePage === "LIFE" && (
+            <LifeView
+              constraints={constraints}
+              isLoading={isLifeOpsLoading}
+              onSave={saveConstraint}
+              onDelete={deleteConstraint}
+            />
+          )}
+
           {ui.activePage === "WESAI" && (
             <WesAiView
               config={config}
@@ -278,10 +314,15 @@ const App: React.FC = () => {
               metrics={operatorMetrics}
               decisions={decisions}
               mentalStates={mentalStates}
+              assets={assets}
+              reflections={reflections}
+              lifeConstraints={constraints}
               onSaveTransaction={saveTransaction}
               onDeleteTransaction={removeTransaction}
               onSaveContact={crm.saveContact}
               onSaveNote={notes.saveNote}
+              onSaveAsset={saveAsset}
+              onSaveReflection={saveReflection}
             />
           )}
           {ui.activePage === "AWARENESS" && <AwarenessView config={config} />}
@@ -299,10 +340,15 @@ const App: React.FC = () => {
         metrics={operatorMetrics}
         decisions={decisions}
         mentalStates={mentalStates}
+        assets={assets}
+        reflections={reflections}
+        lifeConstraints={constraints}
         onSaveTransaction={saveTransaction}
         onDeleteTransaction={removeTransaction}
         onSaveContact={crm.saveContact}
         onSaveNote={notes.saveNote}
+        onSaveAsset={saveAsset}
+        onSaveReflection={saveReflection}
       />
 
       <CommandPalette
@@ -342,6 +388,15 @@ const App: React.FC = () => {
         onClose={() => ui.setShowSettings(false)}
         config={config}
         onSave={handleSaveConfig}
+        entries={entries}
+        contacts={crm.contacts}
+        notes={notes.notes}
+        vaultEntries={vault.vaultEntries}
+        decisions={decisions}
+        mentalStates={mentalStates}
+        assets={assets}
+        reflections={reflections}
+        lifeConstraints={constraints}
       />
 
       <ShortcutsModal

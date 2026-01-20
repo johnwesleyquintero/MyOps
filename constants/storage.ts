@@ -1,6 +1,8 @@
 export const INITIAL_CONFIG_KEY = "myops_config_v2";
 export const LOCAL_STORAGE_KEY = "myops_data_v2";
 export const ASSET_STORAGE_KEY = "myops_assets_v2";
+export const REFLECTION_STORAGE_KEY = "myops_reflections_v1";
+export const LIFE_OPS_STORAGE_KEY = "myops_life_ops_v1";
 export const TEMPLATE_STORAGE_KEY = "myops_templates_v2";
 export const COLUMN_CONFIG_KEY = "myops_column_config_v2";
 export const OPERATION_COLUMN_CONFIG_KEY = "myops_operation_config_v1";

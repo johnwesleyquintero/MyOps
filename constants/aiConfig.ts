@@ -20,6 +20,9 @@ You have direct access to the "MyOps" mission board, CRM, and Knowledge Base via
 - **Analytics:** \`get_insights\` to check your current operator stats.
 - **Strategy:** \`get_decisions\` to review strategic and tactical choices.
 - **Awareness:** \`get_mental_state\` to check current constraints (energy/clarity).
+- **Assets:** \`get_assets\`, \`create_asset\` to manage your IP registry and SOP library.
+- **Reflections:** \`get_reflections\`, \`create_reflection\` for post-mortems and learning loops.
+- **Life Ops:** \`get_life_constraints\` to see personal and health commitments.
 
 **Rules:**
 1. If the user asks "What's on my plate?", call \`get_tasks\` first.
@@ -28,7 +31,10 @@ You have direct access to the "MyOps" mission board, CRM, and Knowledge Base via
 4. For Vault queries, NEVER reveal the actual value unless explicitly asked and the user is authenticated (assume authenticated in this session). Use \`get_vault_entries\` to see what's available.
 5. Strategic decisions should be reviewed if their review date is in the past. Use \`get_decisions\` to check.
 6. Check the user's mental state with \`get_mental_state\` before suggesting high-impact strategic decisions. If energy is low or clarity is foggy, suggest deferring or easier tasks.
-7. Today's date is ${new Date().toISOString().split("T")[0]}.
+7. Use \`get_assets\` to find reusable SOPs or frameworks that could help with a task.
+8. Encourage post-mortems using \`create_reflection\` after a major task is completed.
+9. Consider \`get_life_constraints\` when suggesting task timing or energy-based scheduling.
+10. Today's date is ${new Date().toISOString().split("T")[0]}.
 `;
 
 // --- Tool Definitions ---
@@ -219,6 +225,72 @@ const getMentalStateTool: FunctionDeclaration = {
   },
 };
 
+const getAssetsTool: FunctionDeclaration = {
+  name: "get_assets",
+  description:
+    "Get the list of assets, frameworks, and SOPs from the registry.",
+  parameters: {
+    type: Type.OBJECT,
+    properties: {},
+  },
+};
+
+const createAssetTool: FunctionDeclaration = {
+  name: "create_asset",
+  description: "Add a new asset or SOP to the registry.",
+  parameters: {
+    type: Type.OBJECT,
+    properties: {
+      title: { type: Type.STRING, description: "Title of the asset" },
+      type: {
+        type: Type.STRING,
+        description: "Type: Framework, SOP, Tool, Content, or Code",
+      },
+      notes: { type: Type.STRING, description: "Detailed notes or content" },
+    },
+    required: ["title", "type"],
+  },
+};
+
+const getReflectionsTool: FunctionDeclaration = {
+  name: "get_reflections",
+  description:
+    "Get the list of past reflections, post-mortems, and mistake logs.",
+  parameters: {
+    type: Type.OBJECT,
+    properties: {},
+  },
+};
+
+const createReflectionTool: FunctionDeclaration = {
+  name: "create_reflection",
+  description: "Log a new reflection or post-mortem.",
+  parameters: {
+    type: Type.OBJECT,
+    properties: {
+      title: { type: Type.STRING, description: "Title of the reflection" },
+      type: {
+        type: Type.STRING,
+        description: "Type: Post-Mortem, Weekly, Monthly, or Mistake Log",
+      },
+      content: {
+        type: Type.STRING,
+        description: "The main reflection content",
+      },
+    },
+    required: ["title", "type", "content"],
+  },
+};
+
+const getLifeConstraintsTool: FunctionDeclaration = {
+  name: "get_life_constraints",
+  description: "Get personal commitments, health blocks, and life constraints.",
+  parameters: {
+    type: Type.OBJECT,
+    properties: {},
+  },
+};
+
 export const WES_TOOLS: Tool[] = [
   {
     functionDeclarations: [
@@ -236,6 +308,11 @@ export const WES_TOOLS: Tool[] = [
       getFocusedTasksTool,
       getDecisionsTool,
       getMentalStateTool,
+      getAssetsTool,
+      createAssetTool,
+      getReflectionsTool,
+      createReflectionTool,
+      getLifeConstraintsTool,
     ],
   },
 ];

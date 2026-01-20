@@ -55,6 +55,7 @@ import {
   History,
   Heart,
   Download,
+  Database,
 } from "lucide-react";
 
 export const Icon = {
@@ -98,6 +99,7 @@ export const Icon = {
   Code: Code2,
   Template: FileText,
   Download: Download,
+  Database: Database,
   Rank: Target,
   Streak: Zap,
   Plus: Plus,

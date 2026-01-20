@@ -12,6 +12,9 @@ import {
   OperatorMetrics,
   DecisionEntry,
   MentalStateEntry,
+  AssetEntry,
+  ReflectionEntry,
+  LifeConstraintEntry,
 } from "../../types";
 import ReactMarkdown from "react-markdown";
 
@@ -24,10 +27,18 @@ interface WesAiViewProps {
   metrics: OperatorMetrics;
   decisions: DecisionEntry[];
   mentalStates: MentalStateEntry[];
+  assets: AssetEntry[];
+  reflections: ReflectionEntry[];
+  lifeConstraints: LifeConstraintEntry[];
   onSaveTransaction: (entry: TaskEntry, isUpdate: boolean) => Promise<boolean>;
   onDeleteTransaction: (entry: TaskEntry) => Promise<boolean>;
   onSaveContact: (contact: Contact, isUpdate: boolean) => Promise<boolean>;
   onSaveNote: (note: Note, isUpdate: boolean) => Promise<boolean>;
+  onSaveAsset: (asset: AssetEntry, isUpdate: boolean) => Promise<boolean>;
+  onSaveReflection: (
+    reflection: ReflectionEntry,
+    isUpdate: boolean,
+  ) => Promise<boolean>;
 }
 
 export const WesAiView: React.FC<WesAiViewProps> = ({
@@ -39,10 +50,15 @@ export const WesAiView: React.FC<WesAiViewProps> = ({
   metrics,
   decisions,
   mentalStates,
+  assets,
+  reflections,
+  lifeConstraints,
   onSaveTransaction,
   onDeleteTransaction,
   onSaveContact,
   onSaveNote,
+  onSaveAsset,
+  onSaveReflection,
 }) => {
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const {
@@ -61,10 +77,15 @@ export const WesAiView: React.FC<WesAiViewProps> = ({
     metrics,
     decisions,
     mentalStates,
+    assets,
+    reflections,
+    lifeConstraints,
     onSaveTransaction,
     onDeleteTransaction,
     onSaveContact,
     onSaveNote,
+    onSaveAsset,
+    onSaveReflection,
   });
 
   const [attachments, setAttachments] = useState<string[]>([]);

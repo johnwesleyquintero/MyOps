@@ -1,13 +1,35 @@
 import React, { useState, useEffect } from "react";
-import { AppConfig } from "../types";
+import {
+  AppConfig,
+  TaskEntry,
+  Contact,
+  Note,
+  VaultEntry,
+  DecisionEntry,
+  MentalStateEntry,
+  AssetEntry,
+  ReflectionEntry,
+  LifeConstraintEntry,
+} from "../types";
 import { ConnectionSettings } from "./settings/ConnectionSettings";
 import { BackendCodeView } from "./settings/BackendCodeView";
+import { MaintenanceSettings } from "./settings/MaintenanceSettings";
 
 interface SettingsModalProps {
   isOpen: boolean;
   onClose: () => void;
   config: AppConfig;
   onSave: (config: AppConfig) => void;
+  // Data for backup
+  entries: TaskEntry[];
+  contacts: Contact[];
+  notes: Note[];
+  vaultEntries: VaultEntry[];
+  decisions: DecisionEntry[];
+  mentalStates: MentalStateEntry[];
+  assets: AssetEntry[];
+  reflections: ReflectionEntry[];
+  lifeConstraints: LifeConstraintEntry[];
 }
 
 export const SettingsModal: React.FC<SettingsModalProps> = ({
@@ -15,9 +37,20 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   onClose,
   config,
   onSave,
+  entries,
+  contacts,
+  notes,
+  vaultEntries,
+  decisions,
+  mentalStates,
+  assets,
+  reflections,
+  lifeConstraints,
 }) => {
   const [localConfig, setLocalConfig] = useState<AppConfig>(config);
-  const [activeTab, setActiveTab] = useState<"CONFIG" | "CODE">("CONFIG");
+  const [activeTab, setActiveTab] = useState<"CONFIG" | "CODE" | "MAINTENANCE">(
+    "CONFIG",
+  );
 
   useEffect(() => {
     setLocalConfig(config);
@@ -46,6 +79,12 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             >
               BACKEND CODE
             </button>
+            <button
+              onClick={() => setActiveTab("MAINTENANCE")}
+              className={`px-3 py-1 text-[10px] font-bold rounded transition-all ${activeTab === "MAINTENANCE" ? "bg-notion-light-bg dark:bg-notion-dark-bg text-notion-light-text dark:text-notion-dark-text shadow-sm" : "text-notion-light-muted dark:text-notion-dark-muted hover:text-notion-light-text dark:hover:text-notion-dark-text"}`}
+            >
+              MAINTENANCE
+            </button>
           </div>
         </div>
 
@@ -56,8 +95,20 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               config={localConfig}
               onChange={setLocalConfig}
             />
-          ) : (
+          ) : activeTab === "CODE" ? (
             <BackendCodeView />
+          ) : (
+            <MaintenanceSettings
+              entries={entries}
+              contacts={contacts}
+              notes={notes}
+              vaultEntries={vaultEntries}
+              decisions={decisions}
+              mentalStates={mentalStates}
+              assets={assets}
+              reflections={reflections}
+              lifeConstraints={lifeConstraints}
+            />
           )}
         </div>
 

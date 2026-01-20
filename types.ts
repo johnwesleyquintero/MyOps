@@ -16,7 +16,9 @@ export type Page =
   | "STRATEGY"
   | "AWARENESS"
   | "WESAI"
-  | "ASSETS";
+  | "ASSETS"
+  | "REFLECTION"
+  | "LIFE";
 
 export interface TaskEntry {
   id: string; // UUID
@@ -164,4 +166,32 @@ export interface AssetEntry {
   createdAt: string;
   updatedAt: string;
   link?: string;
+}
+
+export interface ReflectionEntry {
+  id: string;
+  date: string;
+  title: string;
+  type: "Post-Mortem" | "Weekly" | "Monthly" | "Mistake Log";
+  content: string;
+  learnings: string[];
+  actionItems: string[];
+  linkedTaskId?: string;
+  linkedProjectId?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface LifeConstraintEntry {
+  id: string;
+  title: string;
+  category: "Health" | "Family" | "Personal" | "Recovery";
+  startTime?: string; // HH:mm
+  endTime?: string; // HH:mm
+  daysOfWeek: number[]; // 0-6
+  energyRequirement: "Low" | "Medium" | "High";
+  notes?: string;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
 }

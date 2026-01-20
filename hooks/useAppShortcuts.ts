@@ -23,6 +23,8 @@ export const useAppShortcuts = ({
   useKeyboardShortcuts([
     { key: "g d", action: () => setActivePage("DASHBOARD") },
     { key: "g m", action: () => setActivePage("MISSIONS") },
+    { key: "g r", action: () => setActivePage("REFLECTION") },
+    { key: "g l", action: () => setActivePage("LIFE") },
     {
       key: "c",
       action: () => {

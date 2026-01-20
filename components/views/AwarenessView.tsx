@@ -174,7 +174,7 @@ export const AwarenessView: React.FC<AwarenessViewProps> = ({ config }) => {
               <Button
                 variant="custom"
                 onClick={handleSave}
-                className={`w-full ${colors.bg.replace("/10", "").replace("/20", "")} text-white border ${colors.border} py-4 rounded-2xl font-black uppercase tracking-widest text-sm shadow-lg shadow-black/5 active:scale-[0.98] transition-all`}
+                className={`w-full ${colors.bg} ${colors.text} border ${colors.border} py-4 rounded-2xl font-black uppercase tracking-widest text-sm shadow-sm active:scale-[0.98] transition-all`}
               >
                 Lock Daily Check-in
               </Button>
@@ -186,28 +186,38 @@ export const AwarenessView: React.FC<AwarenessViewProps> = ({ config }) => {
         <div className="lg:col-span-1 flex flex-col gap-6">
           {/* Readiness Briefing */}
           <div
-            className={`rounded-2xl p-6 ${colors.bg.replace("/10", "").replace("/20", "")} text-white border-none shadow-lg relative overflow-hidden group`}
+            className={`rounded-2xl p-6 ${colors.bg} border ${colors.border} shadow-sm relative overflow-hidden group`}
           >
-            <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:scale-110 transition-transform duration-500">
+            <div
+              className={`absolute top-0 right-0 p-8 opacity-10 ${colors.text} group-hover:scale-110 transition-transform duration-500`}
+            >
               <Icon.Ai size={100} />
             </div>
             <div className="relative z-10">
               <div className="flex items-center gap-2 mb-6">
-                <div className="p-2 bg-white/20 rounded-lg backdrop-blur-md border border-white/10">
-                  <Icon.Ai size={18} />
+                <div
+                  className={`p-2 ${colors.bg} rounded-lg border ${colors.border}`}
+                >
+                  <Icon.Ai size={18} className={colors.text} />
                 </div>
                 <div>
-                  <h3 className="text-[10px] font-black uppercase tracking-[0.2em] opacity-70">
+                  <h3
+                    className={`text-[10px] font-black uppercase tracking-[0.2em] opacity-70 ${colors.text}`}
+                  >
                     Mindset Briefing
                   </h3>
-                  <span className="text-[9px] font-bold text-white/50 uppercase tracking-widest">
+                  <span
+                    className={`text-[9px] font-bold opacity-50 uppercase tracking-widest ${colors.text}`}
+                  >
                     Operational Capacity
                   </span>
                 </div>
               </div>
 
               <div className="space-y-4">
-                <p className="text-sm font-medium leading-relaxed italic border-l-2 border-white/30 pl-4 py-1">
+                <p
+                  className={`text-sm font-medium leading-relaxed italic border-l-2 ${colors.border} pl-4 py-1 ${colors.text}`}
+                >
                   {todayEntry.energy === "high" &&
                   todayEntry.clarity === "sharp"
                     ? "Systems at 100%. Peak operational capacity detected. Focus on high-complexity missions."
@@ -218,19 +228,31 @@ export const AwarenessView: React.FC<AwarenessViewProps> = ({ config }) => {
                 </p>
 
                 <div className="grid grid-cols-2 gap-4 pt-2">
-                  <div className="bg-white/10 p-3 rounded-xl backdrop-blur-sm border border-white/5">
-                    <span className="text-[10px] opacity-70 block uppercase font-bold tracking-tighter mb-1">
+                  <div
+                    className={`${colors.bg} p-3 rounded-xl border ${colors.border}`}
+                  >
+                    <span
+                      className={`text-[10px] opacity-70 block uppercase font-bold tracking-tighter mb-1 ${colors.text}`}
+                    >
                       Energy
                     </span>
-                    <span className="text-lg font-bold capitalize">
+                    <span
+                      className={`text-lg font-bold capitalize ${colors.text}`}
+                    >
                       {todayEntry.energy}
                     </span>
                   </div>
-                  <div className="bg-white/10 p-3 rounded-xl backdrop-blur-sm border border-white/5">
-                    <span className="text-[10px] opacity-70 block uppercase font-bold tracking-tighter mb-1">
+                  <div
+                    className={`${colors.bg} p-3 rounded-xl border ${colors.border}`}
+                  >
+                    <span
+                      className={`text-[10px] opacity-70 block uppercase font-bold tracking-tighter mb-1 ${colors.text}`}
+                    >
                       Clarity
                     </span>
-                    <span className="text-lg font-bold capitalize">
+                    <span
+                      className={`text-lg font-bold capitalize ${colors.text}`}
+                    >
                       {todayEntry.clarity}
                     </span>
                   </div>

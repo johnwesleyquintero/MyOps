@@ -1,13 +1,16 @@
 import { Page } from "../types";
+import { MODULE_COLORS } from "./ui";
+
+export type ModuleStatus = "ACTIVE" | "PARTIAL" | "PENDING";
 
 export interface BlueprintModule {
   id: string;
   pageId?: Page;
   title: string;
-  status: "ACTIVE" | "PARTIAL" | "PENDING";
+  status: ModuleStatus;
   iconKey: string;
   features: string[];
-  color: string;
+  colorKey: keyof typeof MODULE_COLORS;
 }
 
 export const BLUEPRINT_MODULES: BlueprintModule[] = [
@@ -23,7 +26,7 @@ export const BLUEPRINT_MODULES: BlueprintModule[] = [
       "Milestones & priorities",
       "Ritual / Focus Mode toggle",
     ],
-    color: "indigo",
+    colorKey: "tasks",
   },
   {
     id: "crm",
@@ -37,7 +40,7 @@ export const BLUEPRINT_MODULES: BlueprintModule[] = [
       "Follow-up reminders",
       "Task-linked networking",
     ],
-    color: "emerald",
+    colorKey: "crm",
   },
   {
     id: "docs",
@@ -51,7 +54,7 @@ export const BLUEPRINT_MODULES: BlueprintModule[] = [
       "Searchable knowledge base",
       "Tag-based organization",
     ],
-    color: "amber",
+    colorKey: "docs",
   },
   {
     id: "analytics",
@@ -65,7 +68,7 @@ export const BLUEPRINT_MODULES: BlueprintModule[] = [
       "Recharts: bars & pies",
       "Real-time health reports",
     ],
-    color: "rose",
+    colorKey: "analytics",
   },
   {
     id: "automation",
@@ -79,7 +82,7 @@ export const BLUEPRINT_MODULES: BlueprintModule[] = [
       "Batch status updates",
       "GAS background syncing",
     ],
-    color: "cyan",
+    colorKey: "automation",
   },
   {
     id: "vault",
@@ -93,7 +96,7 @@ export const BLUEPRINT_MODULES: BlueprintModule[] = [
       "One-click copy to clip",
       "Local data sovereignty",
     ],
-    color: "slate",
+    colorKey: "vault",
   },
   {
     id: "ai",
@@ -107,7 +110,7 @@ export const BLUEPRINT_MODULES: BlueprintModule[] = [
       "Create/Update tasks",
       "Conversational strategy",
     ],
-    color: "violet",
+    colorKey: "ai",
   },
   {
     id: "sovereign",
@@ -121,7 +124,7 @@ export const BLUEPRINT_MODULES: BlueprintModule[] = [
       "Zero-cost",
       "Multi-tab support",
     ],
-    color: "blue",
+    colorKey: "sovereign",
   },
   {
     id: "strategy",
@@ -135,7 +138,7 @@ export const BLUEPRINT_MODULES: BlueprintModule[] = [
       "Strategy vs Tactic separation",
       "Expected outcome reviews",
     ],
-    color: "fuchsia",
+    colorKey: "strategy",
   },
   {
     id: "awareness",
@@ -149,7 +152,7 @@ export const BLUEPRINT_MODULES: BlueprintModule[] = [
       "Daily check-in rituals",
       "WesAI state coaching",
     ],
-    color: "orange",
+    colorKey: "awareness",
   },
   {
     id: "assets",
@@ -163,7 +166,7 @@ export const BLUEPRINT_MODULES: BlueprintModule[] = [
       "Code snippet vault",
       "Asset-to-Project links",
     ],
-    color: "lime",
+    colorKey: "assets",
   },
   {
     id: "reflection",
@@ -177,7 +180,7 @@ export const BLUEPRINT_MODULES: BlueprintModule[] = [
       "Mistake avoidance logs",
       "Systemization triggers",
     ],
-    color: "teal",
+    colorKey: "reflection",
   },
   {
     id: "life",
@@ -191,7 +194,7 @@ export const BLUEPRINT_MODULES: BlueprintModule[] = [
       "Family commitments",
       "Energy-based scheduling",
     ],
-    color: "pink",
+    colorKey: "life",
   },
   {
     id: "integrations",
@@ -205,6 +208,6 @@ export const BLUEPRINT_MODULES: BlueprintModule[] = [
       "One-click connection testing",
       "Automatic client sync",
     ],
-    color: "purple",
+    colorKey: "integrations",
   },
 ];

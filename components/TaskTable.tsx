@@ -101,7 +101,7 @@ export const TaskTable: React.FC<TaskTableProps> = ({
                   <th
                     key={col.key}
                     className={`${col.width} px-3 py-2 text-[10px] font-bold text-notion-light-muted dark:text-notion-dark-muted uppercase tracking-widest cursor-pointer ${colors.hoverBg} transition-colors group ${["project", "priority"].includes(col.key) ? "hidden md:table-cell" : ""}`}
-                    onClick={() => requestSort(col.key as SortKey)}
+                    onClick={() => requestSort(col.key as keyof TaskEntry)}
                   >
                     <div className="flex items-center gap-2">
                       {col.label}

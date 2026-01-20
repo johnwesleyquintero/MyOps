@@ -1,20 +1,15 @@
 import { useState } from "react";
 
-export type SortKey =
-  | "date"
-  | "description"
-  | "project"
-  | "priority"
-  | "status";
+export type SortKey = string;
 
 export interface ColumnConfig {
-  key: SortKey;
+  key: string;
   label: string;
   visible: boolean;
   width?: string;
 }
 
-export const useTableColumns = (
+export const useTableColumns = <T extends string>(
   defaultColumns: ColumnConfig[],
   storageKey: string,
 ) => {
@@ -74,7 +69,7 @@ export const useTableColumns = (
     localStorage.setItem(storageKey, JSON.stringify(newCols));
   };
 
-  const toggleColumn = (key: SortKey) => {
+  const toggleColumn = (key: T) => {
     const newCols = columns.map((c) =>
       c.key === key ? { ...c, visible: !c.visible } : c,
     );

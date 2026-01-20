@@ -79,7 +79,7 @@ export const BlueprintView: React.FC<BlueprintViewProps> = ({ onNavigate }) => {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {BLUEPRINT_MODULES.map((mod) => {
-          const colors = MODULE_COLORS[mod.id] || MODULE_COLORS.tasks;
+          const colors = MODULE_COLORS[mod.colorKey] || MODULE_COLORS.tasks;
           return (
             <Card
               key={mod.id}

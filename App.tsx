@@ -23,6 +23,8 @@ import { AwarenessView } from "./components/views/AwarenessView";
 import { WesAiView } from "./components/views/WesAiView";
 import { AssetsView } from "./components/views/AssetsView";
 import { ReflectionView } from "./components/views/ReflectionView";
+import { IntegrationView } from "./components/views/IntegrationView";
+import { IntegrationStoryView } from "./components/views/IntegrationStoryView";
 import { LifeView } from "./components/views/LifeView";
 
 // Hooks
@@ -44,6 +46,7 @@ import { useDecisions } from "./hooks/useDecisions";
 import { useAwareness } from "./hooks/useAwareness";
 import { useAssets } from "./hooks/useAssets";
 import { useReflection } from "./hooks/useReflection";
+import { useIntegrations } from "./hooks/useIntegrations";
 import { useLifeOps } from "./hooks/useLifeOps";
 
 const App: React.FC = () => {
@@ -72,6 +75,8 @@ const App: React.FC = () => {
     saveReflection,
     deleteReflection,
   } = useReflection(config, showToast);
+
+  const integrations = useIntegrations(config, showToast);
 
   const {
     constraints,
@@ -153,7 +158,6 @@ const App: React.FC = () => {
         activePage={ui.activePage}
         setActivePage={ui.setActivePage}
         onOpenSettings={() => ui.setShowSettings(true)}
-        config={config}
         isOpen={ui.isSidebarOpen}
         setIsOpen={ui.setIsSidebarOpen}
         isCollapsed={ui.isSidebarCollapsed}
@@ -292,6 +296,24 @@ const App: React.FC = () => {
               isLoading={isReflectionsLoading}
               onSave={saveReflection}
               onDelete={deleteReflection}
+            />
+          )}
+
+          {ui.activePage === "INTEGRATIONS" && (
+            <IntegrationView
+              integrations={integrations.integrations}
+              isLoading={integrations.isLoading}
+              onSave={integrations.saveIntegration}
+              onDelete={integrations.deleteIntegration}
+              onToggle={integrations.toggleIntegration}
+              onTest={integrations.testConnection}
+              onShowStory={() => ui.setActivePage("STORY")}
+            />
+          )}
+
+          {ui.activePage === "STORY" && (
+            <IntegrationStoryView
+              onBack={() => ui.setActivePage("INTEGRATIONS")}
             />
           )}
 

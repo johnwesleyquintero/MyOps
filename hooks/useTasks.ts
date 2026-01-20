@@ -6,6 +6,7 @@ import {
   updateTask,
   deleteTask,
 } from "../services/taskService";
+import { integrationService } from "../services/integrationService";
 import { LIVE_CACHE_KEY } from "@/constants";
 
 export const useTasks = (
@@ -131,8 +132,18 @@ export const useTasks = (
 
     try {
       if (isUpdate) {
+        const oldEntry = entries.find((e) => e.id === optimisticEntry.id);
         await updateTask(optimisticEntry, config);
         showToast("Mission updated", "success");
+
+        // If status changed to Done, trigger event
+        if (oldEntry?.status !== "Done" && optimisticEntry.status === "Done") {
+          integrationService.sendUpdate(
+            "task_completed",
+            optimisticEntry,
+            config,
+          );
+        }
       } else {
         const confirmedEntry = await addTask(optimisticEntry, config);
         // Swap temp with confirmed if needed (though IDs are usually stable UUIDs here)
@@ -140,6 +151,7 @@ export const useTasks = (
           prev.map((e) => (e.id === optimisticEntry.id ? confirmedEntry : e)),
         );
         showToast("Mission initialized", "success");
+        integrationService.sendUpdate("task_created", confirmedEntry, config);
       }
       return true;
     } catch (err: unknown) {

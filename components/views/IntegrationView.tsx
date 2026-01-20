@@ -1,0 +1,399 @@
+import React, { useState } from "react";
+import { Icon } from "../Icons";
+import { Integration, IntegrationEvent } from "../../types";
+import { ViewHeader } from "../ViewHeader";
+import { formatTimeAgo } from "../../utils/formatUtils";
+
+interface IntegrationViewProps {
+  integrations: Integration[];
+  isLoading: boolean;
+  onSave: (integration: Integration, isUpdate: boolean) => Promise<boolean>;
+  onDelete: (id: string) => Promise<boolean>;
+  onToggle: (id: string) => Promise<boolean>;
+  onTest: (id: string) => Promise<boolean>;
+  onShowStory: () => void;
+}
+
+const EVENT_LABELS: Record<IntegrationEvent, string> = {
+  task_created: "Task Created",
+  task_completed: "Task Completed",
+  milestone_reached: "Milestone Reached",
+  reflection_logged: "Reflection Logged",
+};
+
+const INTEGRATION_TYPES = [
+  {
+    type: "Slack",
+    icon: "MessageSquare",
+    color: "text-purple-500",
+    bg: "bg-purple-500/10",
+  },
+  {
+    type: "WhatsApp",
+    icon: "Phone",
+    color: "text-green-500",
+    bg: "bg-green-500/10",
+  },
+  { type: "Email", icon: "Mail", color: "text-blue-500", bg: "bg-blue-500/10" },
+  {
+    type: "Webhook",
+    icon: "Globe",
+    color: "text-gray-500",
+    bg: "bg-gray-500/10",
+  },
+];
+
+export const IntegrationView: React.FC<IntegrationViewProps> = ({
+  integrations,
+  isLoading,
+  onSave,
+  onDelete,
+  onToggle,
+  onTest,
+  onShowStory,
+}) => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingIntegration, setEditingIntegration] =
+    useState<Partial<Integration> | null>(null);
+  const [isTesting, setIsTesting] = useState<string | null>(null);
+
+  const handleAdd = () => {
+    setEditingIntegration({
+      name: "",
+      type: "Webhook",
+      url: "",
+      isEnabled: true,
+      events: [],
+    });
+    setIsModalOpen(true);
+  };
+
+  const handleEdit = (integration: Integration) => {
+    setEditingIntegration(integration);
+    setIsModalOpen(true);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (editingIntegration) {
+      const isUpdate = !!editingIntegration.id;
+      const success = await onSave(editingIntegration as Integration, isUpdate);
+      if (success) {
+        setIsModalOpen(false);
+        setEditingIntegration(null);
+      }
+    }
+  };
+
+  const handleTest = async (id: string) => {
+    setIsTesting(id);
+    await onTest(id);
+    setIsTesting(null);
+  };
+
+  const toggleEvent = (event: IntegrationEvent) => {
+    if (!editingIntegration) return;
+    const currentEvents = editingIntegration.events || [];
+    const newEvents = currentEvents.includes(event)
+      ? currentEvents.filter((e) => e !== event)
+      : [...currentEvents, event];
+    setEditingIntegration({ ...editingIntegration, events: newEvents });
+  };
+
+  return (
+    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+      <ViewHeader
+        title="Integration Hub"
+        subTitle="Connect MyOps to the outside world. Stay operator-first, while keeping clients in the loop."
+      >
+        <div className="flex items-center gap-3">
+          <button
+            onClick={onShowStory}
+            className="flex items-center gap-2 px-4 py-2 bg-purple-500/10 text-purple-600 dark:text-purple-400 rounded-lg hover:bg-purple-500/20 transition-all font-semibold text-sm"
+          >
+            <Icon.History size={16} />
+            Visual Story
+          </button>
+          <button
+            onClick={handleAdd}
+            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all flex items-center gap-2 font-semibold text-sm shadow-sm active:scale-95"
+          >
+            <Icon.Plus size={16} />
+            Add Integration
+          </button>
+        </div>
+      </ViewHeader>
+
+      {isLoading ? (
+        <div className="flex items-center justify-center h-64">
+          <Icon.Settings className="w-8 h-8 animate-spin text-notion-light-muted dark:text-notion-dark-muted" />
+        </div>
+      ) : integrations.length === 0 ? (
+        <div className="text-center py-20 bg-notion-light-sidebar dark:bg-notion-dark-sidebar rounded-xl border border-dashed border-notion-light-border dark:border-notion-dark-border">
+          <Icon.Zap className="w-12 h-12 mx-auto mb-4 text-blue-500/20" />
+          <h3 className="text-lg font-medium mb-2">No active integrations</h3>
+          <p className="text-notion-light-muted dark:text-notion-dark-muted mb-6">
+            Push updates to Slack, WhatsApp, or Email automatically.
+          </p>
+          <button
+            onClick={handleAdd}
+            className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl transition-all inline-flex items-center gap-2 font-bold shadow-lg shadow-blue-500/20 active:scale-95"
+          >
+            <Icon.Plus size={18} />
+            Connect Your First Channel
+          </button>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {integrations.map((integration) => {
+            const typeInfo =
+              INTEGRATION_TYPES.find((t) => t.type === integration.type) ||
+              INTEGRATION_TYPES[3];
+            const IntegrationIcon =
+              Icon[typeInfo.icon as keyof typeof Icon] || Icon.Globe;
+
+            return (
+              <div
+                key={integration.id}
+                className="group relative bg-white dark:bg-notion-dark-sidebar border border-notion-light-border dark:border-notion-dark-border rounded-xl p-5 hover:shadow-lg transition-all"
+              >
+                <div className="flex justify-between items-start mb-4">
+                  <div
+                    className={`p-2.5 rounded-lg ${typeInfo.bg} ${typeInfo.color}`}
+                  >
+                    <IntegrationIcon size={20} />
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => onToggle(integration.id)}
+                      className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${
+                        integration.isEnabled
+                          ? "bg-green-500"
+                          : "bg-notion-light-border dark:bg-notion-dark-border"
+                      }`}
+                    >
+                      <span
+                        className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white transition-transform ${
+                          integration.isEnabled
+                            ? "translate-x-5"
+                            : "translate-x-0.5"
+                        }`}
+                      />
+                    </button>
+                    <div className="relative group/menu">
+                      <button className="p-1 hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover rounded transition-colors text-notion-light-muted">
+                        <Icon.MoreHorizontal size={16} />
+                      </button>
+                      <div className="absolute right-0 top-full mt-1 hidden group-hover/menu:block z-10 w-32 bg-white dark:bg-notion-dark-sidebar border border-notion-light-border dark:border-notion-dark-border rounded-lg shadow-xl overflow-hidden">
+                        <button
+                          onClick={() => handleEdit(integration)}
+                          className="w-full px-4 py-2 text-left text-sm hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover flex items-center gap-2"
+                        >
+                          <Icon.Edit size={14} /> Edit
+                        </button>
+                        <button
+                          onClick={() => onDelete(integration.id)}
+                          className="w-full px-4 py-2 text-left text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 flex items-center gap-2"
+                        >
+                          <Icon.Trash size={14} /> Delete
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <h3 className="font-semibold text-lg mb-1">
+                  {integration.name}
+                </h3>
+                <p className="text-xs text-notion-light-muted dark:text-notion-dark-muted mb-4 truncate">
+                  {integration.url}
+                </p>
+
+                <div className="space-y-3">
+                  <div className="flex flex-wrap gap-1.5">
+                    {integration.events.map((event) => (
+                      <span
+                        key={event}
+                        className="px-2 py-0.5 bg-notion-light-sidebar dark:bg-notion-dark-border text-[10px] font-medium rounded-full border border-notion-light-border dark:border-notion-dark-border"
+                      >
+                        {EVENT_LABELS[event]}
+                      </span>
+                    ))}
+                  </div>
+
+                  <div className="pt-3 border-t border-notion-light-border dark:border-notion-dark-border flex items-center justify-between">
+                    <span className="text-[10px] text-notion-light-muted dark:text-notion-dark-muted">
+                      {integration.lastTested
+                        ? `Tested ${formatTimeAgo(integration.lastTested)}`
+                        : "Never tested"}
+                    </span>
+                    <button
+                      onClick={() => handleTest(integration.id)}
+                      disabled={isTesting === integration.id}
+                      className="text-[10px] font-semibold text-blue-600 dark:text-blue-400 hover:underline disabled:opacity-50 flex items-center gap-1"
+                    >
+                      {isTesting === integration.id ? (
+                        <Icon.Settings className="w-3 h-3 animate-spin" />
+                      ) : (
+                        <Icon.Zap size={10} />
+                      )}
+                      Test Connection
+                    </button>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Modal */}
+      {isModalOpen && editingIntegration && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+          <div className="bg-white dark:bg-notion-dark-sidebar w-full max-w-md rounded-2xl shadow-2xl border border-notion-light-border dark:border-notion-dark-border overflow-hidden animate-in zoom-in-95 duration-200">
+            <form onSubmit={handleSubmit} className="p-6">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-xl font-bold">
+                  {editingIntegration.id
+                    ? "Edit Integration"
+                    : "New Integration"}
+                </h2>
+                <button
+                  type="button"
+                  onClick={() => setIsModalOpen(false)}
+                  className="p-2 hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover rounded-full transition-colors"
+                >
+                  <Icon.X size={20} />
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-xs font-semibold text-notion-light-muted dark:text-notion-dark-muted uppercase mb-1.5">
+                    Integration Name
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={editingIntegration.name}
+                    onChange={(e) =>
+                      setEditingIntegration({
+                        ...editingIntegration,
+                        name: e.target.value,
+                      })
+                    }
+                    placeholder="e.g. Client Slack Webhook"
+                    className="w-full px-4 py-2.5 bg-notion-light-sidebar dark:bg-notion-dark-border border border-notion-light-border dark:border-notion-dark-border rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-notion-light-muted dark:text-notion-dark-muted uppercase mb-1.5">
+                    Channel Type
+                  </label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {INTEGRATION_TYPES.map((t) => {
+                      const TIcon =
+                        Icon[t.icon as keyof typeof Icon] || Icon.Globe;
+                      const isSelected = editingIntegration.type === t.type;
+                      return (
+                        <button
+                          key={t.type}
+                          type="button"
+                          onClick={() =>
+                            setEditingIntegration({
+                              ...editingIntegration,
+                              type: t.type as Integration["type"],
+                            })
+                          }
+                          className={`flex items-center gap-2 px-3 py-2 rounded-lg border text-sm transition-all ${
+                            isSelected
+                              ? "bg-blue-500/10 border-blue-500 text-blue-600 dark:text-blue-400"
+                              : "border-notion-light-border dark:border-notion-dark-border hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover"
+                          }`}
+                        >
+                          <TIcon size={16} />
+                          {t.type}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-notion-light-muted dark:text-notion-dark-muted uppercase mb-1.5">
+                    Webhook URL / Email Address
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={editingIntegration.url}
+                    onChange={(e) =>
+                      setEditingIntegration({
+                        ...editingIntegration,
+                        url: e.target.value,
+                      })
+                    }
+                    placeholder="https://hooks.slack.com/services/..."
+                    className="w-full px-4 py-2.5 bg-notion-light-sidebar dark:bg-notion-dark-border border border-notion-light-border dark:border-notion-dark-border rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-notion-light-muted dark:text-notion-dark-muted uppercase mb-1.5">
+                    Events to Broadcast
+                  </label>
+                  <div className="space-y-2">
+                    {Object.entries(EVENT_LABELS).map(([event, label]) => {
+                      const isSelected = editingIntegration.events?.includes(
+                        event as IntegrationEvent,
+                      );
+                      return (
+                        <button
+                          key={event}
+                          type="button"
+                          onClick={() => toggleEvent(event as IntegrationEvent)}
+                          className={`w-full flex items-center justify-between px-3 py-2 rounded-lg border text-sm transition-all ${
+                            isSelected
+                              ? "bg-blue-500/10 border-blue-500"
+                              : "border-notion-light-border dark:border-notion-dark-border hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover"
+                          }`}
+                        >
+                          <span>{label}</span>
+                          {isSelected && (
+                            <Icon.Check
+                              size={14}
+                              className="text-blue-600 dark:text-blue-400"
+                            />
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex gap-3 mt-8">
+                <button
+                  type="button"
+                  onClick={() => setIsModalOpen(false)}
+                  className="flex-1 px-4 py-2.5 border border-notion-light-border dark:border-notion-dark-border rounded-lg hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all font-semibold shadow-md active:scale-95"
+                >
+                  {editingIntegration.id
+                    ? "Save Changes"
+                    : "Create Integration"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};

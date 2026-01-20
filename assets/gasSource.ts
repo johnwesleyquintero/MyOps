@@ -15,7 +15,7 @@ const SLACK_WEBHOOK_URL = ""; // <--- PASTE YOUR WEBHOOK URL HERE
 
 function setupSystem() {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
-  const modules = ['tasks', 'contacts', 'interactions', 'notes', 'vault', 'automations', 'strategy', 'awareness', 'assets', 'reflections', 'life_ops'];
+  const modules = ['tasks', 'contacts', 'interactions', 'notes', 'vault', 'automations', 'strategy', 'awareness', 'assets', 'reflections', 'life_ops', 'integrations'];
   
   modules.forEach(m => {
     let sheet = ss.getSheetByName(m);
@@ -34,6 +34,7 @@ function setupSystem() {
       if (m === 'assets') headers = ['ID', 'Title', 'Type', 'Status', 'ReusabilityScore', 'MonetizationPotential', 'Notes', 'CreatedAt', 'UpdatedAt', 'Link'];
       if (m === 'reflections') headers = ['ID', 'Date', 'Title', 'Type', 'Content', 'Learnings', 'ActionItems', 'LinkedTaskId', 'LinkedProjectId', 'CreatedAt', 'UpdatedAt'];
       if (m === 'life_ops') headers = ['ID', 'Title', 'Category', 'StartTime', 'EndTime', 'DaysOfWeek', 'EnergyRequirement', 'Notes', 'IsActive', 'CreatedAt', 'UpdatedAt'];
+      if (m === 'integrations') headers = ['ID', 'Name', 'Type', 'URL', 'IsEnabled', 'Events', 'LastTested'];
       
       if (headers.length > 0) {
         sheet.getRange(1, 1, 1, headers.length).setValues([headers]).setFontWeight('bold');
@@ -109,11 +110,38 @@ function doPost(e) {
        return errorResponse("Unauthorized: Invalid Token");
     }
 
+    const action = payload.action || 'create';
     const module = payload.module || 'tasks';
+
+    // Special action that doesn't necessarily need a specific module sheet up front
+    if (action === 'trigger_integration') {
+      const integrationId = payload.integrationId;
+      const event = payload.event;
+      const data = payload.payload;
+
+      const intSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('integrations');
+      if (!intSheet) return errorResponse("Integrations sheet not found");
+
+      const intData = intSheet.getDataRange().getValues();
+      let integration = null;
+      for (let i = 1; i < intData.length; i++) {
+        if (intData[i][0] == integrationId) {
+          integration = mapRowToEntry(intData[i], 'integrations');
+          break;
+        }
+      }
+
+      if (!integration) return errorResponse("Integration not found");
+      if (!integration.isEnabled) return errorResponse("Integration is disabled");
+
+      triggerIntegration(integration, event, data);
+      return jsonResponse({ status: "triggered" });
+    }
+
+    // Standard CRUD actions
     const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(module);
     if (!sheet) return errorResponse("Sheet '" + module + "' not found");
     
-    const action = payload.action || 'create';
     const entry = payload.entry;
 
     if (action === 'create') {
@@ -156,6 +184,7 @@ function doPost(e) {
       return errorResponse("ID not found");
     }
 
+    return errorResponse("Action not found");
   } catch (err) {
     return errorResponse(err.toString());
   } finally {
@@ -289,6 +318,16 @@ function mapRowToEntry(row, module) {
         createdAt: row[9], updatedAt: row[10]
       };
     }
+
+    if (module === 'integrations') {
+      let events = [];
+      try { if (row[5] && row[5] !== "") events = JSON.parse(row[5]); } catch (e) {}
+      return {
+        id: row[0], name: row[1], type: row[2], url: row[3],
+        isEnabled: row[4] === true || row[4] === "true",
+        events: events, lastTested: row[6]
+      };
+    }
   } catch (e) {
     return null;
   }
@@ -356,6 +395,12 @@ function mapEntryToRow(entry, module) {
       entry.id, entry.title, entry.category, entry.startTime || "", entry.endTime || "",
       JSON.stringify(entry.daysOfWeek || []), entry.energyRequirement, entry.notes || "",
       entry.isActive, entry.createdAt || new Date().toISOString(), entry.updatedAt || new Date().toISOString()
+    ];
+  }
+  if (module === 'integrations') {
+    return [
+      entry.id, entry.name, entry.type, entry.url, entry.isEnabled,
+      JSON.stringify(entry.events || []), entry.lastTested || ""
     ];
   }
   return [];
@@ -443,4 +488,45 @@ function jsonResponse(data) {
 function errorResponse(msg) {
   return ContentService.createTextOutput(JSON.stringify({status: "error", message: msg}))
     .setMimeType(ContentService.MimeType.JSON);
+}
+
+function triggerIntegration(integration, event, data) {
+  const url = integration.url;
+  if (!url) return;
+
+  let payload = {};
+  
+  if (integration.type === 'Slack') {
+    payload = {
+      text: \`🔔 *MyOps Event: \${event}*\`,
+      blocks: [
+        {
+          type: "section",
+          text: {
+            type: "mrkdwn",
+            text: \`🔔 *MyOps Event: \${event}*\\n\\n\${JSON.stringify(data, null, 2)}\`
+          }
+        }
+      ]
+    };
+  } else {
+    // Default Webhook/WhatsApp/Email (generic JSON)
+    payload = {
+      event: event,
+      timestamp: new Date().toISOString(),
+      data: data,
+      source: "MyOps Integration Hub"
+    };
+  }
+
+  try {
+    UrlFetchApp.fetch(url, {
+      method: "post",
+      contentType: "application/json",
+      payload: JSON.stringify(payload),
+      muteHttpExceptions: true
+    });
+  } catch (err) {
+    Logger.log("Integration trigger failed: " + err);
+  }
 }`;

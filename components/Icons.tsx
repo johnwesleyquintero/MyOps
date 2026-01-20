@@ -56,6 +56,12 @@ import {
   Heart,
   Download,
   Database,
+  MoreHorizontal,
+  MessageSquare,
+  Phone,
+  Mail,
+  Globe,
+  ArrowLeft,
 } from "lucide-react";
 
 export const Icon = {
@@ -125,6 +131,14 @@ export const Icon = {
   Activity: Activity,
   History: History,
   Heart: Heart,
+  MoreHorizontal: MoreHorizontal,
+  MessageSquare: MessageSquare,
+  Phone: Phone,
+  Mail: Mail,
+  Globe: Globe,
+  ArrowLeft: ArrowLeft,
+  X: X,
+  Trash: Trash2,
 };
 
 // Standard props helper for consistent sizing

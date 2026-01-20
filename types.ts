@@ -18,6 +18,8 @@ export type Page =
   | "WESAI"
   | "ASSETS"
   | "REFLECTION"
+  | "INTEGRATIONS"
+  | "STORY"
   | "LIFE";
 
 export interface TaskEntry {
@@ -98,8 +100,23 @@ export interface Automation {
   trigger: string;
   action: string;
   status: "Active" | "Inactive";
-  lastRun?: string;
 }
+
+export interface Integration {
+  id: string;
+  name: string;
+  type: "Slack" | "WhatsApp" | "Email" | "Webhook";
+  url: string;
+  isEnabled: boolean;
+  events: IntegrationEvent[];
+  lastTested?: string;
+}
+
+export type IntegrationEvent =
+  | "task_created"
+  | "task_completed"
+  | "milestone_reached"
+  | "reflection_logged";
 
 export interface AppConfig {
   mode: "DEMO" | "LIVE";

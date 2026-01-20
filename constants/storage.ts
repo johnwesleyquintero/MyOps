@@ -14,6 +14,7 @@ export const CRM_CACHE_KEY = "myops_crm_contacts";
 export const INTERACTIONS_CACHE_KEY = "myops_crm_interactions";
 export const VAULT_CACHE_KEY = "myops_vault_cache";
 export const AUTOMATION_CACHE_KEY = "myops_automation_cache";
+export const INTEGRATION_CACHE_KEY = "myops_integration_cache";
 export const APP_CONFIG_KEY = "myops_app_config";
 export const LIVE_CACHE_KEY = "myops_live_data_v1";
 export const SIDEBAR_COLLAPSED_KEY = "myops_sidebar_collapsed";

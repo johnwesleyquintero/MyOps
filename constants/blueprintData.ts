@@ -177,4 +177,17 @@ export const BLUEPRINT_MODULES: BlueprintModule[] = [
     ],
     color: "pink",
   },
+  {
+    id: "integrations",
+    title: "Integration Hub",
+    status: "ACTIVE",
+    iconKey: "Link",
+    features: [
+      "Slack / WhatsApp / Email hooks",
+      "Event-driven triggers",
+      "One-click connection testing",
+      "Automatic client sync",
+    ],
+    color: "purple",
+  },
 ];

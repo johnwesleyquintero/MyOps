@@ -6,7 +6,6 @@ interface SidebarProps {
   activePage: Page;
   setActivePage: (page: Page) => void;
   onOpenSettings: () => void;
-  config: AppConfig;
   isOpen: boolean; // Mobile open state
   setIsOpen: (isOpen: boolean) => void;
   isCollapsed: boolean; // Desktop collapsed state
@@ -64,7 +63,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
   activePage,
   setActivePage,
   onOpenSettings,
-  config,
   isOpen,
   setIsOpen,
   isCollapsed,
@@ -97,35 +95,67 @@ export const Sidebar: React.FC<SidebarProps> = ({
         className={`fixed top-0 left-0 z-50 h-screen bg-notion-light-sidebar dark:bg-notion-dark-sidebar border-r border-notion-light-border dark:border-notion-dark-border transition-all duration-300 ease-in-out lg:translate-x-0 ${isOpen ? "translate-x-0 shadow-xl" : "-translate-x-full"} ${widthClass}`}
       >
         <div
-          className={`h-14 flex items-center transition-all duration-300 ${isCollapsed ? "justify-center px-0" : "px-4"}`}
+          className={`h-14 flex items-center justify-between transition-all duration-300 ${isCollapsed ? "px-0" : "px-4"}`}
         >
           <div
-            className="flex-shrink-0 relative group cursor-pointer flex items-center gap-2"
+            className={`flex items-center gap-2 cursor-pointer group ${isCollapsed ? "w-full justify-center" : ""}`}
             onClick={() => setActivePage("DASHBOARD")}
           >
-            <img
-              src="/favicon.svg"
-              alt="MyOps Logo"
-              className="w-8 h-8 rounded-lg shadow-sm group-hover:scale-110 transition-transform duration-300"
-            />
-            <div
-              className={`flex flex-col transition-all duration-300 ${isCollapsed ? "max-w-0 opacity-0" : "max-w-xs opacity-100"}`}
-            >
-              <h1 className="text-notion-light-text dark:text-notion-dark-text font-black tracking-tighter text-base leading-none">
-                MyOps
-              </h1>
-              <p className="text-[9px] text-notion-light-muted dark:text-notion-dark-muted font-bold uppercase tracking-widest mt-0.5 whitespace-nowrap">
-                Master Solo VA
-              </p>
+            <div className="relative flex-shrink-0">
+              <img
+                src="/favicon.svg"
+                alt="MyOps Logo"
+                className="w-8 h-8 rounded-lg shadow-sm group-hover:scale-110 transition-transform duration-300"
+              />
+              <div className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-blue-500 border-2 border-notion-light-sidebar dark:border-notion-dark-sidebar rounded-full shadow-[0_0_10px_rgba(59,130,246,0.5)]"></div>
             </div>
+            {!isCollapsed && (
+              <div className="flex flex-col animate-fade-in">
+                <h1 className="text-notion-light-text dark:text-notion-dark-text font-black tracking-tighter text-base leading-none">
+                  MyOps
+                </h1>
+                <p className="text-[9px] text-notion-light-muted dark:text-notion-dark-muted font-bold uppercase tracking-widest mt-0.5 whitespace-nowrap">
+                  Master Solo VA
+                </p>
+              </div>
+            )}
           </div>
+
+          <button
+            onClick={toggleCollapse}
+            className={`hidden lg:flex p-1.5 text-notion-light-text/40 hover:text-notion-light-text dark:text-notion-dark-text/40 dark:hover:text-notion-dark-text rounded-md hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover transition-all duration-200 active:scale-90 ${isCollapsed ? "absolute -right-3 top-4 bg-notion-light-sidebar dark:bg-notion-dark-sidebar border border-notion-light-border dark:border-notion-dark-border shadow-sm z-50" : ""}`}
+            title={isCollapsed ? "Expand" : "Collapse"}
+          >
+            {isCollapsed ? (
+              <Icon.Next {...iconProps(12)} />
+            ) : (
+              <Icon.Prev {...iconProps(12)} />
+            )}
+          </button>
         </div>
 
-        <nav className="px-2 py-4 space-y-0.5 mt-2 overflow-y-auto max-h-[calc(100vh-100px)] scrollbar-hide">
+        {/* Quick Action Button - "OP" Upgrade */}
+        {!isCollapsed && (
+          <div className="px-4 mb-4 mt-2">
+            <button
+              onClick={() => setActivePage("MISSIONS")}
+              className="w-full py-2 px-3 rounded-lg bg-notion-light-text dark:bg-notion-dark-text text-white dark:text-black text-xs font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-all shadow-sm active:scale-[0.98] group"
+            >
+              <Icon.Add
+                {...iconProps(14)}
+                className="group-hover:rotate-90 transition-transform duration-300"
+              />
+              <span>New Mission</span>
+            </button>
+          </div>
+        )}
+
+        <nav className="px-2 pt-2 pb-20 space-y-0.5 mt-1 overflow-y-auto max-h-[calc(100vh-140px)] custom-scrollbar pr-1">
           <div
-            className={`px-3 mb-2 text-[10px] font-bold text-notion-light-text/40 dark:text-notion-dark-text/40 uppercase tracking-[0.2em] transition-all duration-300 ${isCollapsed ? "opacity-0 h-0 hidden" : "opacity-100"}`}
+            className={`px-3 mb-2 flex items-center gap-2 text-[10px] font-bold text-notion-light-text/30 dark:text-notion-dark-text/30 uppercase tracking-[0.2em] transition-all duration-300 ${isCollapsed ? "opacity-0 h-0 hidden" : "opacity-100"}`}
           >
-            Operational
+            <span className="flex-shrink-0">Operational</span>
+            <div className="flex-1 h-[1px] bg-notion-light-border/50 dark:border-notion-dark-border/20"></div>
           </div>
 
           {renderNavItem(
@@ -152,10 +182,17 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <Icon.Active {...iconProps(18)} />,
           )}
 
+          {renderNavItem(
+            "INTEGRATIONS",
+            "Integration Hub",
+            <Icon.Zap {...iconProps(18)} />,
+          )}
+
           <div
-            className={`px-3 mb-2 mt-6 text-[10px] font-bold text-notion-light-text/40 dark:text-notion-dark-text/40 uppercase tracking-[0.2em] transition-all duration-300 ${isCollapsed ? "opacity-0 h-0 hidden" : "opacity-100"}`}
+            className={`px-3 mb-2 mt-6 flex items-center gap-2 text-[10px] font-bold text-notion-light-text/30 dark:text-notion-dark-text/30 uppercase tracking-[0.2em] transition-all duration-300 ${isCollapsed ? "opacity-0 h-0 hidden" : "opacity-100"}`}
           >
-            Intelligence
+            <span className="flex-shrink-0">Intelligence</span>
+            <div className="flex-1 h-[1px] bg-notion-light-border/50 dark:bg-notion-dark-border/20"></div>
           </div>
 
           {renderNavItem(
@@ -201,9 +238,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
           )}
 
           <div
-            className={`px-3 mb-2 mt-6 text-[10px] font-bold text-notion-light-text/40 dark:text-notion-dark-text/40 uppercase tracking-[0.2em] transition-all duration-300 ${isCollapsed ? "opacity-0 h-0 hidden" : "opacity-100"}`}
+            className={`px-3 mb-2 mt-6 flex items-center gap-2 text-[10px] font-bold text-notion-light-text/30 dark:text-notion-dark-text/30 uppercase tracking-[0.2em] transition-all duration-300 ${isCollapsed ? "opacity-0 h-0 hidden" : "opacity-100"}`}
           >
-            Strategy
+            <span className="flex-shrink-0">Strategy</span>
+            <div className="flex-1 h-[1px] bg-notion-light-border/50 dark:border-notion-dark-border/20"></div>
           </div>
 
           {renderNavItem(
@@ -221,46 +259,20 @@ export const Sidebar: React.FC<SidebarProps> = ({
           )}
 
           <div
-            className={`px-3 mb-2 mt-6 text-[10px] font-bold text-notion-light-text/40 dark:text-notion-dark-text/40 uppercase tracking-[0.2em] transition-all duration-300 ${isCollapsed ? "opacity-0 h-0 hidden" : "opacity-100"}`}
+            className={`px-3 mb-2 mt-6 flex items-center gap-2 text-[10px] font-bold text-notion-light-text/30 dark:text-notion-dark-text/30 uppercase tracking-[0.2em] transition-all duration-300 ${isCollapsed ? "opacity-0 h-0 hidden" : "opacity-100"}`}
           >
-            Reporting
+            <span className="flex-shrink-0">Reporting</span>
+            <div className="flex-1 h-[1px] bg-notion-light-border/50 dark:border-notion-dark-border/20"></div>
           </div>
 
           {renderNavItem(
             "REPORT",
-            "Health Report",
+            "Reporting",
             <Icon.Report {...iconProps(18)} />,
           )}
         </nav>
 
         <div className="absolute bottom-0 left-0 w-full bg-notion-light-sidebar dark:bg-notion-dark-sidebar border-t border-notion-light-border dark:border-notion-dark-border">
-          {!isCollapsed && (
-            <div className="px-5 py-3">
-              <div className="flex items-center gap-2.5">
-                <div
-                  className={`w-1.5 h-1.5 rounded-full ${config.geminiApiKey ? "bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.5)] animate-pulse" : "bg-notion-light-border dark:bg-notion-dark-border"}`}
-                ></div>
-                <span className="text-[9px] font-bold text-notion-light-text/40 dark:text-notion-dark-text/40 uppercase tracking-widest">
-                  WESAI: {config.geminiApiKey ? "LINKED" : "OFFLINE"}
-                </span>
-              </div>
-            </div>
-          )}
-
-          <div className="hidden lg:flex justify-end px-3 py-1">
-            <button
-              onClick={toggleCollapse}
-              className="p-1.5 text-notion-light-text/40 hover:text-notion-light-text dark:text-notion-dark-text/40 dark:hover:text-notion-dark-text rounded-md hover:bg-notion-light-border dark:hover:bg-notion-dark-border transition-all duration-200 active:scale-90"
-              title={isCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
-            >
-              {isCollapsed ? (
-                <Icon.Next {...iconProps(14)} />
-              ) : (
-                <Icon.Prev {...iconProps(14)} />
-              )}
-            </button>
-          </div>
-
           <div className="p-2 pb-4">
             <button
               onClick={() => {

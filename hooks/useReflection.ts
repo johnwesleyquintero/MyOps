@@ -5,6 +5,7 @@ import {
   saveReflection,
   deleteReflection,
 } from "../services/reflectionService";
+import { integrationService } from "../services/integrationService";
 
 export const useReflection = (
   config: AppConfig,
@@ -46,6 +47,9 @@ export const useReflection = (
         isUpdate ? "Reflection archived" : "Reflection captured",
         "success",
       );
+      if (!isUpdate) {
+        integrationService.sendUpdate("reflection_logged", saved, config);
+      }
       return true;
     } catch (err) {
       showToast("Failed to save reflection", "error");

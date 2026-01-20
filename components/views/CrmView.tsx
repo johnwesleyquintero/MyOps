@@ -5,6 +5,7 @@ import { ContactModal } from "../ContactModal";
 import { InteractionModal } from "../InteractionModal";
 import { ViewHeader } from "../ViewHeader";
 import { toast } from "sonner";
+import { MODULE_COLORS } from "@/constants";
 
 interface CrmViewProps {
   contacts: Contact[];
@@ -143,14 +144,33 @@ export const CrmView: React.FC<CrmViewProps> = ({
     return success;
   };
 
+  const crmColors = MODULE_COLORS.crm;
+
   const typeColors = {
     Client:
-      "text-emerald-600 bg-emerald-500/10 dark:bg-emerald-500/20 dark:text-emerald-400 border-emerald-500/20 dark:border-emerald-500/30",
-    Lead: "text-purple-600 bg-purple-500/10 dark:bg-purple-500/20 dark:text-purple-400 border-purple-500/20 dark:border-purple-500/30",
+      MODULE_COLORS.crm.text +
+      " " +
+      MODULE_COLORS.crm.bg +
+      " " +
+      MODULE_COLORS.crm.border,
+    Lead:
+      MODULE_COLORS.integrations.text +
+      " " +
+      MODULE_COLORS.integrations.bg +
+      " " +
+      MODULE_COLORS.integrations.border,
     Vendor:
-      "text-amber-600 bg-amber-500/10 dark:bg-amber-500/20 dark:text-amber-400 border-amber-500/20 dark:border-amber-500/30",
+      MODULE_COLORS.docs.text +
+      " " +
+      MODULE_COLORS.docs.bg +
+      " " +
+      MODULE_COLORS.docs.border,
     Partner:
-      "text-rose-600 bg-rose-500/10 dark:bg-rose-500/20 dark:text-rose-400 border-rose-500/20 dark:border-rose-500/30",
+      MODULE_COLORS.analytics.text +
+      " " +
+      MODULE_COLORS.analytics.bg +
+      " " +
+      MODULE_COLORS.analytics.border,
   };
 
   return (
@@ -161,7 +181,7 @@ export const CrmView: React.FC<CrmViewProps> = ({
       >
         <button
           onClick={handleAdd}
-          className="w-full md:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-notion-light-sidebar dark:bg-notion-dark-sidebar border border-notion-light-border dark:border-notion-dark-border text-notion-light-text dark:text-notion-dark-text rounded-2xl font-black text-sm uppercase tracking-widest shadow-sm hover:bg-notion-light-border dark:hover:bg-notion-dark-border transition-all active:scale-95"
+          className={`w-full md:w-auto flex items-center justify-center gap-2 px-6 py-3 ${crmColors.bg} border ${crmColors.border} ${crmColors.text} rounded-2xl font-black text-sm uppercase tracking-widest shadow-sm ${crmColors.hoverBg} transition-all active:scale-95 group`}
         >
           <Icon.Add
             size={16}
@@ -177,7 +197,9 @@ export const CrmView: React.FC<CrmViewProps> = ({
           className={`lg:col-span-1 space-y-5 ${selectedContact ? "hidden lg:block" : "block"}`}
         >
           <div className="relative group">
-            <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-notion-light-muted dark:text-notion-dark-muted group-focus-within:text-notion-light-text dark:group-focus-within:text-notion-dark-text transition-colors">
+            <div
+              className={`absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-notion-light-muted dark:text-notion-dark-muted group-focus-within:${crmColors.text} transition-colors`}
+            >
               <Icon.Search size={16} />
             </div>
             <input
@@ -185,7 +207,7 @@ export const CrmView: React.FC<CrmViewProps> = ({
               placeholder="Search contacts..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="notion-input block w-full pl-11 pr-4"
+              className={`notion-input block w-full pl-11 pr-4 focus:${crmColors.border}`}
             />
           </div>
 
@@ -196,7 +218,7 @@ export const CrmView: React.FC<CrmViewProps> = ({
                 .map((_, i) => (
                   <div
                     key={i}
-                    className="h-20 bg-notion-light-sidebar dark:bg-notion-dark-sidebar rounded animate-pulse"
+                    className={`h-20 ${crmColors.lightBg} rounded animate-pulse`}
                   ></div>
                 ))
             ) : filteredContacts.length > 0 ? (
@@ -206,8 +228,8 @@ export const CrmView: React.FC<CrmViewProps> = ({
                   onClick={() => setSelectedContact(contact)}
                   className={`w-full text-left p-4 notion-card transition-all duration-300 group ${
                     selectedContact?.id === contact.id
-                      ? "bg-notion-light-sidebar dark:bg-notion-dark-sidebar border-notion-light-text/30 dark:border-notion-dark-text/30 shadow-md translate-x-1"
-                      : "hover:bg-notion-light-sidebar dark:hover:bg-notion-dark-sidebar hover:border-notion-light-text/10 dark:hover:border-notion-dark-text/10 hover:shadow-sm"
+                      ? `${crmColors.bg} ${crmColors.border} shadow-md translate-x-1`
+                      : `hover:${crmColors.lightBg} hover:border-notion-light-text/10 dark:hover:border-notion-dark-text/10 hover:shadow-sm`
                   }`}
                 >
                   <div className="flex items-start justify-between">
@@ -215,14 +237,16 @@ export const CrmView: React.FC<CrmViewProps> = ({
                       <div
                         className={`w-10 h-10 rounded flex items-center justify-center text-sm font-bold shadow-sm transition-colors ${
                           selectedContact?.id === contact.id
-                            ? "bg-notion-light-text dark:bg-notion-dark-text text-white dark:text-notion-dark-bg"
-                            : "bg-notion-light-sidebar dark:bg-notion-dark-sidebar text-notion-light-text dark:text-notion-dark-text border border-notion-light-border dark:border-notion-dark-border"
+                            ? `${crmColors.dot} text-white`
+                            : `${crmColors.lightBg} ${crmColors.text} border ${crmColors.border}`
                         }`}
                       >
                         {contact.name.charAt(0)}
                       </div>
                       <div>
-                        <h3 className="text-sm font-bold text-notion-light-text dark:text-notion-dark-text group-hover:text-notion-light-text/80 dark:group-hover:text-notion-dark-text/80 transition-colors">
+                        <h3
+                          className={`text-sm font-bold ${selectedContact?.id === contact.id ? crmColors.text : "text-notion-light-text dark:text-notion-dark-text"} group-hover:${crmColors.text} transition-colors`}
+                        >
                           {contact.name}
                         </h3>
                         <p className="notion-label">
@@ -231,17 +255,21 @@ export const CrmView: React.FC<CrmViewProps> = ({
                       </div>
                     </div>
                     <span
-                      className={`text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider shadow-sm border ${typeColors[contact.type]}`}
+                      className={`text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider shadow-sm border ${typeColors[contact.type as keyof typeof typeColors]}`}
                     >
                       {contact.type}
                     </span>
                   </div>
-                  <div className="mt-4 pt-3 border-t border-notion-light-border/50 dark:border-notion-dark-border/50 flex items-center gap-4 text-[10px] text-notion-light-muted dark:text-notion-dark-muted">
+                  <div
+                    className={`mt-4 pt-3 border-t ${crmColors.border} opacity-50 flex items-center gap-4 text-[10px] text-notion-light-muted dark:text-notion-dark-muted`}
+                  >
                     <div className="flex items-center gap-1.5">
                       <Icon.Chat size={12} className="opacity-70" />
                       {contact.status}
                     </div>
-                    <div className="w-1 h-1 rounded-full bg-notion-light-border dark:bg-notion-dark-border"></div>
+                    <div
+                      className={`w-1 h-1 rounded-full ${crmColors.dot} opacity-30`}
+                    ></div>
                     <div className="flex items-center gap-1.5">
                       <Icon.Date size={12} className="opacity-70" />
                       {new Date(contact.createdAt).toLocaleDateString()}
@@ -250,8 +278,12 @@ export const CrmView: React.FC<CrmViewProps> = ({
                 </button>
               ))
             ) : (
-              <div className="text-center py-16 bg-notion-light-sidebar/50 dark:bg-notion-dark-sidebar/30 rounded border-2 border-dashed border-notion-light-border dark:border-notion-dark-border">
-                <div className="inline-flex p-4 text-notion-light-muted dark:text-notion-dark-muted opacity-20 mb-3 bg-notion-light-bg dark:bg-notion-dark-bg rounded-full shadow-inner">
+              <div
+                className={`text-center py-16 ${crmColors.lightBg} rounded border-2 border-dashed ${crmColors.border}`}
+              >
+                <div
+                  className={`inline-flex p-4 ${crmColors.text} opacity-20 mb-3 bg-white dark:bg-notion-dark-bg rounded-full shadow-inner`}
+                >
                   <Icon.Users size={32} />
                 </div>
                 <p className="notion-label">No contacts found</p>
@@ -269,30 +301,42 @@ export const CrmView: React.FC<CrmViewProps> = ({
               {/* Back button for mobile */}
               <button
                 onClick={() => setSelectedContact(null)}
-                className="lg:hidden flex items-center gap-2 px-4 py-3 text-notion-light-muted hover:text-notion-light-text border-b border-notion-light-border dark:border-notion-dark-border bg-notion-light-sidebar/10 dark:bg-notion-dark-sidebar/10 active:bg-notion-light-hover dark:active:bg-notion-dark-hover transition-colors w-full text-left font-bold relative z-10"
+                className={`lg:hidden flex items-center gap-2 px-4 py-3 text-notion-light-muted dark:text-notion-dark-muted ${crmColors.text.replace("text-", "hover:text-")} border-b ${crmColors.border} ${crmColors.bg} active:opacity-70 transition-colors w-full text-left font-bold relative z-10`}
               >
                 <Icon.Prev size={16} /> Back to Contacts
               </button>
 
               {/* Profile Header */}
-              <div className="p-6 md:p-10 border-b border-notion-light-border dark:border-notion-dark-border bg-notion-light-sidebar/30 dark:bg-notion-dark-sidebar/30 relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-64 h-64 bg-notion-light-text/5 dark:bg-notion-dark-text/5 rounded-full -mr-32 -mt-32 blur-3xl pointer-events-none"></div>
+              <div
+                className={`p-6 md:p-10 border-b ${crmColors.border} ${crmColors.lightBg} relative overflow-hidden`}
+              >
+                <div
+                  className={`absolute top-0 right-0 w-64 h-64 ${crmColors.text} opacity-5 rounded-full -mr-32 -mt-32 blur-3xl pointer-events-none`}
+                ></div>
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
                   <div className="flex items-center gap-4 md:gap-8">
-                    <div className="w-16 h-16 md:w-20 md:h-20 bg-notion-light-text dark:bg-notion-dark-text text-white dark:text-notion-dark-bg rounded flex items-center justify-center text-2xl md:text-3xl font-bold shadow-xl border-4 border-white dark:border-notion-dark-bg ring-1 ring-notion-light-border dark:ring-notion-dark-border flex-shrink-0">
+                    <div
+                      className={`w-16 h-16 md:w-20 md:h-20 ${crmColors.dot} text-white rounded flex items-center justify-center text-2xl md:text-3xl font-bold shadow-xl border-4 border-white dark:border-notion-dark-bg ring-1 ${crmColors.border} flex-shrink-0`}
+                    >
                       {selectedContact.name.charAt(0)}
                     </div>
                     <div>
-                      <h2 className="text-xl md:text-2xl font-black text-notion-light-text dark:text-notion-dark-text tracking-tight">
+                      <h2
+                        className={`text-xl md:text-2xl font-black ${crmColors.text} tracking-tight`}
+                      >
                         {selectedContact.name}
                       </h2>
                       <div className="flex flex-wrap items-center gap-2 md:gap-3 mt-1.5">
-                        <span className="text-[12px] md:text-[13px] font-bold text-notion-light-muted dark:text-notion-dark-muted bg-notion-light-bg dark:bg-notion-dark-bg px-2 py-0.5 md:px-2.5 md:py-1 rounded border border-notion-light-border dark:border-notion-dark-border shadow-sm truncate max-w-[150px] md:max-w-none">
+                        <span
+                          className={`text-[12px] md:text-[13px] font-bold text-notion-light-muted dark:text-notion-dark-muted ${crmColors.bg} px-2 py-0.5 md:px-2.5 md:py-1 rounded border ${crmColors.border} shadow-sm truncate max-w-[150px] md:max-w-none`}
+                        >
                           {selectedContact.company || "Independent Operator"}
                         </span>
-                        <div className="hidden xs:block w-1.5 h-1.5 rounded-full bg-notion-light-border dark:bg-notion-dark-border"></div>
+                        <div
+                          className={`hidden xs:block w-1.5 h-1.5 rounded-full ${crmColors.dot} opacity-30`}
+                        ></div>
                         <span
-                          className={`text-[9px] md:text-[10px] font-bold px-2 py-0.5 md:px-3 md:py-1 rounded-full uppercase tracking-wider shadow-sm border ${typeColors[selectedContact.type]}`}
+                          className={`text-[9px] md:text-[10px] font-bold px-2 py-0.5 md:px-3 md:py-1 rounded-full uppercase tracking-wider shadow-sm border ${typeColors[selectedContact.type as keyof typeof typeColors]}`}
                         >
                           {selectedContact.type}
                         </span>
@@ -302,15 +346,23 @@ export const CrmView: React.FC<CrmViewProps> = ({
                   <div className="flex items-center gap-2 md:gap-3">
                     <button
                       onClick={() => handleEdit(selectedContact)}
-                      className="flex-1 md:flex-none flex items-center justify-center gap-2 p-3 bg-notion-light-bg dark:bg-notion-dark-bg text-notion-light-muted hover:text-notion-light-text dark:hover:text-notion-dark-text hover:border-notion-light-text/30 dark:hover:border-notion-dark-text/30 border border-notion-light-border dark:border-notion-dark-border rounded transition-all shadow-sm hover:shadow-md"
+                      className={`flex-1 md:flex-none flex items-center justify-center gap-2 p-3 ${crmColors.bg} text-notion-light-muted dark:text-notion-dark-muted ${crmColors.text.replace("text-", "hover:text-")} ${crmColors.border.replace("border-", "hover:border-")} border ${crmColors.border} rounded transition-all shadow-sm hover:shadow-md group`}
                     >
-                      <Icon.Edit size={18} />
+                      <Icon.Edit
+                        size={18}
+                        className="group-hover:scale-110 transition-transform"
+                      />
                       <span className="md:hidden text-xs font-bold uppercase tracking-widest">
                         Edit
                       </span>
                     </button>
-                    <button className="flex-1 md:flex-none flex items-center justify-center gap-2 p-3 bg-notion-light-bg dark:bg-notion-dark-bg text-notion-light-muted hover:text-red-500 hover:border-red-500/50 border border-notion-light-border dark:border-notion-dark-border rounded transition-all shadow-sm hover:shadow-md">
-                      <Icon.Delete size={18} />
+                    <button
+                      className={`flex-1 md:flex-none flex items-center justify-center gap-2 p-3 ${crmColors.bg} text-notion-light-muted dark:text-notion-dark-muted ${MODULE_COLORS.error.text.replace("text-", "hover:text-")} ${MODULE_COLORS.error.border.replace("border-", "hover:border-")} border ${crmColors.border} rounded transition-all shadow-sm hover:shadow-md group`}
+                    >
+                      <Icon.Delete
+                        size={18}
+                        className="group-hover:scale-110 group-hover:rotate-12 transition-transform"
+                      />
                       <span className="md:hidden text-xs font-bold uppercase tracking-widest">
                         Delete
                       </span>
@@ -319,24 +371,36 @@ export const CrmView: React.FC<CrmViewProps> = ({
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5 mt-8 md:mt-10 relative z-10">
-                  <div className="flex items-center gap-4 p-3 md:p-4 bg-notion-light-bg dark:bg-notion-dark-bg border border-notion-light-border dark:border-notion-dark-border rounded hover:border-notion-light-text/30 dark:hover:border-notion-dark-text/30 transition-colors shadow-sm overflow-hidden">
-                    <div className="p-2 md:p-2.5 bg-notion-light-sidebar dark:bg-notion-dark-sidebar text-notion-light-text dark:text-notion-dark-text rounded border border-notion-light-border dark:border-notion-dark-border flex-shrink-0">
+                  <div
+                    className={`flex items-center gap-4 p-3 md:p-4 ${crmColors.bg} border ${crmColors.border} rounded hover:${crmColors.border} transition-colors shadow-sm overflow-hidden group`}
+                  >
+                    <div
+                      className={`p-2 md:p-2.5 ${crmColors.lightBg} ${crmColors.text} rounded border ${crmColors.border} flex-shrink-0 group-hover:scale-110 transition-transform`}
+                    >
                       <Icon.Chat size={16} />
                     </div>
                     <div className="overflow-hidden">
                       <p className="notion-label mb-0.5">Primary Email</p>
-                      <p className="text-[13px] md:text-[14px] font-bold text-notion-light-text dark:text-notion-dark-text truncate">
+                      <p
+                        className={`text-[13px] md:text-[14px] font-bold ${crmColors.text} truncate`}
+                      >
                         {selectedContact.email || "N/A"}
                       </p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-4 p-3 md:p-4 bg-notion-light-bg dark:bg-notion-dark-bg border border-notion-light-border dark:border-notion-dark-border rounded hover:border-notion-light-text/30 dark:hover:border-notion-dark-text/30 transition-colors shadow-sm overflow-hidden">
-                    <div className="p-2 md:p-2.5 bg-notion-light-sidebar dark:bg-notion-dark-sidebar text-notion-light-text dark:text-notion-dark-text rounded border border-notion-light-border dark:border-notion-dark-border flex-shrink-0">
+                  <div
+                    className={`flex items-center gap-4 p-3 md:p-4 ${crmColors.bg} border ${crmColors.border} rounded hover:${crmColors.border} transition-colors shadow-sm overflow-hidden group`}
+                  >
+                    <div
+                      className={`p-2 md:p-2.5 ${crmColors.lightBg} ${crmColors.text} rounded border ${crmColors.border} flex-shrink-0 group-hover:scale-110 transition-transform`}
+                    >
                       <Icon.Add size={16} />
                     </div>
                     <div className="overflow-hidden">
                       <p className="notion-label mb-0.5">Phone Number</p>
-                      <p className="text-[13px] md:text-[14px] font-bold text-notion-light-text dark:text-notion-dark-text truncate">
+                      <p
+                        className={`text-[13px] md:text-[14px] font-bold ${crmColors.text} truncate`}
+                      >
                         {selectedContact.phone || "N/A"}
                       </p>
                     </div>
@@ -345,25 +409,35 @@ export const CrmView: React.FC<CrmViewProps> = ({
               </div>
 
               {/* Interaction Log Section */}
-              <div className="flex-1 p-6 md:p-10 bg-notion-light-bg dark:bg-notion-dark-bg">
+              <div
+                className={`flex-1 p-6 md:p-10 ${crmColors.bg} border-t ${crmColors.border}`}
+              >
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
                   <h3 className="notion-label uppercase tracking-[0.2em]">
                     Interaction Log
                   </h3>
                   <button
                     onClick={handleAddInteraction}
-                    className="w-full sm:w-auto text-[11px] md:text-[12px] font-bold text-notion-light-text dark:text-notion-dark-text flex items-center justify-center gap-2 hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover transition-colors bg-notion-light-sidebar dark:bg-notion-dark-sidebar px-4 py-2.5 md:px-3 md:py-1.5 rounded border border-notion-light-border dark:border-notion-dark-border shadow-sm"
+                    className={`w-full sm:w-auto text-[11px] md:text-[12px] font-bold ${crmColors.text} flex items-center justify-center gap-2 ${crmColors.hoverBg} transition-colors ${crmColors.bg} px-4 py-2.5 md:px-3 md:py-1.5 rounded border ${crmColors.border} shadow-sm group`}
                   >
-                    <Icon.Add size={14} /> Log Interaction
+                    <Icon.Add
+                      size={14}
+                      className="group-hover:rotate-90 transition-transform duration-300"
+                    />{" "}
+                    Log Interaction
                   </button>
                 </div>
 
                 <div className="space-y-8 relative">
-                  <div className="absolute left-[13px] top-2 bottom-2 w-0.5 bg-notion-light-border dark:bg-notion-dark-border opacity-50"></div>
+                  <div
+                    className={`absolute left-[13px] top-2 bottom-2 w-0.5 ${crmColors.border} opacity-50`}
+                  ></div>
 
                   {isInteractionsLoading ? (
                     <div className="flex justify-center py-8">
-                      <div className="w-6 h-6 border-2 border-notion-light-text/20 border-t-notion-light-text rounded-full animate-spin"></div>
+                      <div
+                        className={`w-6 h-6 border-2 ${crmColors.border} border-t-current ${crmColors.text} rounded-full animate-spin`}
+                      ></div>
                     </div>
                   ) : interactions.length > 0 ? (
                     interactions.map((interaction) => (
@@ -371,29 +445,39 @@ export const CrmView: React.FC<CrmViewProps> = ({
                         key={interaction.id}
                         className="relative pl-10 group/item"
                       >
-                        <div className="absolute left-0 top-1 w-7 h-7 bg-notion-light-text dark:bg-notion-dark-text text-white dark:text-notion-dark-bg rounded-full flex items-center justify-center z-10 border-4 border-white dark:border-notion-dark-bg shadow-lg group-hover/item:scale-110 transition-transform">
+                        <div
+                          className={`absolute left-0 top-1 w-7 h-7 ${crmColors.dot} text-white rounded-full flex items-center justify-center z-10 border-4 border-white dark:border-notion-dark-bg shadow-lg group-hover/item:scale-110 transition-transform`}
+                        >
                           {getInteractionIcon(interaction.type)}
                         </div>
-                        <div className="p-5 bg-notion-light-sidebar/40 dark:bg-notion-dark-sidebar/40 rounded border border-notion-light-border dark:border-notion-dark-border group-hover/item:shadow-md group-hover/item:border-notion-light-text/20 dark:group-hover/item:border-notion-dark-text/20 transition-all">
+                        <div
+                          className={`p-5 ${crmColors.lightBg} rounded border ${crmColors.border} group-hover/item:shadow-md group-hover/item:${crmColors.border} transition-all`}
+                        >
                           <div className="flex items-center justify-between mb-3">
                             <div className="flex items-center gap-3">
-                              <span className="text-[14px] font-bold text-notion-light-text dark:text-notion-dark-text">
+                              <span
+                                className={`text-[14px] font-bold ${crmColors.text}`}
+                              >
                                 {interaction.type}
                               </span>
                               <button
                                 onClick={() =>
                                   handleEditInteraction(interaction)
                                 }
-                                className="opacity-0 group-hover/item:opacity-100 p-1 hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover rounded text-notion-light-muted hover:text-notion-light-text transition-all"
+                                className={`opacity-0 group-hover/item:opacity-100 p-1 hover:${crmColors.bg} rounded text-notion-light-muted hover:${crmColors.text} transition-all`}
                               >
                                 <Icon.Edit size={12} />
                               </button>
                             </div>
-                            <span className="notion-label bg-notion-light-bg dark:bg-notion-dark-bg px-2 py-0.5 rounded border border-notion-light-border dark:border-notion-dark-border">
+                            <span
+                              className={`notion-label ${crmColors.bg} px-2 py-0.5 rounded border ${crmColors.border}`}
+                            >
                               {new Date(interaction.date).toLocaleDateString()}
                             </span>
                           </div>
-                          <p className="text-[14px] text-notion-light-muted dark:text-notion-dark-muted leading-relaxed whitespace-pre-wrap">
+                          <p
+                            className={`text-[14px] ${crmColors.text} opacity-80 leading-relaxed whitespace-pre-wrap`}
+                          >
                             {interaction.notes}
                           </p>
                         </div>
@@ -408,11 +492,17 @@ export const CrmView: React.FC<CrmViewProps> = ({
               </div>
             </div>
           ) : (
-            <div className="h-full flex flex-col items-center justify-center bg-notion-light-sidebar/10 dark:bg-notion-dark-sidebar/5 border-2 border-dashed border-notion-light-border dark:border-notion-dark-border rounded p-16 text-center animate-in fade-in duration-700">
-              <div className="w-20 h-20 bg-notion-light-bg dark:bg-notion-dark-bg border border-notion-light-border dark:border-notion-dark-border shadow-xl rounded flex items-center justify-center text-notion-light-muted dark:text-notion-dark-muted mb-8 opacity-20 transform -rotate-6">
+            <div
+              className={`h-full flex flex-col items-center justify-center ${crmColors.lightBg} border-2 border-dashed ${crmColors.border} rounded p-16 text-center animate-in fade-in duration-700`}
+            >
+              <div
+                className={`w-20 h-20 ${crmColors.bg} border ${crmColors.border} shadow-xl rounded flex items-center justify-center text-notion-light-muted dark:text-notion-dark-muted mb-8 opacity-20 transform -rotate-6`}
+              >
                 <Icon.Users size={40} />
               </div>
-              <h2 className="text-lg font-black text-notion-light-text dark:text-notion-dark-text mb-3 tracking-tight">
+              <h2
+                className={`text-lg font-black ${crmColors.text} mb-3 tracking-tight`}
+              >
                 No Contact Selected
               </h2>
               <p className="text-sm text-notion-light-muted dark:text-notion-dark-muted max-w-[280px] leading-relaxed">
@@ -420,9 +510,15 @@ export const CrmView: React.FC<CrmViewProps> = ({
                 full intelligence profile and interaction history.
               </p>
               <div className="mt-10 flex gap-3">
-                <div className="w-2 h-2 rounded-full bg-blue-500/20"></div>
-                <div className="w-2 h-2 rounded-full bg-blue-500/40"></div>
-                <div className="w-2 h-2 rounded-full bg-blue-500/20"></div>
+                <div
+                  className={`w-2 h-2 rounded-full ${crmColors.dot} opacity-20`}
+                ></div>
+                <div
+                  className={`w-2 h-2 rounded-full ${crmColors.dot} opacity-40`}
+                ></div>
+                <div
+                  className={`w-2 h-2 rounded-full ${crmColors.dot} opacity-20`}
+                ></div>
               </div>
             </div>
           )}

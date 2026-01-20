@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Interaction } from "../types";
 import { Icon as Icons } from "./Icons";
+import { MODULE_COLORS } from "../constants/ui";
 
 interface InteractionModalProps {
   isOpen: boolean;
@@ -17,6 +18,7 @@ export const InteractionModal: React.FC<InteractionModalProps> = ({
   contactId,
   initialData,
 }) => {
+  const colors = MODULE_COLORS.crm;
   const [formData, setFormData] = useState<Partial<Interaction>>({
     type: "Call",
     notes: "",
@@ -138,14 +140,14 @@ export const InteractionModal: React.FC<InteractionModalProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="notion-button border border-notion-light-border dark:border-notion-dark-border"
+              className={`px-4 py-2 text-xs font-black uppercase tracking-widest text-notion-light-muted hover:${colors.text} transition-colors`}
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSubmitting || !formData.notes}
-              className="notion-button notion-button-primary disabled:opacity-50"
+              className={`px-6 py-2 ${colors.bg} ${colors.text} ${colors.border} border rounded-xl font-black text-xs uppercase tracking-widest shadow-sm ${colors.hoverBg} transition-all active:scale-95 disabled:opacity-50`}
             >
               {isSubmitting
                 ? initialData

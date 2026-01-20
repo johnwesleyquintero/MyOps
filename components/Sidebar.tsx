@@ -1,6 +1,7 @@
 import React from "react";
 import { Page } from "../types";
 import { Icon, iconProps } from "./Icons";
+import { MODULE_COLORS } from "../constants/ui";
 
 interface SidebarProps {
   activePage: Page;
@@ -107,7 +108,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 alt="MyOps Logo"
                 className="w-8 h-8 rounded-lg shadow-sm group-hover:scale-110 transition-transform duration-300"
               />
-              <div className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-blue-500 border-2 border-notion-light-sidebar dark:border-notion-dark-sidebar rounded-full shadow-[0_0_10px_rgba(59,130,246,0.5)]"></div>
+              <div
+                className={`absolute -top-1 -right-1 w-2.5 h-2.5 ${MODULE_COLORS.sovereign.dot} border-2 border-notion-light-sidebar dark:border-notion-dark-sidebar rounded-full shadow-[0_0_10px_rgba(59,130,246,0.5)]`}
+              ></div>
             </div>
             {!isCollapsed && (
               <div className="flex flex-col animate-fade-in">
@@ -155,7 +158,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             className={`px-3 mb-2 flex items-center gap-2 text-[10px] font-bold text-notion-light-text/30 dark:text-notion-dark-text/30 uppercase tracking-[0.2em] transition-all duration-300 ${isCollapsed ? "opacity-0 h-0 hidden" : "opacity-100"}`}
           >
             <span className="flex-shrink-0">Operational</span>
-            <div className="flex-1 h-[1px] bg-notion-light-border/50 dark:border-notion-dark-border/20"></div>
+            <div className="flex-1 h-[1px] bg-notion-light-border/50 dark:bg-notion-dark-border/20"></div>
           </div>
 
           {renderNavItem(

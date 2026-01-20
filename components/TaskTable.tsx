@@ -4,6 +4,7 @@ import {
   COLUMN_CONFIG_KEY,
   PRIORITY_DOTS,
   STATUS_INDICATORS,
+  MODULE_COLORS,
 } from "@/constants";
 import { Icon, iconProps } from "./Icons";
 import { getProjectBadgeStyle } from "../utils/styleUtils";
@@ -76,6 +77,8 @@ export const TaskTable: React.FC<TaskTableProps> = ({
   const { columns: internalColumns, toggleColumn: internalToggleColumn } =
     useTableColumns(DEFAULT_COLUMNS, COLUMN_CONFIG_KEY);
 
+  const colors = MODULE_COLORS.tasks;
+
   const columns = externalColumns || internalColumns;
   const toggleColumn = externalToggleColumn || internalToggleColumn;
 
@@ -96,7 +99,7 @@ export const TaskTable: React.FC<TaskTableProps> = ({
                 .map((col) => (
                   <th
                     key={col.key}
-                    className={`${col.width} px-3 py-2 text-[10px] font-bold text-notion-light-muted dark:text-notion-dark-muted uppercase tracking-widest cursor-pointer hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover transition-colors group ${["project", "priority"].includes(col.key) ? "hidden md:table-cell" : ""}`}
+                    className={`${col.width} px-3 py-2 text-[10px] font-bold text-notion-light-muted dark:text-notion-dark-muted uppercase tracking-widest cursor-pointer ${colors.hoverBg} transition-colors group ${["project", "priority"].includes(col.key) ? "hidden md:table-cell" : ""}`}
                     onClick={() => requestSort(col.key as SortKey)}
                   >
                     <div className="flex items-center gap-2">
@@ -133,7 +136,7 @@ export const TaskTable: React.FC<TaskTableProps> = ({
               {sortedEntries.map((task) => (
                 <tr
                   key={task.id}
-                  className="group hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover transition-colors"
+                  className={`group ${colors.hoverBg} transition-colors`}
                 >
                   {columns
                     .filter((c) => c.visible)
@@ -159,7 +162,9 @@ export const TaskTable: React.FC<TaskTableProps> = ({
                             className="relative pr-8 cursor-pointer group/desc"
                             onClick={() => onEdit(task)}
                           >
-                            <p className="text-notion-light-text dark:text-notion-dark-text font-medium leading-relaxed group-hover/desc:text-notion-light-text dark:group-hover/desc:text-notion-dark-text transition-colors">
+                            <p
+                              className={`text-notion-light-text dark:text-notion-dark-text font-medium leading-relaxed group-hover/desc:${colors.text} transition-colors`}
+                            >
                               {task.description.split("\n")[0]}
                             </p>
                           </div>
@@ -191,7 +196,9 @@ export const TaskTable: React.FC<TaskTableProps> = ({
                             <div
                               className={`w-1.5 h-1.5 rounded-full ${STATUS_INDICATORS[task.status]} group-hover/status:ring-2 group-hover/status:ring-offset-1 group-hover/status:ring-current transition-all`}
                             />
-                            <span className="text-xs text-notion-light-text dark:text-notion-dark-text group-hover/status:underline">
+                            <span
+                              className={`text-xs text-notion-light-text dark:text-notion-dark-text group-hover/status:underline group-hover/status:${colors.text}`}
+                            >
                               {task.status}
                             </span>
                           </div>
@@ -202,21 +209,21 @@ export const TaskTable: React.FC<TaskTableProps> = ({
                     <div className="flex items-center justify-end gap-0.5 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
                       <button
                         onClick={() => onEdit(task)}
-                        className="text-notion-light-muted hover:text-notion-light-text dark:hover:text-notion-dark-text p-1 rounded hover:bg-notion-light-sidebar dark:hover:bg-notion-dark-sidebar"
+                        className={`text-notion-light-muted hover:${colors.text} p-1 rounded ${colors.lightBg}`}
                         title="Edit Mission"
                       >
                         <Icon.Edit {...iconProps(14)} />
                       </button>
                       <button
                         onClick={() => onDuplicate(task)}
-                        className="text-notion-light-muted hover:text-notion-light-text dark:hover:text-notion-dark-text p-1 rounded hover:bg-notion-light-sidebar dark:hover:bg-notion-dark-sidebar"
+                        className={`text-notion-light-muted hover:${colors.text} p-1 rounded ${colors.lightBg}`}
                         title="Duplicate Mission"
                       >
                         <Icon.Copy {...iconProps(14)} />
                       </button>
                       <button
                         onClick={() => onFocus(task)}
-                        className="text-notion-light-muted hover:text-notion-light-text dark:hover:text-notion-dark-text p-1 rounded hover:bg-notion-light-sidebar dark:hover:bg-notion-dark-sidebar"
+                        className={`text-notion-light-muted hover:${colors.text} p-1 rounded ${colors.lightBg}`}
                         title="Focus Mode"
                       >
                         <Icon.Focus {...iconProps(14)} />

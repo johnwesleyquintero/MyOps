@@ -7,6 +7,7 @@ import {
 import { ViewHeader } from "../ViewHeader";
 import { Icon } from "../Icons";
 import { toast } from "sonner";
+import { MODULE_COLORS } from "@/constants";
 
 interface AwarenessViewProps {
   config: AppConfig;
@@ -15,6 +16,10 @@ interface AwarenessViewProps {
 export const AwarenessView: React.FC<AwarenessViewProps> = ({ config }) => {
   const [history, setHistory] = useState<MentalStateEntry[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+
+  const colors = MODULE_COLORS.awareness;
+  const clarityColors = MODULE_COLORS.strategy; // Using strategy's fuchsia for clarity differentiation
+
   const [todayEntry, setTodayEntry] = useState<MentalStateEntry>({
     id: "",
     date: new Date().toISOString().split("T")[0],
@@ -78,13 +83,17 @@ export const AwarenessView: React.FC<AwarenessViewProps> = ({ config }) => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
         {/* Left: Check-in Form */}
         <div className="lg:col-span-2 space-y-6">
-          <div className="notion-card p-6 sm:p-8">
+          <div className="bg-notion-light-bg dark:bg-notion-dark-bg border border-notion-light-border dark:border-notion-dark-border rounded-2xl p-6 sm:p-8 shadow-sm">
             <div className="flex items-center gap-3 mb-8">
-              <div className="p-2.5 bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 rounded-xl">
+              <div
+                className={`p-2.5 ${colors.bg} ${colors.text} rounded-xl border ${colors.border}`}
+              >
                 <Icon.Play size={20} />
               </div>
               <div>
-                <h3 className="text-sm font-black uppercase tracking-widest text-notion-light-text dark:text-notion-dark-text">
+                <h3
+                  className={`text-sm font-black uppercase tracking-widest ${colors.text}`}
+                >
                   Daily Check-in
                 </h3>
                 <p className="text-[10px] font-bold text-notion-light-muted dark:text-notion-dark-muted uppercase tracking-wider">
@@ -109,7 +118,7 @@ export const AwarenessView: React.FC<AwarenessViewProps> = ({ config }) => {
                         }
                         className={`py-4 rounded-2xl border-2 transition-all font-bold capitalize ${
                           todayEntry.energy === level
-                            ? "border-indigo-500 bg-indigo-500/10 text-indigo-600 dark:text-indigo-400"
+                            ? `${colors.border.replace("/20", "").replace("/30", "")} ${colors.bg} ${colors.text}`
                             : "border-notion-light-border dark:border-notion-dark-border hover:border-notion-light-muted dark:hover:border-notion-dark-muted"
                         }`}
                       >
@@ -133,7 +142,7 @@ export const AwarenessView: React.FC<AwarenessViewProps> = ({ config }) => {
                         }
                         className={`py-4 rounded-2xl border-2 transition-all font-bold capitalize ${
                           todayEntry.clarity === level
-                            ? "border-fuchsia-500 bg-fuchsia-500/10 text-fuchsia-600 dark:text-fuchsia-400"
+                            ? `${clarityColors.border.replace("/20", "").replace("/30", "")} ${clarityColors.bg} ${clarityColors.text}`
                             : "border-notion-light-border dark:border-notion-dark-border hover:border-notion-light-muted dark:hover:border-notion-dark-muted"
                         }`}
                       >
@@ -155,13 +164,13 @@ export const AwarenessView: React.FC<AwarenessViewProps> = ({ config }) => {
                     setTodayEntry({ ...todayEntry, notes: e.target.value })
                   }
                   placeholder="Any specific constraints today?"
-                  className="notion-input w-full min-h-[100px] bg-notion-light-sidebar dark:bg-notion-dark-sidebar border-none focus:ring-2 focus:ring-indigo-500/50 rounded-2xl p-4"
+                  className={`w-full min-h-[100px] bg-notion-light-sidebar dark:bg-notion-dark-sidebar border border-notion-light-border dark:border-notion-dark-border focus:ring-2 ${colors.dot.replace("bg-", "ring-")} rounded-2xl p-4 text-sm focus:outline-none transition-all`}
                 />
               </div>
 
               <button
                 onClick={handleSave}
-                className="w-full notion-button notion-button-primary py-4 rounded-2xl font-black uppercase tracking-widest text-sm shadow-lg shadow-indigo-500/20 active:scale-[0.98] transition-all"
+                className={`w-full ${colors.bg.replace("/10", "").replace("/20", "")} text-white border ${colors.border} py-4 rounded-2xl font-black uppercase tracking-widest text-sm shadow-lg shadow-black/5 active:scale-[0.98] transition-all`}
               >
                 Lock Daily Check-in
               </button>
@@ -172,7 +181,9 @@ export const AwarenessView: React.FC<AwarenessViewProps> = ({ config }) => {
         {/* Right: Status & History */}
         <div className="lg:col-span-1 flex flex-col gap-6">
           {/* Readiness Briefing */}
-          <div className="notion-card p-6 bg-gradient-to-br from-indigo-600 to-fuchsia-700 dark:from-indigo-700 dark:to-fuchsia-900 text-white border-none shadow-lg relative overflow-hidden group">
+          <div
+            className={`rounded-2xl p-6 ${colors.bg.replace("/10", "").replace("/20", "")} text-white border-none shadow-lg relative overflow-hidden group`}
+          >
             <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:scale-110 transition-transform duration-500">
               <Icon.Ai size={100} />
             </div>
@@ -225,9 +236,11 @@ export const AwarenessView: React.FC<AwarenessViewProps> = ({ config }) => {
           </div>
 
           {/* History Widget */}
-          <div className="notion-card p-6 flex-1">
+          <div className="bg-notion-light-bg dark:bg-notion-dark-bg border border-notion-light-border dark:border-notion-dark-border rounded-2xl p-6 shadow-sm flex-1">
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-xs font-black uppercase tracking-widest text-notion-light-text dark:text-notion-dark-text">
+              <h3
+                className={`text-xs font-black uppercase tracking-widest ${colors.text}`}
+              >
                 Recent History
               </h3>
               <Icon.History size={16} className="opacity-30" />
@@ -237,15 +250,15 @@ export const AwarenessView: React.FC<AwarenessViewProps> = ({ config }) => {
               {history.slice(0, 5).map((entry) => (
                 <div
                   key={entry.date}
-                  className="flex items-center gap-4 p-3 rounded-xl bg-notion-light-sidebar dark:bg-notion-dark-sidebar border border-notion-light-border dark:border-notion-dark-border group hover:border-indigo-500/30 transition-all"
+                  className={`flex items-center gap-4 p-3 rounded-xl bg-notion-light-sidebar dark:bg-notion-dark-sidebar border border-notion-light-border dark:border-notion-dark-border group ${colors.border.replace("border-", "hover:border-")} transition-all`}
                 >
                   <div
                     className={`w-2.5 h-2.5 rounded-full shadow-sm ${
                       entry.energy === "high"
-                        ? "bg-emerald-500"
+                        ? MODULE_COLORS.crm.dot
                         : entry.energy === "medium"
-                          ? "bg-amber-500"
-                          : "bg-rose-500"
+                          ? MODULE_COLORS.docs.dot
+                          : MODULE_COLORS.error.dot
                     }`}
                   />
                   <div className="flex-1">

@@ -3,6 +3,7 @@ import { ViewHeader } from "../ViewHeader";
 import { Icon, iconProps } from "../Icons";
 import { toast } from "sonner";
 import { useAiChat } from "../../hooks/useAiChat";
+import { MODULE_COLORS } from "../../constants/ui";
 import {
   AppConfig,
   TaskEntry,
@@ -60,6 +61,8 @@ export const WesAiView: React.FC<WesAiViewProps> = ({
   onSaveAsset,
   onSaveReflection,
 }) => {
+  const colors = MODULE_COLORS.ai;
+  const crmColors = MODULE_COLORS.crm;
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const {
     messages,
@@ -196,10 +199,14 @@ export const WesAiView: React.FC<WesAiViewProps> = ({
       onDrop={handleDrop}
     >
       {isDragging && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-blue-600/20 backdrop-blur-sm border-4 border-dashed border-blue-500 rounded-3xl pointer-events-none">
+        <div
+          className={`fixed inset-0 z-50 flex items-center justify-center ${colors.bg.replace("10", "20")} backdrop-blur-sm border-4 border-dashed ${colors.border.split(" ")[0]} rounded-3xl pointer-events-none`}
+        >
           <div className="bg-white dark:bg-notion-dark-sidebar p-8 rounded-2xl shadow-2xl flex flex-col items-center gap-4 animate-bounce">
-            <Icon.Add {...iconProps(48, "text-blue-500")} />
-            <span className="text-xl font-black uppercase tracking-widest text-blue-500">
+            <Icon.Add {...iconProps(48, colors.text)} />
+            <span
+              className={`text-xl font-black uppercase tracking-widest ${colors.text}`}
+            >
               Drop to Analyze
             </span>
           </div>
@@ -212,7 +219,7 @@ export const WesAiView: React.FC<WesAiViewProps> = ({
       >
         <button
           onClick={resetChat}
-          className="notion-button notion-button-ghost text-[10px]"
+          className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest ${colors.bg} ${colors.text} hover:opacity-80 transition-all active:scale-95`}
           title="Reset Neural Link"
         >
           RESET
@@ -229,12 +236,14 @@ export const WesAiView: React.FC<WesAiViewProps> = ({
               className={`max-w-[90%] sm:max-w-[80%] rounded-2xl p-4 transition-all duration-200 group/msg ${
                 msg.role === "user"
                   ? "bg-chatgpt-light-user dark:bg-chatgpt-dark-user text-notion-light-text dark:text-notion-dark-text border border-chatgpt-light-border dark:border-chatgpt-dark-border shadow-sm hover:shadow-md"
-                  : "bg-chatgpt-light-assistant dark:bg-chatgpt-dark-assistant text-notion-light-text dark:text-notion-dark-text border border-chatgpt-light-border dark:border-chatgpt-dark-border shadow-sm"
+                  : `bg-chatgpt-light-assistant dark:bg-chatgpt-dark-assistant text-notion-light-text dark:text-notion-dark-text border border-chatgpt-light-border dark:border-chatgpt-dark-border shadow-sm`
               }`}
             >
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2 opacity-60 text-[10px] font-bold uppercase tracking-widest">
-                  {msg.role === "model" && <Icon.Ai {...iconProps(12)} />}
+                  {msg.role === "model" && (
+                    <Icon.Ai {...iconProps(12, colors.text)} />
+                  )}
                   {msg.role === "model" ? "WesAI" : "Operator"} •{" "}
                   {msg.timestamp.toLocaleTimeString()}
                 </div>
@@ -245,7 +254,7 @@ export const WesAiView: React.FC<WesAiViewProps> = ({
                     title="Copy as Markdown"
                   >
                     {copiedId === msg.id ? (
-                      <Icon.Check {...iconProps(12, "text-green-500")} />
+                      <Icon.Check {...iconProps(12, crmColors.text)} />
                     ) : (
                       <Icon.Copy {...iconProps(12)} />
                     )}
@@ -280,7 +289,7 @@ export const WesAiView: React.FC<WesAiViewProps> = ({
                     strong: ({ ...props }) => (
                       <strong
                         {...props}
-                        className="font-bold text-notion-light-text dark:text-white"
+                        className={`font-bold ${colors.text.split(" ")[0]} dark:text-white`}
                       />
                     ),
                   }}
@@ -294,17 +303,23 @@ export const WesAiView: React.FC<WesAiViewProps> = ({
                   {msg.attachments.map((img, idx) => (
                     <div
                       key={idx}
-                      className="relative group overflow-hidden rounded-lg border border-white/20 shadow-inner"
+                      className={`relative group overflow-hidden rounded-lg border ${colors.border} shadow-inner`}
                     >
                       <img
                         src={img}
                         alt="Attachment"
                         className="w-32 h-32 sm:w-48 sm:h-48 object-cover"
                       />
-                      <div className="absolute inset-0 bg-blue-500/10 pointer-events-none mix-blend-overlay"></div>
-                      <div className="absolute inset-0 bg-[linear-gradient(transparent_0%,rgba(0,100,255,0.1)_50%,transparent_100%)] bg-[length:100%_4px] animate-[scan_2s_linear_infinite] pointer-events-none"></div>
+                      <div
+                        className={`absolute inset-0 ${colors.bg} pointer-events-none mix-blend-overlay`}
+                      ></div>
+                      <div
+                        className={`absolute inset-0 bg-[linear-gradient(transparent_0%,rgba(139,92,246,0.1)_50%,transparent_100%)] bg-[length:100%_4px] animate-[scan_2s_linear_infinite] pointer-events-none`}
+                      ></div>
                       <div className="absolute top-2 right-2 flex gap-1">
-                        <div className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse"></div>
+                        <div
+                          className={`w-1.5 h-1.5 ${colors.dot} rounded-full animate-pulse`}
+                        ></div>
                       </div>
                     </div>
                   ))}
@@ -344,7 +359,7 @@ export const WesAiView: React.FC<WesAiViewProps> = ({
                 />
                 <button
                   onClick={() => removeAttachment(idx)}
-                  className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 shadow-md opacity-0 group-hover:opacity-100 transition-opacity"
+                  className={`absolute -top-2 -right-2 ${MODULE_COLORS.error.bg.replace("/10", "").replace("/20", "")} text-white rounded-full p-1 shadow-md opacity-0 group-hover:opacity-100 transition-opacity`}
                 >
                   <Icon.Close {...iconProps(12)} />
                 </button>
@@ -356,7 +371,7 @@ export const WesAiView: React.FC<WesAiViewProps> = ({
         <div className="flex items-end gap-3">
           <button
             onClick={() => fileInputRef.current?.click()}
-            className="p-2.5 rounded-xl notion-button-ghost flex-shrink-0"
+            className={`p-2.5 rounded-xl ${colors.hoverBg} ${colors.text} flex-shrink-0 transition-colors`}
             title="Upload Image"
           >
             <Icon.Add {...iconProps(20)} />
@@ -390,7 +405,7 @@ export const WesAiView: React.FC<WesAiViewProps> = ({
               isThinking ||
               !config.geminiApiKey
             }
-            className="p-3 bg-notion-light-text dark:bg-notion-dark-text text-white dark:text-notion-dark-bg rounded-xl hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg active:scale-95 flex-shrink-0"
+            className={`p-3 ${colors.text.replace("text-", "bg-").split(" ")[0]} text-white rounded-xl hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg active:scale-95 flex-shrink-0`}
           >
             <Icon.Send {...iconProps(20)} />
           </button>

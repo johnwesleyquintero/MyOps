@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { LifeConstraintEntry } from "../types";
 import { Icon, iconProps } from "./Icons";
 import { toast } from "sonner";
+import { MODULE_COLORS } from "../constants/ui";
 
 interface LifeModalProps {
   isOpen: boolean;
@@ -23,6 +24,7 @@ export const LifeModal: React.FC<LifeModalProps> = ({
   onSave,
   initialData,
 }) => {
+  const colors = MODULE_COLORS.life;
   const [formData, setFormData] = useState<Partial<LifeConstraintEntry>>(
     () =>
       initialData || {
@@ -101,18 +103,20 @@ export const LifeModal: React.FC<LifeModalProps> = ({
     >
       <div className="bg-notion-light-bg dark:bg-notion-dark-bg w-full max-w-xl shadow-2xl flex flex-col overflow-hidden animate-in zoom-in-95 duration-200 rounded-2xl border border-notion-light-border dark:border-notion-dark-border">
         {/* Modal Header */}
-        <div className="px-6 py-4 border-b border-notion-light-border dark:border-notion-dark-border flex items-center justify-between bg-notion-light-sidebar dark:bg-notion-dark-sidebar">
+        <div
+          className={`px-6 py-4 border-b ${colors.border} flex items-center justify-between ${colors.lightBg}`}
+        >
           <div className="flex items-center gap-3">
-            <span className="text-notion-light-muted dark:text-notion-dark-muted">
+            <span className={colors.text}>
               <Icon.Heart {...iconProps(18)} />
             </span>
-            <h2 className="text-sm font-semibold text-notion-light-text dark:text-notion-dark-text">
+            <h2 className={`text-sm font-semibold ${colors.text}`}>
               {initialData ? "Edit Constraint" : "New Life Constraint"}
             </h2>
           </div>
           <button
             onClick={onClose}
-            className="p-1 hover:bg-notion-light-border dark:hover:bg-notion-dark-border rounded-md transition-colors"
+            className={`p-1 hover:${colors.bg} rounded-md transition-colors`}
           >
             <Icon.Close {...iconProps(16)} />
           </button>
@@ -130,7 +134,7 @@ export const LifeModal: React.FC<LifeModalProps> = ({
                 autoFocus
                 type="text"
                 placeholder="e.g., Morning Workout, Family Dinner"
-                className="w-full px-3 py-2 bg-transparent border border-notion-light-border dark:border-notion-dark-border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500/20 focus:border-pink-500 transition-all text-sm"
+                className={`w-full px-3 py-2 bg-transparent border border-notion-light-border dark:border-notion-dark-border rounded-lg focus:outline-none focus:ring-2 focus:${colors.bg.replace("bg-", "ring-")}/20 focus:${colors.border} transition-all text-sm`}
                 value={formData.title}
                 onChange={(e) =>
                   setFormData({ ...formData, title: e.target.value })
@@ -145,7 +149,7 @@ export const LifeModal: React.FC<LifeModalProps> = ({
                   Category
                 </label>
                 <select
-                  className="w-full px-3 py-2 bg-transparent border border-notion-light-border dark:border-notion-dark-border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500/20 focus:border-pink-500 transition-all text-sm"
+                  className={`w-full px-3 py-2 bg-transparent border border-notion-light-border dark:border-notion-dark-border rounded-lg focus:outline-none focus:ring-2 focus:${colors.bg.replace("bg-", "ring-")}/20 focus:${colors.border} transition-all text-sm`}
                   value={formData.category}
                   onChange={(e) =>
                     setFormData({
@@ -169,7 +173,7 @@ export const LifeModal: React.FC<LifeModalProps> = ({
                   Energy Requirement
                 </label>
                 <select
-                  className="w-full px-3 py-2 bg-transparent border border-notion-light-border dark:border-notion-dark-border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500/20 focus:border-pink-500 transition-all text-sm"
+                  className={`w-full px-3 py-2 bg-transparent border border-notion-light-border dark:border-notion-dark-border rounded-lg focus:outline-none focus:ring-2 focus:${colors.bg.replace("bg-", "ring-")}/20 focus:${colors.border} transition-all text-sm`}
                   value={formData.energyRequirement}
                   onChange={(e) =>
                     setFormData({
@@ -196,7 +200,7 @@ export const LifeModal: React.FC<LifeModalProps> = ({
                 </label>
                 <input
                   type="time"
-                  className="w-full px-3 py-2 bg-transparent border border-notion-light-border dark:border-notion-dark-border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500/20 focus:border-pink-500 transition-all text-sm"
+                  className={`w-full px-3 py-2 bg-transparent border border-notion-light-border dark:border-notion-dark-border rounded-lg focus:outline-none focus:ring-2 focus:${colors.bg.replace("bg-", "ring-")}/20 focus:${colors.border} transition-all text-sm`}
                   value={formData.startTime || ""}
                   onChange={(e) =>
                     setFormData({ ...formData, startTime: e.target.value })
@@ -209,7 +213,7 @@ export const LifeModal: React.FC<LifeModalProps> = ({
                 </label>
                 <input
                   type="time"
-                  className="w-full px-3 py-2 bg-transparent border border-notion-light-border dark:border-notion-dark-border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500/20 focus:border-pink-500 transition-all text-sm"
+                  className={`w-full px-3 py-2 bg-transparent border border-notion-light-border dark:border-notion-dark-border rounded-lg focus:outline-none focus:ring-2 focus:${colors.bg.replace("bg-", "ring-")}/20 focus:${colors.border} transition-all text-sm`}
                   value={formData.endTime || ""}
                   onChange={(e) =>
                     setFormData({ ...formData, endTime: e.target.value })
@@ -233,7 +237,7 @@ export const LifeModal: React.FC<LifeModalProps> = ({
                       onClick={() => toggleDay(index)}
                       className={`w-9 h-9 rounded-full text-[10px] font-bold transition-all ${
                         isSelected
-                          ? "bg-pink-500 text-white shadow-lg shadow-pink-500/20"
+                          ? `${colors.bg} ${colors.text} shadow-lg ${colors.bg.replace("bg-", "shadow-")}/20`
                           : "bg-notion-light-sidebar dark:bg-notion-dark-sidebar border border-notion-light-border dark:border-notion-dark-border text-notion-light-muted"
                       }`}
                     >
@@ -252,7 +256,7 @@ export const LifeModal: React.FC<LifeModalProps> = ({
               <textarea
                 placeholder="Additional details..."
                 rows={3}
-                className="w-full px-3 py-2 bg-transparent border border-notion-light-border dark:border-notion-dark-border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500/20 focus:border-pink-500 transition-all text-sm resize-none"
+                className={`w-full px-3 py-2 bg-transparent border border-notion-light-border dark:border-notion-dark-border rounded-lg focus:outline-none focus:ring-2 focus:${colors.bg.replace("bg-", "ring-")}/20 focus:${colors.border} transition-all text-sm resize-none`}
                 value={formData.notes}
                 onChange={(e) =>
                   setFormData({ ...formData, notes: e.target.value })
@@ -273,10 +277,10 @@ export const LifeModal: React.FC<LifeModalProps> = ({
           <button
             onClick={handleSubmit}
             disabled={isSubmitting}
-            className="px-4 py-2 text-sm font-medium bg-pink-500 hover:bg-pink-600 text-white rounded-lg shadow-sm shadow-pink-500/20 transition-all flex items-center gap-2 disabled:opacity-50"
+            className={`px-4 py-2 text-sm font-medium ${colors.bg} ${colors.text} ${colors.border} border rounded-lg shadow-sm transition-all flex items-center gap-2 disabled:opacity-50 hover:opacity-80 active:scale-95`}
           >
             {isSubmitting ? (
-              <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
             ) : (
               <Icon.Add {...iconProps(16)} />
             )}

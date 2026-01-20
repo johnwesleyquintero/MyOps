@@ -10,6 +10,7 @@ import {
 import ReactMarkdown from "react-markdown";
 import { ViewHeader } from "../ViewHeader";
 import { toast } from "sonner";
+import { MODULE_COLORS } from "@/constants";
 
 interface StrategyViewProps {
   config: AppConfig;
@@ -22,6 +23,10 @@ export const StrategyView: React.FC<StrategyViewProps> = ({ config }) => {
   const [editingDecision, setEditingDecision] = useState<DecisionEntry | null>(
     null,
   );
+
+  const colors = MODULE_COLORS.strategy;
+  const tacticColors = MODULE_COLORS.sovereign;
+  const crmColors = MODULE_COLORS.crm;
 
   const loadDecisions = useCallback(async () => {
     setIsLoading(true);
@@ -81,7 +86,7 @@ export const StrategyView: React.FC<StrategyViewProps> = ({ config }) => {
             setEditingDecision(null);
             setIsModalOpen(true);
           }}
-          className="notion-button notion-button-primary w-full sm:w-auto justify-center flex items-center gap-2"
+          className={`notion-button ${colors.bg.replace("/10", "").replace("/20", "")} text-white w-full sm:w-auto justify-center flex items-center gap-2 hover:opacity-90 transition-all shadow-lg shadow-black/5`}
         >
           <Icon.Add size={18} />
           <span>Log Decision</span>
@@ -90,11 +95,16 @@ export const StrategyView: React.FC<StrategyViewProps> = ({ config }) => {
 
       {isLoading ? (
         <div className="flex items-center justify-center py-20">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-notion-light-text dark:border-notion-dark-text"></div>
+          <div
+            className={`animate-spin rounded-full h-8 w-8 border-b-2 ${colors.text}`}
+          ></div>
         </div>
       ) : decisions.length === 0 ? (
         <div className="text-center py-20 bg-notion-light-sidebar dark:bg-notion-dark-sidebar rounded-2xl border border-dashed border-notion-light-border dark:border-notion-dark-border">
-          <Icon.Strategy size={48} className="mx-auto mb-4 opacity-20" />
+          <Icon.Strategy
+            size={48}
+            className={`mx-auto mb-4 ${colors.text} opacity-20`}
+          />
           <h3 className="text-lg font-medium text-notion-light-text dark:text-notion-dark-text">
             No decisions logged yet
           </h3>
@@ -107,12 +117,12 @@ export const StrategyView: React.FC<StrategyViewProps> = ({ config }) => {
           {decisions.map((decision) => (
             <div
               key={decision.id}
-              className="bg-notion-light-bg dark:bg-notion-dark-bg border border-notion-light-border dark:border-notion-dark-border rounded-2xl p-6 hover:shadow-lg transition-all group"
+              className={`bg-notion-light-bg dark:bg-notion-dark-bg border border-notion-light-border dark:border-notion-dark-border rounded-2xl p-6 hover:shadow-lg transition-all group ${colors.border.replace("border-", "hover:border-")}`}
             >
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center gap-3">
                   <div
-                    className={`w-2 h-2 rounded-full ${decision.status === "PENDING" ? "bg-amber-500" : "bg-emerald-500"}`}
+                    className={`w-2 h-2 rounded-full ${decision.status === "PENDING" ? "bg-amber-500" : crmColors.dot}`}
                   ></div>
                   <span className="text-[10px] font-bold uppercase tracking-widest opacity-60">
                     {decision.date}
@@ -124,13 +134,13 @@ export const StrategyView: React.FC<StrategyViewProps> = ({ config }) => {
                       setEditingDecision(decision);
                       setIsModalOpen(true);
                     }}
-                    className="p-1.5 hover:bg-notion-light-sidebar dark:hover:bg-notion-dark-sidebar rounded-lg text-notion-light-muted dark:text-notion-dark-muted"
+                    className={`p-1.5 ${colors.hoverBg} rounded-lg text-notion-light-muted dark:text-notion-dark-muted ${colors.text.replace("text-", "hover:text-")}`}
                   >
                     <Icon.Edit size={14} />
                   </button>
                   <button
                     onClick={() => handleDelete(decision.id)}
-                    className="p-1.5 hover:bg-rose-500/10 hover:text-rose-500 rounded-lg text-notion-light-muted dark:text-notion-dark-muted"
+                    className={`p-1.5 ${MODULE_COLORS.error.bg.replace("bg-", "hover:bg-")} ${MODULE_COLORS.error.text.replace("text-", "hover:text-")} rounded-lg text-notion-light-muted dark:text-notion-dark-muted transition-all`}
                   >
                     <Icon.Delete size={14} />
                   </button>
@@ -139,7 +149,7 @@ export const StrategyView: React.FC<StrategyViewProps> = ({ config }) => {
 
               <h3 className="text-lg font-bold text-notion-light-text dark:text-notion-dark-text mb-2">
                 <span
-                  className={`mr-2 px-1.5 py-0.5 rounded text-[10px] font-black uppercase tracking-tighter ${decision.decisionType === "strategy" ? "bg-indigo-500/10 text-indigo-500 border border-indigo-500/20" : "bg-sky-500/10 text-sky-500 border border-sky-500/20"}`}
+                  className={`mr-2 px-1.5 py-0.5 rounded text-[10px] font-black uppercase tracking-tighter ${decision.decisionType === "strategy" ? `${colors.bg} ${colors.text} border ${colors.border}` : `${tacticColors.bg} ${tacticColors.text} border ${tacticColors.border}`}`}
                 >
                   {decision.decisionType}
                 </span>
@@ -169,8 +179,12 @@ export const StrategyView: React.FC<StrategyViewProps> = ({ config }) => {
               )}
 
               {decision.actualOutcome && (
-                <div className="mb-4 p-3 bg-emerald-500/5 border border-emerald-500/10 rounded-xl">
-                  <span className="text-[10px] font-bold uppercase tracking-widest text-emerald-600 dark:text-emerald-400 block mb-1">
+                <div
+                  className={`mb-4 p-3 ${crmColors.bg} border ${crmColors.border} rounded-xl`}
+                >
+                  <span
+                    className={`text-[10px] font-bold uppercase tracking-widest ${crmColors.text} block mb-1`}
+                  >
                     Actual Outcome
                   </span>
                   <p className="text-sm text-notion-light-text dark:text-notion-dark-text italic">
@@ -189,13 +203,15 @@ export const StrategyView: React.FC<StrategyViewProps> = ({ config }) => {
                       {[1, 2, 3, 4, 5].map((i) => (
                         <div
                           key={i}
-                          className={`w-3 h-1 rounded-full ${i <= decision.impact ? "bg-fuchsia-500" : "bg-notion-light-border dark:bg-notion-dark-border"}`}
+                          className={`w-3 h-1 rounded-full ${i <= decision.impact ? colors.dot : "bg-notion-light-border dark:bg-notion-dark-border"}`}
                         ></div>
                       ))}
                     </div>
                   </div>
                 </div>
-                <div className="text-[10px] font-bold px-2 py-0.5 bg-notion-light-sidebar dark:bg-notion-dark-sidebar rounded-full uppercase tracking-wider">
+                <div
+                  className={`text-[10px] font-bold px-2 py-0.5 ${colors.bg} ${colors.text} rounded-full uppercase tracking-wider`}
+                >
                   {decision.status}
                 </div>
               </div>

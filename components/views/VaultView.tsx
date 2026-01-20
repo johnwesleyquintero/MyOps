@@ -3,6 +3,7 @@ import { VaultEntry } from "../../types";
 import { Icon } from "../Icons";
 import { ViewHeader } from "../ViewHeader";
 import { toast } from "sonner";
+import { MODULE_COLORS } from "../../constants/ui";
 
 interface VaultViewProps {
   entries: VaultEntry[];
@@ -17,6 +18,7 @@ export const VaultView: React.FC<VaultViewProps> = ({
   onSaveEntry,
   onDeleteEntry,
 }) => {
+  const colors = MODULE_COLORS.vault;
   const [showValues, setShowValues] = useState<Record<string, boolean>>({});
   const [isAdding, setIsAdding] = useState(false);
   const [newLabel, setNewLabel] = useState("");
@@ -84,19 +86,25 @@ export const VaultView: React.FC<VaultViewProps> = ({
       >
         <button
           onClick={() => setIsAdding(true)}
-          className="w-full md:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-notion-light-sidebar dark:bg-notion-dark-sidebar border border-notion-light-border dark:border-notion-dark-border text-notion-light-text dark:text-notion-dark-text rounded-2xl font-black text-sm uppercase tracking-widest shadow-sm hover:bg-notion-light-border dark:hover:bg-notion-dark-border transition-all active:scale-95"
+          className={`w-full md:w-auto flex items-center justify-center gap-2 px-6 py-3 ${colors.bg} border ${colors.border} ${colors.text} rounded-2xl font-black text-sm uppercase tracking-widest shadow-sm hover:opacity-90 transition-all active:scale-95`}
         >
           <Icon.Vault size={20} />
           Secure New Item
         </button>
       </ViewHeader>
 
-      <div className="bg-notion-light-sidebar dark:bg-notion-dark-sidebar border border-notion-light-border dark:border-notion-dark-border rounded-2xl p-5 flex items-start gap-4">
-        <div className="p-2.5 bg-notion-light-text/5 dark:bg-notion-dark-text/5 text-notion-light-text dark:text-notion-dark-text rounded-xl shadow-sm">
+      <div
+        className={`bg-notion-light-sidebar dark:bg-notion-dark-sidebar border border-notion-light-border dark:border-notion-dark-border rounded-2xl p-5 flex items-start gap-4`}
+      >
+        <div
+          className={`p-2.5 ${colors.bg} ${colors.text} rounded-xl shadow-sm`}
+        >
           <Icon.Alert size={18} />
         </div>
         <div>
-          <h4 className="text-sm font-black text-notion-light-text dark:text-notion-dark-text uppercase tracking-wider">
+          <h4
+            className={`text-sm font-black ${colors.text} uppercase tracking-wider`}
+          >
             Local Sovereignty
           </h4>
           <p className="text-xs text-notion-light-muted dark:text-notion-dark-muted mt-1 font-medium leading-relaxed">
@@ -108,8 +116,12 @@ export const VaultView: React.FC<VaultViewProps> = ({
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {isAdding && (
-          <div className="bg-notion-light-bg dark:bg-notion-dark-bg border-2 border-dashed border-notion-light-border dark:border-notion-dark-border rounded-3xl p-6 space-y-4 animate-in fade-in zoom-in duration-300">
-            <h3 className="font-black text-xs uppercase tracking-widest text-notion-light-text dark:text-notion-dark-text">
+          <div
+            className={`bg-notion-light-bg dark:bg-notion-dark-bg border-2 border-dashed ${colors.border} rounded-3xl p-6 space-y-4 animate-in fade-in zoom-in duration-300`}
+          >
+            <h3
+              className={`font-black text-xs uppercase tracking-widest ${colors.text}`}
+            >
               Secure New Entry
             </h3>
             <div className="space-y-4">
@@ -121,7 +133,7 @@ export const VaultView: React.FC<VaultViewProps> = ({
                   placeholder="e.g. OpenAI Key"
                   value={newLabel}
                   onChange={(e) => setNewLabel(e.target.value)}
-                  className="w-full px-4 py-3 bg-notion-light-sidebar dark:bg-notion-dark-sidebar border border-notion-light-border dark:border-notion-dark-border rounded-xl outline-none focus:ring-2 focus:ring-notion-light-border dark:focus:ring-notion-dark-border text-sm font-bold text-notion-light-text dark:text-notion-dark-text transition-all"
+                  className={`w-full px-4 py-3 bg-notion-light-sidebar dark:bg-notion-dark-sidebar border border-notion-light-border dark:border-notion-dark-border rounded-xl outline-none focus:ring-2 ${colors.dot.replace("bg-", "ring-")} text-sm font-bold text-notion-light-text dark:text-notion-dark-text transition-all`}
                 />
               </div>
               <div className="space-y-1.5">
@@ -149,14 +161,14 @@ export const VaultView: React.FC<VaultViewProps> = ({
                   placeholder="Paste your secret here..."
                   value={newValue}
                   onChange={(e) => setNewValue(e.target.value)}
-                  className="w-full px-4 py-3 bg-notion-light-sidebar dark:bg-notion-dark-sidebar border border-notion-light-border dark:border-notion-dark-border rounded-xl outline-none focus:ring-2 focus:ring-notion-light-border dark:focus:ring-notion-dark-border text-sm font-bold text-notion-light-text dark:text-notion-dark-text transition-all h-24 resize-none"
+                  className={`w-full px-4 py-3 bg-notion-light-sidebar dark:bg-notion-dark-sidebar border border-notion-light-border dark:border-notion-dark-border rounded-xl outline-none focus:ring-2 ${colors.dot.replace("bg-", "ring-")} text-sm font-bold text-notion-light-text dark:text-notion-dark-text transition-all h-24 resize-none`}
                 />
               </div>
             </div>
             <div className="flex gap-3 pt-2">
               <button
                 onClick={handleAdd}
-                className="flex-1 py-3 bg-notion-light-text dark:bg-notion-dark-text text-notion-light-bg dark:text-notion-dark-bg font-black text-xs uppercase tracking-widest rounded-xl transition-all active:scale-95 shadow-lg"
+                className={`flex-1 py-3 ${colors.bg} text-white font-black text-xs uppercase tracking-widest rounded-xl transition-all active:scale-95 shadow-lg shadow-black/5`}
               >
                 Secure
               </button>
@@ -176,17 +188,19 @@ export const VaultView: React.FC<VaultViewProps> = ({
               .map((_, i) => (
                 <div
                   key={i}
-                  className="h-48 bg-notion-light-sidebar dark:bg-notion-dark-sidebar border border-notion-light-border dark:border-notion-dark-border rounded-3xl animate-pulse"
+                  className={`h-48 bg-notion-light-sidebar dark:bg-notion-dark-sidebar border ${colors.border} rounded-3xl animate-pulse`}
                 ></div>
               ))
           : entries.map((entry) => (
               <div
                 key={entry.id}
-                className="bg-notion-light-bg dark:bg-notion-dark-bg border border-notion-light-border dark:border-notion-dark-border rounded-3xl p-6 shadow-sm group hover:shadow-md transition-all duration-300 animate-in fade-in slide-in-from-bottom-2"
+                className={`bg-notion-light-bg dark:bg-notion-dark-bg border border-notion-light-border dark:border-notion-dark-border rounded-3xl p-6 shadow-sm group hover:shadow-md transition-all duration-300 animate-in fade-in slide-in-from-bottom-2 ${colors.border.replace("border-", "hover:border-")}`}
               >
                 <div className="flex items-start justify-between mb-5">
                   <div>
-                    <span className="text-[10px] font-black text-notion-light-muted dark:text-notion-dark-muted uppercase tracking-widest block mb-1.5 opacity-70">
+                    <span
+                      className={`text-[10px] font-black ${colors.text} uppercase tracking-widest block mb-1.5 opacity-70`}
+                    >
                       {entry.category}
                     </span>
                     <h3 className="font-black text-notion-light-text dark:text-notion-dark-text tracking-tight">
@@ -195,14 +209,16 @@ export const VaultView: React.FC<VaultViewProps> = ({
                   </div>
                   <button
                     onClick={() => handleDelete(entry.id, entry.label)}
-                    className="p-2.5 text-notion-light-muted dark:text-notion-dark-muted hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/10 rounded-xl transition-all opacity-100 md:opacity-0 md:group-hover:opacity-100"
+                    className={`p-2.5 text-notion-light-muted dark:text-notion-dark-muted ${MODULE_COLORS.error.text.replace("text-", "hover:text-")} ${MODULE_COLORS.error.bg.replace("bg-", "hover:bg-")} rounded-xl transition-all opacity-100 md:opacity-0 md:group-hover:opacity-100`}
                   >
                     <Icon.Delete size={18} />
                   </button>
                 </div>
 
                 <div className="relative">
-                  <div className="flex items-center gap-3 p-4 bg-notion-light-sidebar dark:bg-notion-dark-sidebar rounded-2xl border border-notion-light-border dark:border-notion-dark-border group/code transition-colors hover:border-notion-light-text/20 dark:hover:border-notion-dark-text/20">
+                  <div
+                    className={`flex items-center gap-3 p-4 bg-notion-light-sidebar dark:bg-notion-dark-sidebar rounded-2xl border border-notion-light-border dark:border-notion-dark-border group/code transition-colors ${colors.border.replace("border-", "hover:border-")}`}
+                  >
                     <code className="text-xs font-mono text-notion-light-text dark:text-notion-dark-text flex-1 truncate font-bold">
                       {showValues[entry.id]
                         ? entry.value
@@ -211,7 +227,7 @@ export const VaultView: React.FC<VaultViewProps> = ({
                     <div className="flex items-center gap-1.5">
                       <button
                         onClick={() => toggleShow(entry.id)}
-                        className="p-2 text-notion-light-muted dark:text-notion-dark-muted hover:text-notion-light-text dark:hover:text-notion-dark-text hover:bg-notion-light-border dark:hover:bg-notion-dark-border rounded-lg transition-all"
+                        className={`p-2 text-notion-light-muted dark:text-notion-dark-muted ${colors.text.replace("text-", "hover:text-")} ${colors.lightBg.replace("bg-", "hover:bg-")} rounded-lg transition-all`}
                         title={showValues[entry.id] ? "Hide" : "Show"}
                       >
                         {showValues[entry.id] ? (
@@ -224,7 +240,7 @@ export const VaultView: React.FC<VaultViewProps> = ({
                         onClick={() =>
                           copyToClipboard(entry.value, entry.label)
                         }
-                        className="p-2 text-notion-light-muted dark:text-notion-dark-muted hover:text-notion-light-text dark:hover:text-notion-dark-text hover:bg-notion-light-border dark:hover:bg-notion-dark-border rounded-lg transition-all"
+                        className={`p-2 text-notion-light-muted dark:text-notion-dark-muted ${colors.text.replace("text-", "hover:text-")} ${colors.lightBg.replace("bg-", "hover:bg-")} rounded-lg transition-all`}
                         title="Copy to clipboard"
                       >
                         <Icon.Copy size={16} />
@@ -245,11 +261,10 @@ export const VaultView: React.FC<VaultViewProps> = ({
                     </span>
                   </span>
                   <div className="flex -space-x-1 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
-                    <div className="w-5 h-5 rounded-full border-2 border-notion-light-bg dark:border-notion-dark-bg bg-notion-light-sidebar dark:bg-notion-dark-sidebar flex items-center justify-center">
-                      <Icon.Vault
-                        size={10}
-                        className="text-notion-light-muted dark:text-notion-dark-muted"
-                      />
+                    <div
+                      className={`w-5 h-5 rounded-full border-2 border-notion-light-bg dark:border-notion-dark-bg ${colors.bg} flex items-center justify-center`}
+                    >
+                      <Icon.Vault size={10} className="text-white" />
                     </div>
                   </div>
                 </div>

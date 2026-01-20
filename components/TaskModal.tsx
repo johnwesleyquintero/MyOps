@@ -8,6 +8,7 @@ import { useTaskForm } from "../hooks/useTaskForm";
 import { useMarkdownEditor } from "../hooks/useMarkdownEditor";
 import { Icon, iconProps } from "./Icons";
 import { toast } from "sonner";
+import { MODULE_COLORS } from "../constants/ui";
 
 interface TaskModalProps {
   isOpen: boolean;
@@ -30,6 +31,9 @@ export const TaskModal: React.FC<TaskModalProps> = ({
 }) => {
   const { formData, setFormData, isCustomProject, setIsCustomProject } =
     useTaskForm(initialData, entries);
+
+  const successColors = MODULE_COLORS.success;
+  const errorColors = MODULE_COLORS.error;
 
   const [copiedMd, setCopiedMd] = useState(false);
 
@@ -107,7 +111,7 @@ export const TaskModal: React.FC<TaskModalProps> = ({
                   title="Copy Task as Markdown"
                 >
                   {copiedMd ? (
-                    <Icon.Check {...iconProps(14, "text-emerald-500")} />
+                    <Icon.Check {...iconProps(14, successColors.text)} />
                   ) : (
                     <Icon.Copy {...iconProps(14)} />
                   )}
@@ -309,7 +313,7 @@ export const TaskModal: React.FC<TaskModalProps> = ({
               <button
                 type="button"
                 onClick={handleDelete}
-                className="px-3 py-1.5 text-xs font-medium text-red-600 dark:text-red-400 hover:bg-red-500/10 dark:hover:bg-red-500/20 rounded transition-colors"
+                className={`px-3 py-1.5 text-xs font-medium ${errorColors.text} ${errorColors.hoverBg} rounded transition-colors`}
               >
                 Delete
               </button>

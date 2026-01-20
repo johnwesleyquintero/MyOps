@@ -6,6 +6,7 @@ import { Icon } from "../Icons";
 import { useMarkdownEditor } from "../../hooks/useMarkdownEditor";
 import { ViewHeader } from "../ViewHeader";
 import { toast } from "sonner";
+import { MODULE_COLORS } from "../../constants/ui";
 
 interface KnowledgeViewProps {
   notes: Note[];
@@ -24,6 +25,7 @@ export const KnowledgeView: React.FC<KnowledgeViewProps> = ({
   initialSelectedNote,
   initialIsCreating,
 }) => {
+  const colors = MODULE_COLORS.docs;
   const [searchQuery, setSearchQuery] = useState("");
   const [rawSelectedNote, setRawSelectedNote] = useState<Note | null>(
     initialSelectedNote || null,
@@ -168,7 +170,7 @@ export const KnowledgeView: React.FC<KnowledgeViewProps> = ({
       >
         <button
           onClick={handleCreateNew}
-          className="w-full md:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-notion-light-sidebar dark:bg-notion-dark-sidebar border border-notion-light-border dark:border-notion-dark-border text-notion-light-text dark:text-notion-dark-text rounded-2xl font-black text-sm uppercase tracking-widest shadow-sm hover:bg-notion-light-border dark:hover:bg-notion-dark-border transition-all active:scale-95"
+          className={`w-full md:w-auto flex items-center justify-center gap-2 px-6 py-3 ${colors.bg} border ${colors.border} ${colors.text} rounded-2xl font-black text-sm uppercase tracking-widest shadow-sm ${colors.hoverBg} transition-all active:scale-95`}
         >
           <Icon.Add
             size={18}
@@ -184,7 +186,9 @@ export const KnowledgeView: React.FC<KnowledgeViewProps> = ({
           className={`w-full lg:w-80 xl:w-96 flex-shrink-0 space-y-4 ${rawSelectedNote || isEditing ? "hidden lg:block" : "block"}`}
         >
           <div className="relative group">
-            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-notion-light-muted dark:text-notion-dark-muted group-focus-within:text-notion-light-text dark:group-focus-within:text-notion-dark-text transition-colors">
+            <div
+              className={`absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-notion-light-muted dark:text-notion-dark-muted group-focus-within:${colors.text} transition-colors`}
+            >
               <Icon.Search size={16} />
             </div>
             <input
@@ -192,7 +196,7 @@ export const KnowledgeView: React.FC<KnowledgeViewProps> = ({
               placeholder="Search knowledge..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="notion-input w-full pl-11 pr-4 py-2.5 focus:border-notion-light-text/30 dark:focus:border-notion-dark-text/30"
+              className={`notion-input w-full pl-11 pr-4 py-2.5 focus:${colors.border}`}
             />
           </div>
 
@@ -200,12 +204,14 @@ export const KnowledgeView: React.FC<KnowledgeViewProps> = ({
             {isLoading ? (
               <div className="flex justify-center py-12">
                 <Icon.Ai
-                  className="animate-spin text-notion-light-text/30 dark:text-notion-dark-text/30"
+                  className={`animate-spin ${colors.text} opacity-30`}
                   size={24}
                 />
               </div>
             ) : filteredNotes.length === 0 ? (
-              <div className="text-center py-12 px-4 bg-notion-light-sidebar dark:bg-notion-dark-sidebar rounded-xl border border-dashed border-notion-light-border dark:border-notion-dark-border">
+              <div
+                className={`text-center py-12 px-4 ${colors.lightBg} rounded-xl border border-dashed ${colors.border}`}
+              >
                 <p className="notion-label">No documents found</p>
               </div>
             ) : (
@@ -218,14 +224,14 @@ export const KnowledgeView: React.FC<KnowledgeViewProps> = ({
                   }}
                   className={`w-full text-left p-3 rounded-xl border transition-all group/item overflow-hidden ${
                     selectedNote?.id === note.id
-                      ? "bg-notion-light-sidebar dark:bg-notion-dark-sidebar border-notion-light-text/20 dark:border-notion-dark-text/20"
-                      : "bg-notion-light-bg dark:bg-notion-dark-bg border-notion-light-border dark:border-notion-dark-border hover:bg-notion-light-sidebar dark:hover:bg-notion-dark-sidebar"
+                      ? `${colors.bg} ${colors.border} shadow-sm`
+                      : `bg-transparent border-transparent ${colors.lightBg.replace("bg-", "hover:bg-")}`
                   }`}
                 >
                   <h3
                     className={`font-bold text-sm truncate pr-2 ${
                       selectedNote?.id === note.id
-                        ? "text-notion-light-text dark:text-notion-dark-text"
+                        ? colors.text
                         : "text-notion-light-text dark:text-notion-dark-text"
                     }`}
                   >
@@ -245,7 +251,7 @@ export const KnowledgeView: React.FC<KnowledgeViewProps> = ({
                       {note.tags.slice(0, 2).map((tag) => (
                         <span
                           key={tag}
-                          className="px-1.5 py-0.5 bg-notion-light-sidebar dark:bg-notion-dark-sidebar text-notion-light-muted dark:text-notion-dark-muted rounded text-[9px] font-black uppercase tracking-tighter truncate max-w-[60px]"
+                          className={`px-1.5 py-0.5 ${colors.lightBg} ${colors.text} rounded text-[9px] font-black uppercase tracking-tighter truncate max-w-[60px] opacity-70`}
                         >
                           {tag}
                         </span>
@@ -270,13 +276,15 @@ export const KnowledgeView: React.FC<KnowledgeViewProps> = ({
                   setRawSelectedNote(null);
                   setIsEditing(false);
                 }}
-                className="lg:hidden flex items-center gap-2 px-4 py-4 text-notion-light-muted hover:text-notion-light-text border-b border-notion-light-border dark:border-notion-dark-border bg-notion-light-sidebar/10 dark:bg-notion-dark-sidebar/10 active:bg-notion-light-hover dark:active:bg-notion-dark-hover transition-colors w-full text-left font-bold relative z-10"
+                className={`lg:hidden flex items-center gap-2 px-4 py-4 text-notion-light-muted dark:text-notion-dark-muted ${colors.text.replace("text-", "hover:text-")} border-b ${colors.border} ${colors.bg} active:opacity-70 transition-colors w-full text-left font-bold relative z-10`}
               >
                 <Icon.Prev size={16} /> Back to Documents
               </button>
 
               {/* Toolbar */}
-              <div className="px-4 sm:px-6 py-4 border-b border-notion-light-border dark:border-notion-dark-border flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-notion-light-sidebar/50 dark:bg-notion-dark-sidebar/30">
+              <div
+                className={`px-4 sm:px-6 py-4 border-b ${colors.border} flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${colors.lightBg}`}
+              >
                 <div className="flex items-center gap-4 min-w-0">
                   {isEditing ? (
                     <input
@@ -284,10 +292,12 @@ export const KnowledgeView: React.FC<KnowledgeViewProps> = ({
                       value={editTitle}
                       onChange={(e) => setEditTitle(e.target.value)}
                       placeholder="Document Title"
-                      className="bg-transparent border-none outline-none font-black text-xl text-notion-light-text dark:text-notion-dark-text placeholder:text-notion-light-muted/30 w-full"
+                      className={`bg-transparent border-none outline-none font-black text-xl ${colors.text} placeholder:opacity-30 w-full`}
                     />
                   ) : (
-                    <h2 className="font-black text-xl text-notion-light-text dark:text-notion-dark-text uppercase tracking-tight truncate">
+                    <h2
+                      className={`font-black text-xl ${colors.text} uppercase tracking-tight truncate`}
+                    >
                       {selectedNote?.title}
                     </h2>
                   )}
@@ -306,7 +316,7 @@ export const KnowledgeView: React.FC<KnowledgeViewProps> = ({
                       </button>
                       <button
                         onClick={handleSave}
-                        className="notion-button notion-button-primary px-4 py-2 shadow-sm text-[10px] uppercase tracking-widest"
+                        className={`px-4 py-2 ${colors.bg} ${colors.text} ${colors.border} border rounded-lg shadow-sm text-[10px] uppercase tracking-widest font-black hover:opacity-80 transition-opacity`}
                       >
                         Save SOP
                       </button>
@@ -317,8 +327,8 @@ export const KnowledgeView: React.FC<KnowledgeViewProps> = ({
                         onClick={handleCopyMarkdown}
                         className={`p-3 sm:p-2 transition-all flex items-center gap-2 ${
                           isCopied
-                            ? "text-green-500"
-                            : "text-notion-light-muted hover:text-notion-light-text dark:hover:text-notion-dark-text"
+                            ? MODULE_COLORS.crm.text
+                            : `text-notion-light-muted dark:text-notion-dark-muted ${colors.text.replace("text-", "hover:text-")}`
                         }`}
                         title="Copy to Markdown"
                       >
@@ -338,7 +348,7 @@ export const KnowledgeView: React.FC<KnowledgeViewProps> = ({
                           }
                           setIsEditing(true);
                         }}
-                        className="p-3 sm:p-2 text-notion-light-muted hover:text-notion-light-text dark:hover:text-notion-dark-text transition-colors"
+                        className={`p-3 sm:p-2 text-notion-light-muted dark:text-notion-dark-muted ${colors.text.replace("text-", "hover:text-")} transition-colors`}
                         title="Edit Document"
                       >
                         <Icon.Edit size={18} />
@@ -348,7 +358,7 @@ export const KnowledgeView: React.FC<KnowledgeViewProps> = ({
                           selectedNote &&
                           handleDelete(selectedNote.id, selectedNote.title)
                         }
-                        className="p-3 sm:p-2 text-notion-light-muted hover:text-red-600 dark:hover:text-red-400 transition-colors"
+                        className={`p-3 sm:p-2 text-notion-light-muted dark:text-notion-dark-muted ${MODULE_COLORS.error.text.replace("text-", "hover:text-")} transition-colors`}
                         title="Delete Document"
                       >
                         <Icon.Delete size={18} />
@@ -363,44 +373,46 @@ export const KnowledgeView: React.FC<KnowledgeViewProps> = ({
                 {isEditing ? (
                   <div className="space-y-4 flex-1 flex flex-col">
                     {/* Markdown Toolbar */}
-                    <div className="flex flex-wrap items-center gap-1 p-1 bg-notion-light-sidebar dark:bg-notion-dark-sidebar rounded-lg w-fit border border-notion-light-border dark:border-notion-dark-border">
+                    <div
+                      className={`flex flex-wrap items-center gap-1 p-1 ${colors.lightBg} rounded-lg w-fit border ${colors.border}`}
+                    >
                       <button
                         onClick={() => applyFormat("bold")}
-                        className="p-1.5 hover:bg-notion-light-bg dark:hover:bg-notion-dark-bg text-notion-light-text dark:text-notion-dark-text rounded transition-all"
+                        className={`p-1.5 ${colors.bg.replace("bg-", "hover:bg-")} ${colors.text} rounded transition-all`}
                         title="Bold"
                       >
                         <Icon.Bold size={14} />
                       </button>
                       <button
                         onClick={() => applyFormat("italic")}
-                        className="p-1.5 hover:bg-notion-light-bg dark:hover:bg-notion-dark-bg text-notion-light-text dark:text-notion-dark-text rounded transition-all"
+                        className={`p-1.5 ${colors.bg.replace("bg-", "hover:bg-")} ${colors.text} rounded transition-all`}
                         title="Italic"
                       >
                         <Icon.Italic size={14} />
                       </button>
                       <button
                         onClick={() => applyFormat("h1")}
-                        className="p-1.5 hover:bg-notion-light-bg dark:hover:bg-notion-dark-bg text-notion-light-text dark:text-notion-dark-text rounded transition-all font-black text-[10px]"
+                        className={`p-1.5 ${colors.bg.replace("bg-", "hover:bg-")} ${colors.text} rounded transition-all font-black text-[10px]`}
                       >
                         H1
                       </button>
                       <button
                         onClick={() => applyFormat("h2")}
-                        className="p-1.5 hover:bg-notion-light-bg dark:hover:bg-notion-dark-bg text-notion-light-text dark:text-notion-dark-text rounded transition-all font-black text-[10px]"
+                        className={`p-1.5 ${colors.bg.replace("bg-", "hover:bg-")} ${colors.text} rounded transition-all font-black text-[10px]`}
                       >
                         H2
                       </button>
                       <button
                         onClick={() => applyFormat("list")}
-                        className="p-1.5 hover:bg-notion-light-bg dark:hover:bg-notion-dark-bg text-notion-light-text dark:text-notion-dark-text rounded transition-all"
+                        className={`p-1.5 ${colors.bg.replace("bg-", "hover:bg-")} ${colors.text} rounded transition-all`}
                         title="List"
                       >
                         <Icon.List size={14} />
                       </button>
-                      <div className="w-px h-3 bg-notion-light-border dark:bg-notion-dark-border mx-1"></div>
+                      <div className={`w-px h-3 ${colors.border} mx-1`}></div>
                       <button
                         onClick={() => applyFormat("check")}
-                        className="p-1.5 hover:bg-notion-light-bg dark:hover:bg-notion-dark-bg text-notion-light-text dark:text-notion-dark-text rounded transition-all"
+                        className={`p-1.5 ${colors.bg.replace("bg-", "hover:bg-")} ${colors.text} rounded transition-all`}
                         title="Task List"
                       >
                         <Icon.Check size={14} />
@@ -411,7 +423,9 @@ export const KnowledgeView: React.FC<KnowledgeViewProps> = ({
                       {/* Editor */}
                       <div className="space-y-2 flex flex-col">
                         <div className="flex items-center justify-between px-1">
-                          <span className="text-[10px] font-black uppercase tracking-widest text-notion-light-muted/50 dark:text-notion-dark-muted/50">
+                          <span
+                            className={`text-[10px] font-black uppercase tracking-widest ${colors.text} opacity-50`}
+                          >
                             Markdown Editor
                           </span>
                         </div>
@@ -420,19 +434,25 @@ export const KnowledgeView: React.FC<KnowledgeViewProps> = ({
                           value={editContent}
                           onChange={(e) => setEditContent(e.target.value)}
                           placeholder="Write your SOP here using markdown..."
-                          className="w-full flex-1 min-h-[300px] xl:min-h-0 bg-notion-light-sidebar/20 dark:bg-notion-dark-sidebar/20 rounded-xl p-4 outline-none resize-none font-mono text-sm leading-relaxed text-notion-light-text dark:text-notion-dark-text placeholder:text-notion-light-muted/30 border border-notion-light-border/30 dark:border-notion-dark-border/30 focus:border-notion-light-text/20 dark:focus:border-notion-dark-text/20 transition-all"
+                          className={`w-full flex-1 min-h-[300px] xl:min-h-0 ${colors.bg} rounded-xl p-4 outline-none resize-none font-mono text-sm leading-relaxed ${colors.text} placeholder:opacity-30 border ${colors.border} focus:opacity-100 transition-all`}
                         />
                       </div>
 
                       {/* Live Preview */}
                       <div className="space-y-2 flex flex-col">
                         <div className="flex items-center justify-between px-1">
-                          <span className="text-[10px] font-black uppercase tracking-widest text-notion-light-muted/50 dark:text-notion-dark-muted/50">
+                          <span
+                            className={`text-[10px] font-black uppercase tracking-widest ${colors.text} opacity-50`}
+                          >
                             Live Preview
                           </span>
                         </div>
-                        <div className="w-full flex-1 min-h-[300px] xl:min-h-0 overflow-y-auto bg-notion-light-sidebar/10 dark:bg-notion-dark-sidebar/10 rounded-xl p-6 border border-dashed border-notion-light-border dark:border-notion-dark-border markdown-preview">
-                          <div className="prose prose-sm dark:prose-invert max-w-none text-notion-light-text dark:text-notion-dark-text leading-relaxed">
+                        <div
+                          className={`w-full flex-1 min-h-[300px] xl:min-h-0 overflow-y-auto ${colors.lightBg} rounded-xl p-6 border border-dashed ${colors.border} markdown-preview`}
+                        >
+                          <div
+                            className={`prose prose-sm dark:prose-invert max-w-none ${colors.text} leading-relaxed`}
+                          >
                             <ReactMarkdown remarkPlugins={[remarkGfm]}>
                               {editContent || "_No content to preview_"}
                             </ReactMarkdown>
@@ -441,12 +461,9 @@ export const KnowledgeView: React.FC<KnowledgeViewProps> = ({
                       </div>
                     </div>
 
-                    <div className="pt-4 border-t border-notion-light-border dark:border-notion-dark-border">
+                    <div className={`pt-4 border-t ${colors.border}`}>
                       <div className="flex items-center gap-2 mb-2">
-                        <Icon.Tag
-                          size={14}
-                          className="text-notion-light-muted"
-                        />
+                        <Icon.Tag size={14} className={colors.text} />
                         <span className="notion-label">Tags</span>
                       </div>
                       <input
@@ -461,7 +478,7 @@ export const KnowledgeView: React.FC<KnowledgeViewProps> = ({
                           )
                         }
                         placeholder="e.g. operational, SOP, marketing"
-                        className="notion-input w-full px-4 py-2 focus:border-notion-light-text/30 dark:focus:border-notion-dark-text/30"
+                        className={`notion-input w-full px-4 py-2 focus:${colors.border}`}
                       />
                     </div>
                   </div>
@@ -471,13 +488,15 @@ export const KnowledgeView: React.FC<KnowledgeViewProps> = ({
                       {selectedNote?.tags.map((tag) => (
                         <span
                           key={tag}
-                          className="notion-badge bg-notion-light-sidebar dark:bg-notion-dark-sidebar text-notion-light-muted dark:text-notion-dark-muted border-notion-light-border dark:border-notion-dark-border"
+                          className={`px-3 py-1 ${colors.lightBg} ${colors.text} border ${colors.border} rounded-lg text-[10px] font-black uppercase tracking-widest`}
                         >
                           {tag}
                         </span>
                       ))}
                     </div>
-                    <div className="prose prose-sm dark:prose-invert max-w-none text-notion-light-text dark:text-notion-dark-text leading-relaxed overflow-x-auto">
+                    <div
+                      className={`prose prose-sm dark:prose-invert max-w-none ${colors.text} leading-relaxed overflow-x-auto`}
+                    >
                       <ReactMarkdown remarkPlugins={[remarkGfm]}>
                         {selectedNote?.content || "No content available."}
                       </ReactMarkdown>
@@ -487,14 +506,20 @@ export const KnowledgeView: React.FC<KnowledgeViewProps> = ({
               </div>
             </div>
           ) : (
-            <div className="h-[600px] flex flex-col items-center justify-center bg-notion-light-sidebar/30 dark:bg-notion-dark-sidebar/10 border border-dashed border-notion-light-border dark:border-notion-dark-border rounded-3xl p-12 text-center">
-              <div className="w-16 h-16 bg-notion-light-sidebar dark:bg-notion-dark-sidebar rounded-2xl flex items-center justify-center mb-6 border border-notion-light-border dark:border-notion-dark-border">
+            <div
+              className={`h-[600px] flex flex-col items-center justify-center ${colors.lightBg} border border-dashed ${colors.border} rounded-3xl p-12 text-center`}
+            >
+              <div
+                className={`w-16 h-16 ${colors.bg} rounded-2xl flex items-center justify-center mb-6 border ${colors.border}`}
+              >
                 <Icon.Knowledge
-                  className="text-notion-light-text/40 dark:text-notion-dark-text/40"
+                  className={`${colors.text} opacity-40`}
                   size={32}
                 />
               </div>
-              <h2 className="text-xl font-black text-notion-light-text dark:text-notion-dark-text mb-2 uppercase tracking-tight">
+              <h2
+                className={`text-xl font-black ${colors.text} mb-2 uppercase tracking-tight`}
+              >
                 Select a Document
               </h2>
               <p className="text-notion-light-muted dark:text-notion-dark-muted max-w-xs font-medium text-sm">

@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { useTableColumns, ColumnConfig } from "../../hooks/useTableColumns";
 import { COLUMN_CONFIG_KEY } from "../../constants/storage";
 import { ColumnConfigDropdown } from "../ColumnConfigDropdown";
+import { MODULE_COLORS } from "@/constants";
 
 const DEFAULT_COLUMNS = [
   { key: "date", label: "Due", visible: true, width: "w-32" },
@@ -87,6 +88,10 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     COLUMN_CONFIG_KEY,
   );
 
+  const colors = MODULE_COLORS.tasks;
+  const copilotColors = MODULE_COLORS.ai;
+  const operatorColors = MODULE_COLORS.sovereign;
+
   return (
     <div className="animate-fade-in space-y-8">
       <ViewHeader
@@ -99,7 +104,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         <div className="lg:col-span-2">
           <SummaryCards metrics={metrics} />
         </div>
-        <div className="notion-card p-6 bg-gradient-to-br from-blue-600 to-indigo-700 dark:from-blue-700 dark:to-indigo-900 text-white border-none shadow-lg relative overflow-hidden group flex flex-col justify-center">
+        <div
+          className={`notion-card p-6 bg-gradient-to-br from-${operatorColors.text.split("-")[1]}-600 to-${colors.text.split("-")[1]}-700 dark:from-${operatorColors.text.split("-")[1]}-700 dark:to-${colors.text.split("-")[1]}-900 text-white border-none shadow-lg relative overflow-hidden group flex flex-col justify-center`}
+        >
           <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:scale-110 transition-transform duration-500">
             <Icon.Rank size={120} />
           </div>
@@ -138,7 +145,12 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                     Streak
                   </span>
                   <div className="flex items-center gap-2">
-                    <Icon.Streak size={16} className="text-orange-400" />
+                    <Icon.Streak
+                      size={16}
+                      className={MODULE_COLORS.awareness.text
+                        .split(" ")[0]
+                        .replace("text-", "text-")}
+                    />
                     <span className="text-lg font-bold">
                       {operatorMetrics.streak}d
                     </span>
@@ -149,7 +161,12 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                     Artifacts
                   </span>
                   <div className="flex items-center gap-2">
-                    <Icon.Vault size={16} className="text-emerald-400" />
+                    <Icon.Vault
+                      size={16}
+                      className={MODULE_COLORS.crm.text
+                        .split(" ")[0]
+                        .replace("text-", "text-")}
+                    />
                     <span className="text-lg font-bold">
                       {operatorMetrics.artifactsGained}
                     </span>
@@ -173,9 +190,11 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           <div className="grid grid-cols-2 gap-3">
             <button
               onClick={onOpenCreate}
-              className="flex flex-col items-center justify-center p-4 bg-notion-light-sidebar dark:bg-notion-dark-sidebar rounded-2xl border border-notion-light-border dark:border-notion-dark-border hover:border-blue-500/50 dark:hover:border-blue-400/50 hover:bg-blue-50/30 dark:hover:bg-blue-900/10 transition-all group"
+              className={`flex flex-col items-center justify-center p-4 bg-notion-light-sidebar dark:bg-notion-dark-sidebar rounded-2xl border border-notion-light-border dark:border-notion-dark-border ${MODULE_COLORS.sovereign.border.replace(/border-/g, "hover:border-")} ${MODULE_COLORS.sovereign.hoverBg} transition-all group`}
             >
-              <div className="p-2 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-lg mb-2 group-hover:scale-110 transition-transform">
+              <div
+                className={`p-2 ${MODULE_COLORS.sovereign.lightBg} ${MODULE_COLORS.sovereign.text} rounded-lg mb-2 group-hover:scale-110 transition-transform`}
+              >
                 <Icon.Plus size={18} />
               </div>
               <span className="text-[10px] font-bold uppercase tracking-widest text-notion-light-text dark:text-notion-dark-text">
@@ -184,9 +203,11 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             </button>
             <button
               onClick={() => onNavigate("KNOWLEDGE")}
-              className="flex flex-col items-center justify-center p-4 bg-notion-light-sidebar dark:bg-notion-dark-sidebar rounded-2xl border border-notion-light-border dark:border-notion-dark-border hover:border-amber-500/50 dark:hover:border-amber-400/50 hover:bg-amber-50/30 dark:hover:bg-amber-900/10 transition-all group"
+              className={`flex flex-col items-center justify-center p-4 bg-notion-light-sidebar dark:bg-notion-dark-sidebar rounded-2xl border border-notion-light-border dark:border-notion-dark-border ${MODULE_COLORS.docs.border.replace(/border-/g, "hover:border-")} ${MODULE_COLORS.docs.hoverBg} transition-all group`}
             >
-              <div className="p-2 bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 rounded-lg mb-2 group-hover:scale-110 transition-transform">
+              <div
+                className={`p-2 ${MODULE_COLORS.docs.lightBg} ${MODULE_COLORS.docs.text} rounded-lg mb-2 group-hover:scale-110 transition-transform`}
+              >
                 <Icon.Notes size={18} />
               </div>
               <span className="text-[10px] font-bold uppercase tracking-widest text-notion-light-text dark:text-notion-dark-text">
@@ -195,9 +216,11 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             </button>
             <button
               onClick={() => onNavigate("CRM")}
-              className="flex flex-col items-center justify-center p-4 bg-notion-light-sidebar dark:bg-notion-dark-sidebar rounded-2xl border border-notion-light-border dark:border-notion-dark-border hover:border-emerald-500/50 dark:hover:border-emerald-400/50 hover:bg-emerald-50/30 dark:hover:bg-emerald-900/10 transition-all group"
+              className={`flex flex-col items-center justify-center p-4 bg-notion-light-sidebar dark:bg-notion-dark-sidebar rounded-2xl border border-notion-light-border dark:border-notion-dark-border ${MODULE_COLORS.crm.border.replace(/border-/g, "hover:border-")} ${MODULE_COLORS.crm.hoverBg} transition-all group`}
             >
-              <div className="p-2 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 rounded-lg mb-2 group-hover:scale-110 transition-transform">
+              <div
+                className={`p-2 ${MODULE_COLORS.crm.lightBg} ${MODULE_COLORS.crm.text} rounded-lg mb-2 group-hover:scale-110 transition-transform`}
+              >
                 <Icon.Contacts size={18} />
               </div>
               <span className="text-[10px] font-bold uppercase tracking-widest text-notion-light-text dark:text-notion-dark-text">
@@ -206,9 +229,11 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             </button>
             <button
               onClick={() => onNavigate("VAULT")}
-              className="flex flex-col items-center justify-center p-4 bg-notion-light-sidebar dark:bg-notion-dark-sidebar rounded-2xl border border-notion-light-border dark:border-notion-dark-border hover:border-purple-500/50 dark:hover:border-purple-400/50 hover:bg-purple-50/30 dark:hover:bg-purple-900/10 transition-all group"
+              className={`flex flex-col items-center justify-center p-4 bg-notion-light-sidebar dark:bg-notion-dark-sidebar rounded-2xl border border-notion-light-border dark:border-notion-dark-border ${MODULE_COLORS.vault.border.replace(/border-/g, "hover:border-")} ${MODULE_COLORS.vault.hoverBg} transition-all group`}
             >
-              <div className="p-2 bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 rounded-lg mb-2 group-hover:scale-110 transition-transform">
+              <div
+                className={`p-2 ${MODULE_COLORS.vault.lightBg} ${MODULE_COLORS.vault.text} rounded-lg mb-2 group-hover:scale-110 transition-transform`}
+              >
                 <Icon.Vault size={18} />
               </div>
               <span className="text-[10px] font-bold uppercase tracking-widest text-notion-light-text dark:text-notion-dark-text">
@@ -220,24 +245,30 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
         {/* intelligence */}
         <div className="lg:col-span-2 flex flex-col gap-6">
-          <div className="bg-notion-light-sidebar dark:bg-notion-dark-sidebar p-6 rounded-2xl border border-notion-light-border dark:border-notion-dark-border shadow-sm hover:shadow-md transition-shadow duration-300 relative overflow-hidden flex-1">
-            <div className="absolute top-0 right-0 p-4 opacity-5">
+          <div className="bg-notion-light-sidebar dark:bg-notion-dark-sidebar p-6 rounded-2xl border border-notion-light-border dark:border-notion-dark-border shadow-sm hover:shadow-md transition-shadow duration-300 relative overflow-hidden flex-1 group">
+            <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:scale-110 transition-transform duration-500">
               <Icon.Ai size={80} />
             </div>
             <div className="flex items-center gap-3 mb-4">
-              <div className="p-2 bg-blue-600 text-white rounded-lg shadow-lg shadow-blue-500/20">
+              <div
+                className={`p-2 ${copilotColors.lightBg} ${copilotColors.text} rounded-lg shadow-sm border ${copilotColors.border}`}
+              >
                 <Icon.Ai {...iconProps(18)} />
               </div>
               <div>
                 <h3 className="font-bold text-sm text-notion-light-text dark:text-notion-dark-text tracking-tight">
                   WesAI Briefing
                 </h3>
-                <span className="text-[9px] font-black uppercase tracking-widest text-blue-500">
+                <span
+                  className={`inline-flex items-center px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-widest ${copilotColors.bg} ${copilotColors.text} border ${copilotColors.border}`}
+                >
                   Agentic Co-Pilot Active
                 </span>
               </div>
             </div>
-            <p className="text-sm text-notion-light-text/80 dark:text-notion-dark-text/80 mb-6 leading-relaxed italic border-l-2 border-blue-500/30 pl-4 py-1">
+            <p
+              className={`text-sm text-notion-light-text/80 dark:text-notion-dark-text/80 mb-6 leading-relaxed italic border-l-2 ${copilotColors.border.split(" ")[0]}/30 pl-4 py-1`}
+            >
               "We've got {tacticalFocus.length} high-impact targets identified
               for immediate execution. Your current streak is{" "}
               {operatorMetrics.streak} days—let's keep the momentum."
@@ -250,7 +281,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   icon: <Icon.Ai size={14} />,
                 });
               }}
-              className="notion-button bg-blue-600 hover:bg-blue-700 text-white border-none w-full justify-center text-[10px] font-black uppercase tracking-[0.2em] shadow-lg shadow-blue-500/20 active:scale-[0.98] transition-all"
+              className={`notion-button bg-violet-600 dark:bg-violet-500 hover:bg-violet-700 dark:hover:bg-violet-600 text-white border-none w-full justify-center text-[10px] font-black uppercase tracking-[0.2em] shadow-lg shadow-violet-500/20 active:scale-[0.98] transition-all`}
             >
               LAUNCH CO-PILOT SESSION &rarr;
             </button>
@@ -294,11 +325,11 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               columns={columns}
               toggleColumn={toggleColumn}
               label="Columns"
-              className="text-notion-light-muted dark:text-notion-dark-muted text-[10px] font-black uppercase tracking-widest hover:text-blue-500 dark:hover:text-blue-400 flex items-center gap-2 transition-all group bg-notion-light-sidebar dark:bg-notion-dark-sidebar px-4 py-2 rounded-xl border border-notion-light-border dark:border-notion-dark-border shadow-sm"
+              className={`text-notion-light-text/60 dark:text-notion-dark-text/60 text-[10px] font-black uppercase tracking-widest ${colors.text.replace("text-", "hover:text-").split(" ")[0]} dark:${colors.text.replace("text-", "hover:text-").split(" ")[0]} flex items-center gap-2 transition-all group bg-notion-light-sidebar dark:bg-notion-dark-sidebar px-4 py-2 rounded-xl border border-notion-light-border dark:border-notion-dark-border shadow-sm`}
             />
             <button
               onClick={() => onNavigate("MISSIONS")}
-              className="text-notion-light-muted dark:text-notion-dark-muted text-[10px] font-black uppercase tracking-widest hover:text-blue-500 dark:hover:text-blue-400 flex items-center gap-2 transition-all group bg-notion-light-sidebar dark:bg-notion-dark-sidebar px-4 py-2 rounded-xl border border-notion-light-border dark:border-notion-dark-border shadow-sm"
+              className={`text-notion-light-text/60 dark:text-notion-dark-text/60 text-[10px] font-black uppercase tracking-widest ${colors.text.replace("text-", "hover:text-").split(" ")[0]} dark:${colors.text.replace("text-", "hover:text-").split(" ")[0]} flex items-center gap-2 transition-all group bg-notion-light-sidebar dark:bg-notion-dark-sidebar px-4 py-2 rounded-xl border border-notion-light-border dark:border-notion-dark-border shadow-sm`}
             >
               Full Board{" "}
               <Icon.Layout
@@ -327,7 +358,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           />
           {tacticalFocus.length === 0 && !isLoading && (
             <div className="p-20 text-center bg-notion-light-sidebar/30 dark:bg-notion-dark-sidebar/10">
-              <div className="inline-flex p-6 bg-emerald-500/10 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 rounded-full mb-6 animate-pulse">
+              <div
+                className={`inline-flex p-6 ${MODULE_COLORS.status_active.lightBg} ${MODULE_COLORS.status_active.text} rounded-full mb-6 animate-pulse`}
+              >
                 <Icon.Check {...iconProps(48)} />
               </div>
               <h4 className="text-lg font-bold text-notion-light-text dark:text-notion-dark-text mb-2">

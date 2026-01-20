@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { AssetEntry } from "../types";
 import { Icon, iconProps } from "./Icons";
 import { toast } from "sonner";
+import { MODULE_COLORS } from "@/constants";
 
 interface AssetModalProps {
   isOpen: boolean;
@@ -35,6 +36,8 @@ export const AssetModal: React.FC<AssetModalProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [prevInitialData, setPrevInitialData] = useState(initialData);
   const [prevIsOpen, setPrevIsOpen] = useState(isOpen);
+
+  const colors = MODULE_COLORS.assets;
 
   // Sync form data when initialData or isOpen changes (render-phase sync to avoid cascading renders)
   if (initialData !== prevInitialData || isOpen !== prevIsOpen) {
@@ -80,18 +83,20 @@ export const AssetModal: React.FC<AssetModalProps> = ({
     >
       <div className="bg-notion-light-bg dark:bg-notion-dark-bg w-full max-w-xl shadow-2xl flex flex-col overflow-hidden animate-in zoom-in-95 duration-200 rounded-2xl border border-notion-light-border dark:border-notion-dark-border">
         {/* Modal Header */}
-        <div className="px-6 py-4 border-b border-notion-light-border dark:border-notion-dark-border flex items-center justify-between bg-notion-light-sidebar dark:bg-notion-dark-sidebar">
+        <div
+          className={`px-6 py-4 border-b ${colors.border} flex items-center justify-between ${colors.lightBg}`}
+        >
           <div className="flex items-center gap-3">
-            <span className="text-notion-light-muted dark:text-notion-dark-muted">
+            <span className={colors.text}>
               <Icon.Project {...iconProps(18)} />
             </span>
-            <h2 className="text-sm font-semibold text-notion-light-text dark:text-notion-dark-text">
+            <h2 className={`text-sm font-semibold ${colors.text}`}>
               {initialData ? "Edit Asset" : "New Asset"}
             </h2>
           </div>
           <button
             onClick={onClose}
-            className="p-1 hover:bg-notion-light-border dark:hover:bg-notion-dark-border rounded-md transition-colors"
+            className={`p-1 hover:${colors.bg} rounded-md transition-colors`}
           >
             <Icon.Close {...iconProps(16)} />
           </button>
@@ -112,7 +117,7 @@ export const AssetModal: React.FC<AssetModalProps> = ({
                 onChange={(e) =>
                   setFormData({ ...formData, title: e.target.value })
                 }
-                className="w-full bg-notion-light-sidebar dark:bg-notion-dark-sidebar border border-notion-light-border dark:border-notion-dark-border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-notion-light-text/20 transition-all"
+                className={`w-full bg-notion-light-sidebar dark:bg-notion-dark-sidebar border border-notion-light-border dark:border-notion-dark-border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-1 focus:${colors.border} transition-all`}
                 placeholder="Asset name..."
               />
             </div>
@@ -131,7 +136,7 @@ export const AssetModal: React.FC<AssetModalProps> = ({
                       type: e.target.value as AssetEntry["type"],
                     })
                   }
-                  className="w-full bg-notion-light-sidebar dark:bg-notion-dark-sidebar border border-notion-light-border dark:border-notion-dark-border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-notion-light-text/20 transition-all appearance-none"
+                  className={`w-full bg-notion-light-sidebar dark:bg-notion-dark-sidebar border border-notion-light-border dark:border-notion-dark-border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-1 focus:${colors.border} transition-all appearance-none`}
                 >
                   {ASSET_TYPES.map((t) => (
                     <option key={t} value={t}>
@@ -154,7 +159,7 @@ export const AssetModal: React.FC<AssetModalProps> = ({
                       status: e.target.value as AssetEntry["status"],
                     })
                   }
-                  className="w-full bg-notion-light-sidebar dark:bg-notion-dark-sidebar border border-notion-light-border dark:border-notion-dark-border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-notion-light-text/20 transition-all appearance-none"
+                  className={`w-full bg-notion-light-sidebar dark:bg-notion-dark-sidebar border border-notion-light-border dark:border-notion-dark-border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-1 focus:${colors.border} transition-all appearance-none`}
                 >
                   {ASSET_STATUSES.map((s) => (
                     <option key={s} value={s}>
@@ -185,8 +190,8 @@ export const AssetModal: React.FC<AssetModalProps> = ({
                       }
                       className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all ${
                         formData.reusabilityScore === score
-                          ? "bg-lime-500 text-white"
-                          : "bg-notion-light-sidebar dark:bg-notion-dark-sidebar hover:bg-notion-light-border dark:hover:bg-notion-dark-border"
+                          ? `${colors.bg} ${colors.text} border ${colors.border}`
+                          : `bg-notion-light-sidebar dark:bg-notion-dark-sidebar ${colors.hoverBg}`
                       }`}
                     >
                       {score}
@@ -214,8 +219,8 @@ export const AssetModal: React.FC<AssetModalProps> = ({
                       }
                       className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all ${
                         formData.monetizationPotential === score
-                          ? "bg-emerald-500 text-white"
-                          : "bg-notion-light-sidebar dark:bg-notion-dark-sidebar hover:bg-notion-light-border dark:hover:bg-notion-dark-border"
+                          ? `${colors.bg} ${colors.text} border ${colors.border}`
+                          : `bg-notion-light-sidebar dark:bg-notion-dark-sidebar ${colors.hoverBg}`
                       }`}
                     >
                       {score}
@@ -230,9 +235,9 @@ export const AssetModal: React.FC<AssetModalProps> = ({
               <label className="text-[10px] font-bold uppercase tracking-widest text-notion-light-muted dark:text-notion-dark-muted">
                 Reference Link
               </label>
-              <div className="relative">
+              <div className="relative group">
                 <Icon.Link
-                  className="absolute left-3 top-1/2 -translate-y-1/2 text-notion-light-muted"
+                  className={`absolute left-3 top-1/2 -translate-y-1/2 text-notion-light-muted group-focus-within:${colors.text} transition-colors`}
                   size={14}
                 />
                 <input
@@ -241,7 +246,7 @@ export const AssetModal: React.FC<AssetModalProps> = ({
                   onChange={(e) =>
                     setFormData({ ...formData, link: e.target.value })
                   }
-                  className="w-full bg-notion-light-sidebar dark:bg-notion-dark-sidebar border border-notion-light-border dark:border-notion-dark-border rounded-xl pl-9 pr-4 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-notion-light-text/20 transition-all"
+                  className={`w-full bg-notion-light-sidebar dark:bg-notion-dark-sidebar border border-notion-light-border dark:border-notion-dark-border rounded-xl pl-9 pr-4 py-2.5 text-sm focus:outline-none focus:ring-1 focus:${colors.border} transition-all`}
                   placeholder="https://..."
                 />
               </div>
@@ -257,24 +262,26 @@ export const AssetModal: React.FC<AssetModalProps> = ({
                 onChange={(e) =>
                   setFormData({ ...formData, notes: e.target.value })
                 }
-                className="w-full bg-notion-light-sidebar dark:bg-notion-dark-sidebar border border-notion-light-border dark:border-notion-dark-border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-notion-light-text/20 transition-all min-h-[100px] resize-none"
+                className={`w-full bg-notion-light-sidebar dark:bg-notion-dark-sidebar border border-notion-light-border dark:border-notion-dark-border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-1 focus:${colors.border} transition-all min-h-[100px] resize-none`}
                 placeholder="Describe the asset, how to use it, etc..."
               />
             </div>
           </div>
 
-          <div className="flex items-center justify-end gap-3 pt-4 border-t border-notion-light-border dark:border-notion-dark-border">
+          <div
+            className={`flex items-center justify-end gap-3 pt-4 border-t ${colors.border}`}
+          >
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-xs font-bold uppercase tracking-widest text-notion-light-muted hover:text-notion-light-text dark:text-notion-dark-muted dark:hover:text-notion-dark-text transition-colors"
+              className={`px-4 py-2 text-xs font-bold uppercase tracking-widest text-notion-light-muted hover:${colors.text} transition-colors`}
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="flex items-center gap-2 px-6 py-2 bg-notion-light-text dark:bg-notion-dark-text text-notion-light-bg dark:text-notion-dark-bg rounded-xl text-[10px] font-bold uppercase tracking-widest hover:opacity-90 transition-all active:scale-95 disabled:opacity-50"
+              className={`flex items-center gap-2 px-6 py-2 ${colors.bg} ${colors.text} border ${colors.border} rounded-xl text-[10px] font-bold uppercase tracking-widest ${colors.hoverBg} transition-all active:scale-95 disabled:opacity-50`}
             >
               {isSubmitting ? (
                 <div className="w-3 h-3 border-2 border-current border-t-transparent rounded-full animate-spin" />

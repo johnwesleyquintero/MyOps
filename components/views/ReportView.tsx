@@ -3,6 +3,7 @@ import { Icon, iconProps } from "../Icons";
 import { ViewHeader } from "../ViewHeader";
 import { toast } from "sonner";
 import reportData from "../../code-check-report.json";
+import { MODULE_COLORS } from "@/constants";
 
 interface CheckResult {
   name: string;
@@ -67,9 +68,11 @@ export const ReportView: React.FC = () => {
 
   if (error) {
     return (
-      <div className="p-8 text-center bg-notion-light-sidebar dark:bg-notion-dark-sidebar rounded-2xl border border-red-500/20 dark:border-red-500/10">
+      <div
+        className={`p-8 text-center bg-notion-light-sidebar dark:bg-notion-dark-sidebar rounded-2xl border ${MODULE_COLORS.error.border}`}
+      >
         <Icon.Alert
-          className="mx-auto mb-4 text-red-600 dark:text-red-400"
+          className={`mx-auto mb-4 ${MODULE_COLORS.error.text}`}
           size={32}
         />
         <h3 className="text-lg font-bold text-notion-light-text dark:text-notion-dark-text mb-2">
@@ -98,7 +101,7 @@ export const ReportView: React.FC = () => {
           onClick={handleCopyMd}
           className={`notion-button w-full sm:w-auto justify-center transition-all ${
             copied
-              ? "bg-emerald-500/10 dark:bg-emerald-500/20 border border-emerald-500/30 dark:border-emerald-500/40 text-emerald-600 dark:text-emerald-400"
+              ? `${MODULE_COLORS.crm.bg} ${MODULE_COLORS.crm.border} ${MODULE_COLORS.crm.text}`
               : "notion-button-ghost border border-notion-light-border dark:border-notion-dark-border"
           }`}
         >
@@ -122,8 +125,8 @@ export const ReportView: React.FC = () => {
             key={idx}
             className={`p-4 rounded-2xl border transition-all duration-300 ${
               res.success
-                ? "bg-notion-light-bg dark:bg-notion-dark-bg border-emerald-500/20 dark:border-emerald-500/10"
-                : "bg-notion-light-bg dark:bg-notion-dark-bg border-red-500/20 dark:border-red-500/10"
+                ? `bg-notion-light-bg dark:bg-notion-dark-bg ${MODULE_COLORS.crm.border}`
+                : `bg-notion-light-bg dark:bg-notion-dark-bg ${MODULE_COLORS.error.border}`
             }`}
           >
             <div className="flex items-center justify-between mb-2">
@@ -131,9 +134,9 @@ export const ReportView: React.FC = () => {
                 Check Unit
               </span>
               {res.success ? (
-                <Icon.Completed className="text-emerald-500" size={16} />
+                <Icon.Completed className={MODULE_COLORS.crm.text} size={16} />
               ) : (
-                <Icon.Alert className="text-red-500" size={16} />
+                <Icon.Alert className={MODULE_COLORS.error.text} size={16} />
               )}
             </div>
             <h3 className="text-sm font-bold text-notion-light-text dark:text-notion-dark-text">
@@ -155,7 +158,7 @@ export const ReportView: React.FC = () => {
             <div className="px-5 py-3 border-b border-notion-light-border dark:border-notion-dark-border flex items-center justify-between bg-notion-light-bg dark:bg-notion-dark-bg">
               <div className="flex items-center gap-3">
                 <div
-                  className={`w-2 h-2 rounded-full ${res.success ? "bg-emerald-500" : "bg-red-500 animate-pulse"}`}
+                  className={`w-2 h-2 rounded-full ${res.success ? MODULE_COLORS.crm.dot : `${MODULE_COLORS.error.dot} animate-pulse`}`}
                 ></div>
                 <h3 className="text-xs font-bold text-notion-light-text dark:text-notion-dark-text uppercase tracking-wider">
                   {res.name} Output
@@ -164,8 +167,8 @@ export const ReportView: React.FC = () => {
               <span
                 className={`text-[9px] font-black px-2 py-0.5 rounded-full ${
                   res.success
-                    ? "bg-emerald-500/10 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20"
-                    : "bg-red-500/10 dark:bg-red-500/20 text-red-600 dark:text-red-400 border border-red-500/20"
+                    ? `${MODULE_COLORS.crm.bg} ${MODULE_COLORS.crm.text} border ${MODULE_COLORS.crm.border}`
+                    : `${MODULE_COLORS.error.bg} ${MODULE_COLORS.error.text} border ${MODULE_COLORS.error.border}`
                 }`}
               >
                 {res.success ? "PASSED" : "FAILED"}

@@ -3,6 +3,7 @@ import { LifeConstraintEntry } from "../../types";
 import { Icon, iconProps } from "../Icons";
 import { ViewHeader } from "../ViewHeader";
 import { LifeModal } from "../LifeModal";
+import { MODULE_COLORS } from "@/constants";
 
 interface LifeViewProps {
   constraints: LifeConstraintEntry[];
@@ -26,6 +27,8 @@ export const LifeView: React.FC<LifeViewProps> = ({
   const [editingConstraint, setEditingConstraint] =
     useState<LifeConstraintEntry | null>(null);
 
+  const colors = MODULE_COLORS.life;
+
   const handleCreate = () => {
     setEditingConstraint(null);
     setIsModalOpen(true);
@@ -39,13 +42,13 @@ export const LifeView: React.FC<LifeViewProps> = ({
   const getEnergyColor = (energy: string) => {
     switch (energy) {
       case "High":
-        return "text-red-500 bg-red-500/10 border-red-500/20";
+        return `${MODULE_COLORS.energy_high.text} ${MODULE_COLORS.energy_high.lightBg} ${MODULE_COLORS.energy_high.border.split(" ")[0]}`;
       case "Medium":
-        return "text-amber-500 bg-amber-500/10 border-amber-500/20";
+        return `${MODULE_COLORS.energy_medium.text} ${MODULE_COLORS.energy_medium.lightBg} ${MODULE_COLORS.energy_medium.border.split(" ")[0]}`;
       case "Low":
-        return "text-emerald-500 bg-emerald-500/10 border-emerald-500/20";
+        return `${MODULE_COLORS.energy_low.text} ${MODULE_COLORS.energy_low.lightBg} ${MODULE_COLORS.energy_low.border.split(" ")[0]}`;
       default:
-        return "text-notion-light-muted bg-notion-light-muted/10";
+        return "text-notion-light-muted bg-notion-light-muted/10 border-notion-light-border";
     }
   };
 
@@ -71,7 +74,7 @@ export const LifeView: React.FC<LifeViewProps> = ({
         subTitle="Manage personal energy, recovery, and non-negotiable commitments"
       >
         <button
-          className="flex items-center gap-2 px-4 py-2 bg-pink-500 text-white rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-pink-600 transition-all active:scale-95 shadow-lg shadow-pink-500/20"
+          className={`flex items-center gap-2 px-4 py-2 ${colors.bg} ${colors.text} ${colors.border} border rounded-xl text-[10px] font-bold uppercase tracking-widest ${colors.hoverBg} transition-all active:scale-95 shadow-sm`}
           onClick={handleCreate}
         >
           <Icon.Add size={14} />
@@ -98,7 +101,7 @@ export const LifeView: React.FC<LifeViewProps> = ({
       ) : constraints.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 bg-notion-light-sidebar dark:bg-notion-dark-sidebar rounded-3xl border border-dashed border-notion-light-border dark:border-notion-dark-border">
           <div className="w-16 h-16 bg-notion-light-bg dark:bg-notion-dark-bg rounded-2xl flex items-center justify-center mb-4 shadow-sm">
-            <Icon.Heart size={32} className="text-pink-500 opacity-20" />
+            <Icon.Heart size={32} className={`${colors.text} opacity-20`} />
           </div>
           <h3 className="text-sm font-bold text-notion-light-text dark:text-notion-dark-text">
             No life constraints defined
@@ -112,13 +115,15 @@ export const LifeView: React.FC<LifeViewProps> = ({
           {constraints.map((constraint) => (
             <div
               key={constraint.id}
-              className="group relative bg-notion-light-sidebar dark:bg-notion-dark-sidebar p-6 rounded-2xl border border-notion-light-border dark:border-notion-dark-border hover:border-pink-500/30 transition-all hover:shadow-xl hover:shadow-pink-500/5 flex flex-col gap-4 cursor-pointer"
+              className={`group relative bg-white dark:bg-notion-dark-sidebar p-6 rounded-2xl border border-notion-light-border dark:border-notion-dark-border ${colors.hoverBg} transition-all hover:shadow-xl flex flex-col gap-4 cursor-pointer`}
               onClick={() => handleEdit(constraint)}
             >
               <div className="flex items-start justify-between">
                 <div className="flex flex-col gap-1">
                   <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-bold uppercase tracking-widest text-pink-500 flex items-center gap-1.5">
+                    <span
+                      className={`text-[10px] font-bold uppercase tracking-widest ${colors.text} flex items-center gap-1.5`}
+                    >
                       {getCategoryIcon(constraint.category)}
                       {constraint.category}
                     </span>
@@ -128,7 +133,9 @@ export const LifeView: React.FC<LifeViewProps> = ({
                       {constraint.energyRequirement} Energy
                     </span>
                   </div>
-                  <h3 className="text-sm font-bold text-notion-light-text dark:text-notion-dark-text group-hover:text-pink-500 transition-colors">
+                  <h3
+                    className={`text-sm font-bold text-notion-light-text dark:text-notion-dark-text ${colors.text.replace("text-", "group-hover:text-")} transition-colors`}
+                  >
                     {constraint.title}
                   </h3>
                 </div>
@@ -138,7 +145,7 @@ export const LifeView: React.FC<LifeViewProps> = ({
                     if (confirm("Remove this constraint?"))
                       onDelete(constraint.id);
                   }}
-                  className="opacity-0 group-hover:opacity-100 p-1.5 hover:bg-red-500/10 text-notion-light-muted hover:text-red-500 rounded-md transition-all"
+                  className={`opacity-0 group-hover:opacity-100 p-1.5 ${MODULE_COLORS.error.bg} ${MODULE_COLORS.error.text} rounded-md transition-all text-notion-light-muted dark:text-notion-dark-muted ${MODULE_COLORS.error.text.replace("text-", "hover:text-")} ${MODULE_COLORS.error.bg.replace("bg-", "hover:bg-")}`}
                 >
                   <Icon.Delete {...iconProps(14)} />
                 </button>
@@ -161,7 +168,7 @@ export const LifeView: React.FC<LifeViewProps> = ({
                       key={day}
                       className={`text-[9px] font-bold w-5 h-5 flex items-center justify-center rounded-md border ${
                         isActive
-                          ? "bg-pink-500 text-white border-pink-500 shadow-sm"
+                          ? `${colors.bg} ${colors.text} ${colors.border} shadow-sm`
                           : "text-notion-light-muted/30 border-notion-light-border dark:border-notion-dark-border"
                       }`}
                     >

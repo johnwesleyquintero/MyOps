@@ -3,6 +3,7 @@ import { Icon } from "../Icons";
 import { Integration, IntegrationEvent } from "../../types";
 import { ViewHeader } from "../ViewHeader";
 import { formatTimeAgo } from "../../utils/formatUtils";
+import { MODULE_COLORS } from "@/constants";
 
 interface IntegrationViewProps {
   integrations: Integration[];
@@ -25,21 +26,22 @@ const INTEGRATION_TYPES = [
   {
     type: "Slack",
     icon: "MessageSquare",
-    color: "text-purple-500",
-    bg: "bg-purple-500/10",
+    colors: MODULE_COLORS.automation,
   },
   {
     type: "WhatsApp",
     icon: "Phone",
-    color: "text-green-500",
-    bg: "bg-green-500/10",
+    colors: MODULE_COLORS.crm,
   },
-  { type: "Email", icon: "Mail", color: "text-blue-500", bg: "bg-blue-500/10" },
+  {
+    type: "Email",
+    icon: "Mail",
+    colors: MODULE_COLORS.report,
+  },
   {
     type: "Webhook",
     icon: "Globe",
-    color: "text-gray-500",
-    bg: "bg-gray-500/10",
+    colors: MODULE_COLORS.integration,
   },
 ];
 
@@ -56,6 +58,10 @@ export const IntegrationView: React.FC<IntegrationViewProps> = ({
   const [editingIntegration, setEditingIntegration] =
     useState<Partial<Integration> | null>(null);
   const [isTesting, setIsTesting] = useState<string | null>(null);
+
+  const colors = MODULE_COLORS.integration;
+
+  const crmColors = MODULE_COLORS.crm;
 
   const handleAdd = () => {
     setEditingIntegration({
@@ -109,14 +115,14 @@ export const IntegrationView: React.FC<IntegrationViewProps> = ({
         <div className="flex items-center gap-3">
           <button
             onClick={onShowStory}
-            className="flex items-center gap-2 px-4 py-2 bg-purple-500/10 text-purple-600 dark:text-purple-400 rounded-lg hover:bg-purple-500/20 transition-all font-semibold text-sm"
+            className={`flex items-center gap-2 px-4 py-2 ${MODULE_COLORS.automation.lightBg} ${MODULE_COLORS.automation.text} rounded-lg ${MODULE_COLORS.automation.hoverBg} transition-all font-semibold text-sm border ${MODULE_COLORS.automation.border.split(" ")[0]}/20`}
           >
             <Icon.History size={16} />
             Visual Story
           </button>
           <button
             onClick={handleAdd}
-            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all flex items-center gap-2 font-semibold text-sm shadow-sm active:scale-95"
+            className={`px-4 py-2 bg-purple-600 dark:bg-purple-500 hover:bg-purple-700 dark:hover:bg-purple-600 text-white rounded-lg transition-all flex items-center gap-2 font-semibold text-sm shadow-sm active:scale-95`}
           >
             <Icon.Plus size={16} />
             Add Integration
@@ -126,18 +132,20 @@ export const IntegrationView: React.FC<IntegrationViewProps> = ({
 
       {isLoading ? (
         <div className="flex items-center justify-center h-64">
-          <Icon.Settings className="w-8 h-8 animate-spin text-notion-light-muted dark:text-notion-dark-muted" />
+          <Icon.Settings className={`w-8 h-8 animate-spin ${colors.text}`} />
         </div>
       ) : integrations.length === 0 ? (
         <div className="text-center py-20 bg-notion-light-sidebar dark:bg-notion-dark-sidebar rounded-xl border border-dashed border-notion-light-border dark:border-notion-dark-border">
-          <Icon.Zap className="w-12 h-12 mx-auto mb-4 text-blue-500/20" />
+          <Icon.Zap
+            className={`w-12 h-12 mx-auto mb-4 ${colors.text} opacity-20`}
+          />
           <h3 className="text-lg font-medium mb-2">No active integrations</h3>
           <p className="text-notion-light-muted dark:text-notion-dark-muted mb-6">
             Push updates to Slack, WhatsApp, or Email automatically.
           </p>
           <button
             onClick={handleAdd}
-            className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl transition-all inline-flex items-center gap-2 font-bold shadow-lg shadow-blue-500/20 active:scale-95"
+            className={`px-6 py-3 bg-purple-600 dark:bg-purple-500 hover:bg-purple-700 dark:hover:bg-purple-600 text-white rounded-xl transition-all inline-flex items-center gap-2 font-bold shadow-lg shadow-purple-500/20 active:scale-95`}
           >
             <Icon.Plus size={18} />
             Connect Your First Channel
@@ -159,7 +167,7 @@ export const IntegrationView: React.FC<IntegrationViewProps> = ({
               >
                 <div className="flex justify-between items-start mb-4">
                   <div
-                    className={`p-2.5 rounded-lg ${typeInfo.bg} ${typeInfo.color}`}
+                    className={`p-2.5 rounded-lg ${typeInfo.colors.lightBg} ${typeInfo.colors.text}`}
                   >
                     <IntegrationIcon size={20} />
                   </div>
@@ -168,7 +176,7 @@ export const IntegrationView: React.FC<IntegrationViewProps> = ({
                       onClick={() => onToggle(integration.id)}
                       className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${
                         integration.isEnabled
-                          ? "bg-green-500"
+                          ? crmColors.dot
                           : "bg-notion-light-border dark:bg-notion-dark-border"
                       }`}
                     >
@@ -181,19 +189,23 @@ export const IntegrationView: React.FC<IntegrationViewProps> = ({
                       />
                     </button>
                     <div className="relative group/menu">
-                      <button className="p-1 hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover rounded transition-colors text-notion-light-muted">
+                      <button
+                        className={`p-1 ${colors.hoverBg} rounded transition-colors text-notion-light-muted`}
+                      >
                         <Icon.MoreHorizontal size={16} />
                       </button>
-                      <div className="absolute right-0 top-full mt-1 hidden group-hover/menu:block z-10 w-32 bg-white dark:bg-notion-dark-sidebar border border-notion-light-border dark:border-notion-dark-border rounded-lg shadow-xl overflow-hidden">
+                      <div
+                        className={`absolute right-0 top-full mt-1 hidden group-hover/menu:block z-10 w-32 bg-white dark:bg-notion-dark-sidebar border ${colors.border.split(" ")[0]} rounded-lg shadow-xl overflow-hidden`}
+                      >
                         <button
                           onClick={() => handleEdit(integration)}
-                          className="w-full px-4 py-2 text-left text-sm hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover flex items-center gap-2"
+                          className={`w-full px-4 py-2 text-left text-sm ${colors.hoverBg} flex items-center gap-2`}
                         >
                           <Icon.Edit size={14} /> Edit
                         </button>
                         <button
                           onClick={() => onDelete(integration.id)}
-                          className="w-full px-4 py-2 text-left text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 flex items-center gap-2"
+                          className={`w-full px-4 py-2 text-left text-sm ${MODULE_COLORS.error.text} ${MODULE_COLORS.error.bg.replace("bg-", "hover:bg-")} flex items-center gap-2`}
                         >
                           <Icon.Trash size={14} /> Delete
                         </button>
@@ -214,7 +226,7 @@ export const IntegrationView: React.FC<IntegrationViewProps> = ({
                     {integration.events.map((event) => (
                       <span
                         key={event}
-                        className="px-2 py-0.5 bg-notion-light-sidebar dark:bg-notion-dark-border text-[10px] font-medium rounded-full border border-notion-light-border dark:border-notion-dark-border"
+                        className={`px-2 py-0.5 ${colors.lightBg} ${colors.text} text-[10px] font-medium rounded-full border ${colors.border.split(" ")[0]}`}
                       >
                         {EVENT_LABELS[event]}
                       </span>
@@ -230,7 +242,7 @@ export const IntegrationView: React.FC<IntegrationViewProps> = ({
                     <button
                       onClick={() => handleTest(integration.id)}
                       disabled={isTesting === integration.id}
-                      className="text-[10px] font-semibold text-blue-600 dark:text-blue-400 hover:underline disabled:opacity-50 flex items-center gap-1"
+                      className={`text-[10px] font-semibold ${colors.text} hover:underline disabled:opacity-50 flex items-center gap-1`}
                     >
                       {isTesting === integration.id ? (
                         <Icon.Settings className="w-3 h-3 animate-spin" />
@@ -261,7 +273,7 @@ export const IntegrationView: React.FC<IntegrationViewProps> = ({
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="p-2 hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover rounded-full transition-colors"
+                  className={`p-2 ${colors.hoverBg} ${colors.text} rounded-full transition-colors`}
                 >
                   <Icon.X size={20} />
                 </button>
@@ -269,7 +281,9 @@ export const IntegrationView: React.FC<IntegrationViewProps> = ({
 
               <div className="space-y-4">
                 <div>
-                  <label className="block text-xs font-semibold text-notion-light-muted dark:text-notion-dark-muted uppercase mb-1.5">
+                  <label
+                    className={`block text-xs font-semibold ${colors.text} uppercase mb-1.5`}
+                  >
                     Integration Name
                   </label>
                   <input
@@ -283,12 +297,14 @@ export const IntegrationView: React.FC<IntegrationViewProps> = ({
                       })
                     }
                     placeholder="e.g. Client Slack Webhook"
-                    className="w-full px-4 py-2.5 bg-notion-light-sidebar dark:bg-notion-dark-border border border-notion-light-border dark:border-notion-dark-border rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
+                    className={`w-full px-4 py-2.5 bg-notion-light-sidebar dark:bg-notion-dark-border border ${colors.border.split(" ")[0]} rounded-lg focus:ring-2 ${colors.bg.replace("bg-", "ring-")}/20 outline-none transition-all`}
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-notion-light-muted dark:text-notion-dark-muted uppercase mb-1.5">
+                  <label
+                    className={`block text-xs font-semibold ${colors.text} uppercase mb-1.5`}
+                  >
                     Channel Type
                   </label>
                   <div className="grid grid-cols-2 gap-2">
@@ -308,8 +324,8 @@ export const IntegrationView: React.FC<IntegrationViewProps> = ({
                           }
                           className={`flex items-center gap-2 px-3 py-2 rounded-lg border text-sm transition-all ${
                             isSelected
-                              ? "bg-blue-500/10 border-blue-500 text-blue-600 dark:text-blue-400"
-                              : "border-notion-light-border dark:border-notion-dark-border hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover"
+                              ? `${t.colors.lightBg} ${t.colors.border.split(" ")[0]} ${t.colors.text}`
+                              : `border-notion-light-border dark:border-notion-dark-border ${colors.hoverBg}`
                           }`}
                         >
                           <TIcon size={16} />
@@ -321,7 +337,9 @@ export const IntegrationView: React.FC<IntegrationViewProps> = ({
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-notion-light-muted dark:text-notion-dark-muted uppercase mb-1.5">
+                  <label
+                    className={`block text-xs font-semibold ${colors.text} uppercase mb-1.5`}
+                  >
                     Webhook URL / Email Address
                   </label>
                   <input
@@ -335,12 +353,14 @@ export const IntegrationView: React.FC<IntegrationViewProps> = ({
                       })
                     }
                     placeholder="https://hooks.slack.com/services/..."
-                    className="w-full px-4 py-2.5 bg-notion-light-sidebar dark:bg-notion-dark-border border border-notion-light-border dark:border-notion-dark-border rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
+                    className={`w-full px-4 py-2.5 bg-notion-light-sidebar dark:bg-notion-dark-border border ${colors.border.split(" ")[0]} rounded-lg focus:ring-2 ${colors.bg.replace("bg-", "ring-")}/20 outline-none transition-all`}
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-notion-light-muted dark:text-notion-dark-muted uppercase mb-1.5">
+                  <label
+                    className={`block text-xs font-semibold ${colors.text} uppercase mb-1.5`}
+                  >
                     Events to Broadcast
                   </label>
                   <div className="space-y-2">
@@ -355,16 +375,15 @@ export const IntegrationView: React.FC<IntegrationViewProps> = ({
                           onClick={() => toggleEvent(event as IntegrationEvent)}
                           className={`w-full flex items-center justify-between px-3 py-2 rounded-lg border text-sm transition-all ${
                             isSelected
-                              ? "bg-blue-500/10 border-blue-500"
-                              : "border-notion-light-border dark:border-notion-dark-border hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover"
+                              ? `${colors.lightBg} ${colors.border.split(" ")[0]}`
+                              : `border-notion-light-border dark:border-notion-dark-border ${colors.hoverBg}`
                           }`}
                         >
-                          <span>{label}</span>
+                          <span className={isSelected ? colors.text : ""}>
+                            {label}
+                          </span>
                           {isSelected && (
-                            <Icon.Check
-                              size={14}
-                              className="text-blue-600 dark:text-blue-400"
-                            />
+                            <Icon.Check size={14} className={colors.text} />
                           )}
                         </button>
                       );
@@ -377,13 +396,13 @@ export const IntegrationView: React.FC<IntegrationViewProps> = ({
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="flex-1 px-4 py-2.5 border border-notion-light-border dark:border-notion-dark-border rounded-lg hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover transition-colors"
+                  className={`flex-1 px-4 py-2.5 border border-notion-light-border dark:border-notion-dark-border rounded-lg ${colors.hoverBg} transition-colors`}
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all font-semibold shadow-md active:scale-95"
+                  className={`flex-1 px-4 py-2.5 bg-purple-600 dark:bg-purple-500 hover:bg-purple-700 dark:hover:bg-purple-600 text-white rounded-lg transition-all font-semibold shadow-md active:scale-95`}
                 >
                   {editingIntegration.id
                     ? "Save Changes"

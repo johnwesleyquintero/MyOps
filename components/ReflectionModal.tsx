@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { ReflectionEntry } from "../types";
 import { Icon, iconProps } from "./Icons";
 import { toast } from "sonner";
+import { MODULE_COLORS } from "../constants/ui";
 
 interface ReflectionModalProps {
   isOpen: boolean;
@@ -23,6 +24,7 @@ export const ReflectionModal: React.FC<ReflectionModalProps> = ({
   onSave,
   initialData,
 }) => {
+  const colors = MODULE_COLORS.reflection;
   const [formData, setFormData] = useState<Partial<ReflectionEntry>>(
     () =>
       initialData || {
@@ -137,7 +139,7 @@ export const ReflectionModal: React.FC<ReflectionModalProps> = ({
                 autoFocus
                 type="text"
                 placeholder="What are we reflecting on?"
-                className="w-full px-3 py-2 bg-transparent border border-notion-light-border dark:border-notion-dark-border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm"
+                className={`w-full px-3 py-2 bg-transparent border border-notion-light-border dark:border-notion-dark-border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 dark:focus:border-teal-400 transition-all text-sm`}
                 value={formData.title}
                 onChange={(e) =>
                   setFormData({ ...formData, title: e.target.value })
@@ -152,7 +154,7 @@ export const ReflectionModal: React.FC<ReflectionModalProps> = ({
               </label>
               <input
                 type="date"
-                className="w-full px-3 py-2 bg-transparent border border-notion-light-border dark:border-notion-dark-border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm"
+                className={`w-full px-3 py-2 bg-transparent border border-notion-light-border dark:border-notion-dark-border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 dark:focus:border-teal-400 transition-all text-sm`}
                 value={formData.date}
                 onChange={(e) =>
                   setFormData({ ...formData, date: e.target.value })
@@ -166,7 +168,7 @@ export const ReflectionModal: React.FC<ReflectionModalProps> = ({
                 Type
               </label>
               <select
-                className="w-full px-3 py-2 bg-transparent border border-notion-light-border dark:border-notion-dark-border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm"
+                className={`w-full px-3 py-2 bg-transparent border border-notion-light-border dark:border-notion-dark-border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 dark:focus:border-teal-400 transition-all text-sm`}
                 value={formData.type}
                 onChange={(e) =>
                   setFormData({
@@ -192,7 +194,7 @@ export const ReflectionModal: React.FC<ReflectionModalProps> = ({
             <textarea
               placeholder="Deep dive into what happened..."
               rows={4}
-              className="w-full px-3 py-2 bg-transparent border border-notion-light-border dark:border-notion-dark-border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm resize-none"
+              className={`w-full px-3 py-2 bg-transparent border border-notion-light-border dark:border-notion-dark-border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 dark:focus:border-teal-400 transition-all text-sm resize-none`}
               value={formData.content}
               onChange={(e) =>
                 setFormData({ ...formData, content: e.target.value })
@@ -209,7 +211,7 @@ export const ReflectionModal: React.FC<ReflectionModalProps> = ({
               <button
                 type="button"
                 onClick={() => addListEntry("learnings")}
-                className="text-[10px] font-semibold text-blue-500 hover:text-blue-600 flex items-center gap-1"
+                className={`text-[10px] font-semibold ${colors.text} hover:opacity-80 flex items-center gap-1`}
               >
                 <Icon.Plus {...iconProps(10)} />
                 Add Learning
@@ -221,7 +223,7 @@ export const ReflectionModal: React.FC<ReflectionModalProps> = ({
                   <input
                     type="text"
                     placeholder="Insight..."
-                    className="flex-1 px-3 py-1.5 bg-transparent border border-notion-light-border dark:border-notion-dark-border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 transition-all text-xs"
+                    className={`flex-1 px-3 py-1.5 bg-transparent border border-notion-light-border dark:border-notion-dark-border rounded-md focus:outline-none focus:ring-1 focus:ring-teal-500 transition-all text-xs`}
                     value={item}
                     onChange={(e) =>
                       updateListEntry("learnings", index, e.target.value)
@@ -230,7 +232,7 @@ export const ReflectionModal: React.FC<ReflectionModalProps> = ({
                   <button
                     type="button"
                     onClick={() => removeListEntry("learnings", index)}
-                    className="p-1.5 text-notion-light-muted hover:text-red-500 transition-colors"
+                    className={`p-1.5 text-notion-light-muted ${MODULE_COLORS.error.text} transition-colors`}
                   >
                     <Icon.Close {...iconProps(12)} />
                   </button>
@@ -253,7 +255,7 @@ export const ReflectionModal: React.FC<ReflectionModalProps> = ({
               <button
                 type="button"
                 onClick={() => addListEntry("actionItems")}
-                className="text-[10px] font-semibold text-blue-500 hover:text-blue-600 flex items-center gap-1"
+                className={`text-[10px] font-semibold ${colors.text} hover:opacity-80 flex items-center gap-1`}
               >
                 <Icon.Plus {...iconProps(10)} />
                 Add Action
@@ -265,7 +267,7 @@ export const ReflectionModal: React.FC<ReflectionModalProps> = ({
                   <input
                     type="text"
                     placeholder="Next step..."
-                    className="flex-1 px-3 py-1.5 bg-transparent border border-notion-light-border dark:border-notion-dark-border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 transition-all text-xs"
+                    className={`flex-1 px-3 py-1.5 bg-transparent border border-notion-light-border dark:border-notion-dark-border rounded-md focus:outline-none focus:ring-1 focus:ring-teal-500 transition-all text-xs`}
                     value={item}
                     onChange={(e) =>
                       updateListEntry("actionItems", index, e.target.value)
@@ -293,17 +295,19 @@ export const ReflectionModal: React.FC<ReflectionModalProps> = ({
         <div className="px-6 py-4 border-t border-notion-light-border dark:border-notion-dark-border bg-notion-light-sidebar dark:bg-notion-dark-sidebar flex items-center justify-end gap-3">
           <button
             onClick={onClose}
-            className="px-4 py-2 text-sm font-medium text-notion-light-text dark:text-notion-dark-text hover:bg-notion-light-border dark:hover:bg-notion-dark-border rounded-lg transition-colors"
+            className={`px-4 py-2 text-sm font-medium text-notion-light-text dark:text-notion-dark-text hover:${colors.lightBg} rounded-lg transition-colors`}
           >
             Cancel
           </button>
           <button
             onClick={handleSubmit}
             disabled={isSubmitting}
-            className="px-4 py-2 text-sm font-medium bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-sm shadow-blue-500/20 transition-all flex items-center gap-2 disabled:opacity-50"
+            className={`px-4 py-2 text-sm font-medium ${colors.bg} ${colors.text} ${colors.border} border rounded-lg shadow-sm transition-all flex items-center gap-2 disabled:opacity-50 hover:opacity-80 active:scale-95`}
           >
             {isSubmitting ? (
-              <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              <div
+                className={`w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin`}
+              />
             ) : (
               <Icon.Active {...iconProps(16)} />
             )}

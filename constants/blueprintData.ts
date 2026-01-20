@@ -1,5 +1,8 @@
+import { Page } from "../types";
+
 export interface BlueprintModule {
   id: string;
+  pageId?: Page;
   title: string;
   status: "ACTIVE" | "PARTIAL" | "PENDING";
   iconKey: string;
@@ -10,6 +13,7 @@ export interface BlueprintModule {
 export const BLUEPRINT_MODULES: BlueprintModule[] = [
   {
     id: "tasks",
+    pageId: "MISSIONS",
     title: "Task & Project Management",
     status: "ACTIVE",
     iconKey: "Missions",
@@ -23,6 +27,7 @@ export const BLUEPRINT_MODULES: BlueprintModule[] = [
   },
   {
     id: "crm",
+    pageId: "CRM",
     title: "CRM & Contact Layer",
     status: "ACTIVE",
     iconKey: "Users",
@@ -36,6 +41,7 @@ export const BLUEPRINT_MODULES: BlueprintModule[] = [
   },
   {
     id: "docs",
+    pageId: "KNOWLEDGE",
     title: "Documentation & Intel",
     status: "ACTIVE",
     iconKey: "Docs",
@@ -49,6 +55,7 @@ export const BLUEPRINT_MODULES: BlueprintModule[] = [
   },
   {
     id: "analytics",
+    pageId: "INSIGHTS",
     title: "Analytics & Insights",
     status: "ACTIVE",
     iconKey: "Analytics",
@@ -62,6 +69,7 @@ export const BLUEPRINT_MODULES: BlueprintModule[] = [
   },
   {
     id: "automation",
+    pageId: "AUTOMATION",
     title: "Automation Layer",
     status: "ACTIVE",
     iconKey: "Active",
@@ -75,6 +83,7 @@ export const BLUEPRINT_MODULES: BlueprintModule[] = [
   },
   {
     id: "vault",
+    pageId: "VAULT",
     title: "Secure Vault",
     status: "ACTIVE",
     iconKey: "Vault",
@@ -88,6 +97,7 @@ export const BLUEPRINT_MODULES: BlueprintModule[] = [
   },
   {
     id: "ai",
+    pageId: "WESAI",
     title: "AI Co-Pilot (WesAI)",
     status: "ACTIVE",
     iconKey: "Bot",
@@ -101,6 +111,7 @@ export const BLUEPRINT_MODULES: BlueprintModule[] = [
   },
   {
     id: "sovereign",
+    pageId: "DASHBOARD",
     title: "Sovereign Layer",
     status: "ACTIVE",
     iconKey: "Link",
@@ -114,6 +125,7 @@ export const BLUEPRINT_MODULES: BlueprintModule[] = [
   },
   {
     id: "strategy",
+    pageId: "STRATEGY",
     title: "Decision & Strategy",
     status: "ACTIVE",
     iconKey: "Strategy",
@@ -127,6 +139,7 @@ export const BLUEPRINT_MODULES: BlueprintModule[] = [
   },
   {
     id: "awareness",
+    pageId: "AWARENESS",
     title: "Mental State Awareness",
     status: "ACTIVE",
     iconKey: "Activity",
@@ -140,6 +153,7 @@ export const BLUEPRINT_MODULES: BlueprintModule[] = [
   },
   {
     id: "assets",
+    pageId: "ASSETS",
     title: "Asset & IP Registry",
     status: "ACTIVE",
     iconKey: "Project",
@@ -153,6 +167,7 @@ export const BLUEPRINT_MODULES: BlueprintModule[] = [
   },
   {
     id: "reflection",
+    pageId: "REFLECTION",
     title: "Feedback & Reflection",
     status: "ACTIVE",
     iconKey: "History",
@@ -166,6 +181,7 @@ export const BLUEPRINT_MODULES: BlueprintModule[] = [
   },
   {
     id: "life",
+    pageId: "LIFE",
     title: "Life Ops & Constraints",
     status: "ACTIVE",
     iconKey: "Heart",
@@ -179,6 +195,7 @@ export const BLUEPRINT_MODULES: BlueprintModule[] = [
   },
   {
     id: "integrations",
+    pageId: "INTEGRATIONS",
     title: "Integration Hub",
     status: "ACTIVE",
     iconKey: "Link",
@@ -191,3 +208,4 @@ export const BLUEPRINT_MODULES: BlueprintModule[] = [
     color: "purple",
   },
 ];
+

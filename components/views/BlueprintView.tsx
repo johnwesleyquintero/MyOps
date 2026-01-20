@@ -137,7 +137,8 @@ export const BlueprintView: React.FC<BlueprintViewProps> = ({ onNavigate }) => {
                 <button
                   onClick={() => {
                     if (mod.status === "ACTIVE" && onNavigate) {
-                      onNavigate(mod.id.toUpperCase() as Page);
+                      const targetPage = mod.pageId || (mod.id.toUpperCase() as Page);
+                      onNavigate(targetPage);
                     } else {
                       toast.info(`${mod.title} initialization`, {
                         description:

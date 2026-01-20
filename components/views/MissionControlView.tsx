@@ -143,26 +143,29 @@ export const MissionControlView: React.FC<MissionControlViewProps> = ({
         <div className="flex flex-wrap items-center gap-2 mt-2 md:mt-0">
           {viewMode === "TABLE" && filteredEntries.length > 0 && (
             <Button
-              variant="custom"
+              variant="ghost"
+              size="icon"
               onClick={() => setIsDeleteModalOpen(true)}
-              className={`notion-button notion-button-ghost ${MODULE_COLORS.error.text} ${MODULE_COLORS.error.bg.replace("bg-", "hover:bg-")} flex items-center justify-center p-2`}
+              className={`${MODULE_COLORS.error.text} ${MODULE_COLORS.error.bg.replace("bg-", "hover:bg-")} transition-colors`}
               title="Clear View"
             >
               <Icon.Delete {...iconProps(16)} />
             </Button>
           )}
           <Button
-            variant="custom"
+            variant="ghost"
+            size="icon"
             onClick={() => generateAndDownloadCSV(filteredEntries)}
-            className={`notion-button notion-button-ghost ${MODULE_COLORS.tasks.text.replace("text-", "hover:text-")} ${MODULE_COLORS.tasks.bg.replace("bg-", "hover:bg-")} flex items-center justify-center p-2`}
+            className={`${MODULE_COLORS.tasks.text.replace("text-", "hover:text-")} ${MODULE_COLORS.tasks.bg.replace("bg-", "hover:bg-")} transition-colors`}
             title="Export CSV"
           >
             <Icon.Download {...iconProps(16)} />
           </Button>
           <Button
-            variant="custom"
+            variant="ghost"
+            size="icon"
             onClick={handleCopyMarkdown}
-            className={`notion-button notion-button-ghost ${MODULE_COLORS.tasks.text.replace("text-", "hover:text-")} ${MODULE_COLORS.tasks.bg.replace("bg-", "hover:bg-")} flex items-center justify-center p-2`}
+            className={`${MODULE_COLORS.tasks.text.replace("text-", "hover:text-")} ${MODULE_COLORS.tasks.bg.replace("bg-", "hover:bg-")} transition-colors`}
             title="Copy as Markdown Table"
           >
             {copiedMd ? (
@@ -175,7 +178,7 @@ export const MissionControlView: React.FC<MissionControlViewProps> = ({
             <ColumnConfigDropdown
               columns={columns}
               toggleColumn={toggleColumn}
-              className={`notion-button notion-button-ghost ${MODULE_COLORS.tasks.text.replace("text-", "hover:text-")} ${MODULE_COLORS.tasks.bg.replace("bg-", "hover:bg-")} flex items-center justify-center p-2`}
+              className={`${MODULE_COLORS.tasks.text.replace("text-", "hover:text-")} ${MODULE_COLORS.tasks.bg.replace("bg-", "hover:bg-")} transition-colors`}
             />
           )}
         </div>

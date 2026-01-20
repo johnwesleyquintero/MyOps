@@ -88,7 +88,7 @@ export const StrategyView: React.FC<StrategyViewProps> = ({ config }) => {
             setEditingDecision(null);
             setIsModalOpen(true);
           }}
-          className={`notion-button ${colors.bg.replace("/10", "").replace("/20", "")} text-white w-full sm:w-auto justify-center flex items-center gap-2 hover:opacity-90 transition-all shadow-lg shadow-black/5`}
+          className={`inline-flex items-center justify-center gap-2 px-4 py-2 ${colors.bg.replace("/10", "").replace("/20", "")} text-white w-full sm:w-auto font-semibold rounded-lg hover:opacity-90 transition-all shadow-lg shadow-black/5 active:scale-95`}
         >
           <Icon.Add size={18} />
           <span>Log Decision</span>
@@ -452,17 +452,12 @@ const DecisionModal: React.FC<DecisionModalProps> = ({
         </div>
 
         <div className="px-6 py-4 border-t border-notion-light-border dark:border-notion-dark-border flex items-center justify-end gap-3 bg-notion-light-sidebar dark:bg-notion-dark-sidebar">
-          <Button
-            variant="custom"
-            onClick={onClose}
-            className="notion-button notion-button-ghost"
-          >
+          <Button variant="ghost" onClick={onClose}>
             Cancel
           </Button>
           <Button
-            variant="custom"
+            variant="primary"
             onClick={() => onSave(formData)}
-            className="notion-button notion-button-primary"
             disabled={!formData.title}
           >
             {initialData ? "Update Log" : "Save Decision"}

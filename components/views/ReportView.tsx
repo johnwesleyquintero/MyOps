@@ -83,9 +83,9 @@ export const ReportView: React.FC = () => {
           {error}
         </p>
         <Button
-          variant="custom"
+          variant="danger"
           onClick={() => window.location.reload()}
-          className="notion-button notion-button-danger mx-auto"
+          className="mx-auto"
         >
           Retry
         </Button>
@@ -102,10 +102,10 @@ export const ReportView: React.FC = () => {
         <Button
           variant="custom"
           onClick={handleCopyMd}
-          className={`notion-button w-full sm:w-auto justify-center transition-all ${
+          className={`w-full sm:w-auto justify-center transition-all px-4 py-2 rounded font-medium active:scale-95 ${
             copied
               ? `${MODULE_COLORS.crm.bg} ${MODULE_COLORS.crm.border} ${MODULE_COLORS.crm.text}`
-              : "notion-button-ghost border border-notion-light-border dark:border-notion-dark-border"
+              : "hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover text-notion-light-muted dark:text-notion-dark-muted hover:text-notion-light-text dark:hover:text-notion-dark-text border border-notion-light-border dark:border-notion-dark-border"
           }`}
         >
           {copied ? (

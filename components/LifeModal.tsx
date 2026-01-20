@@ -3,6 +3,7 @@ import { LifeConstraintEntry } from "../types";
 import { Icon, iconProps } from "./Icons";
 import { toast } from "sonner";
 import { MODULE_COLORS } from "../constants/ui";
+import { Button } from "./ui";
 
 interface LifeModalProps {
   isOpen: boolean;
@@ -114,12 +115,14 @@ export const LifeModal: React.FC<LifeModalProps> = ({
               {initialData ? "Edit Constraint" : "New Life Constraint"}
             </h2>
           </div>
-          <button
+          <Button
+            variant="ghost"
+            size="icon"
             onClick={onClose}
-            className={`p-1 hover:${colors.bg} rounded-md transition-colors`}
+            className={`hover:${colors.bg}`}
           >
             <Icon.Close {...iconProps(16)} />
-          </button>
+          </Button>
         </div>
 
         {/* Modal Body */}
@@ -231,9 +234,10 @@ export const LifeModal: React.FC<LifeModalProps> = ({
                 {DAYS.map((day, index) => {
                   const isSelected = formData.daysOfWeek?.includes(index);
                   return (
-                    <button
+                    <Button
                       key={day}
                       type="button"
+                      variant="custom"
                       onClick={() => toggleDay(index)}
                       className={`w-9 h-9 rounded-full text-[10px] font-bold transition-all ${
                         isSelected
@@ -242,7 +246,7 @@ export const LifeModal: React.FC<LifeModalProps> = ({
                       }`}
                     >
                       {day[0]}
-                    </button>
+                    </Button>
                   );
                 })}
               </div>
@@ -268,24 +272,22 @@ export const LifeModal: React.FC<LifeModalProps> = ({
 
         {/* Modal Footer */}
         <div className="px-6 py-4 border-t border-notion-light-border dark:border-notion-dark-border bg-notion-light-sidebar dark:bg-notion-dark-sidebar flex items-center justify-end gap-3">
-          <button
+          <Button
+            variant="ghost"
             onClick={onClose}
-            className="px-4 py-2 text-sm font-medium text-notion-light-text dark:text-notion-dark-text hover:bg-notion-light-border dark:hover:bg-notion-dark-border rounded-lg transition-colors"
+            className="px-4 py-2 text-sm font-medium text-notion-light-text dark:text-notion-dark-text hover:bg-notion-light-border dark:hover:bg-notion-dark-border"
           >
             Cancel
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={handleSubmit}
-            disabled={isSubmitting}
-            className={`px-4 py-2 text-sm font-medium ${colors.bg} ${colors.text} ${colors.border} border rounded-lg shadow-sm transition-all flex items-center gap-2 disabled:opacity-50 hover:opacity-80 active:scale-95`}
+            variant="custom"
+            isLoading={isSubmitting}
+            leftIcon={!isSubmitting && <Icon.Add {...iconProps(16)} />}
+            className={`px-4 py-2 text-sm font-medium ${colors.bg} ${colors.text} ${colors.border} border rounded-lg shadow-sm hover:opacity-80 active:scale-95`}
           >
-            {isSubmitting ? (
-              <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
-            ) : (
-              <Icon.Add {...iconProps(16)} />
-            )}
             {initialData ? "Update Constraint" : "Add Constraint"}
-          </button>
+          </Button>
         </div>
       </div>
     </div>

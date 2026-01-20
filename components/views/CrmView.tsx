@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Contact, Interaction } from "../../types";
 import { Icon } from "../Icons";
+import { Button } from "../ui/Button";
 import { ContactModal } from "../ContactModal";
 import { InteractionModal } from "../InteractionModal";
 import { ViewHeader } from "../ViewHeader";
@@ -179,16 +180,18 @@ export const CrmView: React.FC<CrmViewProps> = ({
         title="CRM & Contacts"
         subTitle="Manage your network and interaction logs"
       >
-        <button
+        <Button
           onClick={handleAdd}
-          className={`w-full md:w-auto flex items-center justify-center gap-2 px-6 py-3 ${crmColors.bg} border ${crmColors.border} ${crmColors.text} rounded-2xl font-black text-sm uppercase tracking-widest shadow-sm ${crmColors.hoverBg} transition-all active:scale-95 group`}
+          className={`w-full md:w-auto px-6 py-3 ${crmColors.bg} border ${crmColors.border} ${crmColors.text} rounded-2xl font-black text-sm uppercase tracking-widest shadow-sm ${crmColors.hoverBg} group`}
+          leftIcon={
+            <Icon.Add
+              size={16}
+              className="group-hover:rotate-90 transition-transform duration-300"
+            />
+          }
         >
-          <Icon.Add
-            size={16}
-            className="group-hover:rotate-90 transition-transform duration-300"
-          />
           New Contact
-        </button>
+        </Button>
       </ViewHeader>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -223,16 +226,17 @@ export const CrmView: React.FC<CrmViewProps> = ({
                 ))
             ) : filteredContacts.length > 0 ? (
               filteredContacts.map((contact) => (
-                <button
+                <Button
+                  variant="custom"
                   key={contact.id}
                   onClick={() => setSelectedContact(contact)}
-                  className={`w-full text-left p-4 notion-card transition-all duration-300 group ${
+                  className={`w-full flex flex-col items-stretch text-left p-4 notion-card transition-all duration-300 group !justify-start !items-start ${
                     selectedContact?.id === contact.id
                       ? `${crmColors.bg} ${crmColors.border} shadow-md translate-x-1`
                       : `hover:${crmColors.lightBg} hover:border-notion-light-text/10 dark:hover:border-notion-dark-text/10 hover:shadow-sm`
                   }`}
                 >
-                  <div className="flex items-start justify-between">
+                  <div className="flex items-start justify-between w-full">
                     <div className="flex items-center gap-3">
                       <div
                         className={`w-10 h-10 rounded flex items-center justify-center text-sm font-bold shadow-sm transition-colors ${
@@ -243,19 +247,19 @@ export const CrmView: React.FC<CrmViewProps> = ({
                       >
                         {contact.name.charAt(0)}
                       </div>
-                      <div>
+                      <div className="min-w-0">
                         <h3
-                          className={`text-sm font-bold ${selectedContact?.id === contact.id ? crmColors.text : "text-notion-light-text dark:text-notion-dark-text"} group-hover:${crmColors.text} transition-colors`}
+                          className={`text-sm font-bold truncate ${selectedContact?.id === contact.id ? crmColors.text : "text-notion-light-text dark:text-notion-dark-text"} group-hover:${crmColors.text} transition-colors`}
                         >
                           {contact.name}
                         </h3>
-                        <p className="notion-label">
+                        <p className="notion-label truncate">
                           {contact.company || "Individual"}
                         </p>
                       </div>
                     </div>
                     <span
-                      className={`text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider shadow-sm border ${typeColors[contact.type as keyof typeof typeColors]}`}
+                      className={`text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider shadow-sm border flex-shrink-0 ${typeColors[contact.type as keyof typeof typeColors]}`}
                     >
                       {contact.type}
                     </span>
@@ -275,7 +279,7 @@ export const CrmView: React.FC<CrmViewProps> = ({
                       {new Date(contact.createdAt).toLocaleDateString()}
                     </div>
                   </div>
-                </button>
+                </Button>
               ))
             ) : (
               <div
@@ -299,12 +303,14 @@ export const CrmView: React.FC<CrmViewProps> = ({
           {selectedContact ? (
             <div className="notion-card overflow-hidden min-h-[70vh] flex flex-col shadow-xl animate-in zoom-in-95 duration-300">
               {/* Back button for mobile */}
-              <button
+              <Button
+                variant="ghost"
                 onClick={() => setSelectedContact(null)}
-                className={`lg:hidden flex items-center gap-2 px-4 py-3 text-notion-light-muted dark:text-notion-dark-muted ${crmColors.text.replace("text-", "hover:text-")} border-b ${crmColors.border} ${crmColors.bg} active:opacity-70 transition-colors w-full text-left font-bold relative z-10`}
+                className={`lg:hidden justify-start gap-2 px-4 py-3 text-notion-light-muted dark:text-notion-dark-muted ${crmColors.text.replace("text-", "hover:text-")} border-b ${crmColors.border} ${crmColors.bg} active:opacity-70 transition-colors w-full text-left font-bold relative z-10`}
+                leftIcon={<Icon.Prev size={16} />}
               >
-                <Icon.Prev size={16} /> Back to Contacts
-              </button>
+                Back to Contacts
+              </Button>
 
               {/* Profile Header */}
               <div
@@ -344,29 +350,37 @@ export const CrmView: React.FC<CrmViewProps> = ({
                     </div>
                   </div>
                   <div className="flex items-center gap-2 md:gap-3">
-                    <button
+                    <Button
+                      variant="ghost"
+                      size="sm"
                       onClick={() => handleEdit(selectedContact)}
-                      className={`flex-1 md:flex-none flex items-center justify-center gap-2 p-3 ${crmColors.bg} text-notion-light-muted dark:text-notion-dark-muted ${crmColors.text.replace("text-", "hover:text-")} ${crmColors.border.replace("border-", "hover:border-")} border ${crmColors.border} rounded transition-all shadow-sm hover:shadow-md group`}
+                      className={`flex-1 md:flex-none ${crmColors.bg} text-notion-light-muted dark:text-notion-dark-muted ${crmColors.text.replace("text-", "hover:text-")} ${crmColors.border.replace("border-", "hover:border-")} border ${crmColors.border} rounded transition-all shadow-sm hover:shadow-md group`}
+                      leftIcon={
+                        <Icon.Edit
+                          size={18}
+                          className="group-hover:scale-110 transition-transform"
+                        />
+                      }
                     >
-                      <Icon.Edit
-                        size={18}
-                        className="group-hover:scale-110 transition-transform"
-                      />
                       <span className="md:hidden text-xs font-bold uppercase tracking-widest">
                         Edit
                       </span>
-                    </button>
-                    <button
-                      className={`flex-1 md:flex-none flex items-center justify-center gap-2 p-3 ${crmColors.bg} text-notion-light-muted dark:text-notion-dark-muted ${MODULE_COLORS.error.text.replace("text-", "hover:text-")} ${MODULE_COLORS.error.border.replace("border-", "hover:border-")} border ${crmColors.border} rounded transition-all shadow-sm hover:shadow-md group`}
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className={`flex-1 md:flex-none ${crmColors.bg} text-notion-light-muted dark:text-notion-dark-muted ${MODULE_COLORS.error.text.replace("text-", "hover:text-")} ${MODULE_COLORS.error.border.replace("border-", "hover:border-")} border ${crmColors.border} rounded transition-all shadow-sm hover:shadow-md group`}
+                      leftIcon={
+                        <Icon.Delete
+                          size={18}
+                          className="group-hover:scale-110 group-hover:rotate-12 transition-transform"
+                        />
+                      }
                     >
-                      <Icon.Delete
-                        size={18}
-                        className="group-hover:scale-110 group-hover:rotate-12 transition-transform"
-                      />
                       <span className="md:hidden text-xs font-bold uppercase tracking-widest">
                         Delete
                       </span>
-                    </button>
+                    </Button>
                   </div>
                 </div>
 
@@ -416,16 +430,19 @@ export const CrmView: React.FC<CrmViewProps> = ({
                   <h3 className="notion-label uppercase tracking-[0.2em]">
                     Interaction Log
                   </h3>
-                  <button
+                  <Button
+                    variant="ghost"
                     onClick={handleAddInteraction}
-                    className={`w-full sm:w-auto text-[11px] md:text-[12px] font-bold ${crmColors.text} flex items-center justify-center gap-2 ${crmColors.hoverBg} transition-colors ${crmColors.bg} px-4 py-2.5 md:px-3 md:py-1.5 rounded border ${crmColors.border} shadow-sm group`}
+                    className={`w-full sm:w-auto text-[11px] md:text-[12px] font-bold ${crmColors.text} ${crmColors.hoverBg} ${crmColors.bg} px-4 py-2.5 md:px-3 md:py-1.5 rounded border ${crmColors.border} shadow-sm group`}
+                    leftIcon={
+                      <Icon.Add
+                        size={14}
+                        className="group-hover:rotate-90 transition-transform duration-300"
+                      />
+                    }
                   >
-                    <Icon.Add
-                      size={14}
-                      className="group-hover:rotate-90 transition-transform duration-300"
-                    />{" "}
                     Log Interaction
-                  </button>
+                  </Button>
                 </div>
 
                 <div className="space-y-8 relative">
@@ -460,14 +477,16 @@ export const CrmView: React.FC<CrmViewProps> = ({
                               >
                                 {interaction.type}
                               </span>
-                              <button
+                              <Button
+                                variant="ghost"
+                                size="icon"
                                 onClick={() =>
                                   handleEditInteraction(interaction)
                                 }
-                                className={`opacity-0 group-hover/item:opacity-100 p-1 hover:${crmColors.bg} rounded text-notion-light-muted hover:${crmColors.text} transition-all`}
+                                className={`opacity-0 group-hover/item:opacity-100 h-6 w-6 hover:${crmColors.bg} rounded text-notion-light-muted hover:${crmColors.text} transition-all`}
                               >
                                 <Icon.Edit size={12} />
-                              </button>
+                              </Button>
                             </div>
                             <span
                               className={`notion-label ${crmColors.bg} px-2 py-0.5 rounded border ${crmColors.border}`}

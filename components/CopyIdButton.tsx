@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { toast } from "sonner";
 import { Icon } from "./Icons";
+import { Button } from "./ui/Button";
 
 interface CopyIdButtonProps {
   id: string;
@@ -29,9 +30,10 @@ export const CopyIdButton: React.FC<CopyIdButtonProps> = ({
   };
 
   return (
-    <button
+    <Button
+      variant="custom"
       onClick={handleCopy}
-      className={`transition-all flex items-center gap-2 ${className} ${copied ? "text-notion-light-text dark:text-notion-dark-text" : ""}`}
+      className={`flex items-center gap-2 ${className} ${copied ? "text-notion-light-text dark:text-notion-dark-text" : ""}`}
       title="Copy Task ID for WesAI"
     >
       {copied ? (
@@ -68,6 +70,6 @@ export const CopyIdButton: React.FC<CopyIdButtonProps> = ({
           {copied ? "Copied ID" : "Copy ID"}
         </span>
       )}
-    </button>
+    </Button>
   );
 };

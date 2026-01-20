@@ -2,6 +2,7 @@ import React from "react";
 import { Page } from "../types";
 import { Icon, iconProps } from "./Icons";
 import { MODULE_COLORS } from "../constants/ui";
+import { Button } from "./ui/Button";
 
 interface SidebarProps {
   activePage: Page;
@@ -34,29 +35,32 @@ const NavItem: React.FC<NavItemProps> = ({
 }) => {
   const isActive = activePage === page;
   return (
-    <button
+    <Button
+      variant="ghost"
       onClick={() => {
         setActivePage(page);
         setIsOpen(false);
       }}
       title={isCollapsed ? label : ""}
-      className={`w-full flex items-center ${isCollapsed ? "justify-center px-0" : "px-3"} py-1.5 text-sm rounded transition-all duration-150 group active:scale-[0.98] ${
+      className={`w-full justify-start ${isCollapsed ? "justify-center px-0" : "px-3"} py-1.5 text-sm rounded transition-all duration-150 group ${
         isActive
           ? "bg-notion-light-hover dark:bg-notion-dark-hover text-notion-light-text dark:text-notion-dark-text font-medium shadow-sm"
-          : "text-notion-light-muted dark:text-notion-dark-muted hover:bg-notion-light-hover/60 dark:hover:bg-notion-dark-hover/60 hover:text-notion-light-text dark:hover:text-notion-dark-text"
+          : "text-notion-light-muted dark:text-notion-dark-muted hover:text-notion-light-text dark:hover:text-notion-dark-text"
       }`}
+      leftIcon={
+        <span
+          className={`${isActive ? "text-notion-light-text dark:text-notion-dark-text" : "text-notion-light-muted dark:text-notion-dark-muted group-hover:text-notion-light-text dark:group-hover:text-notion-dark-text"} flex-shrink-0 transition-colors duration-150`}
+        >
+          {icon}
+        </span>
+      }
     >
-      <span
-        className={`${isActive ? "text-notion-light-text dark:text-notion-dark-text" : "text-notion-light-muted dark:text-notion-dark-muted group-hover:text-notion-light-text dark:group-hover:text-notion-dark-text"} flex-shrink-0 transition-colors duration-150`}
-      >
-        {icon}
-      </span>
       <span
         className={`ml-2.5 whitespace-nowrap overflow-hidden transition-all duration-300 ${isCollapsed ? "max-w-0 opacity-0" : "max-w-xs opacity-100"}`}
       >
         {label}
       </span>
-    </button>
+    </Button>
   );
 };
 
@@ -124,9 +128,15 @@ export const Sidebar: React.FC<SidebarProps> = ({
             )}
           </div>
 
-          <button
+          <Button
+            variant="ghost"
+            size="icon"
             onClick={toggleCollapse}
-            className={`hidden lg:flex p-1.5 text-notion-light-text/40 hover:text-notion-light-text dark:text-notion-dark-text/40 dark:hover:text-notion-dark-text rounded-md hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover transition-all duration-200 active:scale-90 ${isCollapsed ? "absolute -right-3 top-4 bg-notion-light-sidebar dark:bg-notion-dark-sidebar border border-notion-light-border dark:border-notion-dark-border shadow-sm z-50" : ""}`}
+            className={`hidden lg:flex text-notion-light-text/40 hover:text-notion-light-text dark:text-notion-dark-text/40 dark:hover:text-notion-dark-text rounded-md ${
+              isCollapsed
+                ? "absolute -right-3 top-4 bg-notion-light-sidebar dark:bg-notion-dark-sidebar border border-notion-light-border dark:border-notion-dark-border shadow-sm z-50"
+                : ""
+            }`}
             title={isCollapsed ? "Expand" : "Collapse"}
           >
             {isCollapsed ? (
@@ -134,22 +144,26 @@ export const Sidebar: React.FC<SidebarProps> = ({
             ) : (
               <Icon.Prev {...iconProps(12)} />
             )}
-          </button>
+          </Button>
         </div>
 
         {/* Quick Action Button - "OP" Upgrade */}
         {!isCollapsed && (
           <div className="px-4 mb-4 mt-2">
-            <button
+            <Button
+              variant="primary"
+              size="sm"
               onClick={() => setActivePage("MISSIONS")}
-              className="w-full py-2 px-3 rounded-lg bg-notion-light-text dark:bg-notion-dark-text text-white dark:text-black text-xs font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-all shadow-sm active:scale-[0.98] group"
+              className="w-full bg-notion-light-text dark:bg-notion-dark-text text-white dark:text-black hover:opacity-90 rounded-lg py-2 group"
+              leftIcon={
+                <Icon.Add
+                  {...iconProps(14)}
+                  className="group-hover:rotate-90 transition-transform duration-300"
+                />
+              }
             >
-              <Icon.Add
-                {...iconProps(14)}
-                className="group-hover:rotate-90 transition-transform duration-300"
-              />
-              <span>New Mission</span>
-            </button>
+              New Mission
+            </Button>
           </div>
         )}
 
@@ -277,23 +291,26 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
         <div className="absolute bottom-0 left-0 w-full bg-notion-light-sidebar dark:bg-notion-dark-sidebar border-t border-notion-light-border dark:border-notion-dark-border">
           <div className="p-2 pb-4">
-            <button
+            <Button
+              variant="ghost"
               onClick={() => {
                 onOpenSettings();
                 setIsOpen(false);
               }}
               title={isCollapsed ? "System Configuration" : ""}
-              className={`w-full flex items-center ${isCollapsed ? "justify-center px-0" : "px-3"} py-2 text-sm font-medium text-notion-light-text/60 dark:text-notion-dark-text/60 hover:text-notion-light-text dark:hover:text-notion-dark-text hover:bg-notion-light-border dark:hover:bg-notion-dark-border rounded-lg transition-all duration-200 group active:scale-[0.98]`}
+              className={`w-full justify-start ${isCollapsed ? "px-0 justify-center" : "px-3"} py-2 text-sm font-medium text-notion-light-text/60 dark:text-notion-dark-text/60 hover:text-notion-light-text dark:hover:text-notion-dark-text rounded-lg group`}
+              leftIcon={
+                <span className="flex-shrink-0 group-hover:rotate-45 transition-transform duration-500">
+                  <Icon.Settings {...iconProps(18)} />
+                </span>
+              }
             >
-              <span className="flex-shrink-0 group-hover:rotate-45 transition-transform duration-500">
-                <Icon.Settings {...iconProps(18)} />
-              </span>
               <span
                 className={`ml-3 whitespace-nowrap overflow-hidden transition-all duration-300 ${isCollapsed ? "max-w-0 opacity-0" : "max-w-xs opacity-100"}`}
               >
                 Configuration
               </span>
-            </button>
+            </Button>
           </div>
         </div>
       </aside>

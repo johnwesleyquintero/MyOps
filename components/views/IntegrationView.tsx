@@ -278,12 +278,14 @@ export const IntegrationView: React.FC<IntegrationViewProps> = ({
                     : "New Integration"}
                 </h2>
                 <Button
-                  variant="custom"
+                  variant="ghost"
+                  size="icon"
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className={`p-2 ${colors.hoverBg} ${colors.text} rounded-full transition-colors`}
-                  leftIcon={<Icon.X size={20} />}
-                />
+                  className={`${colors.hoverBg} ${colors.text} rounded-full`}
+                >
+                  <Icon.X size={20} />
+                </Button>
               </div>
 
               <div className="space-y-4">

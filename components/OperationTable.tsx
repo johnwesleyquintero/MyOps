@@ -8,6 +8,7 @@ import {
   OPERATION_COLUMN_CONFIG_KEY,
 } from "@/constants";
 import { formatRelativeDate, getProjectStyle } from "../utils/formatUtils";
+import { Button } from "./ui/Button";
 
 interface OperationTableProps {
   entries: TaskEntry[];
@@ -362,9 +363,10 @@ export const OperationTable: React.FC<OperationTableProps> = ({
         );
       case "status":
         return (
-          <button
+          <Button
+            variant="custom"
             onClick={() => onStatusUpdate && onStatusUpdate(entry)}
-            className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-[10px] font-bold border cursor-pointer hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover transition-all active:scale-95 ${STATUS_COLORS[entry.status] || "bg-notion-light-sidebar"}`}
+            className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-[10px] font-bold border cursor-pointer hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover h-auto min-h-0 ${STATUS_COLORS[entry.status] || "bg-notion-light-sidebar"}`}
             title="Click to cycle status"
           >
             {/* Status Dot */}
@@ -378,7 +380,7 @@ export const OperationTable: React.FC<OperationTableProps> = ({
               }`}
             ></span>
             {entry.status}
-          </button>
+          </Button>
         );
       default:
         return null;
@@ -390,9 +392,10 @@ export const OperationTable: React.FC<OperationTableProps> = ({
   return (
     <div className="relative">
       <div className="absolute -top-10 right-0 z-20" ref={configRef}>
-        <button
+        <Button
+          variant="custom"
           onClick={() => setIsConfigOpen(!isConfigOpen)}
-          className="flex items-center gap-2 px-3 py-1.5 bg-notion-light-bg dark:bg-notion-dark-bg border border-notion-light-border dark:border-notion-dark-border rounded text-xs font-medium text-notion-light-muted dark:text-notion-dark-muted hover:text-notion-light-text dark:hover:text-notion-dark-text hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover shadow-sm transition-all"
+          className="flex items-center gap-2 px-3 py-1.5 bg-notion-light-bg dark:bg-notion-dark-bg border border-notion-light-border dark:border-notion-dark-border rounded text-xs font-medium text-notion-light-muted dark:text-notion-dark-muted hover:text-notion-light-text dark:hover:text-notion-dark-text hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover shadow-sm transition-all h-auto min-h-0"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -410,7 +413,7 @@ export const OperationTable: React.FC<OperationTableProps> = ({
             />
           </svg>
           View
-        </button>
+        </Button>
 
         {isConfigOpen && (
           <div className="absolute right-0 mt-2 w-56 bg-notion-light-bg dark:bg-notion-dark-bg border border-notion-light-border dark:border-notion-dark-border rounded-lg shadow-xl overflow-hidden animate-slide-in z-50">
@@ -435,10 +438,12 @@ export const OperationTable: React.FC<OperationTableProps> = ({
                     </span>
                   </div>
                   <div className="flex items-center opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button
+                    <Button
+                      variant="ghost"
+                      size="icon"
                       onClick={() => moveColumn(idx, "up")}
                       disabled={idx === 0}
-                      className="p-1 text-notion-light-muted hover:text-notion-light-text dark:hover:text-notion-dark-text disabled:opacity-30"
+                      className="p-1 text-notion-light-muted hover:text-notion-light-text dark:hover:text-notion-dark-text disabled:opacity-30 h-6 w-6"
                     >
                       <svg
                         width="12"
@@ -454,11 +459,13 @@ export const OperationTable: React.FC<OperationTableProps> = ({
                           d="M5 15l7-7 7 7"
                         />
                       </svg>
-                    </button>
-                    <button
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
                       onClick={() => moveColumn(idx, "down")}
                       disabled={idx === columns.length - 1}
-                      className="p-1 text-notion-light-muted hover:text-notion-light-text dark:hover:text-notion-dark-text disabled:opacity-30"
+                      className="p-1 text-notion-light-muted hover:text-notion-light-text dark:hover:text-notion-dark-text disabled:opacity-30 h-6 w-6"
                     >
                       <svg
                         width="12"
@@ -474,7 +481,7 @@ export const OperationTable: React.FC<OperationTableProps> = ({
                           d="M19 9l-7 7-7-7"
                         />
                       </svg>
-                    </button>
+                    </Button>
                   </div>
                 </div>
               ))}
@@ -514,9 +521,11 @@ export const OperationTable: React.FC<OperationTableProps> = ({
                     ))}
                     <td className="px-6 py-3 text-right sticky right-0 bg-notion-light-bg dark:bg-notion-dark-bg group-hover:bg-notion-light-hover/50 dark:group-hover:bg-notion-dark-hover/50 transition-colors shadow-[inset_1px_0_0_0_rgba(233,233,232,1)] dark:shadow-[inset_1px_0_0_0_rgba(46,46,46,1)]">
                       <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-all duration-200">
-                        <button
+                        <Button
+                          variant="ghost"
+                          size="icon"
                           onClick={() => onEdit(entry)}
-                          className="text-notion-light-muted hover:text-blue-600 dark:hover:text-blue-400 p-1.5 rounded hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover transition-colors"
+                          className="text-notion-light-muted hover:text-blue-600 dark:hover:text-blue-400 p-1.5 rounded hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover transition-colors h-8 w-8"
                           title="Edit Task"
                         >
                           <svg
@@ -534,7 +543,7 @@ export const OperationTable: React.FC<OperationTableProps> = ({
                               d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
                             />
                           </svg>
-                        </button>
+                        </Button>
                       </div>
                     </td>
                   </tr>

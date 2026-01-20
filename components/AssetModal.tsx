@@ -180,9 +180,10 @@ export const AssetModal: React.FC<AssetModalProps> = ({
                 </label>
                 <div className="flex gap-2">
                   {[1, 2, 3, 4, 5].map((score) => (
-                    <button
+                    <Button
                       key={score}
                       type="button"
+                      variant="custom"
                       onClick={() =>
                         setFormData({
                           ...formData,
@@ -197,7 +198,7 @@ export const AssetModal: React.FC<AssetModalProps> = ({
                       }`}
                     >
                       {score}
-                    </button>
+                    </Button>
                   ))}
                 </div>
               </div>
@@ -209,9 +210,10 @@ export const AssetModal: React.FC<AssetModalProps> = ({
                 </label>
                 <div className="flex gap-2">
                   {[1, 2, 3, 4, 5].map((score) => (
-                    <button
+                    <Button
                       key={score}
                       type="button"
+                      variant="custom"
                       onClick={() =>
                         setFormData({
                           ...formData,
@@ -226,7 +228,7 @@ export const AssetModal: React.FC<AssetModalProps> = ({
                       }`}
                     >
                       {score}
-                    </button>
+                    </Button>
                   ))}
                 </div>
               </div>
@@ -274,23 +276,19 @@ export const AssetModal: React.FC<AssetModalProps> = ({
             className={`flex items-center justify-end gap-3 pt-4 border-t ${colors.border}`}
           >
             <Button
-              variant="custom"
+              variant="ghost"
               onClick={onClose}
-              className={`px-4 py-2 text-xs font-bold uppercase tracking-widest text-notion-light-muted hover:${colors.text} transition-colors bg-transparent`}
+              className="px-4 py-2 text-xs font-bold uppercase tracking-widest text-notion-light-muted hover:text-notion-light-text dark:hover:text-notion-dark-text"
             >
               Cancel
             </Button>
             <Button
               type="submit"
               variant="custom"
-              disabled={isSubmitting}
-              className={`flex items-center gap-2 px-6 py-2 ${colors.bg} ${colors.text} border ${colors.border} rounded-xl text-[10px] font-bold uppercase tracking-widest ${colors.hoverBg} transition-all active:scale-95 disabled:opacity-50`}
+              isLoading={isSubmitting}
+              leftIcon={!isSubmitting && <Icon.Check size={14} />}
+              className={`px-6 py-2 ${colors.bg} ${colors.text} border ${colors.border} rounded-xl text-[10px] font-bold uppercase tracking-widest ${colors.hoverBg} transition-all active:scale-95`}
             >
-              {isSubmitting ? (
-                <div className="w-3 h-3 border-2 border-current border-t-transparent rounded-full animate-spin" />
-              ) : (
-                <Icon.Check size={14} />
-              )}
               {initialData ? "Update Asset" : "Create Asset"}
             </Button>
           </div>

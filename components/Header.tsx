@@ -1,6 +1,7 @@
 import React from "react";
 import { Page, AppConfig } from "../types";
 import { Icon, iconProps } from "./Icons";
+import { Button } from "./ui/Button";
 
 interface HeaderProps {
   activePage: Page;
@@ -53,12 +54,13 @@ export const Header: React.FC<HeaderProps> = ({
     <header className="h-14 bg-notion-light-bg dark:bg-notion-dark-bg border-b border-notion-light-border dark:border-notion-dark-border flex items-center justify-between px-4 sm:px-6 sticky top-0 z-30 transition-colors duration-200">
       <div className="flex items-center gap-3">
         {/* Mobile Hamburger */}
-        <button
+        <Button
+          variant="ghost"
+          size="icon"
           onClick={onMenuToggle}
-          className="lg:hidden p-1.5 text-notion-light-muted dark:text-notion-dark-muted hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover rounded transition-colors"
-        >
-          <Icon.Menu {...iconProps(20)} />
-        </button>
+          className="lg:hidden text-notion-light-muted dark:text-notion-dark-muted"
+          leftIcon={<Icon.Menu {...iconProps(20)} />}
+        />
 
         <h2 className="text-sm font-semibold text-notion-light-text dark:text-notion-dark-text tracking-tight">
           {getTitle()}
@@ -67,41 +69,47 @@ export const Header: React.FC<HeaderProps> = ({
 
       <div className="flex items-center gap-2">
         {/* AI Chat Button */}
-        <button
+        <Button
+          variant="ghost"
+          size="sm"
           onClick={onOpenAiChat}
-          className="hidden sm:flex items-center gap-2 text-notion-light-muted dark:text-notion-dark-muted hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover px-2 py-1.5 rounded text-xs font-medium transition-all"
+          className="hidden sm:flex text-notion-light-muted dark:text-notion-dark-muted font-medium"
+          leftIcon={<Icon.Chat {...iconProps(16)} />}
         >
-          <Icon.Chat {...iconProps(16)} />
           Ask Wes
-        </button>
+        </Button>
 
         {/* Theme Toggle */}
-        <button
+        <Button
+          variant="ghost"
+          size="icon"
           onClick={toggleTheme}
-          className="p-1.5 text-notion-light-muted dark:text-notion-dark-muted hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover rounded transition-colors"
+          className="text-notion-light-muted dark:text-notion-dark-muted"
           title={
             config.theme === "LIGHT"
               ? "Switch to Dark Mode"
               : "Switch to Light Mode"
           }
-        >
-          {config.theme === "LIGHT" ? (
-            <Icon.Moon {...iconProps(18)} />
-          ) : (
-            <Icon.Sun {...iconProps(18)} />
-          )}
-        </button>
+          leftIcon={
+            config.theme === "LIGHT" ? (
+              <Icon.Moon {...iconProps(18)} />
+            ) : (
+              <Icon.Sun {...iconProps(18)} />
+            )
+          }
+        />
 
         <div className="w-[1px] h-4 bg-notion-light-border dark:bg-notion-dark-border mx-1" />
 
         {/* Quick Action: New Task */}
-        <button
+        <Button
+          variant="primary"
+          size="sm"
           onClick={onOpenCreate}
-          className="notion-button notion-button-primary"
+          leftIcon={<Icon.Add {...iconProps(14, "stroke-[3px]")} />}
         >
-          <Icon.Add {...iconProps(14, "stroke-[3px]")} />
           <span className="hidden xs:inline">New</span>
-        </button>
+        </Button>
       </div>
     </header>
   );

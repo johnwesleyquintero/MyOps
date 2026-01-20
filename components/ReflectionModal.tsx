@@ -3,6 +3,7 @@ import { ReflectionEntry } from "../types";
 import { Icon, iconProps } from "./Icons";
 import { toast } from "sonner";
 import { MODULE_COLORS } from "../constants/ui";
+import { Button } from "./ui";
 
 interface ReflectionModalProps {
   isOpen: boolean;
@@ -116,12 +117,14 @@ export const ReflectionModal: React.FC<ReflectionModalProps> = ({
               {initialData ? "Edit Reflection" : "New Reflection"}
             </h2>
           </div>
-          <button
+          <Button
+            variant="ghost"
+            size="icon"
             onClick={onClose}
-            className="p-1 hover:bg-notion-light-border dark:hover:bg-notion-dark-border rounded-md transition-colors"
+            className="hover:bg-notion-light-border dark:hover:bg-notion-dark-border"
           >
             <Icon.Close {...iconProps(16)} />
-          </button>
+          </Button>
         </div>
 
         {/* Modal Body */}
@@ -208,14 +211,16 @@ export const ReflectionModal: React.FC<ReflectionModalProps> = ({
               <label className="text-xs font-medium text-notion-light-muted dark:text-notion-dark-muted">
                 Key Learnings
               </label>
-              <button
+              <Button
                 type="button"
+                variant="ghost"
+                size="xs"
                 onClick={() => addListEntry("learnings")}
-                className={`text-[10px] font-semibold ${colors.text} hover:opacity-80 flex items-center gap-1`}
+                className={`font-semibold ${colors.text} hover:opacity-80`}
+                leftIcon={<Icon.Plus {...iconProps(10)} />}
               >
-                <Icon.Plus {...iconProps(10)} />
                 Add Learning
-              </button>
+              </Button>
             </div>
             <div className="space-y-2">
               {(formData.learnings || []).map((item, index) => (
@@ -229,13 +234,15 @@ export const ReflectionModal: React.FC<ReflectionModalProps> = ({
                       updateListEntry("learnings", index, e.target.value)
                     }
                   />
-                  <button
+                  <Button
                     type="button"
+                    variant="ghost"
+                    size="icon"
                     onClick={() => removeListEntry("learnings", index)}
-                    className={`p-1.5 text-notion-light-muted ${MODULE_COLORS.error.text} transition-colors`}
+                    className={`text-notion-light-muted ${MODULE_COLORS.error.text}`}
                   >
                     <Icon.Close {...iconProps(12)} />
-                  </button>
+                  </Button>
                 </div>
               ))}
               {(!formData.learnings || formData.learnings.length === 0) && (
@@ -252,14 +259,16 @@ export const ReflectionModal: React.FC<ReflectionModalProps> = ({
               <label className="text-xs font-medium text-notion-light-muted dark:text-notion-dark-muted">
                 Action Items (Future Prevention/Optimization)
               </label>
-              <button
+              <Button
                 type="button"
+                variant="ghost"
+                size="xs"
                 onClick={() => addListEntry("actionItems")}
-                className={`text-[10px] font-semibold ${colors.text} hover:opacity-80 flex items-center gap-1`}
+                className={`font-semibold ${colors.text} hover:opacity-80`}
+                leftIcon={<Icon.Plus {...iconProps(10)} />}
               >
-                <Icon.Plus {...iconProps(10)} />
                 Add Action
-              </button>
+              </Button>
             </div>
             <div className="space-y-2">
               {(formData.actionItems || []).map((item, index) => (
@@ -273,13 +282,15 @@ export const ReflectionModal: React.FC<ReflectionModalProps> = ({
                       updateListEntry("actionItems", index, e.target.value)
                     }
                   />
-                  <button
+                  <Button
                     type="button"
+                    variant="ghost"
+                    size="icon"
                     onClick={() => removeListEntry("actionItems", index)}
-                    className="p-1.5 text-notion-light-muted hover:text-red-500 transition-colors"
+                    className="text-notion-light-muted hover:text-red-500"
                   >
                     <Icon.Close {...iconProps(12)} />
-                  </button>
+                  </Button>
                 </div>
               ))}
               {(!formData.actionItems || formData.actionItems.length === 0) && (
@@ -293,26 +304,22 @@ export const ReflectionModal: React.FC<ReflectionModalProps> = ({
 
         {/* Modal Footer */}
         <div className="px-6 py-4 border-t border-notion-light-border dark:border-notion-dark-border bg-notion-light-sidebar dark:bg-notion-dark-sidebar flex items-center justify-end gap-3">
-          <button
+          <Button
+            variant="ghost"
             onClick={onClose}
-            className={`px-4 py-2 text-sm font-medium text-notion-light-text dark:text-notion-dark-text hover:${colors.lightBg} rounded-lg transition-colors`}
+            className={`px-4 py-2 text-sm font-medium text-notion-light-text dark:text-notion-dark-text hover:${colors.lightBg}`}
           >
             Cancel
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={handleSubmit}
-            disabled={isSubmitting}
-            className={`px-4 py-2 text-sm font-medium ${colors.bg} ${colors.text} ${colors.border} border rounded-lg shadow-sm transition-all flex items-center gap-2 disabled:opacity-50 hover:opacity-80 active:scale-95`}
+            variant="custom"
+            isLoading={isSubmitting}
+            leftIcon={!isSubmitting && <Icon.Active {...iconProps(16)} />}
+            className={`px-4 py-2 text-sm font-medium ${colors.bg} ${colors.text} ${colors.border} border rounded-lg shadow-sm hover:opacity-80 active:scale-95`}
           >
-            {isSubmitting ? (
-              <div
-                className={`w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin`}
-              />
-            ) : (
-              <Icon.Active {...iconProps(16)} />
-            )}
             {initialData ? "Update Reflection" : "Archive Reflection"}
-          </button>
+          </Button>
         </div>
       </div>
     </div>

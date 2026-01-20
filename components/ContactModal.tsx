@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Contact } from "../types";
 import { Icon as Icons } from "./Icons";
 import { MODULE_COLORS } from "../constants/ui";
+import { Button } from "./ui";
 
 interface ContactModalProps {
   isOpen: boolean;
@@ -82,12 +83,14 @@ export const ContactModal: React.FC<ContactModalProps> = ({
           <h2 className="text-lg font-bold text-notion-light-text dark:text-notion-dark-text">
             {initialData ? "Edit Intelligence Profile" : "New Network Addition"}
           </h2>
-          <button
+          <Button
+            variant="ghost"
+            size="icon"
             onClick={onClose}
-            className="p-1 hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover rounded transition-colors"
+            className="hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover"
           >
             <Icons.Close size={20} />
-          </button>
+          </Button>
         </div>
 
         <form
@@ -210,25 +213,22 @@ export const ContactModal: React.FC<ContactModalProps> = ({
           </div>
 
           <div className="pt-4 flex justify-end gap-3 border-t border-notion-light-border dark:border-notion-dark-border">
-            <button
-              type="button"
+            <Button
+              variant="ghost"
               onClick={onClose}
-              className={`px-4 py-2 text-xs font-black uppercase tracking-widest text-notion-light-muted hover:${colors.text} transition-colors`}
+              className={`px-4 py-2 text-xs font-black uppercase tracking-widest text-notion-light-muted hover:${colors.text}`}
               disabled={isSubmitting}
             >
               Cancel
-            </button>
-            <button
+            </Button>
+            <Button
               type="submit"
-              className={`px-6 py-2 ${colors.bg} ${colors.text} ${colors.border} border rounded-xl font-black text-xs uppercase tracking-widest shadow-sm ${colors.hoverBg} transition-all active:scale-95 disabled:opacity-50`}
-              disabled={isSubmitting}
+              variant="custom"
+              isLoading={isSubmitting}
+              className={`px-6 py-2 ${colors.bg} ${colors.text} ${colors.border} border rounded-xl font-black text-xs uppercase tracking-widest shadow-sm ${colors.hoverBg} transition-all active:scale-95`}
             >
-              {isSubmitting
-                ? "Syncing..."
-                : initialData
-                  ? "Update Profile"
-                  : "Lock In Contact"}
-            </button>
+              {initialData ? "Update Profile" : "Lock In Contact"}
+            </Button>
           </div>
         </form>
       </div>

@@ -1,6 +1,7 @@
 import React from "react";
 import { AppConfig } from "../../types";
 import { Icon } from "../Icons";
+import { Button } from "../ui";
 
 interface ConnectionSettingsProps {
   config: AppConfig;
@@ -19,32 +20,30 @@ export const ConnectionSettings: React.FC<ConnectionSettingsProps> = ({
           Interface Theme
         </label>
         <div className="flex gap-4">
-          <button
+          <Button
             onClick={() => onChange({ ...config, theme: "LIGHT" })}
-            className={`flex-1 py-3 px-4 rounded text-sm font-medium border transition-all ${
+            variant="custom"
+            className={`flex-1 py-3 px-4 rounded-xl text-sm font-medium border transition-all ${
               config.theme === "LIGHT"
-                ? "bg-notion-light-hover dark:bg-notion-dark-hover text-notion-light-text dark:text-notion-dark-text border-notion-light-border dark:border-notion-dark-border ring-1 ring-notion-light-border dark:ring-notion-dark-border"
+                ? "bg-notion-light-hover dark:bg-notion-dark-hover text-notion-light-text dark:text-notion-dark-text border-notion-light-border dark:border-notion-dark-border ring-1 ring-notion-light-border dark:ring-notion-dark-border shadow-sm"
                 : "bg-notion-light-bg dark:bg-notion-dark-bg text-notion-light-muted dark:text-notion-dark-muted border-notion-light-border dark:border-notion-dark-border hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover"
             }`}
+            leftIcon={<Icon.Sun className="w-4 h-4" />}
           >
-            <span className="flex items-center justify-center gap-2">
-              <Icon.Sun className="w-4 h-4" />
-              Light
-            </span>
-          </button>
-          <button
+            Light
+          </Button>
+          <Button
             onClick={() => onChange({ ...config, theme: "DARK" })}
-            className={`flex-1 py-3 px-4 rounded text-sm font-medium border transition-all ${
+            variant="custom"
+            className={`flex-1 py-3 px-4 rounded-xl text-sm font-medium border transition-all ${
               config.theme === "DARK"
-                ? "bg-notion-light-hover dark:bg-notion-dark-hover text-notion-light-text dark:text-notion-dark-text border-notion-light-border dark:border-notion-dark-border ring-1 ring-notion-light-border dark:ring-notion-dark-border"
+                ? "bg-notion-light-hover dark:bg-notion-dark-hover text-notion-light-text dark:text-notion-dark-text border-notion-light-border dark:border-notion-dark-border ring-1 ring-notion-light-border dark:ring-notion-dark-border shadow-sm"
                 : "bg-notion-light-bg dark:bg-notion-dark-bg text-notion-light-muted dark:text-notion-dark-muted border-notion-light-border dark:border-notion-dark-border hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover"
             }`}
+            leftIcon={<Icon.Moon className="w-4 h-4" />}
           >
-            <span className="flex items-center justify-center gap-2">
-              <Icon.Moon className="w-4 h-4" />
-              Dark
-            </span>
-          </button>
+            Dark
+          </Button>
         </div>
       </div>
 
@@ -53,26 +52,28 @@ export const ConnectionSettings: React.FC<ConnectionSettingsProps> = ({
           Operation Mode
         </label>
         <div className="flex gap-4">
-          <button
+          <Button
             onClick={() => onChange({ ...config, mode: "DEMO" })}
-            className={`flex-1 py-3 px-4 rounded text-sm font-medium border transition-all ${
+            variant="custom"
+            className={`flex-1 py-3 px-4 rounded-xl text-sm font-medium border transition-all ${
               config.mode === "DEMO"
-                ? "bg-notion-light-text text-white border-notion-light-text dark:bg-notion-dark-text dark:text-black"
+                ? "bg-notion-light-text text-white border-notion-light-text dark:bg-notion-dark-text dark:text-black shadow-md"
                 : "bg-notion-light-bg dark:bg-notion-dark-bg text-notion-light-muted dark:text-notion-dark-muted border-notion-light-border dark:border-notion-dark-border hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover"
             }`}
           >
             Demo (Local)
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={() => onChange({ ...config, mode: "LIVE" })}
-            className={`flex-1 py-3 px-4 rounded text-sm font-medium border transition-all ${
+            variant="custom"
+            className={`flex-1 py-3 px-4 rounded-xl text-sm font-medium border transition-all ${
               config.mode === "LIVE"
-                ? "bg-blue-600 text-white border-blue-600 shadow-sm"
+                ? "bg-blue-600 text-white border-blue-600 shadow-md"
                 : "bg-notion-light-bg dark:bg-notion-dark-bg text-notion-light-muted dark:text-notion-dark-muted border-notion-light-border dark:border-notion-dark-border hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover"
             }`}
           >
             Live (Google Sheets)
-          </button>
+          </Button>
         </div>
         <p className="text-xs text-notion-light-muted dark:text-notion-dark-muted mt-2">
           {config.mode === "DEMO"

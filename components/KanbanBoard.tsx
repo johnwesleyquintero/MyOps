@@ -2,6 +2,7 @@ import React, { useMemo } from "react";
 import { TaskEntry, StatusLevel } from "../types";
 import { KanbanCard } from "./kanban/KanbanCard";
 import { Icon, iconProps } from "./Icons";
+import { Button } from "./ui/Button";
 
 interface KanbanBoardProps {
   entries: TaskEntry[];
@@ -64,12 +65,14 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
                 {columns[status].length}
               </span>
             </div>
-            <button
+            <Button
+              variant="ghost"
+              size="icon"
               onClick={onAdd}
-              className="p-1 hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover rounded text-notion-light-muted dark:text-notion-dark-muted hover:text-notion-light-text dark:hover:text-notion-dark-text transition-all"
+              className="text-notion-light-muted dark:text-notion-dark-muted hover:text-notion-light-text dark:hover:text-notion-dark-text transition-all"
             >
               <Icon.Add {...iconProps(14)} />
-            </button>
+            </Button>
           </div>
           <div className="flex-1 p-2 overflow-y-auto space-y-2 custom-scrollbar">
             {columns[status].map((task) => (

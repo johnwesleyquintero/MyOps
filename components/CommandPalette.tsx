@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo, useRef } from "react";
 import { TaskEntry, Page, Contact, Note } from "../types";
 import { PRIORITY_DOTS } from "@/constants";
 import { Icon, iconProps } from "./Icons";
+import { Button } from "./ui/Button";
 
 interface CommandPaletteProps {
   isOpen: boolean;
@@ -441,13 +442,15 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
                 )}
 
                 {item.type === "TASK" && item.meta?.status !== "Done" && (
-                  <button
+                  <Button
+                    variant="ghost"
+                    size="icon"
                     onClick={(e) => {
                       e.stopPropagation();
-                      onToggleFocus(item.meta);
+                      onToggleFocus(item.meta!);
                       onClose();
                     }}
-                    className={`ml-1 p-2 rounded-lg transition-all ${
+                    className={`ml-1 ${
                       index === selectedIndex
                         ? "text-notion-light-text dark:text-notion-dark-text hover:bg-notion-light-bg dark:hover:bg-notion-dark-bg border border-notion-light-border dark:border-notion-dark-border"
                         : "text-notion-light-muted dark:text-notion-dark-muted hover:text-notion-light-text dark:hover:text-notion-dark-text"
@@ -455,7 +458,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
                     title="Enter Focus Mode"
                   >
                     <Icon.Focus size={14} />
-                  </button>
+                  </Button>
                 )}
               </div>
             ))

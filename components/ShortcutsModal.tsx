@@ -1,5 +1,6 @@
 import React from "react";
 import { Icon } from "./Icons";
+import { Button } from "./ui/Button";
 
 interface ShortcutsModalProps {
   isOpen: boolean;
@@ -59,12 +60,14 @@ export const ShortcutsModal: React.FC<ShortcutsModalProps> = ({
               Keyboard Shortcuts
             </h3>
           </div>
-          <button
+          <Button
+            variant="ghost"
+            size="icon"
             onClick={onClose}
-            className="p-1.5 text-notion-light-muted hover:text-notion-light-text dark:hover:text-notion-dark-text hover:bg-notion-light-sidebar dark:hover:bg-notion-dark-sidebar rounded-lg transition-all"
+            className="text-notion-light-muted hover:text-notion-light-text dark:hover:text-notion-dark-text hover:bg-notion-light-sidebar dark:hover:bg-notion-dark-sidebar rounded-lg transition-all h-8 w-8"
           >
             <Icon.Close size={16} />
-          </button>
+          </Button>
         </div>
 
         <div className="p-8 space-y-8">

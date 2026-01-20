@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Icon, iconProps } from "./Icons";
 import { ColumnConfig, SortKey } from "../hooks/useTableColumns";
+import { Button } from "./ui";
 
 interface ColumnConfigDropdownProps {
   columns: ColumnConfig[];
@@ -12,7 +13,7 @@ interface ColumnConfigDropdownProps {
 export const ColumnConfigDropdown: React.FC<ColumnConfigDropdownProps> = ({
   columns,
   toggleColumn,
-  className = "p-1 hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover rounded transition-colors",
+  className = "p-1 hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover",
   label,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -33,7 +34,8 @@ export const ColumnConfigDropdown: React.FC<ColumnConfigDropdownProps> = ({
 
   return (
     <div className="relative" ref={dropdownRef}>
-      <button
+      <Button
+        variant="custom"
         onClick={() => setIsOpen(!isOpen)}
         className={className}
         title="Display Columns"
@@ -51,7 +53,7 @@ export const ColumnConfigDropdown: React.FC<ColumnConfigDropdownProps> = ({
             </span>
           )}
         </div>
-      </button>
+      </Button>
 
       {isOpen && (
         <div className="absolute right-0 top-full mt-2 w-48 bg-notion-light-bg dark:bg-notion-dark-bg border border-notion-light-border dark:border-notion-dark-border rounded-xl shadow-xl z-50 p-2 animate-in fade-in zoom-in-95 duration-100">

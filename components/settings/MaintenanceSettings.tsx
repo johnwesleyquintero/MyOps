@@ -12,6 +12,7 @@ import {
 } from "../../types";
 import { Icon } from "../Icons";
 import { toast } from "sonner";
+import { Button } from "../ui";
 
 interface MaintenanceSettingsProps {
   entries: TaskEntry[];
@@ -95,13 +96,14 @@ export const MaintenanceSettings: React.FC<MaintenanceSettingsProps> = ({
             </div>
           </div>
 
-          <button
+          <Button
             onClick={handleExport}
-            className="w-full flex items-center justify-center gap-2 py-2 px-4 bg-notion-light-text dark:bg-notion-dark-text text-white dark:text-notion-dark-bg rounded text-xs font-bold hover:opacity-90 transition-opacity"
+            variant="primary"
+            leftIcon={<Icon.Download className="w-4 h-4" />}
+            className="w-full py-2.5 rounded-xl text-[10px] font-bold uppercase tracking-widest"
           >
-            <Icon.Download className="w-4 h-4" />
             EXPORT FULL SYSTEM SNAPSHOT
-          </button>
+          </Button>
         </div>
       </div>
 

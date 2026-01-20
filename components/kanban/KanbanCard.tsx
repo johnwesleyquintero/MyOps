@@ -4,6 +4,7 @@ import { PRIORITY_DOTS } from "@/constants";
 import { formatRelativeDate, getProjectStyle } from "../../utils/formatUtils";
 import { CopyIdButton } from "../CopyIdButton";
 import { Icon, iconProps } from "../Icons";
+import { Button } from "../ui/Button";
 
 interface KanbanCardProps {
   task: TaskEntry;
@@ -90,25 +91,29 @@ export const KanbanCard: React.FC<KanbanCardProps> = ({
             id={task.id}
             className="text-notion-light-muted hover:text-notion-light-text dark:hover:text-notion-dark-text p-1 rounded hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover"
           />
-          <button
+          <Button
+            variant="ghost"
+            size="icon"
             onClick={(e) => {
               e.stopPropagation();
               onDuplicate(task);
             }}
-            className="text-notion-light-muted hover:text-notion-light-text dark:hover:text-notion-dark-text p-1 rounded hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover"
+            className="text-notion-light-muted hover:text-notion-light-text dark:hover:text-notion-dark-text h-6 w-6"
           >
             <Icon.Copy {...iconProps(12)} />
-          </button>
+          </Button>
           {!isDone && (
-            <button
+            <Button
+              variant="ghost"
+              size="icon"
               onClick={(e) => {
                 e.stopPropagation();
                 onFocus(task);
               }}
-              className="text-notion-light-muted hover:text-notion-light-text dark:hover:text-notion-dark-text p-1 rounded hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover"
+              className="text-notion-light-muted hover:text-notion-light-text dark:hover:text-notion-dark-text h-6 w-6"
             >
               <Icon.Focus {...iconProps(12)} />
-            </button>
+            </Button>
           )}
         </div>
       </div>

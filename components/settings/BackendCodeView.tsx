@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { GAS_BACKEND_CODE } from "../../assets/gasSource";
 import { toast } from "sonner";
 import { Icon } from "../Icons";
+import { Button } from "../ui";
 
 export const BackendCodeView: React.FC = () => {
   const [copyFeedback, setCopyFeedback] = useState<string>("Copy Code");
@@ -73,12 +74,21 @@ export const BackendCodeView: React.FC = () => {
           <span className="text-[10px] font-bold text-notion-light-muted dark:text-notion-dark-muted py-1 px-2 bg-notion-light-bg dark:bg-notion-dark-bg border border-notion-light-border dark:border-notion-dark-border rounded">
             Code.gs
           </span>
-          <button
+          <Button
             onClick={handleCopyCode}
-            className="text-[10px] font-bold bg-notion-light-text dark:bg-notion-dark-text text-white dark:text-black px-3 py-1 rounded hover:opacity-90 transition-all shadow-sm"
+            variant="primary"
+            size="xs"
+            className="rounded-lg shadow-sm"
+            leftIcon={
+              copyFeedback === "Copied!" ? (
+                <Icon.Check size={12} />
+              ) : (
+                <Icon.Copy size={12} />
+              )
+            }
           >
-            {copyFeedback}
-          </button>
+            {copyFeedback.toUpperCase()}
+          </Button>
         </div>
         <textarea
           readOnly

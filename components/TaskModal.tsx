@@ -34,7 +34,6 @@ export const TaskModal: React.FC<TaskModalProps> = ({
     useTaskForm(initialData, entries);
 
   const successColors = MODULE_COLORS.success;
-  const errorColors = MODULE_COLORS.error;
 
   const [copiedMd, setCopiedMd] = useState(false);
 
@@ -107,9 +106,10 @@ export const TaskModal: React.FC<TaskModalProps> = ({
                   className="text-xs text-notion-light-muted hover:text-notion-light-text dark:hover:text-notion-dark-text"
                 />
                 <Button
-                  variant="custom"
+                  variant="ghost"
+                  size="icon"
                   onClick={handleCopyMarkdown}
-                  className="p-1 text-notion-light-muted hover:text-notion-light-text dark:hover:text-notion-dark-text transition-colors"
+                  className="text-notion-light-muted hover:text-notion-light-text dark:hover:text-notion-dark-text transition-colors"
                   title="Copy Task as Markdown"
                 >
                   {copiedMd ? (
@@ -123,9 +123,10 @@ export const TaskModal: React.FC<TaskModalProps> = ({
           </div>
           <div className="flex items-center gap-2">
             <Button
-              variant="custom"
+              variant="ghost"
+              size="icon"
               onClick={onClose}
-              className="p-1.5 hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover rounded text-notion-light-muted transition-colors"
+              className="text-notion-light-muted transition-colors"
             >
               <Icon.Close {...iconProps(18)} />
             </Button>
@@ -313,35 +314,23 @@ export const TaskModal: React.FC<TaskModalProps> = ({
         <div className="px-4 py-3 border-t border-notion-light-border dark:border-notion-dark-border flex items-center justify-between bg-notion-light-sidebar dark:bg-notion-dark-sidebar">
           <div className="flex items-center gap-2">
             {initialData && (
-              <button
-                type="button"
-                onClick={handleDelete}
-                className={`px-3 py-1.5 text-xs font-medium ${errorColors.text} ${errorColors.hoverBg} rounded transition-colors`}
-              >
+              <Button variant="danger" size="sm" onClick={handleDelete}>
                 Delete
-              </button>
+              </Button>
             )}
           </div>
           <div className="flex items-center gap-3">
-            <Button
-              variant="custom"
-              type="button"
-              onClick={onClose}
-              className="notion-button notion-button-ghost"
-            >
+            <Button variant="ghost" size="sm" onClick={onClose}>
               Cancel
             </Button>
             <Button
-              variant="custom"
+              variant="primary"
+              size="sm"
               onClick={() => handleSubmit()}
-              disabled={isSubmitting || !formData.description}
-              className="notion-button notion-button-primary disabled:opacity-50"
+              isLoading={isSubmitting}
+              disabled={!formData.description}
             >
-              {isSubmitting
-                ? "Saving..."
-                : initialData
-                  ? "Update Task"
-                  : "Create Task"}
+              {initialData ? "Update Task" : "Create Task"}
             </Button>
           </div>
         </div>

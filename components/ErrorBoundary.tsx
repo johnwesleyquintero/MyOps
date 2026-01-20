@@ -1,6 +1,7 @@
 import React, { Component, ErrorInfo, ReactNode } from "react";
 import { Icon } from "./Icons";
 import { toast } from "sonner";
+import { Button } from "./ui/Button";
 
 interface Props {
   children: ReactNode;
@@ -122,38 +123,39 @@ ${errorInfo.componentStack}
               </div>
 
               <div className="flex gap-4">
-                <button
+                <Button
+                  variant="custom"
                   onClick={this.handleReset}
-                  className="notion-button notion-button-danger px-6 py-2.5 font-bold"
+                  className="bg-red-600 hover:bg-red-700 text-white px-6 py-2.5 font-bold"
+                  leftIcon={<Icon.Alert size={18} />}
                 >
                   Hard Reset
-                </button>
-                <button
+                </Button>
+                <Button
+                  variant="custom"
                   onClick={this.handleCopyMarkdown}
-                  className={`notion-button px-6 py-2.5 font-bold ${
+                  className={`px-6 py-2.5 font-bold border ${
                     this.state.copied
                       ? "bg-green-600 dark:bg-green-500/20 text-white dark:text-green-400 border-transparent dark:border-green-500/30"
-                      : "border-notion-light-border dark:border-notion-dark-border"
+                      : "bg-notion-light-bg dark:bg-notion-dark-bg border-notion-light-border dark:border-notion-dark-border hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover"
                   }`}
-                >
-                  {this.state.copied ? (
-                    <>
+                  leftIcon={
+                    this.state.copied ? (
                       <Icon.Check size={18} />
-                      Copied!
-                    </>
-                  ) : (
-                    <>
+                    ) : (
                       <Icon.Copy size={18} />
-                      Copy Context (MD)
-                    </>
-                  )}
-                </button>
-                <button
+                    )
+                  }
+                >
+                  {this.state.copied ? "Copied!" : "Copy Context (MD)"}
+                </Button>
+                <Button
+                  variant="custom"
                   onClick={() => (window.location.href = "/")}
-                  className="notion-button px-6 py-2.5 border-notion-light-border dark:border-notion-dark-border"
+                  className="bg-notion-light-bg dark:bg-notion-dark-bg border border-notion-light-border dark:border-notion-dark-border hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover px-6 py-2.5"
                 >
                   Return to Base
-                </button>
+                </Button>
               </div>
             </div>
           </div>
@@ -182,18 +184,20 @@ ${errorInfo.componentStack}
             </div>
 
             <div className="flex flex-col gap-3">
-              <button
+              <Button
+                variant="primary"
                 onClick={this.handleReset}
-                className="w-full notion-button notion-button-primary py-3.5 text-base"
+                className="w-full py-3.5 text-base"
               >
                 Restart Cockpit
-              </button>
-              <button
+              </Button>
+              <Button
+                variant="custom"
                 onClick={() => (window.location.href = "/")}
-                className="w-full notion-button py-3.5 text-base border-notion-light-border dark:border-notion-dark-border"
+                className="w-full py-3.5 text-base bg-notion-light-bg dark:bg-notion-dark-bg border border-notion-light-border dark:border-notion-dark-border hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover"
               >
                 Back to Dashboard
-              </button>
+              </Button>
             </div>
 
             <p className="notion-label">

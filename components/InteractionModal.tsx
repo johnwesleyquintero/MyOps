@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Interaction } from "../types";
 import { Icon as Icons } from "./Icons";
 import { MODULE_COLORS } from "../constants/ui";
+import { Button } from "./ui";
 
 interface InteractionModalProps {
   isOpen: boolean;
@@ -77,12 +78,14 @@ export const InteractionModal: React.FC<InteractionModalProps> = ({
           <h2 className="text-lg font-bold text-notion-light-text dark:text-notion-dark-text">
             {initialData ? "Edit Interaction" : "Log Interaction"}
           </h2>
-          <button
+          <Button
+            variant="ghost"
+            size="icon"
             onClick={onClose}
-            className="p-1 hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover rounded transition-colors"
+            className="hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover"
           >
             <Icons.Close size={20} />
-          </button>
+          </Button>
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 space-y-5">
@@ -137,24 +140,23 @@ export const InteractionModal: React.FC<InteractionModalProps> = ({
           </div>
 
           <div className="flex justify-end gap-3 pt-4">
-            <button
+            <Button
+              variant="ghost"
               type="button"
               onClick={onClose}
               className={`px-4 py-2 text-xs font-black uppercase tracking-widest text-notion-light-muted hover:${colors.text} transition-colors`}
             >
               Cancel
-            </button>
-            <button
+            </Button>
+            <Button
+              variant="custom"
               type="submit"
-              disabled={isSubmitting || !formData.notes}
+              isLoading={isSubmitting}
+              disabled={!formData.notes}
               className={`px-6 py-2 ${colors.bg} ${colors.text} ${colors.border} border rounded-xl font-black text-xs uppercase tracking-widest shadow-sm ${colors.hoverBg} transition-all active:scale-95 disabled:opacity-50`}
             >
-              {isSubmitting
-                ? initialData
-                  ? "Updating..."
-                  : "Logging..."
-                : "Save Log"}
-            </button>
+              {initialData ? "Update Log" : "Save Log"}
+            </Button>
           </div>
         </form>
       </div>

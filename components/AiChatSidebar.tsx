@@ -15,6 +15,7 @@ import {
 } from "../types";
 import { useAiChat } from "../hooks/useAiChat";
 import { Icon, iconProps } from "./Icons";
+import { Button } from "./ui/Button";
 import { toast } from "sonner";
 
 interface AiChatSidebarProps {
@@ -195,9 +196,11 @@ export const AiChatSidebar: React.FC<AiChatSidebarProps> = ({
             </h2>
           </div>
           <div className="flex items-center gap-1">
-            <button
+            <Button
+              variant="ghost"
+              size="icon"
               onClick={resetChat}
-              className="p-2 text-notion-light-text/40 hover:text-notion-light-text dark:text-notion-dark-text/40 dark:hover:text-notion-dark-text rounded-lg hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover transition-all duration-200 group"
+              className="text-notion-light-text/40 hover:text-notion-light-text dark:text-notion-dark-text/40 dark:hover:text-notion-dark-text group"
               title="Reset Chat"
             >
               <Icon.Reset
@@ -206,13 +209,15 @@ export const AiChatSidebar: React.FC<AiChatSidebarProps> = ({
                   "group-hover:rotate-180 transition-transform duration-500",
                 )}
               />
-            </button>
-            <button
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
               onClick={onClose}
-              className="p-2 text-notion-light-text/40 hover:text-notion-light-text dark:text-notion-dark-text/40 dark:hover:text-notion-dark-text rounded-lg hover:bg-notion-light-border dark:hover:bg-notion-dark-border transition-all duration-200"
+              className="text-notion-light-text/40 hover:text-notion-light-text dark:text-notion-dark-text/40 dark:hover:text-notion-dark-text"
             >
               <Icon.Close {...iconProps(18)} />
-            </button>
+            </Button>
           </div>
         </div>
 
@@ -240,9 +245,11 @@ export const AiChatSidebar: React.FC<AiChatSidebarProps> = ({
                         WesAI
                       </span>
                     </div>
-                    <button
+                    <Button
+                      variant="ghost"
+                      size="icon"
                       onClick={() => handleCopy(msg.text, msg.id)}
-                      className="opacity-0 group-hover/msg:opacity-100 p-1 hover:bg-notion-light-border dark:hover:bg-notion-dark-border rounded transition-all text-notion-light-text/40 hover:text-notion-light-text dark:text-notion-dark-text/40 dark:hover:text-notion-dark-text"
+                      className="opacity-0 group-hover/msg:opacity-100 p-1 hover:bg-notion-light-border dark:hover:bg-notion-dark-border text-notion-light-text/40 hover:text-notion-light-text dark:text-notion-dark-text/40 dark:hover:text-notion-dark-text"
                       title="Copy as Markdown"
                     >
                       {copiedId === msg.id ? (
@@ -250,7 +257,7 @@ export const AiChatSidebar: React.FC<AiChatSidebarProps> = ({
                       ) : (
                         <Icon.Copy {...iconProps(12)} />
                       )}
-                    </button>
+                    </Button>
                   </div>
                 )}
                 {msg.role === "model" ? (
@@ -368,25 +375,29 @@ export const AiChatSidebar: React.FC<AiChatSidebarProps> = ({
                     alt="Preview"
                     className="w-12 h-12 object-cover rounded-lg border border-notion-light-border dark:border-notion-dark-border"
                   />
-                  <button
+                  <Button
+                    variant="custom"
+                    size="icon"
                     onClick={() => removeAttachment(idx)}
-                    className="absolute -top-1.5 -right-1.5 bg-red-500 text-white rounded-full p-0.5 shadow-md opacity-0 group-hover:opacity-100 transition-opacity"
+                    className="absolute -top-1.5 -right-1.5 bg-red-500 text-white rounded-full p-0.5 shadow-md opacity-0 group-hover:opacity-100 transition-opacity h-4 w-4"
                   >
                     <Icon.Close {...iconProps(10)} />
-                  </button>
+                  </Button>
                 </div>
               ))}
             </div>
           )}
 
           <div className="relative group flex items-end gap-2">
-            <button
+            <Button
+              variant="ghost"
+              size="icon"
               onClick={() => fileInputRef.current?.click()}
-              className="p-2.5 rounded-xl hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover text-notion-light-muted dark:text-notion-dark-muted transition-all"
+              className="p-2.5 rounded-xl text-notion-light-muted dark:text-notion-dark-muted h-[48px] w-[48px]"
               title="Upload Image"
             >
               <Icon.Add {...iconProps(18)} />
-            </button>
+            </Button>
             <input
               type="file"
               ref={fileInputRef}
@@ -409,17 +420,19 @@ export const AiChatSidebar: React.FC<AiChatSidebarProps> = ({
                 className="w-full bg-notion-light-sidebar dark:bg-notion-dark-sidebar border border-notion-light-border dark:border-notion-dark-border rounded-xl pl-4 pr-12 py-3.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500/50 transition-all duration-300 resize-none custom-scrollbar text-notion-light-text dark:text-notion-dark-text placeholder-notion-light-text/30 dark:placeholder-notion-dark-text/30 disabled:opacity-50 disabled:cursor-not-allowed shadow-inner"
                 style={{ minHeight: "48px", maxHeight: "160px" }}
               />
-              <button
+              <Button
+                variant="custom"
+                size="icon"
                 onClick={handleSendMessage}
                 disabled={
                   (!inputValue.trim() && attachments.length === 0) ||
                   isThinking ||
                   !config.geminiApiKey
                 }
-                className="absolute right-2 bottom-2 p-2 bg-notion-light-text dark:bg-notion-dark-text text-white dark:text-notion-dark-bg rounded-lg hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg active:scale-95"
+                className="absolute right-2 bottom-2 p-2 bg-notion-light-text dark:bg-notion-dark-text text-white dark:text-notion-dark-bg rounded-lg hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg active:scale-95 h-8 w-8"
               >
                 <Icon.Send {...iconProps(16)} />
-              </button>
+              </Button>
             </div>
           </div>
           <div className="text-[10px] text-notion-light-text/30 dark:text-notion-dark-text/30 text-center mt-3 flex justify-center items-center gap-3 font-medium uppercase tracking-widest">

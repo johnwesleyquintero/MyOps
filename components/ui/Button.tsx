@@ -21,7 +21,9 @@ export const Button: React.FC<ButtonProps> = ({
   ...props
 }) => {
   const baseStyles =
-    "inline-flex items-center justify-center font-medium transition-all active:scale-95 disabled:opacity-50 disabled:pointer-events-none rounded-xl";
+    "transition-all active:scale-95 disabled:opacity-50 disabled:pointer-events-none rounded-xl";
+
+  const layoutStyles = "inline-flex items-center justify-center font-medium";
 
   const variants = {
     primary:
@@ -45,9 +47,11 @@ export const Button: React.FC<ButtonProps> = ({
     icon: "p-1.5",
   };
 
+  const sizeStyles = variant === "custom" ? "gap-2" : sizes[size];
+
   return (
     <button
-      className={`${baseStyles} ${variants[variant]} ${sizes[size]} ${className}`}
+      className={`${baseStyles} ${layoutStyles} ${variants[variant]} ${sizeStyles} ${className}`}
       disabled={disabled || isLoading}
       {...props}
     >

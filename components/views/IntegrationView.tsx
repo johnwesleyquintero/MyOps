@@ -117,17 +117,17 @@ export const IntegrationView: React.FC<IntegrationViewProps> = ({
           <Button
             variant="custom"
             onClick={onShowStory}
-            className={`flex items-center gap-2 px-4 py-2 ${MODULE_COLORS.automation.lightBg} ${MODULE_COLORS.automation.text} rounded-lg ${MODULE_COLORS.automation.hoverBg} transition-all font-semibold text-sm border ${MODULE_COLORS.automation.border.split(" ")[0]}/20`}
+            leftIcon={<Icon.History size={16} />}
+            className={`px-4 py-2 ${MODULE_COLORS.automation.lightBg} ${MODULE_COLORS.automation.text} rounded-lg ${MODULE_COLORS.automation.hoverBg} transition-all font-semibold text-sm border ${MODULE_COLORS.automation.border.split(" ")[0]}/20`}
           >
-            <Icon.History size={16} />
             Visual Story
           </Button>
           <Button
             variant="custom"
             onClick={handleAdd}
-            className={`px-4 py-2 bg-purple-600 dark:bg-purple-500 hover:bg-purple-700 dark:hover:bg-purple-600 text-white rounded-lg transition-all flex items-center gap-2 font-semibold text-sm shadow-sm active:scale-95`}
+            leftIcon={<Icon.Plus size={16} />}
+            className={`px-4 py-2 bg-purple-600 dark:bg-purple-500 hover:bg-purple-700 dark:hover:bg-purple-600 text-white rounded-lg transition-all font-semibold text-sm shadow-sm active:scale-95`}
           >
-            <Icon.Plus size={16} />
             Add Integration
           </Button>
         </div>
@@ -149,9 +149,9 @@ export const IntegrationView: React.FC<IntegrationViewProps> = ({
           <Button
             variant="custom"
             onClick={handleAdd}
-            className={`px-6 py-3 bg-purple-600 dark:bg-purple-500 hover:bg-purple-700 dark:hover:bg-purple-600 text-white rounded-xl transition-all inline-flex items-center gap-2 font-bold shadow-lg shadow-purple-500/20 active:scale-95`}
+            leftIcon={<Icon.Plus size={18} />}
+            className={`px-6 py-3 bg-purple-600 dark:bg-purple-500 hover:bg-purple-700 dark:hover:bg-purple-600 text-white rounded-xl transition-all font-bold shadow-lg shadow-purple-500/20 active:scale-95`}
           >
-            <Icon.Plus size={18} />
             Connect Your First Channel
           </Button>
         </div>
@@ -206,16 +206,18 @@ export const IntegrationView: React.FC<IntegrationViewProps> = ({
                         <Button
                           variant="custom"
                           onClick={() => handleEdit(integration)}
-                          className={`w-full px-4 py-2 text-left text-sm ${colors.hoverBg} flex items-center gap-2`}
+                          leftIcon={<Icon.Edit size={14} />}
+                          className={`w-full px-4 py-2 text-left justify-start text-sm ${colors.hoverBg} transition-colors`}
                         >
-                          <Icon.Edit size={14} /> Edit
+                          Edit
                         </Button>
                         <Button
                           variant="custom"
                           onClick={() => onDelete(integration.id)}
-                          className={`w-full px-4 py-2 text-left text-sm ${MODULE_COLORS.error.text} ${MODULE_COLORS.error.bg.replace("bg-", "hover:bg-")} flex items-center gap-2`}
+                          leftIcon={<Icon.Trash size={14} />}
+                          className={`w-full px-4 py-2 text-left justify-start text-sm ${MODULE_COLORS.error.text} ${MODULE_COLORS.error.bg.replace("bg-", "hover:bg-")} transition-colors`}
                         >
-                          <Icon.Trash size={14} /> Delete
+                          Delete
                         </Button>
                       </div>
                     </div>
@@ -250,14 +252,10 @@ export const IntegrationView: React.FC<IntegrationViewProps> = ({
                     <Button
                       variant="custom"
                       onClick={() => handleTest(integration.id)}
-                      disabled={isTesting === integration.id}
-                      className={`text-[10px] font-semibold ${colors.text} hover:underline disabled:opacity-50 flex items-center gap-1`}
+                      isLoading={isTesting === integration.id}
+                      leftIcon={<Icon.Zap size={10} />}
+                      className={`text-[10px] font-semibold ${colors.text} hover:underline disabled:opacity-50`}
                     >
-                      {isTesting === integration.id ? (
-                        <Icon.Settings className="w-3 h-3 animate-spin" />
-                      ) : (
-                        <Icon.Zap size={10} />
-                      )}
                       Test Connection
                     </Button>
                   </div>
@@ -284,9 +282,8 @@ export const IntegrationView: React.FC<IntegrationViewProps> = ({
                   type="button"
                   onClick={() => setIsModalOpen(false)}
                   className={`p-2 ${colors.hoverBg} ${colors.text} rounded-full transition-colors`}
-                >
-                  <Icon.X size={20} />
-                </Button>
+                  leftIcon={<Icon.X size={20} />}
+                />
               </div>
 
               <div className="space-y-4">
@@ -333,13 +330,13 @@ export const IntegrationView: React.FC<IntegrationViewProps> = ({
                               type: t.type as Integration["type"],
                             })
                           }
-                          className={`flex items-center gap-2 px-3 py-2 rounded-lg border text-sm transition-all ${
+                          leftIcon={<TIcon size={16} />}
+                          className={`px-3 py-2 rounded-lg border text-sm transition-all justify-start ${
                             isSelected
                               ? `${t.colors.lightBg} ${t.colors.border.split(" ")[0]} ${t.colors.text}`
                               : `border-notion-light-border dark:border-notion-dark-border ${colors.hoverBg}`
                           }`}
                         >
-                          <TIcon size={16} />
                           {t.type}
                         </Button>
                       );
@@ -385,6 +382,11 @@ export const IntegrationView: React.FC<IntegrationViewProps> = ({
                           key={event}
                           type="button"
                           onClick={() => toggleEvent(event as IntegrationEvent)}
+                          rightIcon={
+                            isSelected ? (
+                              <Icon.Check size={14} className={colors.text} />
+                            ) : undefined
+                          }
                           className={`w-full flex items-center justify-between px-3 py-2 rounded-lg border text-sm transition-all ${
                             isSelected
                               ? `${colors.lightBg} ${colors.border.split(" ")[0]}`
@@ -394,9 +396,6 @@ export const IntegrationView: React.FC<IntegrationViewProps> = ({
                           <span className={isSelected ? colors.text : ""}>
                             {label}
                           </span>
-                          {isSelected && (
-                            <Icon.Check size={14} className={colors.text} />
-                          )}
                         </Button>
                       );
                     })}
@@ -406,10 +405,10 @@ export const IntegrationView: React.FC<IntegrationViewProps> = ({
 
               <div className="flex gap-3 mt-8">
                 <Button
-                  variant="custom"
+                  variant="outline"
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className={`flex-1 px-4 py-2.5 border border-notion-light-border dark:border-notion-dark-border rounded-lg ${colors.hoverBg} transition-colors`}
+                  className="flex-1 px-4 py-2.5 rounded-lg"
                 >
                   Cancel
                 </Button>

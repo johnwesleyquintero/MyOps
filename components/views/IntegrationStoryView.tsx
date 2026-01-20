@@ -23,11 +23,11 @@ export const IntegrationStoryView: React.FC<IntegrationStoryViewProps> = ({
         subTitle="A visual breakdown of how MyOps keeps the world in sync while you stay in the zone."
       >
         <Button
-          variant="custom"
+          variant="ghost"
           onClick={onBack}
-          className="flex items-center gap-2 px-4 py-2 text-notion-light-muted dark:text-notion-dark-muted hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover rounded-lg transition-all font-semibold text-sm"
+          leftIcon={<Icon.ArrowLeft size={16} />}
+          className="text-notion-light-muted dark:text-notion-dark-muted font-semibold text-sm"
         >
-          <Icon.ArrowLeft size={16} />
           Back to Hub
         </Button>
       </ViewHeader>

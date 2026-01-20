@@ -3,6 +3,7 @@ import ReactMarkdown from "react-markdown";
 import { TaskEntry } from "../types";
 import { PRIORITY_DOTS } from "@/constants";
 import { Icon } from "./Icons";
+import { Button } from "./ui/Button";
 
 interface FocusModeProps {
   task: TaskEntry;
@@ -130,12 +131,13 @@ export const FocusMode: React.FC<FocusModeProps> = ({
             </div>
           </div>
         </div>
-        <button
+        <Button
+          variant="custom"
           onClick={handleSaveAndExit}
           className="px-5 py-2.5 bg-notion-light-bg dark:bg-notion-dark-bg hover:bg-notion-light-sidebar dark:hover:bg-notion-dark-sidebar text-notion-light-text dark:text-notion-dark-text text-[11px] font-bold uppercase tracking-widest rounded-xl border border-notion-light-border dark:border-notion-dark-border transition-all active:scale-95 shadow-sm"
         >
           Exit Session
-        </button>
+        </Button>
       </div>
 
       {/* Main Grid */}
@@ -149,18 +151,20 @@ export const FocusMode: React.FC<FocusModeProps> = ({
 
           <div className="relative z-10 text-center space-y-12">
             <div className="inline-flex bg-notion-light-bg dark:bg-notion-dark-bg p-1.5 rounded-2xl border border-notion-light-border dark:border-notion-dark-border shadow-sm">
-              <button
+              <Button
+                variant="custom"
                 onClick={() => switchMode("WORK")}
                 className={`px-8 py-2.5 text-[11px] font-bold uppercase tracking-[0.15em] rounded-xl transition-all ${mode === "WORK" ? "bg-notion-light-text dark:bg-notion-dark-text text-notion-light-bg dark:text-notion-dark-bg shadow-lg shadow-notion-light-text/20 dark:shadow-notion-dark-text/20" : "text-notion-light-muted dark:text-notion-dark-muted hover:text-notion-light-text dark:hover:text-notion-dark-text"}`}
               >
                 Focus
-              </button>
-              <button
+              </Button>
+              <Button
+                variant="custom"
                 onClick={() => switchMode("BREAK")}
                 className={`px-8 py-2.5 text-[11px] font-bold uppercase tracking-[0.15em] rounded-xl transition-all ${mode === "BREAK" ? "bg-notion-light-sidebar dark:bg-notion-dark-sidebar text-notion-light-text dark:text-notion-dark-text shadow-lg border border-notion-light-border dark:border-notion-dark-border" : "text-notion-light-muted dark:text-notion-dark-muted hover:text-notion-light-text dark:hover:text-notion-dark-text"}`}
               >
                 Rest
-              </button>
+              </Button>
             </div>
 
             <div className="relative group">
@@ -199,7 +203,8 @@ export const FocusMode: React.FC<FocusModeProps> = ({
             </div>
 
             <div className="flex gap-6 justify-center">
-              <button
+              <Button
+                variant="custom"
                 onClick={toggleTimer}
                 className={`w-16 h-16 rounded-2xl flex items-center justify-center border-2 transition-all shadow-lg active:scale-95 ${isActive ? "border-notion-light-muted dark:border-notion-dark-muted text-notion-light-muted dark:text-notion-dark-muted bg-notion-light-sidebar/30 dark:bg-notion-dark-sidebar/30 hover:bg-notion-light-sidebar dark:hover:bg-notion-dark-sidebar" : "border-notion-light-text dark:border-notion-dark-text text-notion-light-text dark:text-notion-dark-text bg-notion-light-text/5 dark:bg-notion-dark-text/5 hover:bg-notion-light-text dark:hover:bg-notion-dark-text hover:text-notion-light-bg dark:hover:text-notion-dark-bg"}`}
               >
@@ -208,20 +213,22 @@ export const FocusMode: React.FC<FocusModeProps> = ({
                 ) : (
                   <Icon.Play size={28} className="fill-current ml-1" />
                 )}
-              </button>
-              <button
+              </Button>
+              <Button
+                variant="custom"
                 onClick={resetTimer}
                 className="w-16 h-16 rounded-2xl flex items-center justify-center border-2 border-notion-light-border dark:border-notion-dark-border text-notion-light-muted dark:text-notion-dark-muted hover:border-notion-light-text dark:hover:border-notion-dark-text bg-notion-light-bg dark:bg-notion-dark-bg transition-all active:scale-95 shadow-sm"
               >
                 <Icon.Reset size={28} />
-              </button>
-              <button
+              </Button>
+              <Button
+                variant="custom"
                 onClick={handleCompleteTask}
                 className="w-16 h-16 rounded-2xl flex items-center justify-center border-2 border-notion-light-text dark:border-notion-dark-text text-notion-light-text dark:text-notion-dark-text bg-notion-light-text/5 dark:bg-notion-dark-text/5 hover:bg-notion-light-text dark:hover:bg-notion-dark-text hover:text-notion-light-bg dark:hover:text-notion-dark-bg transition-all active:scale-95 shadow-lg ml-6"
                 title="Mark Done"
               >
                 <Icon.Check size={28} />
-              </button>
+              </Button>
             </div>
           </div>
         </div>
@@ -234,13 +241,14 @@ export const FocusMode: React.FC<FocusModeProps> = ({
               <h2 className="text-2xl font-black text-notion-light-text dark:text-notion-dark-text leading-tight tracking-tight">
                 {task.description.split("\n")[0]}
               </h2>
-              <button
+              <Button
+                variant="custom"
                 onClick={() => setShowDetails(!showDetails)}
                 className="text-notion-light-muted dark:text-notion-dark-muted hover:text-notion-light-text dark:hover:text-notion-dark-text text-[10px] uppercase font-black tracking-widest flex items-center gap-2 px-3 py-1.5 bg-notion-light-bg dark:bg-notion-dark-bg rounded-lg border border-notion-light-border dark:border-notion-dark-border shadow-sm transition-all"
               >
                 <Icon.Preview size={14} />
                 {showDetails ? "Hide" : "Details"}
-              </button>
+              </Button>
             </div>
             {showDetails && (
               <div className="prose prose-sm dark:prose-invert max-w-none text-notion-light-text dark:text-notion-dark-text max-h-60 overflow-y-auto custom-scrollbar p-5 bg-notion-light-bg dark:bg-notion-dark-bg rounded-2xl border border-notion-light-border dark:border-notion-dark-border shadow-inner animate-in slide-in-from-top-2 duration-300">

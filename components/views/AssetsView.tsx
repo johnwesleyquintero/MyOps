@@ -4,6 +4,7 @@ import { Icon, iconProps } from "../Icons";
 import { ViewHeader } from "../ViewHeader";
 import { AssetModal } from "../AssetModal";
 import { MODULE_COLORS } from "@/constants";
+import { Button } from "../ui/Button";
 
 interface AssetsViewProps {
   assets: AssetEntry[];
@@ -60,7 +61,8 @@ export const AssetsView: React.FC<AssetsViewProps> = ({
               className={`pl-9 pr-4 py-2 bg-notion-light-sidebar dark:bg-notion-dark-sidebar border border-notion-light-border dark:border-notion-dark-border rounded-xl text-xs focus:outline-none focus:ring-1 focus:${colors.border} transition-all w-64`}
             />
           </div>
-          <button
+          <Button
+            variant="custom"
             className={`flex items-center gap-2 px-4 py-2 ${colors.bg} ${colors.text} border ${colors.border} rounded-xl text-[10px] font-bold uppercase tracking-widest ${colors.hoverBg} transition-all active:scale-95 group`}
             onClick={handleCreate}
           >
@@ -69,7 +71,7 @@ export const AssetsView: React.FC<AssetsViewProps> = ({
               className="group-hover:rotate-90 transition-transform duration-300"
             />
             New Asset
-          </button>
+          </Button>
         </div>
       </ViewHeader>
 
@@ -178,18 +180,26 @@ export const AssetsView: React.FC<AssetsViewProps> = ({
                 </div>
 
                 <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <button
-                    onClick={() => onDelete(asset.id)}
-                    className={`p-1.5 ${MODULE_COLORS.error.bg.replace("bg-", "hover:bg-")} ${MODULE_COLORS.error.text.replace("text-", "hover:text-")} rounded-lg transition-colors`}
+                  <Button
+                    variant="custom"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onDelete(asset.id);
+                    }}
+                    className="p-1.5 hover:bg-red-500/10 text-red-400 rounded-lg transition-colors"
                   >
                     <Icon.Delete size={14} />
-                  </button>
-                  <button
-                    onClick={() => handleEdit(asset)}
-                    className={`p-1.5 hover:${colors.lightBg} rounded-lg transition-colors`}
+                  </Button>
+                  <Button
+                    variant="custom"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleEdit(asset);
+                    }}
+                    className={`p-1.5 ${colors.hoverBg} ${colors.text} rounded-lg transition-colors`}
                   >
                     <Icon.Edit size={14} />
-                  </button>
+                  </Button>
                 </div>
               </div>
             </div>

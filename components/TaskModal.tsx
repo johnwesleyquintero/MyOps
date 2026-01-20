@@ -7,6 +7,7 @@ import { CopyIdButton } from "./CopyIdButton";
 import { useTaskForm } from "../hooks/useTaskForm";
 import { useMarkdownEditor } from "../hooks/useMarkdownEditor";
 import { Icon, iconProps } from "./Icons";
+import { Button } from "./ui/Button";
 import { toast } from "sonner";
 import { MODULE_COLORS } from "../constants/ui";
 
@@ -105,7 +106,8 @@ export const TaskModal: React.FC<TaskModalProps> = ({
                   id={initialData.id}
                   className="text-xs text-notion-light-muted hover:text-notion-light-text dark:hover:text-notion-dark-text"
                 />
-                <button
+                <Button
+                  variant="custom"
                   onClick={handleCopyMarkdown}
                   className="p-1 text-notion-light-muted hover:text-notion-light-text dark:hover:text-notion-dark-text transition-colors"
                   title="Copy Task as Markdown"
@@ -115,17 +117,18 @@ export const TaskModal: React.FC<TaskModalProps> = ({
                   ) : (
                     <Icon.Copy {...iconProps(14)} />
                   )}
-                </button>
+                </Button>
               </div>
             )}
           </div>
           <div className="flex items-center gap-2">
-            <button
+            <Button
+              variant="custom"
               onClick={onClose}
               className="p-1.5 hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover rounded text-notion-light-muted transition-colors"
             >
               <Icon.Close {...iconProps(18)} />
-            </button>
+            </Button>
           </div>
         </div>
 
@@ -320,14 +323,16 @@ export const TaskModal: React.FC<TaskModalProps> = ({
             )}
           </div>
           <div className="flex items-center gap-3">
-            <button
+            <Button
+              variant="custom"
               type="button"
               onClick={onClose}
               className="notion-button notion-button-ghost"
             >
               Cancel
-            </button>
-            <button
+            </Button>
+            <Button
+              variant="custom"
               onClick={() => handleSubmit()}
               disabled={isSubmitting || !formData.description}
               className="notion-button notion-button-primary disabled:opacity-50"
@@ -337,7 +342,7 @@ export const TaskModal: React.FC<TaskModalProps> = ({
                 : initialData
                   ? "Update Task"
                   : "Create Task"}
-            </button>
+            </Button>
           </div>
         </div>
       </div>

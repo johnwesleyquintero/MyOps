@@ -6,6 +6,7 @@ import {
 } from "@/services/awarenessService";
 import { ViewHeader } from "../ViewHeader";
 import { Icon } from "../Icons";
+import { Button } from "../ui/Button";
 import { toast } from "sonner";
 import { MODULE_COLORS } from "@/constants";
 
@@ -111,7 +112,8 @@ export const AwarenessView: React.FC<AwarenessViewProps> = ({ config }) => {
                   </label>
                   <div className="grid grid-cols-3 gap-3">
                     {(["low", "medium", "high"] as const).map((level) => (
-                      <button
+                      <Button
+                        variant="custom"
                         key={level}
                         onClick={() =>
                           setTodayEntry({ ...todayEntry, energy: level })
@@ -123,7 +125,7 @@ export const AwarenessView: React.FC<AwarenessViewProps> = ({ config }) => {
                         }`}
                       >
                         {level}
-                      </button>
+                      </Button>
                     ))}
                   </div>
                 </div>
@@ -135,7 +137,8 @@ export const AwarenessView: React.FC<AwarenessViewProps> = ({ config }) => {
                   </label>
                   <div className="grid grid-cols-3 gap-3">
                     {(["foggy", "neutral", "sharp"] as const).map((level) => (
-                      <button
+                      <Button
+                        variant="custom"
                         key={level}
                         onClick={() =>
                           setTodayEntry({ ...todayEntry, clarity: level })
@@ -147,7 +150,7 @@ export const AwarenessView: React.FC<AwarenessViewProps> = ({ config }) => {
                         }`}
                       >
                         {level}
-                      </button>
+                      </Button>
                     ))}
                   </div>
                 </div>
@@ -168,12 +171,13 @@ export const AwarenessView: React.FC<AwarenessViewProps> = ({ config }) => {
                 />
               </div>
 
-              <button
+              <Button
+                variant="custom"
                 onClick={handleSave}
                 className={`w-full ${colors.bg.replace("/10", "").replace("/20", "")} text-white border ${colors.border} py-4 rounded-2xl font-black uppercase tracking-widest text-sm shadow-lg shadow-black/5 active:scale-[0.98] transition-all`}
               >
                 Lock Daily Check-in
-              </button>
+              </Button>
             </div>
           </div>
         </div>

@@ -7,6 +7,7 @@ import { useMarkdownEditor } from "../../hooks/useMarkdownEditor";
 import { ViewHeader } from "../ViewHeader";
 import { toast } from "sonner";
 import { MODULE_COLORS } from "../../constants/ui";
+import { Button } from "../ui";
 
 interface KnowledgeViewProps {
   notes: Note[];
@@ -168,7 +169,8 @@ export const KnowledgeView: React.FC<KnowledgeViewProps> = ({
         title="Knowledge Base"
         subTitle="SOPs, playbooks, and strategic documentation"
       >
-        <button
+        <Button
+          variant="custom"
           onClick={handleCreateNew}
           className={`w-full md:w-auto flex items-center justify-center gap-2 px-6 py-3 ${colors.bg} border ${colors.border} ${colors.text} rounded-2xl font-black text-sm uppercase tracking-widest shadow-sm ${colors.hoverBg} transition-all active:scale-95`}
         >
@@ -177,7 +179,7 @@ export const KnowledgeView: React.FC<KnowledgeViewProps> = ({
             className="group-hover:rotate-90 transition-transform duration-300"
           />
           New Document
-        </button>
+        </Button>
       </ViewHeader>
 
       <div className="flex flex-col lg:flex-row gap-8 items-start">
@@ -216,20 +218,21 @@ export const KnowledgeView: React.FC<KnowledgeViewProps> = ({
               </div>
             ) : (
               filteredNotes.map((note) => (
-                <button
+                <Button
+                  variant="custom"
                   key={note.id}
                   onClick={() => {
                     setRawSelectedNote(note);
                     setIsEditing(false);
                   }}
-                  className={`w-full text-left p-3 rounded-xl border transition-all group/item overflow-hidden ${
+                  className={`w-full flex-col items-start text-left p-3 rounded-xl border transition-all group/item overflow-hidden ${
                     selectedNote?.id === note.id
                       ? `${colors.bg} ${colors.border} shadow-sm`
                       : `bg-transparent border-transparent ${colors.lightBg.replace("bg-", "hover:bg-")}`
                   }`}
                 >
                   <h3
-                    className={`font-bold text-sm truncate pr-2 ${
+                    className={`font-bold text-sm truncate pr-2 w-full ${
                       selectedNote?.id === note.id
                         ? colors.text
                         : "text-notion-light-text dark:text-notion-dark-text"
@@ -237,7 +240,7 @@ export const KnowledgeView: React.FC<KnowledgeViewProps> = ({
                   >
                     {note.title}
                   </h3>
-                  <div className="flex items-center gap-2 mt-1.5 overflow-hidden">
+                  <div className="flex items-center gap-2 mt-1.5 overflow-hidden w-full">
                     <span className="notion-label flex-shrink-0">
                       {note.lastModified &&
                       !isNaN(new Date(note.lastModified).getTime())
@@ -258,7 +261,7 @@ export const KnowledgeView: React.FC<KnowledgeViewProps> = ({
                       ))}
                     </div>
                   </div>
-                </button>
+                </Button>
               ))
             )}
           </div>
@@ -271,15 +274,16 @@ export const KnowledgeView: React.FC<KnowledgeViewProps> = ({
           {rawSelectedNote || isEditing ? (
             <div className="notion-card overflow-hidden shadow-sm">
               {/* Back button for mobile */}
-              <button
+              <Button
+                variant="custom"
                 onClick={() => {
                   setRawSelectedNote(null);
                   setIsEditing(false);
                 }}
-                className={`lg:hidden flex items-center gap-2 px-4 py-4 text-notion-light-muted dark:text-notion-dark-muted ${colors.text.replace("text-", "hover:text-")} border-b ${colors.border} ${colors.bg} active:opacity-70 transition-colors w-full text-left font-bold relative z-10`}
+                className={`lg:hidden flex items-center justify-start gap-2 px-4 py-4 text-notion-light-muted dark:text-notion-dark-muted ${colors.text.replace("text-", "hover:text-")} border-b ${colors.border} ${colors.bg} active:opacity-70 transition-colors w-full text-left font-bold relative z-10`}
               >
                 <Icon.Prev size={16} /> Back to Documents
-              </button>
+              </Button>
 
               {/* Toolbar */}
               <div
@@ -305,25 +309,28 @@ export const KnowledgeView: React.FC<KnowledgeViewProps> = ({
                 <div className="flex items-center gap-2 justify-end">
                   {isEditing ? (
                     <>
-                      <button
+                      <Button
+                        variant="ghost"
                         onClick={() => {
                           setIsEditing(false);
                           if (!selectedNote) setRawSelectedNote(null);
                         }}
-                        className="notion-button notion-button-ghost text-[10px] uppercase tracking-widest px-3 py-2"
+                        className="text-[10px] uppercase tracking-widest px-3 py-2"
                       >
                         Cancel
-                      </button>
-                      <button
+                      </Button>
+                      <Button
+                        variant="custom"
                         onClick={handleSave}
                         className={`px-4 py-2 ${colors.bg} ${colors.text} ${colors.border} border rounded-lg shadow-sm text-[10px] uppercase tracking-widest font-black hover:opacity-80 transition-opacity`}
                       >
                         Save SOP
-                      </button>
+                      </Button>
                     </>
                   ) : (
                     <>
-                      <button
+                      <Button
+                        variant="custom"
                         onClick={handleCopyMarkdown}
                         className={`p-3 sm:p-2 transition-all flex items-center gap-2 ${
                           isCopied
@@ -338,8 +345,9 @@ export const KnowledgeView: React.FC<KnowledgeViewProps> = ({
                             Copied!
                           </span>
                         )}
-                      </button>
-                      <button
+                      </Button>
+                      <Button
+                        variant="custom"
                         onClick={() => {
                           if (selectedNote) {
                             setEditTitle(selectedNote.title);
@@ -352,8 +360,9 @@ export const KnowledgeView: React.FC<KnowledgeViewProps> = ({
                         title="Edit Document"
                       >
                         <Icon.Edit size={18} />
-                      </button>
-                      <button
+                      </Button>
+                      <Button
+                        variant="custom"
                         onClick={() =>
                           selectedNote &&
                           handleDelete(selectedNote.id, selectedNote.title)
@@ -362,7 +371,7 @@ export const KnowledgeView: React.FC<KnowledgeViewProps> = ({
                         title="Delete Document"
                       >
                         <Icon.Delete size={18} />
-                      </button>
+                      </Button>
                     </>
                   )}
                 </div>
@@ -376,47 +385,53 @@ export const KnowledgeView: React.FC<KnowledgeViewProps> = ({
                     <div
                       className={`flex flex-wrap items-center gap-1 p-1 ${colors.lightBg} rounded-lg w-fit border ${colors.border}`}
                     >
-                      <button
+                      <Button
+                        variant="custom"
                         onClick={() => applyFormat("bold")}
                         className={`p-1.5 ${colors.bg.replace("bg-", "hover:bg-")} ${colors.text} rounded transition-all`}
                         title="Bold"
                       >
                         <Icon.Bold size={14} />
-                      </button>
-                      <button
+                      </Button>
+                      <Button
+                        variant="custom"
                         onClick={() => applyFormat("italic")}
                         className={`p-1.5 ${colors.bg.replace("bg-", "hover:bg-")} ${colors.text} rounded transition-all`}
                         title="Italic"
                       >
                         <Icon.Italic size={14} />
-                      </button>
-                      <button
+                      </Button>
+                      <Button
+                        variant="custom"
                         onClick={() => applyFormat("h1")}
                         className={`p-1.5 ${colors.bg.replace("bg-", "hover:bg-")} ${colors.text} rounded transition-all font-black text-[10px]`}
                       >
                         H1
-                      </button>
-                      <button
+                      </Button>
+                      <Button
+                        variant="custom"
                         onClick={() => applyFormat("h2")}
                         className={`p-1.5 ${colors.bg.replace("bg-", "hover:bg-")} ${colors.text} rounded transition-all font-black text-[10px]`}
                       >
                         H2
-                      </button>
-                      <button
+                      </Button>
+                      <Button
+                        variant="custom"
                         onClick={() => applyFormat("list")}
                         className={`p-1.5 ${colors.bg.replace("bg-", "hover:bg-")} ${colors.text} rounded transition-all`}
                         title="List"
                       >
                         <Icon.List size={14} />
-                      </button>
+                      </Button>
                       <div className={`w-px h-3 ${colors.border} mx-1`}></div>
-                      <button
+                      <Button
+                        variant="custom"
                         onClick={() => applyFormat("check")}
                         className={`p-1.5 ${colors.bg.replace("bg-", "hover:bg-")} ${colors.text} rounded transition-all`}
                         title="Task List"
                       >
                         <Icon.Check size={14} />
-                      </button>
+                      </Button>
                     </div>
 
                     <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 flex-1">

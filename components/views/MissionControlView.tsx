@@ -17,6 +17,7 @@ import { useTableColumns, ColumnConfig } from "../../hooks/useTableColumns";
 import { COLUMN_CONFIG_KEY } from "../../constants/storage";
 import { ColumnConfigDropdown } from "../ColumnConfigDropdown";
 import { MODULE_COLORS } from "@/constants";
+import { Button } from "../ui/Button";
 
 const MISSION_CONTROL_COLUMNS: ColumnConfig[] = [
   { key: "date", label: "Date", visible: true, width: "w-32" },
@@ -141,22 +142,25 @@ export const MissionControlView: React.FC<MissionControlViewProps> = ({
       >
         <div className="flex flex-wrap items-center gap-2 mt-2 md:mt-0">
           {viewMode === "TABLE" && filteredEntries.length > 0 && (
-            <button
+            <Button
+              variant="custom"
               onClick={() => setIsDeleteModalOpen(true)}
               className={`notion-button notion-button-ghost ${MODULE_COLORS.error.text} ${MODULE_COLORS.error.bg.replace("bg-", "hover:bg-")} flex items-center justify-center p-2`}
               title="Clear View"
             >
               <Icon.Delete {...iconProps(16)} />
-            </button>
+            </Button>
           )}
-          <button
+          <Button
+            variant="custom"
             onClick={() => generateAndDownloadCSV(filteredEntries)}
             className={`notion-button notion-button-ghost ${MODULE_COLORS.tasks.text.replace("text-", "hover:text-")} ${MODULE_COLORS.tasks.bg.replace("bg-", "hover:bg-")} flex items-center justify-center p-2`}
             title="Export CSV"
           >
             <Icon.Download {...iconProps(16)} />
-          </button>
-          <button
+          </Button>
+          <Button
+            variant="custom"
             onClick={handleCopyMarkdown}
             className={`notion-button notion-button-ghost ${MODULE_COLORS.tasks.text.replace("text-", "hover:text-")} ${MODULE_COLORS.tasks.bg.replace("bg-", "hover:bg-")} flex items-center justify-center p-2`}
             title="Copy as Markdown Table"
@@ -166,7 +170,7 @@ export const MissionControlView: React.FC<MissionControlViewProps> = ({
             ) : (
               <Icon.Copy {...iconProps(16)} />
             )}
-          </button>
+          </Button>
           {viewMode === "TABLE" && (
             <ColumnConfigDropdown
               columns={columns}
@@ -181,7 +185,8 @@ export const MissionControlView: React.FC<MissionControlViewProps> = ({
         {/* Notion-style View Tabs */}
         <div className="flex items-center gap-1 bg-notion-light-sidebar/50 dark:bg-notion-dark-sidebar/30 p-1 rounded-lg w-full md:w-auto">
           {(["TABLE", "KANBAN", "GANTT"] as ViewMode[]).map((mode) => (
-            <button
+            <Button
+              variant="custom"
               key={mode}
               onClick={() => handleViewChange(mode)}
               className={`flex-1 md:flex-none px-3 py-1.5 text-xs md:text-sm font-medium rounded transition-all ${
@@ -191,7 +196,7 @@ export const MissionControlView: React.FC<MissionControlViewProps> = ({
               }`}
             >
               {mode.charAt(0) + mode.slice(1).toLowerCase()}
-            </button>
+            </Button>
           ))}
         </div>
       </div>

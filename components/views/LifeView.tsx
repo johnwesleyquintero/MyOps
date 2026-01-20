@@ -3,6 +3,7 @@ import { LifeConstraintEntry } from "../../types";
 import { Icon, iconProps } from "../Icons";
 import { ViewHeader } from "../ViewHeader";
 import { LifeModal } from "../LifeModal";
+import { Button } from "../ui/Button";
 import { MODULE_COLORS } from "@/constants";
 
 interface LifeViewProps {
@@ -73,13 +74,14 @@ export const LifeView: React.FC<LifeViewProps> = ({
         title="Life Ops & Constraints"
         subTitle="Manage personal energy, recovery, and non-negotiable commitments"
       >
-        <button
+        <Button
+          variant="custom"
           className={`flex items-center gap-2 px-4 py-2 ${colors.bg} ${colors.text} ${colors.border} border rounded-xl text-[10px] font-bold uppercase tracking-widest ${colors.hoverBg} transition-all active:scale-95 shadow-sm`}
           onClick={handleCreate}
         >
           <Icon.Add size={14} />
           Add Constraint
-        </button>
+        </Button>
       </ViewHeader>
 
       <LifeModal
@@ -139,7 +141,8 @@ export const LifeView: React.FC<LifeViewProps> = ({
                     {constraint.title}
                   </h3>
                 </div>
-                <button
+                <Button
+                  variant="custom"
                   onClick={(e) => {
                     e.stopPropagation();
                     if (confirm("Remove this constraint?"))
@@ -148,7 +151,7 @@ export const LifeView: React.FC<LifeViewProps> = ({
                   className={`opacity-0 group-hover:opacity-100 p-1.5 ${MODULE_COLORS.error.bg} ${MODULE_COLORS.error.text} rounded-md transition-all text-notion-light-muted dark:text-notion-dark-muted ${MODULE_COLORS.error.text.replace("text-", "hover:text-")} ${MODULE_COLORS.error.bg.replace("bg-", "hover:bg-")}`}
                 >
                   <Icon.Delete {...iconProps(14)} />
-                </button>
+                </Button>
               </div>
 
               {constraint.startTime && (

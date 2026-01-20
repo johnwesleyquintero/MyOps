@@ -9,6 +9,7 @@ import {
 } from "@/services/strategyService";
 import ReactMarkdown from "react-markdown";
 import { ViewHeader } from "../ViewHeader";
+import { Button } from "../ui/Button";
 import { toast } from "sonner";
 import { MODULE_COLORS } from "@/constants";
 
@@ -81,7 +82,8 @@ export const StrategyView: React.FC<StrategyViewProps> = ({ config }) => {
         title="Decision Journal"
         subTitle="Strategy & assumption tracking for the one-man empire."
       >
-        <button
+        <Button
+          variant="custom"
           onClick={() => {
             setEditingDecision(null);
             setIsModalOpen(true);
@@ -90,7 +92,7 @@ export const StrategyView: React.FC<StrategyViewProps> = ({ config }) => {
         >
           <Icon.Add size={18} />
           <span>Log Decision</span>
-        </button>
+        </Button>
       </ViewHeader>
 
       {isLoading ? (
@@ -129,7 +131,8 @@ export const StrategyView: React.FC<StrategyViewProps> = ({ config }) => {
                   </span>
                 </div>
                 <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <button
+                  <Button
+                    variant="custom"
                     onClick={() => {
                       setEditingDecision(decision);
                       setIsModalOpen(true);
@@ -137,13 +140,14 @@ export const StrategyView: React.FC<StrategyViewProps> = ({ config }) => {
                     className={`p-1.5 ${colors.hoverBg} rounded-lg text-notion-light-muted dark:text-notion-dark-muted ${colors.text.replace("text-", "hover:text-")}`}
                   >
                     <Icon.Edit size={14} />
-                  </button>
-                  <button
+                  </Button>
+                  <Button
+                    variant="custom"
                     onClick={() => handleDelete(decision.id)}
                     className={`p-1.5 ${MODULE_COLORS.error.bg.replace("bg-", "hover:bg-")} ${MODULE_COLORS.error.text.replace("text-", "hover:text-")} rounded-lg text-notion-light-muted dark:text-notion-dark-muted transition-all`}
                   >
                     <Icon.Delete size={14} />
-                  </button>
+                  </Button>
                 </div>
               </div>
 
@@ -269,12 +273,13 @@ const DecisionModal: React.FC<DecisionModalProps> = ({
           <h2 className="text-lg font-bold text-notion-light-text dark:text-notion-dark-text">
             {initialData ? "Edit Decision Log" : "New Decision Log"}
           </h2>
-          <button
+          <Button
+            variant="custom"
             onClick={onClose}
             className="p-2 hover:bg-notion-light-border dark:hover:bg-notion-dark-border rounded-full transition-colors"
           >
             <Icon.Close size={20} />
-          </button>
+          </Button>
         </div>
 
         <div className="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
@@ -447,19 +452,21 @@ const DecisionModal: React.FC<DecisionModalProps> = ({
         </div>
 
         <div className="px-6 py-4 border-t border-notion-light-border dark:border-notion-dark-border flex items-center justify-end gap-3 bg-notion-light-sidebar dark:bg-notion-dark-sidebar">
-          <button
+          <Button
+            variant="custom"
             onClick={onClose}
             className="notion-button notion-button-ghost"
           >
             Cancel
-          </button>
-          <button
+          </Button>
+          <Button
+            variant="custom"
             onClick={() => onSave(formData)}
             className="notion-button notion-button-primary"
             disabled={!formData.title}
           >
             {initialData ? "Update Log" : "Save Decision"}
-          </button>
+          </Button>
         </div>
       </div>
     </div>

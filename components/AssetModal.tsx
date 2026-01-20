@@ -3,6 +3,7 @@ import { AssetEntry } from "../types";
 import { Icon, iconProps } from "./Icons";
 import { toast } from "sonner";
 import { MODULE_COLORS } from "@/constants";
+import { Button } from "./ui";
 
 interface AssetModalProps {
   isOpen: boolean;
@@ -94,12 +95,13 @@ export const AssetModal: React.FC<AssetModalProps> = ({
               {initialData ? "Edit Asset" : "New Asset"}
             </h2>
           </div>
-          <button
+          <Button
+            variant="custom"
             onClick={onClose}
             className={`p-1 hover:${colors.bg} rounded-md transition-colors`}
           >
             <Icon.Close {...iconProps(16)} />
-          </button>
+          </Button>
         </div>
 
         {/* Modal Body */}
@@ -271,15 +273,16 @@ export const AssetModal: React.FC<AssetModalProps> = ({
           <div
             className={`flex items-center justify-end gap-3 pt-4 border-t ${colors.border}`}
           >
-            <button
-              type="button"
+            <Button
+              variant="custom"
               onClick={onClose}
-              className={`px-4 py-2 text-xs font-bold uppercase tracking-widest text-notion-light-muted hover:${colors.text} transition-colors`}
+              className={`px-4 py-2 text-xs font-bold uppercase tracking-widest text-notion-light-muted hover:${colors.text} transition-colors bg-transparent`}
             >
               Cancel
-            </button>
-            <button
+            </Button>
+            <Button
               type="submit"
+              variant="custom"
               disabled={isSubmitting}
               className={`flex items-center gap-2 px-6 py-2 ${colors.bg} ${colors.text} border ${colors.border} rounded-xl text-[10px] font-bold uppercase tracking-widest ${colors.hoverBg} transition-all active:scale-95 disabled:opacity-50`}
             >
@@ -289,7 +292,7 @@ export const AssetModal: React.FC<AssetModalProps> = ({
                 <Icon.Check size={14} />
               )}
               {initialData ? "Update Asset" : "Create Asset"}
-            </button>
+            </Button>
           </div>
         </form>
       </div>

@@ -1,6 +1,7 @@
 import React from "react";
 import { Icon } from "../Icons";
 import { ViewHeader } from "../ViewHeader";
+import { Button } from "../ui/Button";
 import { MODULE_COLORS } from "@/constants";
 
 interface IntegrationStoryViewProps {
@@ -21,13 +22,14 @@ export const IntegrationStoryView: React.FC<IntegrationStoryViewProps> = ({
         title="The Integration Story"
         subTitle="A visual breakdown of how MyOps keeps the world in sync while you stay in the zone."
       >
-        <button
+        <Button
+          variant="custom"
           onClick={onBack}
           className="flex items-center gap-2 px-4 py-2 text-notion-light-muted dark:text-notion-dark-muted hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover rounded-lg transition-all font-semibold text-sm"
         >
           <Icon.ArrowLeft size={16} />
           Back to Hub
-        </button>
+        </Button>
       </ViewHeader>
 
       <div className="relative max-w-5xl mx-auto p-8 bg-white dark:bg-notion-dark-sidebar rounded-3xl border border-notion-light-border dark:border-notion-dark-border shadow-2xl overflow-hidden">

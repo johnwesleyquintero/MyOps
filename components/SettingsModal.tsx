@@ -14,6 +14,7 @@ import {
 import { ConnectionSettings } from "./settings/ConnectionSettings";
 import { BackendCodeView } from "./settings/BackendCodeView";
 import { MaintenanceSettings } from "./settings/MaintenanceSettings";
+import { Button } from "./ui/Button";
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -67,24 +68,27 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             Settings
           </h2>
           <div className="flex bg-notion-light-hover dark:bg-notion-dark-hover rounded p-0.5">
-            <button
+            <Button
+              variant="custom"
               onClick={() => setActiveTab("CONFIG")}
               className={`px-3 py-1 text-[10px] font-bold rounded transition-all ${activeTab === "CONFIG" ? "bg-notion-light-bg dark:bg-notion-dark-bg text-notion-light-text dark:text-notion-dark-text shadow-sm" : "text-notion-light-muted dark:text-notion-dark-muted hover:text-notion-light-text dark:hover:text-notion-dark-text"}`}
             >
               CONNECTION
-            </button>
-            <button
+            </Button>
+            <Button
+              variant="custom"
               onClick={() => setActiveTab("CODE")}
               className={`px-3 py-1 text-[10px] font-bold rounded transition-all ${activeTab === "CODE" ? "bg-notion-light-bg dark:bg-notion-dark-bg text-notion-light-text dark:text-notion-dark-text shadow-sm" : "text-notion-light-muted dark:text-notion-dark-muted hover:text-notion-light-text dark:hover:text-notion-dark-text"}`}
             >
               BACKEND CODE
-            </button>
-            <button
+            </Button>
+            <Button
+              variant="custom"
               onClick={() => setActiveTab("MAINTENANCE")}
               className={`px-3 py-1 text-[10px] font-bold rounded transition-all ${activeTab === "MAINTENANCE" ? "bg-notion-light-bg dark:bg-notion-dark-bg text-notion-light-text dark:text-notion-dark-text shadow-sm" : "text-notion-light-muted dark:text-notion-dark-muted hover:text-notion-light-text dark:hover:text-notion-dark-text"}`}
             >
               MAINTENANCE
-            </button>
+            </Button>
           </div>
         </div>
 
@@ -114,18 +118,20 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
         {/* Footer */}
         <div className="flex justify-end gap-3 px-6 py-4 border-t border-notion-light-border dark:border-notion-dark-border bg-notion-light-sidebar dark:bg-notion-dark-sidebar rounded-b-lg">
-          <button
+          <Button
+            variant="custom"
             onClick={onClose}
             className="px-4 py-1.5 text-xs font-medium text-notion-light-muted hover:text-notion-light-text dark:hover:text-notion-dark-text transition-colors"
           >
             Cancel
-          </button>
-          <button
+          </Button>
+          <Button
+            variant="custom"
             onClick={() => onSave(localConfig)}
             className="px-4 py-1.5 text-xs font-semibold bg-notion-light-text dark:bg-notion-dark-text text-white dark:text-notion-dark-bg rounded hover:opacity-90 transition-opacity"
           >
             Save Changes
-          </button>
+          </Button>
         </div>
       </div>
     </div>

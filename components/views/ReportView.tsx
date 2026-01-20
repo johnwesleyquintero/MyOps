@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Icon, iconProps } from "../Icons";
 import { ViewHeader } from "../ViewHeader";
+import { Button } from "../ui/Button";
 import { toast } from "sonner";
 import reportData from "../../code-check-report.json";
 import { MODULE_COLORS } from "@/constants";
@@ -81,12 +82,13 @@ export const ReportView: React.FC = () => {
         <p className="text-notion-light-muted dark:text-notion-dark-muted mb-4">
           {error}
         </p>
-        <button
+        <Button
+          variant="custom"
           onClick={() => window.location.reload()}
           className="notion-button notion-button-danger mx-auto"
         >
           Retry
-        </button>
+        </Button>
       </div>
     );
   }
@@ -97,7 +99,8 @@ export const ReportView: React.FC = () => {
         title="Code Intelligence"
         subTitle="Automated codebase health and architecture report"
       >
-        <button
+        <Button
+          variant="custom"
           onClick={handleCopyMd}
           className={`notion-button w-full sm:w-auto justify-center transition-all ${
             copied
@@ -116,7 +119,7 @@ export const ReportView: React.FC = () => {
               COPY
             </>
           )}
-        </button>
+        </Button>
       </ViewHeader>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">

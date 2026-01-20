@@ -3,6 +3,7 @@ import { ReflectionEntry } from "../../types";
 import { Icon, iconProps } from "../Icons";
 import { ViewHeader } from "../ViewHeader";
 import { ReflectionModal } from "../ReflectionModal";
+import { Button } from "../ui/Button";
 import { MODULE_COLORS } from "@/constants";
 
 interface ReflectionViewProps {
@@ -64,13 +65,14 @@ export const ReflectionView: React.FC<ReflectionViewProps> = ({
               className="pl-9 pr-4 py-2 bg-notion-light-sidebar dark:bg-notion-dark-sidebar border border-notion-light-border dark:border-notion-dark-border rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-notion-light-text/20 transition-all w-64"
             />
           </div>
-          <button
+          <Button
+            variant="custom"
             className={`flex items-center gap-2 px-4 py-2 ${colors.bg.replace("500/10", "500").replace("500/20", "500")} text-white rounded-xl text-[10px] font-bold uppercase tracking-widest hover:opacity-90 transition-all active:scale-95 shadow-lg shadow-teal-500/20`}
             onClick={handleCreate}
           >
             <Icon.Add size={14} />
             New Reflection
-          </button>
+          </Button>
         </div>
       </ViewHeader>
 
@@ -126,7 +128,8 @@ export const ReflectionView: React.FC<ReflectionViewProps> = ({
                     {reflection.title}
                   </h3>
                 </div>
-                <button
+                <Button
+                  variant="custom"
                   onClick={(e) => {
                     e.stopPropagation();
                     if (confirm("Delete this reflection?"))
@@ -135,7 +138,7 @@ export const ReflectionView: React.FC<ReflectionViewProps> = ({
                   className={`opacity-0 group-hover:opacity-100 p-1.5 ${MODULE_COLORS.error.bg.replace("bg-", "hover:bg-")} text-notion-light-muted ${MODULE_COLORS.error.text.replace("text-", "hover:text-")} rounded-md transition-all`}
                 >
                   <Icon.Delete {...iconProps(14)} />
-                </button>
+                </Button>
               </div>
 
               <p className="text-xs text-notion-light-muted dark:text-notion-dark-muted line-clamp-3 leading-relaxed">

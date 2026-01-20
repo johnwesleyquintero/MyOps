@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { ViewHeader } from "../ViewHeader";
 import { Icon, iconProps } from "../Icons";
+import { Button } from "../ui/Button";
 import { toast } from "sonner";
 import { useAiChat } from "../../hooks/useAiChat";
 import { MODULE_COLORS } from "../../constants/ui";
@@ -217,13 +218,14 @@ export const WesAiView: React.FC<WesAiViewProps> = ({
         title="WesAI Co-Pilot"
         subTitle="Advanced tactical intelligence and visual analysis"
       >
-        <button
+        <Button
+          variant="custom"
           onClick={resetChat}
           className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest ${colors.bg} ${colors.text} hover:opacity-80 transition-all active:scale-95`}
           title="Reset Neural Link"
         >
           RESET
-        </button>
+        </Button>
       </ViewHeader>
 
       <div className="flex-1 overflow-y-auto pr-2 mb-4 custom-scrollbar space-y-4">
@@ -248,7 +250,8 @@ export const WesAiView: React.FC<WesAiViewProps> = ({
                   {msg.timestamp.toLocaleTimeString()}
                 </div>
                 {msg.role === "model" && (
-                  <button
+                  <Button
+                    variant="custom"
                     onClick={() => handleCopy(msg.text, msg.id)}
                     className="opacity-0 group-hover/msg:opacity-100 p-1 hover:bg-notion-light-border dark:hover:bg-notion-dark-border rounded transition-all text-notion-light-text/40 hover:text-notion-light-text dark:text-notion-dark-text/40 dark:hover:text-notion-dark-text"
                     title="Copy as Markdown"
@@ -258,7 +261,7 @@ export const WesAiView: React.FC<WesAiViewProps> = ({
                     ) : (
                       <Icon.Copy {...iconProps(12)} />
                     )}
-                  </button>
+                  </Button>
                 )}
               </div>
 
@@ -357,25 +360,27 @@ export const WesAiView: React.FC<WesAiViewProps> = ({
                   alt="Preview"
                   className="w-20 h-20 object-cover rounded-lg border border-notion-light-border dark:border-notion-dark-border"
                 />
-                <button
+                <Button
+                  variant="custom"
                   onClick={() => removeAttachment(idx)}
                   className={`absolute -top-2 -right-2 ${MODULE_COLORS.error.bg.replace("/10", "").replace("/20", "")} text-white rounded-full p-1 shadow-md opacity-0 group-hover:opacity-100 transition-opacity`}
                 >
                   <Icon.Close {...iconProps(12)} />
-                </button>
+                </Button>
               </div>
             ))}
           </div>
         )}
 
         <div className="flex items-end gap-3">
-          <button
+          <Button
+            variant="custom"
             onClick={() => fileInputRef.current?.click()}
             className={`p-2.5 rounded-xl ${colors.hoverBg} ${colors.text} flex-shrink-0 transition-colors`}
             title="Upload Image"
           >
             <Icon.Add {...iconProps(20)} />
-          </button>
+          </Button>
           <input
             type="file"
             ref={fileInputRef}
@@ -398,7 +403,8 @@ export const WesAiView: React.FC<WesAiViewProps> = ({
             className="flex-1 bg-transparent border-none focus:ring-0 resize-none py-2 text-sm max-h-32 custom-scrollbar"
             rows={1}
           />
-          <button
+          <Button
+            variant="custom"
             onClick={handleSendMessage}
             disabled={
               (!inputValue.trim() && attachments.length === 0) ||
@@ -408,7 +414,7 @@ export const WesAiView: React.FC<WesAiViewProps> = ({
             className={`p-3 ${colors.text.replace("text-", "bg-").split(" ")[0]} text-white rounded-xl hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg active:scale-95 flex-shrink-0`}
           >
             <Icon.Send {...iconProps(20)} />
-          </button>
+          </Button>
         </div>
         <div className="mt-2 text-[10px] opacity-40 text-center font-medium hidden sm:block">
           PRO TIP: You can paste images directly from your clipboard (Ctrl+V) or

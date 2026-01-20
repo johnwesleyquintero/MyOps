@@ -1,6 +1,7 @@
 import React from "react";
 import { STATUSES } from "@/constants";
 import { Icon, iconProps } from "./Icons";
+import { Button } from "./ui";
 
 interface FilterBarProps {
   searchQuery: string;
@@ -64,42 +65,46 @@ export const FilterBar: React.FC<FilterBarProps> = ({
           onChange={(e) => setSearchQuery(e.target.value)}
         />
         {searchQuery && (
-          <button
+          <Button
+            variant="custom"
             onClick={() => setSearchQuery("")}
-            className="absolute inset-y-0 right-0 pr-2 flex items-center text-notion-light-muted hover:text-notion-light-text dark:hover:text-notion-dark-text"
+            className="absolute inset-y-0 right-0 pr-2 flex items-center text-notion-light-muted hover:text-notion-light-text dark:hover:text-notion-dark-text bg-transparent"
           >
             <Icon.Close {...iconProps(12)} />
-          </button>
+          </Button>
         )}
       </div>
 
       {/* Month Navigator Group */}
       <div className="flex items-center w-full lg:w-auto gap-1">
-        <button
+        <Button
+          variant="custom"
           onClick={() => handleMonthChange("prev")}
-          className="p-2 border border-notion-light-border dark:border-notion-dark-border rounded-l bg-notion-light-sidebar dark:bg-notion-dark-sidebar hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover text-notion-light-muted dark:text-notion-dark-muted transition-colors"
+          className="p-2 border border-notion-light-border dark:border-notion-dark-border rounded-l bg-notion-light-sidebar dark:bg-notion-dark-sidebar hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover text-notion-light-muted dark:text-notion-dark-muted transition-colors rounded-r-none"
           title="Previous Month"
         >
           <Icon.Prev {...iconProps(16)} />
-        </button>
+        </Button>
         <input
           type="month"
           className="notion-input block w-full lg:w-32 py-2 border-x-0 rounded-none text-center font-mono"
           value={selectedMonth}
           onChange={(e) => setSelectedMonth(e.target.value)}
         />
-        <button
+        <Button
+          variant="custom"
           onClick={() => handleMonthChange("next")}
-          className="p-2 border border-notion-light-border dark:border-notion-dark-border rounded-r bg-notion-light-sidebar dark:bg-notion-dark-sidebar hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover text-notion-light-muted dark:text-notion-dark-muted transition-colors"
+          className="p-2 border border-notion-light-border dark:border-notion-dark-border rounded-r bg-notion-light-sidebar dark:bg-notion-dark-sidebar hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover text-notion-light-muted dark:text-notion-dark-muted transition-colors rounded-l-none"
           title="Next Month"
         >
           <Icon.Next {...iconProps(16)} />
-        </button>
+        </Button>
       </div>
 
       {/* AI Sort Toggle */}
       {setIsAiSortEnabled && (
-        <button
+        <Button
+          variant="custom"
           onClick={() => setIsAiSortEnabled(!isAiSortEnabled)}
           className={`flex items-center gap-2 px-3 py-1.5 rounded border transition-all w-full lg:w-auto justify-center ${
             isAiSortEnabled
@@ -112,7 +117,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
           <span className="text-[10px] font-bold uppercase tracking-widest">
             AI Sort
           </span>
-        </button>
+        </Button>
       )}
 
       <div className="flex gap-2 w-full lg:w-auto">
@@ -157,7 +162,8 @@ export const FilterBar: React.FC<FilterBarProps> = ({
 
       {/* Clear Button */}
       {hasActiveFilters && (
-        <button
+        <Button
+          variant="custom"
           onClick={() => {
             setSearchQuery("");
             setSelectedCategory("");
@@ -167,7 +173,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
           className="w-full lg:w-auto px-4 py-2 notion-label hover:text-red-600 dark:hover:text-red-400 border border-transparent hover:border-red-200 dark:hover:border-red-900 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-all whitespace-nowrap text-center"
         >
           Reset Filters
-        </button>
+        </Button>
       )}
     </div>
   );

@@ -1,5 +1,6 @@
 import React from "react";
 import { Icon, iconProps } from "./Icons";
+import { Button } from "./ui";
 
 interface ConfirmationModalProps {
   isOpen: boolean;
@@ -50,29 +51,24 @@ export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
 
         {/* Footer Actions */}
         <div className="px-6 py-4 flex items-center justify-end gap-3 border-t border-notion-light-border dark:border-notion-dark-border bg-notion-light-sidebar/50 dark:bg-notion-dark-sidebar/30">
-          <button
-            type="button"
-            className="notion-button notion-button-ghost px-4 py-1.5"
+          <Button
+            variant="ghost"
+            size="sm"
             onClick={onClose}
             disabled={isLoading}
+            className="px-4"
           >
             {cancelText}
-          </button>
-          <button
-            type="button"
-            className="notion-button notion-button-danger px-4 py-1.5 font-semibold"
+          </Button>
+          <Button
+            variant="danger"
+            size="sm"
             onClick={onConfirm}
-            disabled={isLoading}
+            isLoading={isLoading}
+            className="px-4 font-semibold"
           >
-            {isLoading ? (
-              <span className="flex items-center gap-2">
-                <div className="w-3 h-3 border-2 border-white/30 border-t-white dark:border-red-500/30 dark:border-t-red-500 rounded-full animate-spin"></div>
-                Processing...
-              </span>
-            ) : (
-              confirmText
-            )}
-          </button>
+            {isLoading ? "Processing..." : confirmText}
+          </Button>
         </div>
       </div>
     </div>

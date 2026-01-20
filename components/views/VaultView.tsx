@@ -4,6 +4,7 @@ import { Icon } from "../Icons";
 import { ViewHeader } from "../ViewHeader";
 import { toast } from "sonner";
 import { MODULE_COLORS } from "../../constants/ui";
+import { Button } from "../ui";
 
 interface VaultViewProps {
   entries: VaultEntry[];
@@ -84,13 +85,14 @@ export const VaultView: React.FC<VaultViewProps> = ({
         title="Secure Vault"
         subTitle="Encrypted storage for keys and tokens"
       >
-        <button
+        <Button
+          variant="custom"
           onClick={() => setIsAdding(true)}
           className={`w-full md:w-auto flex items-center justify-center gap-2 px-6 py-3 ${colors.bg} border ${colors.border} ${colors.text} rounded-2xl font-black text-sm uppercase tracking-widest shadow-sm hover:opacity-90 transition-all active:scale-95`}
         >
           <Icon.Vault size={20} />
           Secure New Item
-        </button>
+        </Button>
       </ViewHeader>
 
       <div
@@ -166,18 +168,20 @@ export const VaultView: React.FC<VaultViewProps> = ({
               </div>
             </div>
             <div className="flex gap-3 pt-2">
-              <button
+              <Button
+                variant="custom"
                 onClick={handleAdd}
                 className={`flex-1 py-3 ${colors.bg} text-white font-black text-xs uppercase tracking-widest rounded-xl transition-all active:scale-95 shadow-lg shadow-black/5`}
               >
                 Secure
-              </button>
-              <button
+              </Button>
+              <Button
+                variant="custom"
                 onClick={() => setIsAdding(false)}
                 className="flex-1 py-3 bg-notion-light-sidebar dark:bg-notion-dark-sidebar text-notion-light-muted dark:text-notion-dark-muted border border-notion-light-border dark:border-notion-dark-border font-black text-xs uppercase tracking-widest rounded-xl transition-all hover:bg-notion-light-border dark:hover:bg-notion-dark-border active:scale-95"
               >
                 Cancel
-              </button>
+              </Button>
             </div>
           </div>
         )}
@@ -207,12 +211,13 @@ export const VaultView: React.FC<VaultViewProps> = ({
                       {entry.label}
                     </h3>
                   </div>
-                  <button
+                  <Button
+                    variant="custom"
                     onClick={() => handleDelete(entry.id, entry.label)}
                     className={`p-2.5 text-notion-light-muted dark:text-notion-dark-muted ${MODULE_COLORS.error.text.replace("text-", "hover:text-")} ${MODULE_COLORS.error.bg.replace("bg-", "hover:bg-")} rounded-xl transition-all opacity-100 md:opacity-0 md:group-hover:opacity-100`}
                   >
                     <Icon.Delete size={18} />
-                  </button>
+                  </Button>
                 </div>
 
                 <div className="relative">
@@ -225,7 +230,8 @@ export const VaultView: React.FC<VaultViewProps> = ({
                         : "••••••••••••••••••••"}
                     </code>
                     <div className="flex items-center gap-1.5">
-                      <button
+                      <Button
+                        variant="custom"
                         onClick={() => toggleShow(entry.id)}
                         className={`p-2 text-notion-light-muted dark:text-notion-dark-muted ${colors.text.replace("text-", "hover:text-")} ${colors.lightBg.replace("bg-", "hover:bg-")} rounded-lg transition-all`}
                         title={showValues[entry.id] ? "Hide" : "Show"}
@@ -235,8 +241,9 @@ export const VaultView: React.FC<VaultViewProps> = ({
                         ) : (
                           <Icon.Play size={16} />
                         )}
-                      </button>
-                      <button
+                      </Button>
+                      <Button
+                        variant="custom"
                         onClick={() =>
                           copyToClipboard(entry.value, entry.label)
                         }
@@ -244,7 +251,7 @@ export const VaultView: React.FC<VaultViewProps> = ({
                         title="Copy to clipboard"
                       >
                         <Icon.Copy size={16} />
-                      </button>
+                      </Button>
                     </div>
                   </div>
                 </div>

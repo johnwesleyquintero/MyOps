@@ -173,7 +173,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             </h3>
           </div>
           <div className="grid grid-cols-2 gap-3">
-            <button
+            <Button
+              variant="custom"
               onClick={onOpenCreate}
               className="flex flex-col items-center justify-center p-6 bg-white dark:bg-notion-dark-sidebar rounded-2xl border border-slate-200/60 dark:border-white/5 hover:border-blue-500/50 dark:hover:border-blue-500/50 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group relative overflow-hidden"
             >
@@ -184,8 +185,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               <span className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-600 dark:text-slate-400">
                 New Mission
               </span>
-            </button>
-            <button
+            </Button>
+            <Button
+              variant="custom"
               onClick={() => onNavigate("KNOWLEDGE")}
               className="flex flex-col items-center justify-center p-6 bg-white dark:bg-notion-dark-sidebar rounded-2xl border border-slate-200/60 dark:border-white/5 hover:border-amber-500/50 dark:hover:border-amber-500/50 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group relative overflow-hidden"
             >
@@ -196,8 +198,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               <span className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-600 dark:text-slate-400">
                 New Note
               </span>
-            </button>
-            <button
+            </Button>
+            <Button
+              variant="custom"
               onClick={() => onNavigate("CRM")}
               className="flex flex-col items-center justify-center p-6 bg-white dark:bg-notion-dark-sidebar rounded-2xl border border-slate-200/60 dark:border-white/5 hover:border-emerald-500/50 dark:hover:border-emerald-500/50 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group relative overflow-hidden"
             >
@@ -208,8 +211,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               <span className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-600 dark:text-slate-400">
                 Log Contact
               </span>
-            </button>
-            <button
+            </Button>
+            <Button
+              variant="custom"
               onClick={() => onNavigate("VAULT")}
               className="flex flex-col items-center justify-center p-6 bg-white dark:bg-notion-dark-sidebar rounded-2xl border border-slate-200/60 dark:border-white/5 hover:border-slate-500/50 dark:hover:border-slate-500/50 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group relative overflow-hidden"
             >
@@ -220,7 +224,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               <span className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-600 dark:text-slate-400">
                 Secure Vault
               </span>
-            </button>
+            </Button>
           </div>
         </div>
 

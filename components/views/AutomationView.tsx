@@ -4,6 +4,7 @@ import { Automation } from "../../types";
 import { ViewHeader } from "../ViewHeader";
 import { toast } from "sonner";
 import { MODULE_COLORS } from "@/constants";
+import { Button } from "../ui";
 
 const AUTOMATION_TEMPLATES = [
   {
@@ -151,7 +152,8 @@ export const AutomationView: React.FC<AutomationViewProps> = ({
         title="Automation Layer"
         subTitle="Smart agentic tasks and event triggers"
       >
-        <button
+        <Button
+          variant="custom"
           onClick={handleAdd}
           className={`w-full md:w-auto px-4 py-2.5 md:py-2 ${colors.bg} ${colors.text} text-[10px] font-black uppercase tracking-widest border ${colors.border} rounded-xl ${colors.hoverBg} transition-all active:scale-95 shadow-sm mt-2 md:mt-0 group`}
         >
@@ -160,7 +162,7 @@ export const AutomationView: React.FC<AutomationViewProps> = ({
             className="inline-block mr-1 group-hover:rotate-90 transition-transform duration-300"
           />{" "}
           New Trigger
-        </button>
+        </Button>
       </ViewHeader>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -238,7 +240,8 @@ export const AutomationView: React.FC<AutomationViewProps> = ({
                     </div>
                   </div>
                   <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end border-t sm:border-t-0 border-notion-light-border dark:border-notion-dark-border pt-3 sm:pt-0">
-                    <button
+                    <Button
+                      variant="custom"
                       onClick={() =>
                         handleToggleClick(auto.id, auto.status, auto.name)
                       }
@@ -249,13 +252,14 @@ export const AutomationView: React.FC<AutomationViewProps> = ({
                       }`}
                     >
                       {auto.status}
-                    </button>
-                    <button
+                    </Button>
+                    <Button
+                      variant="custom"
                       onClick={() => handleDeleteClick(auto.id, auto.name)}
                       className={`p-2 text-notion-light-muted dark:text-notion-dark-muted ${MODULE_COLORS.error.text.replace("text-", "hover:text-")} ${MODULE_COLORS.error.bg.replace("bg-", "hover:bg-")} rounded-xl transition-all sm:opacity-0 sm:group-hover:opacity-100`}
                     >
                       <Icon.Delete size={16} />
-                    </button>
+                    </Button>
                   </div>
                 </div>
               ))
@@ -405,12 +409,13 @@ export const AutomationView: React.FC<AutomationViewProps> = ({
                   {template.description}
                 </p>
               </div>
-              <button
+              <Button
+                variant="custom"
                 onClick={() => handleUseTemplate(template)}
                 className={`w-full py-2 ${colors.lightBg} ${colors.bg.replace("bg-", "hover:bg-")} ${colors.text} text-[10px] font-black uppercase tracking-widest border ${colors.border} rounded-xl transition-all active:scale-95`}
               >
                 Use Template
-              </button>
+              </Button>
             </div>
           ))}
         </div>
@@ -440,13 +445,14 @@ export const AutomationView: React.FC<AutomationViewProps> = ({
                     {editingAutomation?.id ? "Edit" : "New"} Trigger
                   </h3>
                 </div>
-                <button
+                <Button
+                  variant="custom"
                   type="button"
                   onClick={() => setIsModalOpen(false)}
                   className={`p-1.5 text-notion-light-muted dark:text-notion-dark-muted ${colors.text.replace("text-", "hover:text-")} ${colors.bg.replace("bg-", "hover:bg-")} rounded-lg transition-all`}
                 >
                   <Icon.Close size={18} />
-                </button>
+                </Button>
               </div>
 
               <div className="p-8 space-y-6">
@@ -512,19 +518,21 @@ export const AutomationView: React.FC<AutomationViewProps> = ({
               <div
                 className={`px-7 py-5 ${colors.lightBg} border-t ${colors.border} flex justify-end gap-3`}
               >
-                <button
+                <Button
+                  variant="custom"
                   type="button"
                   onClick={() => setIsModalOpen(false)}
                   className={`px-5 py-2.5 text-[10px] font-black uppercase tracking-widest text-notion-light-text dark:text-notion-dark-text ${colors.bg.replace("bg-", "hover:bg-")} rounded-xl transition-all`}
                 >
                   Cancel
-                </button>
-                <button
+                </Button>
+                <Button
+                  variant="custom"
                   type="submit"
                   className={`px-6 py-2.5 ${colors.bg} ${colors.text} border ${colors.border} text-[10px] font-black uppercase tracking-[0.15em] rounded-xl transition-all shadow-lg active:scale-95 ${colors.hoverBg}`}
                 >
                   {editingAutomation?.id ? "Save Changes" : "Create Trigger"}
-                </button>
+                </Button>
               </div>
             </form>
           </div>

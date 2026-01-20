@@ -32,14 +32,18 @@ export const MissionTrendChart: React.FC<MissionTrendChartProps> = ({
   );
 
   return (
-    <div className="notion-card p-5 flex flex-col justify-between transition-colors duration-300 h-full">
-      <div className="flex justify-between items-center mb-4">
-        <h3 className="notion-label">Mission Volume Trend</h3>
-        <span
-          className={`text-[10px] font-black uppercase tracking-widest ${colors.text}`}
-        >
-          Operational Velocity
-        </span>
+    <div className="notion-card p-6 flex flex-col justify-between hover:shadow-xl transition-all duration-300 h-full border-slate-200/60 dark:border-white/5 bg-white dark:bg-notion-dark-sidebar/30 relative overflow-hidden group">
+      <div className="flex justify-between items-center mb-6 relative z-10">
+        <div>
+          <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500">
+            Mission Volume Trend
+          </h3>
+          <span
+            className={`text-[9px] font-black uppercase tracking-[0.1em] ${colors.text} opacity-70`}
+          >
+            Operational Velocity
+          </span>
+        </div>
       </div>
 
       <div className="relative w-full h-[150px] overflow-visible">

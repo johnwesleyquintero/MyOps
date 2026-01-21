@@ -10,26 +10,32 @@ import { Icon, iconProps } from "./Icons";
 import { Button } from "./ui/Button";
 import { toast } from "sonner";
 import { MODULE_COLORS } from "../constants/ui";
+import { useAppContext } from "../contexts/AppContext";
 
-interface TaskModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onSubmit: (entry: TaskEntry) => Promise<void>;
-  onDelete: (entry: TaskEntry) => Promise<void | boolean>;
-  initialData?: TaskEntry | null;
-  isSubmitting: boolean;
-  entries: TaskEntry[];
-}
+export const TaskModal: React.FC = () => {
+  const { ui, tasks } = useAppContext();
+  const {
+    entries,
+    saveTransaction: saveEntry,
+    removeTransaction: deleteEntry,
+    isSubmitting,
+  } = tasks;
+  const {
+    isTaskModalOpen: isOpen,
+    setIsTaskModalOpen,
+    editingEntry: initialData,
+  } = ui;
 
-export const TaskModal: React.FC<TaskModalProps> = ({
-  isOpen,
-  onClose,
-  onSubmit,
-  onDelete,
-  initialData,
-  isSubmitting,
-  entries,
-}) => {
+  const onClose = () => setIsTaskModalOpen(false);
+
+  const onSubmit = async (entry: TaskEntry) => {
+    await saveEntry(entry, !!initialData);
+  };
+
+  const onDelete = async (entry: TaskEntry) => {
+    await deleteEntry(entry);
+  };
+
   const { formData, setFormData, isCustomProject, setIsCustomProject } =
     useTaskForm(initialData, entries);
 

@@ -1,27 +1,13 @@
 import React from "react";
-import { Page, AppConfig } from "../types";
 import { Icon, iconProps } from "./Icons";
 import { Button } from "./ui/Button";
+import { useAppContext } from "../contexts/AppContext";
 
-interface HeaderProps {
-  activePage: Page;
-  onMenuToggle: () => void;
-  onOpenCreate: () => void;
-  onOpenAiChat: () => void;
-  config: AppConfig;
-  setConfig: (config: AppConfig) => void;
-}
+export const Header: React.FC = () => {
+  const { config, setConfig, ui } = useAppContext();
 
-export const Header: React.FC<HeaderProps> = ({
-  activePage,
-  onMenuToggle,
-  onOpenCreate,
-  onOpenAiChat,
-  config,
-  setConfig,
-}) => {
   const getTitle = () => {
-    switch (activePage) {
+    switch (ui.activePage) {
       case "DASHBOARD":
         return "Command Center";
       case "MISSIONS":
@@ -57,7 +43,7 @@ export const Header: React.FC<HeaderProps> = ({
         <Button
           variant="ghost"
           size="icon"
-          onClick={onMenuToggle}
+          onClick={() => ui.setIsSidebarOpen(true)}
           className="lg:hidden text-notion-light-muted dark:text-notion-dark-muted"
           leftIcon={<Icon.Menu {...iconProps(20)} />}
         />
@@ -72,7 +58,7 @@ export const Header: React.FC<HeaderProps> = ({
         <Button
           variant="ghost"
           size="sm"
-          onClick={onOpenAiChat}
+          onClick={() => ui.setIsAiChatOpen(true)}
           className="hidden sm:flex text-notion-light-muted dark:text-notion-dark-muted font-medium"
           leftIcon={<Icon.Chat {...iconProps(16)} />}
         >
@@ -99,16 +85,15 @@ export const Header: React.FC<HeaderProps> = ({
           }
         />
 
-        <div className="w-[1px] h-4 bg-notion-light-border dark:bg-notion-dark-border mx-1" />
-
-        {/* Quick Action: New Task */}
+        {/* Global Create Action */}
         <Button
           variant="primary"
           size="sm"
-          onClick={onOpenCreate}
-          leftIcon={<Icon.Add {...iconProps(14, "stroke-[3px]")} />}
+          onClick={ui.openCreate}
+          className="hidden sm:flex"
+          leftIcon={<Icon.Plus {...iconProps(16)} />}
         >
-          <span className="hidden xs:inline">New</span>
+          Mission
         </Button>
       </div>
     </header>

@@ -1,17 +1,15 @@
 import React from "react";
 import { Icon } from "./Icons";
 import { Button } from "./ui/Button";
+import { useAppContext } from "../contexts/AppContext";
 
-interface ShortcutsModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-}
+export const ShortcutsModal: React.FC = () => {
+  const { ui } = useAppContext();
+  const { showShortcuts: isOpen, setShowShortcuts: setIsOpen } = ui;
 
-export const ShortcutsModal: React.FC<ShortcutsModalProps> = ({
-  isOpen,
-  onClose,
-}) => {
   if (!isOpen) return null;
+
+  const onClose = () => setIsOpen(false);
 
   const groups = [
     {

@@ -4,16 +4,7 @@ import { Icon, iconProps } from "./Icons";
 import { MODULE_COLORS } from "../constants/ui";
 import { Button } from "./ui/Button";
 import { NAVIGATION_CONFIG } from "../constants/navigation";
-
-interface SidebarProps {
-  activePage: Page;
-  setActivePage: (page: Page) => void;
-  onOpenSettings: () => void;
-  isOpen: boolean; // Mobile open state
-  setIsOpen: (isOpen: boolean) => void;
-  isCollapsed: boolean; // Desktop collapsed state
-  toggleCollapse: () => void;
-}
+import { useAppContext } from "../contexts/AppContext";
 
 interface NavItemProps {
   page: Page;
@@ -65,15 +56,18 @@ const NavItem: React.FC<NavItemProps> = ({
   );
 };
 
-export const Sidebar: React.FC<SidebarProps> = ({
-  activePage,
-  setActivePage,
-  onOpenSettings,
-  isOpen,
-  setIsOpen,
-  isCollapsed,
-  toggleCollapse,
-}) => {
+export const Sidebar: React.FC = () => {
+  const { ui } = useAppContext();
+  const {
+    activePage,
+    setActivePage,
+    setShowSettings,
+    isSidebarOpen: isOpen,
+    setIsSidebarOpen: setIsOpen,
+    isSidebarCollapsed: isCollapsed,
+    toggleSidebarCollapse: toggleCollapse,
+  } = ui;
+
   const widthClass = isOpen ? "w-60" : isCollapsed ? "w-16" : "w-60";
 
   const renderNavItem = (page: Page, label: string, icon: React.ReactNode) => (
@@ -190,7 +184,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <Button
               variant="ghost"
               onClick={() => {
-                onOpenSettings();
+                setShowSettings(true);
                 setIsOpen(false);
               }}
               title={isCollapsed ? "System Configuration" : ""}
@@ -204,7 +198,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               <span
                 className={`ml-3 whitespace-nowrap overflow-hidden transition-all duration-300 ${isCollapsed ? "max-w-0 opacity-0" : "max-w-xs opacity-100"}`}
               >
-                Configuration
+                System Settings
               </span>
             </Button>
           </div>

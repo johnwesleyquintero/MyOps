@@ -1,24 +1,15 @@
-import React, { useState, useEffect, useMemo, useRef } from "react";
-import { TaskEntry, Page, Contact, Note } from "../types";
+import React, {
+  useState,
+  useEffect,
+  useMemo,
+  useRef,
+  useCallback,
+} from "react";
+import { TaskEntry } from "../types";
 import { PRIORITY_DOTS } from "@/constants";
 import { Icon, iconProps } from "./Icons";
 import { Button } from "./ui/Button";
-
-interface CommandPaletteProps {
-  isOpen: boolean;
-  onClose: () => void;
-  entries: TaskEntry[];
-  contacts?: Contact[];
-  notes?: Note[];
-  onNavigate: (page: Page) => void;
-  onCreate: () => void;
-  onCreateNote?: () => void;
-  onEdit: (entry: TaskEntry) => void;
-  onEditContact?: (contact: Contact) => void;
-  onEditNote?: (note: Note) => void;
-  onSettings: () => void;
-  onToggleFocus: (entry: TaskEntry) => void;
-}
+import { useAppContext } from "../contexts/AppContext";
 
 type CommandType = "ACTION" | "NAVIGATION" | "TASK" | "CONTACT" | "NOTE";
 
@@ -32,21 +23,29 @@ interface CommandItem {
   meta?: TaskEntry;
 }
 
-export const CommandPalette: React.FC<CommandPaletteProps> = ({
-  isOpen,
-  onClose,
-  entries,
-  contacts = [],
-  notes = [],
-  onNavigate,
-  onCreate,
-  onCreateNote,
-  onEdit,
-  onEditContact,
-  onEditNote,
-  onSettings,
-  onToggleFocus,
-}) => {
+export const CommandPalette: React.FC = () => {
+  const { ui, tasks, crm, notes: notesData } = useAppContext();
+  const { entries } = tasks;
+  const { contacts } = crm;
+  const { notes } = notesData;
+  const {
+    isCmdPaletteOpen: isOpen,
+    setIsCmdPaletteOpen: setIsOpen,
+    setActivePage: onNavigate,
+    openCreate: onCreate,
+    openCreateNote,
+    openEdit: onEdit,
+    openEditContact: onEditContact,
+    openEditNote: onEditNote,
+    setShowSettings,
+    enterFocus: onToggleFocus,
+  } = ui;
+
+  const onSettings = useCallback(
+    () => setShowSettings(true),
+    [setShowSettings],
+  );
+  const onClose = useCallback(() => setIsOpen(false), [setIsOpen]);
   const [query, setQuery] = useState("");
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [prevIsOpen, setPrevIsOpen] = useState(isOpen);
@@ -98,7 +97,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
         id: "nav-automation",
         type: "NAVIGATION",
         label: "Go to Active Agents",
-        subLabel: "Automation & active workflows",
+        subLabel: "Automated workflows",
         icon: <Icon.Active {...iconProps(16)} />,
         action: () => onNavigate("AUTOMATION"),
       },
@@ -106,117 +105,44 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
         id: "nav-knowledge",
         type: "NAVIGATION",
         label: "Go to Knowledge Base",
-        subLabel: "SOPs, notes and documentation",
+        subLabel: "Notes and documentation",
         icon: <Icon.Docs {...iconProps(16)} />,
         action: () => onNavigate("KNOWLEDGE"),
-      },
-      {
-        id: "nav-insights",
-        type: "NAVIGATION",
-        label: "Go to Insights & XP",
-        subLabel: "Neural analytics and progress",
-        icon: <Icon.Analytics {...iconProps(16)} />,
-        action: () => onNavigate("INSIGHTS"),
-      },
-      {
-        id: "nav-wesai",
-        type: "NAVIGATION",
-        label: "Go to WesAI Co-Pilot",
-        subLabel: "Multimodal tactical intelligence",
-        icon: <Icon.Ai {...iconProps(16)} />,
-        action: () => onNavigate("WESAI"),
-      },
-      {
-        id: "nav-awareness",
-        type: "NAVIGATION",
-        label: "Go to Mental State",
-        subLabel: "Operator check-in and clarity",
-        icon: <Icon.Strategy {...iconProps(16)} />,
-        action: () => onNavigate("AWARENESS"),
       },
       {
         id: "nav-vault",
         type: "NAVIGATION",
         label: "Go to Secure Vault",
-        subLabel: "Encrypted data and credentials",
+        subLabel: "Encrypted data & keys",
         icon: <Icon.Vault {...iconProps(16)} />,
         action: () => onNavigate("VAULT"),
       },
       {
-        id: "nav-blueprint",
-        type: "NAVIGATION",
-        label: "Go to Master Blueprint",
-        subLabel: "Long-term strategy and roadmap",
-        icon: <Icon.Blueprint {...iconProps(16)} />,
-        action: () => onNavigate("BLUEPRINT"),
-      },
-      {
-        id: "nav-strategy",
-        type: "NAVIGATION",
-        label: "Go to Decision Journal",
-        subLabel: "Strategic logs and retrospectives",
-        icon: <Icon.Strategy {...iconProps(16)} />,
-        action: () => onNavigate("STRATEGY"),
-      },
-      {
-        id: "nav-report",
-        type: "NAVIGATION",
-        label: "Go to Health Report",
-        subLabel: "System status and operational health",
-        icon: <Icon.Report {...iconProps(16)} />,
-        action: () => onNavigate("REPORT"),
-      },
-      {
-        id: "act-create",
+        id: "action-new-task",
         type: "ACTION",
-        label: "Create New Task",
-        subLabel: "Quick entry for mission control",
+        label: "New Mission",
+        subLabel: "Create a new task",
         icon: <Icon.Add {...iconProps(16)} />,
         action: () => onCreate(),
       },
       {
-        id: "act-create-note",
+        id: "action-new-note",
         type: "ACTION",
-        label: "Create New Document",
-        subLabel: "Add to Knowledge Base",
+        label: "New Note",
+        subLabel: "Create a new knowledge entry",
         icon: <Icon.Docs {...iconProps(16)} />,
-        action: () => {
-          if (onCreateNote) onCreateNote();
-          else onNavigate("KNOWLEDGE");
-        },
+        action: () => openCreateNote?.(),
       },
       {
-        id: "act-create-contact",
+        id: "action-settings",
         type: "ACTION",
-        label: "Create New Contact",
-        subLabel: "Add to CRM & Network",
-        icon: <Icon.Users {...iconProps(16)} />,
-        action: () => {
-          onNavigate("CRM");
-        },
-      },
-      {
-        id: "act-create-high",
-        type: "ACTION",
-        label: "Create High Priority Task",
-        subLabel: "Mission-critical urgent entry",
-        icon: <Icon.Add {...iconProps(16)} className="text-red-500" />,
-        action: () => {
-          onCreate();
-          // We could potentially pass initial state to onCreate,
-          // but for now we just trigger the modal.
-        },
-      },
-      {
-        id: "act-settings",
-        type: "ACTION",
-        label: "System Configuration",
-        subLabel: "API keys and core settings",
+        label: "System Settings",
+        subLabel: "Configure application",
         icon: <Icon.Settings {...iconProps(16)} />,
         action: () => onSettings(),
       },
     ],
-    [onNavigate, onCreate, onCreateNote, onSettings],
+    [onNavigate, onCreate, openCreateNote, onSettings],
   );
 
   const filteredCommands = useMemo(() => {

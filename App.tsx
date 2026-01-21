@@ -1,5 +1,4 @@
 import React, { Suspense, lazy } from "react";
-import { TaskEntry, AppConfig } from "./types";
 import { TaskModal } from "./components/TaskModal";
 import { SettingsModal } from "./components/SettingsModal";
 import { Header } from "./components/Header";
@@ -10,6 +9,7 @@ import { CommandPalette } from "./components/CommandPalette";
 import { AiChatSidebar } from "./components/AiChatSidebar";
 import { Toaster } from "sonner";
 import { Spinner } from "./components/ui/Spinner";
+import { useAppContext } from "./contexts/AppContext";
 
 // Lazy-loaded views
 const DashboardView = lazy(() =>
@@ -95,55 +95,34 @@ const LifeView = lazy(() =>
 );
 
 // Hooks
-import { useTasks } from "./hooks/useTasks";
 import { useTaskAnalytics } from "./hooks/useTaskAnalytics";
-import { useAppConfig } from "./hooks/useAppConfig";
-import { useNotifications } from "./hooks/useNotifications";
 import { useTaskActions } from "./hooks/useTaskActions";
 import { useMissionControl } from "./hooks/useMissionControl";
-import { useUiState } from "./hooks/useUiState";
 import { useTheme } from "./hooks/useTheme";
 import { useAppShortcuts } from "./hooks/useAppShortcuts";
-import { useCrm } from "./hooks/useCrm";
-import { useNotes } from "./hooks/useNotes";
-import { useOperatorAnalytics } from "./hooks/useOperatorAnalytics";
-import { useVault } from "./hooks/useVault";
-import { useAutomation } from "./hooks/useAutomation";
-import { useDecisions } from "./hooks/useDecisions";
-import { useAwareness } from "./hooks/useAwareness";
-import { useAssets } from "./hooks/useAssets";
-import { useReflection } from "./hooks/useReflection";
-import { useIntegrations } from "./hooks/useIntegrations";
-import { useLifeOps } from "./hooks/useLifeOps";
 
 const App: React.FC = () => {
-  const { config, setConfig } = useAppConfig();
-  const { showToast } = useNotifications();
+  const {
+    config,
+    showToast,
+    ui,
+    tasks,
+    crm,
+    notes,
+    vault,
+    automation,
+    awareness,
+    strategy,
+    assets,
+    reflections,
+    integrations,
+    lifeOps,
+    operatorMetrics,
+  } = useAppContext();
 
   useTheme(config.theme);
-  const ui = useUiState();
 
-  const crm = useCrm(config, showToast);
-  const notes = useNotes(config, showToast);
-  const vault = useVault(config, showToast);
-  const automation = useAutomation(config, showToast);
-  const awareness = useAwareness(config);
-  const strategy = useDecisions(config);
-  const assets = useAssets(config, showToast);
-  const reflections = useReflection(config, showToast);
-  const integrations = useIntegrations(config, showToast);
-  const lifeOps = useLifeOps(config, showToast);
-
-  const {
-    entries,
-    isLoading,
-    isSubmitting,
-    saveTransaction,
-    removeTransaction,
-    bulkRemoveTransactions,
-  } = useTasks(config, showToast);
-
-  const operatorMetrics = useOperatorAnalytics(entries);
+  const { entries, isLoading, saveTransaction, removeTransaction } = tasks;
 
   const taskActions = useTaskActions({ saveTransaction, showToast });
   const missionControl = useMissionControl(entries);
@@ -166,20 +145,6 @@ const App: React.FC = () => {
     setIsCmdPaletteOpen: ui.setIsCmdPaletteOpen,
     setShowShortcuts: ui.setShowShortcuts,
   });
-
-  const handleModalSubmit = async (entry: TaskEntry) => {
-    const success = await saveTransaction(entry, !!ui.editingEntry?.id);
-    if (success) {
-      ui.setIsTaskModalOpen(false);
-      ui.setEditingEntry(null);
-    }
-  };
-
-  const handleSaveConfig = (newConfig: AppConfig) => {
-    setConfig(newConfig);
-    ui.setShowSettings(false);
-    showToast("Core systems recalibrated", "success");
-  };
 
   if (ui.activePage === "FOCUS" && ui.focusedTask) {
     return (
@@ -234,7 +199,7 @@ const App: React.FC = () => {
             isLoading={isLoading}
             onEdit={ui.openEdit}
             onDelete={removeTransaction}
-            onBulkDelete={bulkRemoveTransactions}
+            onBulkDelete={tasks.bulkRemoveTransactions}
             onStatusUpdate={taskActions.handleStatusUpdate}
             onDescriptionUpdate={taskActions.handleDescriptionUpdate}
             onFocus={(e) => {
@@ -384,27 +349,12 @@ const App: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-notion-light-bg dark:bg-notion-dark-bg text-notion-light-text dark:text-notion-dark-text font-sans selection:bg-violet-100 dark:selection:bg-violet-900/30 transition-colors duration-200">
-      <Sidebar
-        activePage={ui.activePage}
-        setActivePage={ui.setActivePage}
-        onOpenSettings={() => ui.setShowSettings(true)}
-        isOpen={ui.isSidebarOpen}
-        setIsOpen={ui.setIsSidebarOpen}
-        isCollapsed={ui.isSidebarCollapsed}
-        toggleCollapse={ui.toggleSidebarCollapse}
-      />
+      <Sidebar />
 
       <div
         className={`transition-all duration-300 ease-in-out ${ui.isSidebarCollapsed ? "lg:pl-16" : "lg:pl-60"}`}
       >
-        <Header
-          activePage={ui.activePage}
-          onMenuToggle={() => ui.setIsSidebarOpen(!ui.isSidebarOpen)}
-          onOpenCreate={ui.openCreate}
-          onOpenAiChat={() => ui.setIsAiChatOpen(true)}
-          config={config}
-          setConfig={setConfig}
-        />
+        <Header />
 
         <main className="p-4 sm:p-6 lg:p-8 pb-24 bg-notion-light-bg dark:bg-notion-dark-bg scrollbar-thin scrollbar-thumb-notion-light-border dark:scrollbar-thumb-notion-dark-border">
           <Suspense
@@ -419,80 +369,15 @@ const App: React.FC = () => {
         </main>
       </div>
 
-      <AiChatSidebar
-        isOpen={ui.isAiChatOpen}
-        onClose={() => ui.setIsAiChatOpen(false)}
-        config={config}
-        entries={entries}
-        contacts={crm.contacts}
-        notes={notes.notes}
-        vaultEntries={vault.vaultEntries}
-        metrics={operatorMetrics}
-        decisions={strategy.decisions}
-        mentalStates={awareness.mentalStates}
-        assets={assets.assets}
-        reflections={reflections.reflections}
-        lifeConstraints={lifeOps.constraints}
-        onSaveTransaction={saveTransaction}
-        onDeleteTransaction={removeTransaction}
-        onSaveContact={crm.saveContact}
-        onSaveNote={notes.saveNote}
-        onSaveAsset={assets.saveAsset}
-        onSaveReflection={reflections.saveReflection}
-      />
+      <AiChatSidebar />
 
-      <CommandPalette
-        isOpen={ui.isCmdPaletteOpen}
-        onClose={() => ui.setIsCmdPaletteOpen(false)}
-        entries={entries}
-        contacts={crm.contacts}
-        notes={notes.notes}
-        onNavigate={ui.setActivePage}
-        onCreate={ui.openCreate}
-        onCreateNote={ui.openCreateNote}
-        onEdit={ui.openEdit}
-        onEditContact={ui.openEditContact}
-        onEditNote={(note) => {
-          ui.openEditNote(note);
-          ui.setIsCmdPaletteOpen(false);
-        }}
-        onSettings={() => ui.setShowSettings(true)}
-        onToggleFocus={(e) => {
-          ui.enterFocus(e);
-          showToast("Focus Mode Engaged", "info");
-        }}
-      />
+      <CommandPalette />
 
-      <TaskModal
-        isOpen={ui.isTaskModalOpen}
-        onClose={() => ui.setIsTaskModalOpen(false)}
-        onSubmit={handleModalSubmit}
-        onDelete={removeTransaction}
-        initialData={ui.editingEntry}
-        isSubmitting={isSubmitting}
-        entries={entries}
-      />
+      <TaskModal />
 
-      <SettingsModal
-        isOpen={ui.showSettings}
-        onClose={() => ui.setShowSettings(false)}
-        config={config}
-        onSave={handleSaveConfig}
-        entries={entries}
-        contacts={crm.contacts}
-        notes={notes.notes}
-        vaultEntries={vault.vaultEntries}
-        decisions={strategy.decisions}
-        mentalStates={awareness.mentalStates}
-        assets={assets.assets}
-        reflections={reflections.reflections}
-        lifeConstraints={lifeOps.constraints}
-      />
+      <SettingsModal />
 
-      <ShortcutsModal
-        isOpen={ui.showShortcuts}
-        onClose={() => ui.setShowShortcuts(false)}
-      />
+      <ShortcutsModal />
       <Toaster
         position="bottom-right"
         richColors

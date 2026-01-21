@@ -1,69 +1,44 @@
 import React, { useRef, useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
-import {
-  AppConfig,
-  TaskEntry,
-  Contact,
-  Note,
-  VaultEntry,
-  OperatorMetrics,
-  DecisionEntry,
-  MentalStateEntry,
-  AssetEntry,
-  ReflectionEntry,
-  LifeConstraintEntry,
-} from "../types";
 import { useAiChat } from "../hooks/useAiChat";
 import { Icon, iconProps } from "./Icons";
 import { Button } from "./ui/Button";
 import { toast } from "sonner";
+import { useAppContext } from "../contexts/AppContext";
 
-interface AiChatSidebarProps {
-  isOpen: boolean;
-  onClose: () => void;
-  config: AppConfig;
-  entries: TaskEntry[];
-  contacts: Contact[];
-  notes: Note[];
-  vaultEntries: VaultEntry[];
-  metrics: OperatorMetrics;
-  decisions: DecisionEntry[];
-  mentalStates: MentalStateEntry[];
-  assets: AssetEntry[];
-  reflections: ReflectionEntry[];
-  lifeConstraints: LifeConstraintEntry[];
-  onSaveTransaction: (entry: TaskEntry, isUpdate: boolean) => Promise<boolean>;
-  onDeleteTransaction: (entry: TaskEntry) => Promise<boolean>;
-  onSaveContact: (contact: Contact, isUpdate: boolean) => Promise<boolean>;
-  onSaveNote: (note: Note, isUpdate: boolean) => Promise<boolean>;
-  onSaveAsset: (asset: AssetEntry, isUpdate: boolean) => Promise<boolean>;
-  onSaveReflection: (
-    reflection: ReflectionEntry,
-    isUpdate: boolean,
-  ) => Promise<boolean>;
-}
+export const AiChatSidebar: React.FC = () => {
+  const {
+    config,
+    ui,
+    tasks,
+    crm,
+    notes: notesData,
+    vault,
+    operatorMetrics: metrics,
+    strategy,
+    awareness,
+    assets: assetsData,
+    reflections: reflectionsData,
+    lifeOps,
+  } = useAppContext();
 
-export const AiChatSidebar: React.FC<AiChatSidebarProps> = ({
-  isOpen,
-  onClose,
-  config,
-  entries,
-  contacts,
-  notes,
-  vaultEntries,
-  metrics,
-  decisions,
-  mentalStates,
-  assets,
-  reflections,
-  lifeConstraints,
-  onSaveTransaction,
-  onDeleteTransaction,
-  onSaveContact,
-  onSaveNote,
-  onSaveAsset,
-  onSaveReflection,
-}) => {
+  const { isAiChatOpen: isOpen, setIsAiChatOpen: setIsOpen } = ui;
+  const {
+    entries,
+    saveTransaction: onSaveTransaction,
+    removeTransaction: onDeleteTransaction,
+  } = tasks;
+  const { contacts, saveContact: onSaveContact } = crm;
+  const { notes, saveNote: onSaveNote } = notesData;
+  const { vaultEntries } = vault;
+  const { decisions } = strategy;
+  const { mentalStates } = awareness;
+  const { assets, saveAsset: onSaveAsset } = assetsData;
+  const { reflections, saveReflection: onSaveReflection } = reflectionsData;
+  const { constraints: lifeConstraints } = lifeOps;
+
+  const onClose = () => setIsOpen(false);
+
   const {
     messages,
     inputValue,

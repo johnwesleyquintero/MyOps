@@ -1,53 +1,40 @@
 import React, { useState, useEffect } from "react";
-import {
-  AppConfig,
-  TaskEntry,
-  Contact,
-  Note,
-  VaultEntry,
-  DecisionEntry,
-  MentalStateEntry,
-  AssetEntry,
-  ReflectionEntry,
-  LifeConstraintEntry,
-} from "../types";
+import { AppConfig } from "../types";
 import { ConnectionSettings } from "./settings/ConnectionSettings";
 import { BackendCodeView } from "./settings/BackendCodeView";
 import { MaintenanceSettings } from "./settings/MaintenanceSettings";
 import { Button } from "./ui/Button";
+import { useAppContext } from "../contexts/AppContext";
 
-interface SettingsModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  config: AppConfig;
-  onSave: (config: AppConfig) => void;
-  // Data for backup
-  entries: TaskEntry[];
-  contacts: Contact[];
-  notes: Note[];
-  vaultEntries: VaultEntry[];
-  decisions: DecisionEntry[];
-  mentalStates: MentalStateEntry[];
-  assets: AssetEntry[];
-  reflections: ReflectionEntry[];
-  lifeConstraints: LifeConstraintEntry[];
-}
+export const SettingsModal: React.FC = () => {
+  const {
+    config,
+    setConfig: onSave,
+    ui,
+    tasks,
+    crm,
+    notes: notesData,
+    vault,
+    strategy,
+    awareness,
+    assets: assetsData,
+    reflections: reflectionsData,
+    lifeOps,
+  } = useAppContext();
 
-export const SettingsModal: React.FC<SettingsModalProps> = ({
-  isOpen,
-  onClose,
-  config,
-  onSave,
-  entries,
-  contacts,
-  notes,
-  vaultEntries,
-  decisions,
-  mentalStates,
-  assets,
-  reflections,
-  lifeConstraints,
-}) => {
+  const { showSettings: isOpen, setShowSettings } = ui;
+  const { entries } = tasks;
+  const { contacts } = crm;
+  const { notes } = notesData;
+  const { vaultEntries } = vault;
+  const { decisions } = strategy;
+  const { mentalStates } = awareness;
+  const { assets } = assetsData;
+  const { reflections } = reflectionsData;
+  const { constraints: lifeConstraints } = lifeOps;
+
+  const onClose = () => setShowSettings(false);
+
   const [localConfig, setLocalConfig] = useState<AppConfig>(config);
   const [activeTab, setActiveTab] = useState<"CONFIG" | "CODE" | "MAINTENANCE">(
     "CONFIG",

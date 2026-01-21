@@ -93,24 +93,19 @@ export const NAVIGATION_CONFIG: NavCategory[] = [
         icon: <Icon.Blueprint {...iconProps(18)} />,
       },
       {
-        page: "LIFE",
-        label: "Life Ops",
-        icon: <Icon.Heart {...iconProps(18)} />,
-      },
-      {
         page: "STRATEGY",
         label: "Decision Journal",
         icon: <Icon.Strategy {...iconProps(18)} />,
       },
-    ],
-  },
-  {
-    title: "Reporting",
-    items: [
       {
         page: "REPORT",
-        label: "Reporting",
+        label: "Health Report",
         icon: <Icon.Report {...iconProps(18)} />,
+      },
+      {
+        page: "LIFE",
+        label: "LifeOps",
+        icon: <Icon.Heart {...iconProps(18)} />,
       },
     ],
   },

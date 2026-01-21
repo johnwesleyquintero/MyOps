@@ -4,7 +4,7 @@ import { Icon, iconProps } from "../Icons";
 import { ViewHeader } from "../ViewHeader";
 import { AssetModal } from "../AssetModal";
 import { MODULE_COLORS } from "@/constants";
-import { Button } from "../ui/Button";
+import { Button } from "../ui";
 
 interface AssetsViewProps {
   assets: AssetEntry[];

@@ -1,7 +1,7 @@
 import React from "react";
 import { Icon } from "../Icons";
 import { ViewHeader } from "../ViewHeader";
-import { Button } from "../ui/Button";
+import { Button } from "../ui";
 import { MODULE_COLORS } from "@/constants";
 
 interface IntegrationStoryViewProps {

@@ -6,7 +6,7 @@ import {
 } from "@/services/awarenessService";
 import { ViewHeader } from "../ViewHeader";
 import { Icon } from "../Icons";
-import { Button } from "../ui/Button";
+import { Button, Spinner } from "../ui";
 import { toast } from "sonner";
 import { MODULE_COLORS } from "@/constants";
 
@@ -69,7 +69,7 @@ export const AwarenessView: React.FC<AwarenessViewProps> = ({ config }) => {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-notion-light-text dark:border-notion-dark-text"></div>
+        <Spinner size="lg" />
       </div>
     );
   }

@@ -4,7 +4,7 @@ import { Automation } from "../../types";
 import { ViewHeader } from "../ViewHeader";
 import { toast } from "sonner";
 import { MODULE_COLORS } from "@/constants";
-import { Button } from "../ui";
+import { Button, Spinner } from "../ui";
 
 const AUTOMATION_TEMPLATES = [
   {
@@ -183,9 +183,7 @@ export const AutomationView: React.FC<AutomationViewProps> = ({
           <div className="space-y-4">
             {isLoading ? (
               <div className="flex flex-col items-center justify-center py-20 space-y-4">
-                <div
-                  className={`w-8 h-8 border-4 ${colors.bg} border-t-current ${colors.text} rounded-full animate-spin`}
-                />
+                <Spinner size="lg" />
                 <p className="text-[10px] font-black uppercase tracking-[0.2em] text-notion-light-muted dark:text-notion-dark-muted">
                   Syncing...
                 </p>

@@ -1,3 +1,4 @@
+import { useCallback } from "react";
 import { TaskEntry, NotificationAction } from "../types";
 import { STATUSES, RECURRENCE_OPTIONS } from "@/constants";
 
@@ -14,7 +15,7 @@ export const useTaskActions = ({
   saveTransaction,
   showToast,
 }: UseTaskActionsProps) => {
-  const handleDuplicate = (entry: TaskEntry): TaskEntry => {
+  const handleDuplicate = useCallback((entry: TaskEntry): TaskEntry => {
     // Returns a copy ready for the modal
     return {
       ...entry,
@@ -23,43 +24,85 @@ export const useTaskActions = ({
       date: new Date().toISOString().split("T")[0],
       dependencies: [],
     };
-  };
+  }, []);
 
-  const handleDescriptionUpdate = async (
-    entry: TaskEntry,
-    newDescription: string,
-  ) => {
-    const updatedEntry = { ...entry, description: newDescription };
-    await saveTransaction(updatedEntry, true);
-  };
+  const handleDescriptionUpdate = useCallback(
+    async (entry: TaskEntry, newDescription: string) => {
+      const updatedEntry = { ...entry, description: newDescription };
+      await saveTransaction(updatedEntry, true);
+    },
+    [saveTransaction],
+  );
 
-  const handleStatusUpdate = async (entry: TaskEntry) => {
-    const currentIndex = STATUSES.indexOf(entry.status);
-    const nextIndex = (currentIndex + 1) % STATUSES.length;
-    const nextStatus = STATUSES[nextIndex];
+  const handleStatusUpdate = useCallback(
+    async (entry: TaskEntry) => {
+      const currentIndex = STATUSES.indexOf(entry.status);
+      const nextIndex = (currentIndex + 1) % STATUSES.length;
+      const nextStatus = STATUSES[nextIndex];
 
-    // 1. Update the original task
-    const updatedEntry = { ...entry, status: nextStatus };
-    await saveTransaction(updatedEntry, true);
+      // 1. Update the original task
+      const updatedEntry = { ...entry, status: nextStatus };
+      await saveTransaction(updatedEntry, true);
 
-    // 2. RECURRENCE LOGIC
-    if (nextStatus === "Done") {
-      const desc = entry.description;
+      // 2. RECURRENCE LOGIC
+      if (nextStatus === "Done") {
+        const desc = entry.description;
+        const recurrenceOpt = RECURRENCE_OPTIONS.find(
+          (r) => r.tag && desc.includes(r.tag),
+        );
+
+        if (recurrenceOpt) {
+          const currentDueDate = new Date(entry.date);
+          const nextDate = new Date(currentDueDate);
+
+          if (recurrenceOpt.label === "Daily") {
+            nextDate.setDate(currentDueDate.getDate() + 1);
+          } else if (recurrenceOpt.label === "Weekly") {
+            nextDate.setDate(currentDueDate.getDate() + 7);
+          } else if (recurrenceOpt.label === "Monthly") {
+            nextDate.setMonth(currentDueDate.getMonth() + 1);
+          }
+
+          const nextTask: TaskEntry = {
+            ...entry,
+            id: "",
+            date: nextDate.toISOString().split("T")[0],
+            status: "Backlog",
+            dependencies: [],
+          };
+
+          // Small delay to ensure the UI updates first
+          setTimeout(async () => {
+            await saveTransaction(nextTask, false);
+            showToast(
+              `Recurring task scheduled for ${nextTask.date}`,
+              "success",
+            );
+          }, 500);
+        }
+      }
+    },
+    [saveTransaction, showToast],
+  );
+
+  const handleFocusComplete = useCallback(
+    async (entry: TaskEntry) => {
+      const updatedEntry = { ...entry, status: "Done" as const };
+      await saveTransaction(updatedEntry, true);
+
+      // Check recurrence immediately
       const recurrenceOpt = RECURRENCE_OPTIONS.find(
-        (r) => r.tag && desc.includes(r.tag),
+        (r) => r.tag && entry.description.includes(r.tag),
       );
-
       if (recurrenceOpt) {
         const currentDueDate = new Date(entry.date);
         const nextDate = new Date(currentDueDate);
-
-        if (recurrenceOpt.label === "Daily") {
+        if (recurrenceOpt.label === "Daily")
           nextDate.setDate(currentDueDate.getDate() + 1);
-        } else if (recurrenceOpt.label === "Weekly") {
+        else if (recurrenceOpt.label === "Weekly")
           nextDate.setDate(currentDueDate.getDate() + 7);
-        } else if (recurrenceOpt.label === "Monthly") {
+        else if (recurrenceOpt.label === "Monthly")
           nextDate.setMonth(currentDueDate.getMonth() + 1);
-        }
 
         const nextTask: TaskEntry = {
           ...entry,
@@ -75,38 +118,9 @@ export const useTaskActions = ({
           showToast(`Recurring task scheduled for ${nextTask.date}`, "success");
         }, 500);
       }
-    }
-  };
-
-  const handleFocusComplete = async (entry: TaskEntry) => {
-    const updatedEntry = { ...entry, status: "Done" as const };
-    await saveTransaction(updatedEntry, true);
-
-    // Check recurrence immediately
-    const recurrenceOpt = RECURRENCE_OPTIONS.find(
-      (r) => r.tag && entry.description.includes(r.tag),
-    );
-    if (recurrenceOpt) {
-      const currentDueDate = new Date(entry.date);
-      const nextDate = new Date(currentDueDate);
-      if (recurrenceOpt.label === "Daily")
-        nextDate.setDate(currentDueDate.getDate() + 1);
-      else if (recurrenceOpt.label === "Weekly")
-        nextDate.setDate(currentDueDate.getDate() + 7);
-      else if (recurrenceOpt.label === "Monthly")
-        nextDate.setMonth(currentDueDate.getMonth() + 1);
-
-      const nextTask: TaskEntry = {
-        ...entry,
-        id: "",
-        date: nextDate.toISOString().split("T")[0],
-        status: "Backlog",
-        dependencies: [],
-      };
-      await saveTransaction(nextTask, false);
-      showToast(`Recurring task scheduled for ${nextTask.date}`, "success");
-    }
-  };
+    },
+    [saveTransaction, showToast],
+  );
 
   return {
     handleDuplicate,

@@ -1,7 +1,7 @@
 import React from "react";
 import { Contact, Interaction } from "../../types";
 import { Icon } from "../Icons";
-import { Button } from "../ui/Button";
+import { Button, Spinner } from "../ui";
 import { ContactModal } from "../ContactModal";
 import { InteractionModal } from "../InteractionModal";
 import { ViewHeader } from "../ViewHeader";
@@ -360,9 +360,7 @@ export const CrmView: React.FC<CrmViewProps> = ({
 
                     {isInteractionsLoading ? (
                       <div className="flex justify-center py-8">
-                        <div
-                          className={`w-6 h-6 border-2 ${crmColors.border} border-t-current ${crmColors.text} rounded-full animate-spin`}
-                        ></div>
+                        <Spinner size="md" />
                       </div>
                     ) : interactions.length > 0 ? (
                       interactions.map((interaction) => (

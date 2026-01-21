@@ -9,7 +9,7 @@ import {
 } from "@/services/strategyService";
 import ReactMarkdown from "react-markdown";
 import { ViewHeader } from "../ViewHeader";
-import { Button } from "../ui/Button";
+import { Button, Spinner } from "../ui";
 import { toast } from "sonner";
 import { MODULE_COLORS } from "@/constants";
 
@@ -97,9 +97,7 @@ export const StrategyView: React.FC<StrategyViewProps> = ({ config }) => {
 
       {isLoading ? (
         <div className="flex items-center justify-center py-20">
-          <div
-            className={`animate-spin rounded-full h-8 w-8 border-b-2 ${colors.text}`}
-          ></div>
+          <Spinner size="lg" />
         </div>
       ) : decisions.length === 0 ? (
         <div className="text-center py-20 bg-notion-light-sidebar dark:bg-notion-dark-sidebar rounded-2xl border border-dashed border-notion-light-border dark:border-notion-dark-border">

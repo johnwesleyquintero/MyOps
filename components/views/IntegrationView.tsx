@@ -4,7 +4,7 @@ import { Integration, IntegrationEvent } from "../../types";
 import { ViewHeader } from "../ViewHeader";
 import { formatTimeAgo } from "../../utils/formatUtils";
 import { MODULE_COLORS } from "@/constants";
-import { Button } from "../ui";
+import { Button, Spinner } from "../ui";
 
 interface IntegrationViewProps {
   integrations: Integration[];
@@ -135,7 +135,7 @@ export const IntegrationView: React.FC<IntegrationViewProps> = ({
 
       {isLoading ? (
         <div className="flex items-center justify-center h-64">
-          <Icon.Settings className={`w-8 h-8 animate-spin ${colors.text}`} />
+          <Spinner size="lg" />
         </div>
       ) : integrations.length === 0 ? (
         <div className="text-center py-20 bg-notion-light-sidebar dark:bg-notion-dark-sidebar rounded-xl border border-dashed border-notion-light-border dark:border-notion-dark-border">

@@ -4,7 +4,7 @@ import { PRIORITY_DOTS } from "@/constants";
 import { formatRelativeDate, getProjectStyle } from "../../utils/formatUtils";
 import { CopyIdButton } from "../CopyIdButton";
 import { Icon, iconProps } from "../Icons";
-import { Button } from "../ui/Button";
+import { Button } from "../ui";
 
 interface KanbanCardProps {
   task: TaskEntry;

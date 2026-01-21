@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Icon, iconProps } from "../Icons";
 import { ViewHeader } from "../ViewHeader";
-import { Button } from "../ui/Button";
+import { Button } from "../ui";
 import { toast } from "sonner";
 import reportData from "../../code-check-report.json";
 import { MODULE_COLORS } from "@/constants";

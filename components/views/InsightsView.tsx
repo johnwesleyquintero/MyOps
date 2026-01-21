@@ -7,7 +7,7 @@ import {
   VaultEntry,
 } from "../../types";
 import { Icon, iconProps } from "../Icons";
-import { Button } from "../ui/Button";
+import { Button } from "../ui";
 import { ViewHeader } from "../ViewHeader";
 import { toast } from "sonner";
 import { MODULE_COLORS, CHART_COLORS } from "@/constants";

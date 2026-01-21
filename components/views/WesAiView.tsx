@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { ViewHeader } from "../ViewHeader";
 import { Icon, iconProps } from "../Icons";
-import { Button } from "../ui/Button";
+import { Button } from "../ui";
 import { toast } from "sonner";
 import { useAiChat } from "../../hooks/useAiChat";
 import { MODULE_COLORS } from "../../constants/ui";

@@ -17,7 +17,7 @@ import { useTableColumns, ColumnConfig } from "../../hooks/useTableColumns";
 import { COLUMN_CONFIG_KEY } from "../../constants/storage";
 import { ColumnConfigDropdown } from "../ColumnConfigDropdown";
 import { MODULE_COLORS } from "@/constants";
-import { Button } from "../ui/Button";
+import { Button } from "../ui";
 
 const MISSION_CONTROL_COLUMNS: ColumnConfig[] = [
   { key: "date", label: "Date", visible: true, width: "w-32" },

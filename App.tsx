@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Suspense, lazy } from "react";
 import { TaskEntry, AppConfig } from "./types";
 import { TaskModal } from "./components/TaskModal";
 import { SettingsModal } from "./components/SettingsModal";
@@ -9,23 +9,90 @@ import { FocusMode } from "./components/FocusMode";
 import { CommandPalette } from "./components/CommandPalette";
 import { AiChatSidebar } from "./components/AiChatSidebar";
 import { Toaster } from "sonner";
-import { DashboardView } from "./components/views/DashboardView";
-import { MissionControlView } from "./components/views/MissionControlView";
-import { BlueprintView } from "./components/views/BlueprintView";
-import { CrmView } from "./components/views/CrmView";
-import { KnowledgeView } from "./components/views/KnowledgeView";
-import { InsightsView } from "./components/views/InsightsView";
-import { VaultView } from "./components/views/VaultView";
-import { AutomationView } from "./components/views/AutomationView";
-import { ReportView } from "./components/views/ReportView";
-import { StrategyView } from "./components/views/StrategyView";
-import { AwarenessView } from "./components/views/AwarenessView";
-import { WesAiView } from "./components/views/WesAiView";
-import { AssetsView } from "./components/views/AssetsView";
-import { ReflectionView } from "./components/views/ReflectionView";
-import { IntegrationView } from "./components/views/IntegrationView";
-import { IntegrationStoryView } from "./components/views/IntegrationStoryView";
-import { LifeView } from "./components/views/LifeView";
+import { Spinner } from "./components/ui/Spinner";
+
+// Lazy-loaded views
+const DashboardView = lazy(() =>
+  import("./components/views/DashboardView").then((m) => ({
+    default: m.DashboardView,
+  })),
+);
+const MissionControlView = lazy(() =>
+  import("./components/views/MissionControlView").then((m) => ({
+    default: m.MissionControlView,
+  })),
+);
+const BlueprintView = lazy(() =>
+  import("./components/views/BlueprintView").then((m) => ({
+    default: m.BlueprintView,
+  })),
+);
+const CrmView = lazy(() =>
+  import("./components/views/CrmView").then((m) => ({ default: m.CrmView })),
+);
+const KnowledgeView = lazy(() =>
+  import("./components/views/KnowledgeView").then((m) => ({
+    default: m.KnowledgeView,
+  })),
+);
+const InsightsView = lazy(() =>
+  import("./components/views/InsightsView").then((m) => ({
+    default: m.InsightsView,
+  })),
+);
+const VaultView = lazy(() =>
+  import("./components/views/VaultView").then((m) => ({
+    default: m.VaultView,
+  })),
+);
+const AutomationView = lazy(() =>
+  import("./components/views/AutomationView").then((m) => ({
+    default: m.AutomationView,
+  })),
+);
+const ReportView = lazy(() =>
+  import("./components/views/ReportView").then((m) => ({
+    default: m.ReportView,
+  })),
+);
+const StrategyView = lazy(() =>
+  import("./components/views/StrategyView").then((m) => ({
+    default: m.StrategyView,
+  })),
+);
+const AwarenessView = lazy(() =>
+  import("./components/views/AwarenessView").then((m) => ({
+    default: m.AwarenessView,
+  })),
+);
+const WesAiView = lazy(() =>
+  import("./components/views/WesAiView").then((m) => ({
+    default: m.WesAiView,
+  })),
+);
+const AssetsView = lazy(() =>
+  import("./components/views/AssetsView").then((m) => ({
+    default: m.AssetsView,
+  })),
+);
+const ReflectionView = lazy(() =>
+  import("./components/views/ReflectionView").then((m) => ({
+    default: m.ReflectionView,
+  })),
+);
+const IntegrationView = lazy(() =>
+  import("./components/views/IntegrationView").then((m) => ({
+    default: m.IntegrationView,
+  })),
+);
+const IntegrationStoryView = lazy(() =>
+  import("./components/views/IntegrationStoryView").then((m) => ({
+    default: m.IntegrationStoryView,
+  })),
+);
+const LifeView = lazy(() =>
+  import("./components/views/LifeView").then((m) => ({ default: m.LifeView })),
+);
 
 // Hooks
 import { useTasks } from "./hooks/useTasks";
@@ -177,178 +244,186 @@ const App: React.FC = () => {
         />
 
         <main className="p-4 sm:p-6 lg:p-8 pb-24 bg-notion-light-bg dark:bg-notion-dark-bg scrollbar-thin scrollbar-thumb-notion-light-border dark:scrollbar-thumb-notion-dark-border">
-          {ui.activePage === "DASHBOARD" && (
-            <DashboardView
-              entries={entries}
-              metrics={metrics}
-              operatorMetrics={operatorMetrics}
-              isLoading={isLoading}
-              onEdit={ui.openEdit}
-              onDelete={removeTransaction}
-              onStatusUpdate={taskActions.handleStatusUpdate}
-              onDescriptionUpdate={taskActions.handleDescriptionUpdate}
-              onFocus={(e) => {
-                ui.enterFocus(e);
-                showToast("Focus Mode Engaged", "info");
-              }}
-              onDuplicate={(e) => {
-                ui.setEditingEntry(taskActions.handleDuplicate(e));
-                ui.setIsTaskModalOpen(true);
-                showToast("Mission Cloned", "success");
-              }}
-              onNavigate={ui.setActivePage}
-              onOpenCreate={ui.openCreate}
-            />
-          )}
+          <Suspense
+            fallback={
+              <div className="flex items-center justify-center py-20">
+                <Spinner size="lg" />
+              </div>
+            }
+          >
+            {ui.activePage === "DASHBOARD" && (
+              <DashboardView
+                entries={entries}
+                metrics={metrics}
+                operatorMetrics={operatorMetrics}
+                isLoading={isLoading}
+                onEdit={ui.openEdit}
+                onDelete={removeTransaction}
+                onStatusUpdate={taskActions.handleStatusUpdate}
+                onDescriptionUpdate={taskActions.handleDescriptionUpdate}
+                onFocus={(e) => {
+                  ui.enterFocus(e);
+                  showToast("Focus Mode Engaged", "info");
+                }}
+                onDuplicate={(e) => {
+                  ui.setEditingEntry(taskActions.handleDuplicate(e));
+                  ui.setIsTaskModalOpen(true);
+                  showToast("Mission Cloned", "success");
+                }}
+                onNavigate={ui.setActivePage}
+                onOpenCreate={ui.openCreate}
+              />
+            )}
 
-          {ui.activePage === "MISSIONS" && (
-            <MissionControlView
-              entries={entries}
-              filteredEntries={filteredEntries}
-              isLoading={isLoading}
-              onEdit={ui.openEdit}
-              onDelete={removeTransaction}
-              onBulkDelete={bulkRemoveTransactions}
-              onStatusUpdate={taskActions.handleStatusUpdate}
-              onDescriptionUpdate={taskActions.handleDescriptionUpdate}
-              onFocus={(e) => {
-                ui.enterFocus(e);
-                showToast("Focus Mode Engaged", "info");
-              }}
-              onDuplicate={(e) => {
-                ui.setEditingEntry(taskActions.handleDuplicate(e));
-                ui.setIsTaskModalOpen(true);
-                showToast("Mission Cloned", "success");
-              }}
-              onAdd={ui.openCreate}
-              {...missionControl}
-            />
-          )}
+            {ui.activePage === "MISSIONS" && (
+              <MissionControlView
+                entries={entries}
+                filteredEntries={filteredEntries}
+                isLoading={isLoading}
+                onEdit={ui.openEdit}
+                onDelete={removeTransaction}
+                onBulkDelete={bulkRemoveTransactions}
+                onStatusUpdate={taskActions.handleStatusUpdate}
+                onDescriptionUpdate={taskActions.handleDescriptionUpdate}
+                onFocus={(e) => {
+                  ui.enterFocus(e);
+                  showToast("Focus Mode Engaged", "info");
+                }}
+                onDuplicate={(e) => {
+                  ui.setEditingEntry(taskActions.handleDuplicate(e));
+                  ui.setIsTaskModalOpen(true);
+                  showToast("Mission Cloned", "success");
+                }}
+                onAdd={ui.openCreate}
+                {...missionControl}
+              />
+            )}
 
-          {ui.activePage === "BLUEPRINT" && (
-            <BlueprintView onNavigate={ui.setActivePage} />
-          )}
+            {ui.activePage === "BLUEPRINT" && (
+              <BlueprintView onNavigate={ui.setActivePage} />
+            )}
 
-          {ui.activePage === "CRM" && (
-            <CrmView
-              contacts={crm.contacts}
-              isLoading={crm.isLoading}
-              onSaveContact={crm.saveContact}
-              onDeleteContact={crm.deleteContact}
-              onGetInteractions={crm.getInteractions}
-              onSaveInteraction={crm.saveInteraction}
-              initialSelectedContact={ui.editingContact}
-            />
-          )}
+            {ui.activePage === "CRM" && (
+              <CrmView
+                contacts={crm.contacts}
+                isLoading={crm.isLoading}
+                onSaveContact={crm.saveContact}
+                onDeleteContact={crm.deleteContact}
+                onGetInteractions={crm.getInteractions}
+                onSaveInteraction={crm.saveInteraction}
+                initialSelectedContact={ui.editingContact}
+              />
+            )}
 
-          {ui.activePage === "KNOWLEDGE" && (
-            <KnowledgeView
-              notes={notes.notes}
-              isLoading={notes.isLoading}
-              onSaveNote={notes.saveNote}
-              onDeleteNote={notes.deleteNote}
-              initialSelectedNote={ui.editingNote}
-              initialIsCreating={ui.isCreatingNote}
-            />
-          )}
+            {ui.activePage === "KNOWLEDGE" && (
+              <KnowledgeView
+                notes={notes.notes}
+                isLoading={notes.isLoading}
+                onSaveNote={notes.saveNote}
+                onDeleteNote={notes.deleteNote}
+                initialSelectedNote={ui.editingNote}
+                initialIsCreating={ui.isCreatingNote}
+              />
+            )}
 
-          {ui.activePage === "INSIGHTS" && (
-            <InsightsView
-              entries={entries}
-              metrics={operatorMetrics}
-              notes={notes.notes}
-              contacts={crm.contacts}
-              vaultEntries={vault.vaultEntries}
-            />
-          )}
+            {ui.activePage === "INSIGHTS" && (
+              <InsightsView
+                entries={entries}
+                metrics={operatorMetrics}
+                notes={notes.notes}
+                contacts={crm.contacts}
+                vaultEntries={vault.vaultEntries}
+              />
+            )}
 
-          {ui.activePage === "VAULT" && (
-            <VaultView
-              entries={vault.vaultEntries}
-              isLoading={vault.isLoading}
-              onSaveEntry={vault.saveVaultEntry}
-              onDeleteEntry={vault.deleteVaultEntry}
-            />
-          )}
+            {ui.activePage === "VAULT" && (
+              <VaultView
+                entries={vault.vaultEntries}
+                isLoading={vault.isLoading}
+                onSaveEntry={vault.saveVaultEntry}
+                onDeleteEntry={vault.deleteVaultEntry}
+              />
+            )}
 
-          {ui.activePage === "AUTOMATION" && (
-            <AutomationView
-              automations={automation.automations}
-              isLoading={automation.isLoading}
-              onSave={automation.saveAutomation}
-              onDelete={automation.deleteAutomation}
-              onToggle={automation.toggleAutomation}
-            />
-          )}
+            {ui.activePage === "AUTOMATION" && (
+              <AutomationView
+                automations={automation.automations}
+                isLoading={automation.isLoading}
+                onSave={automation.saveAutomation}
+                onDelete={automation.deleteAutomation}
+                onToggle={automation.toggleAutomation}
+              />
+            )}
 
-          {ui.activePage === "REPORT" && <ReportView />}
-          {ui.activePage === "STRATEGY" && <StrategyView config={config} />}
-          {ui.activePage === "ASSETS" && (
-            <AssetsView
-              assets={assets}
-              isLoading={isAssetsLoading}
-              onSave={saveAsset}
-              onDelete={deleteAsset}
-            />
-          )}
-          {ui.activePage === "REFLECTION" && (
-            <ReflectionView
-              reflections={reflections}
-              isLoading={isReflectionsLoading}
-              onSave={saveReflection}
-              onDelete={deleteReflection}
-            />
-          )}
+            {ui.activePage === "REPORT" && <ReportView />}
+            {ui.activePage === "STRATEGY" && <StrategyView config={config} />}
+            {ui.activePage === "ASSETS" && (
+              <AssetsView
+                assets={assets}
+                isLoading={isAssetsLoading}
+                onSave={saveAsset}
+                onDelete={deleteAsset}
+              />
+            )}
+            {ui.activePage === "REFLECTION" && (
+              <ReflectionView
+                reflections={reflections}
+                isLoading={isReflectionsLoading}
+                onSave={saveReflection}
+                onDelete={deleteReflection}
+              />
+            )}
 
-          {ui.activePage === "INTEGRATIONS" && (
-            <IntegrationView
-              integrations={integrations.integrations}
-              isLoading={integrations.isLoading}
-              onSave={integrations.saveIntegration}
-              onDelete={integrations.deleteIntegration}
-              onToggle={integrations.toggleIntegration}
-              onTest={integrations.testConnection}
-              onShowStory={() => ui.setActivePage("STORY")}
-            />
-          )}
+            {ui.activePage === "INTEGRATIONS" && (
+              <IntegrationView
+                integrations={integrations.integrations}
+                isLoading={integrations.isLoading}
+                onSave={integrations.saveIntegration}
+                onDelete={integrations.deleteIntegration}
+                onToggle={integrations.toggleIntegration}
+                onTest={integrations.testConnection}
+                onShowStory={() => ui.setActivePage("STORY")}
+              />
+            )}
 
-          {ui.activePage === "STORY" && (
-            <IntegrationStoryView
-              onBack={() => ui.setActivePage("INTEGRATIONS")}
-            />
-          )}
+            {ui.activePage === "STORY" && (
+              <IntegrationStoryView
+                onBack={() => ui.setActivePage("INTEGRATIONS")}
+              />
+            )}
 
-          {ui.activePage === "LIFE" && (
-            <LifeView
-              constraints={constraints}
-              isLoading={isLifeOpsLoading}
-              onSave={saveConstraint}
-              onDelete={deleteConstraint}
-            />
-          )}
+            {ui.activePage === "LIFE" && (
+              <LifeView
+                constraints={constraints}
+                isLoading={isLifeOpsLoading}
+                onSave={saveConstraint}
+                onDelete={deleteConstraint}
+              />
+            )}
 
-          {ui.activePage === "WESAI" && (
-            <WesAiView
-              config={config}
-              entries={entries}
-              contacts={crm.contacts}
-              notes={notes.notes}
-              vaultEntries={vault.vaultEntries}
-              metrics={operatorMetrics}
-              decisions={decisions}
-              mentalStates={mentalStates}
-              assets={assets}
-              reflections={reflections}
-              lifeConstraints={constraints}
-              onSaveTransaction={saveTransaction}
-              onDeleteTransaction={removeTransaction}
-              onSaveContact={crm.saveContact}
-              onSaveNote={notes.saveNote}
-              onSaveAsset={saveAsset}
-              onSaveReflection={saveReflection}
-            />
-          )}
-          {ui.activePage === "AWARENESS" && <AwarenessView config={config} />}
+            {ui.activePage === "WESAI" && (
+              <WesAiView
+                config={config}
+                entries={entries}
+                contacts={crm.contacts}
+                notes={notes.notes}
+                vaultEntries={vault.vaultEntries}
+                metrics={operatorMetrics}
+                decisions={decisions}
+                mentalStates={mentalStates}
+                assets={assets}
+                reflections={reflections}
+                lifeConstraints={constraints}
+                onSaveTransaction={saveTransaction}
+                onDeleteTransaction={removeTransaction}
+                onSaveContact={crm.saveContact}
+                onSaveNote={notes.saveNote}
+                onSaveAsset={saveAsset}
+                onSaveReflection={saveReflection}
+              />
+            )}
+            {ui.activePage === "AWARENESS" && <AwarenessView config={config} />}
+          </Suspense>
         </main>
       </div>
 

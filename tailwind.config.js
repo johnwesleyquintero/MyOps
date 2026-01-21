@@ -2,11 +2,12 @@
 export default {
   content: [
     "./index.html",
-    "./src/**/*.{js,ts,jsx,tsx}",
+    "./*.{js,ts,jsx,tsx}",
     "./components/**/*.{js,ts,jsx,tsx}",
+    "./constants/**/*.{js,ts,jsx,tsx}",
     "./hooks/**/*.{js,ts,jsx,tsx}",
-    "./views/**/*.{js,ts,jsx,tsx}",
-    "./App.tsx",
+    "./services/**/*.{js,ts,jsx,tsx}",
+    "./utils/**/*.{js,ts,jsx,tsx}",
   ],
   darkMode: "class",
   theme: {
@@ -64,7 +65,7 @@ export default {
           "0%": { transform: "scale(0.95)", opacity: 0 },
           "100%": { transform: "scale(1)", opacity: 1 },
         },
-        "view-transition": {
+        "view-switch": {
           "0%": { opacity: 0, transform: "translateY(4px)" },
           "100%": { opacity: 1, transform: "translateY(0)" },
         },
@@ -74,8 +75,7 @@ export default {
         "slide-up": "slide-up 0.3s ease-out forwards",
         "slide-in-right": "slide-in-right 0.3s ease-out forwards",
         "scale-in": "scale-in 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards",
-        "view-switch":
-          "view-transition 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards",
+        "view-switch": "view-switch 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards",
       },
     },
   },

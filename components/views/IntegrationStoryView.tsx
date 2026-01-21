@@ -11,7 +11,7 @@ interface IntegrationStoryViewProps {
 export const IntegrationStoryView: React.FC<IntegrationStoryViewProps> = ({
   onBack,
 }) => {
-  const colors = MODULE_COLORS.integration;
+  const colors = MODULE_COLORS.integrations;
   const operatorColors = MODULE_COLORS.sovereign;
   const hubColors = MODULE_COLORS.automation;
   const clientColors = MODULE_COLORS.crm;
@@ -46,7 +46,7 @@ export const IntegrationStoryView: React.FC<IntegrationStoryViewProps> = ({
           <div className="space-y-6">
             <div className="flex flex-col items-center text-center">
               <div
-                className={`w-16 h-16 ${operatorColors.bg} text-white rounded-2xl flex items-center justify-center shadow-lg mb-4 transform -rotate-3 group hover:rotate-0 transition-transform`}
+                className={`w-16 h-16 ${operatorColors.lightBg} ${operatorColors.text} rounded-2xl flex items-center justify-center shadow-lg mb-4 transform -rotate-3 group hover:rotate-0 transition-transform`}
               >
                 <Icon.Edit size={32} />
               </div>
@@ -100,17 +100,11 @@ export const IntegrationStoryView: React.FC<IntegrationStoryViewProps> = ({
           {/* Step 2: The Hub (Processing) */}
           <div className="relative py-12 lg:py-0">
             {/* Arrows/Lines */}
-            <div
-              className={`hidden lg:block absolute left-0 top-1/2 -translate-x-full -translate-y-1/2 w-12 h-[2px] bg-gradient-to-r from-transparent ${hubColors.text.replace("text-", "to-")}`}
-            />
-            <div
-              className={`hidden lg:block absolute right-0 top-1/2 translate-x-full -translate-y-1/2 w-12 h-[2px] bg-gradient-to-l from-transparent ${hubColors.text.replace("text-", "to-")}`}
-            />
+            <div className="hidden lg:block absolute left-0 top-1/2 -translate-x-full -translate-y-1/2 w-12 h-[2px] bg-gradient-to-r from-transparent to-blue-500/50 dark:to-blue-400/50" />
+            <div className="hidden lg:block absolute right-0 top-1/2 translate-x-full -translate-y-1/2 w-12 h-[2px] bg-gradient-to-l from-transparent to-blue-500/50 dark:to-blue-400/50" />
 
             <div className="flex flex-col items-center text-center">
-              <div
-                className={`w-24 h-24 bg-gradient-to-br ${hubColors.text.replace("text-", "from-").replace("600", "500").replace("400", "400")} ${hubColors.text.replace("text-", "to-").replace("600", "700").replace("400", "600")} rounded-full flex items-center justify-center shadow-2xl mb-6 relative group`}
-              >
+              <div className="w-24 h-24 bg-gradient-to-br from-blue-500 to-blue-700 dark:from-blue-400 dark:to-blue-600 rounded-full flex items-center justify-center shadow-2xl mb-6 relative group">
                 <div
                   className={`absolute inset-0 ${hubColors.bg} rounded-full animate-ping opacity-20 group-hover:opacity-40`}
                 />
@@ -227,7 +221,7 @@ export const IntegrationStoryView: React.FC<IntegrationStoryViewProps> = ({
             title: "Universal Language",
             desc: "Speak Slack, WhatsApp, and Email without learning five different APIs.",
             icon: "Globe" as keyof typeof Icon,
-            colors: MODULE_COLORS.integration,
+            colors: MODULE_COLORS.integrations,
           },
           {
             title: "Client Trust",

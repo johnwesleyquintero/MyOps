@@ -353,7 +353,7 @@ export const OperationTable: React.FC<OperationTableProps> = ({
       case "priority":
         return (
           <div
-            className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-[10px] font-bold border ${PRIORITY_COLORS[entry.priority] || "bg-notion-light-sidebar dark:bg-notion-dark-sidebar border-notion-light-border dark:border-notion-dark-border text-notion-light-muted dark:text-notion-dark-muted"}`}
+            className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-[10px] font-bold border ${PRIORITY_COLORS[entry.priority]?.combined || "bg-notion-light-sidebar dark:bg-notion-dark-sidebar border-notion-light-border dark:border-notion-dark-border text-notion-light-muted dark:text-notion-dark-muted"}`}
           >
             <span
               className={`w-1.5 h-1.5 rounded-full ${PRIORITY_DOTS[entry.priority] || "bg-notion-light-border dark:bg-notion-dark-border"}`}
@@ -366,7 +366,7 @@ export const OperationTable: React.FC<OperationTableProps> = ({
           <Button
             variant="custom"
             onClick={() => onStatusUpdate && onStatusUpdate(entry)}
-            className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-[10px] font-bold border cursor-pointer hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover h-auto min-h-0 ${STATUS_COLORS[entry.status] || "bg-notion-light-sidebar"}`}
+            className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-[10px] font-bold border cursor-pointer hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover h-auto min-h-0 ${STATUS_COLORS[entry.status]?.combined || "bg-notion-light-sidebar"}`}
             title="Click to cycle status"
           >
             {/* Status Dot */}

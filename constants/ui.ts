@@ -4,72 +4,92 @@ import { PriorityLevel, StatusLevel } from "../types";
 export const UI_TRANSITION_SPEED = "transition-all duration-300 ease-in-out";
 export const UI_MODAL_ANIMATION = "animate-scale-in";
 
-// Priority and Status Styles (Tailwind Classes)
-export const PRIORITY_COLORS: Record<PriorityLevel, string> = {
-  High: "text-indigo-700 bg-indigo-500/10 border-indigo-500/25 dark:bg-indigo-500/20 dark:border-indigo-500/30 dark:text-indigo-400",
-  Medium:
-    "text-sky-700 bg-sky-500/10 border-sky-500/25 dark:bg-sky-500/20 dark:border-sky-500/30 dark:text-sky-400",
-  Low: "text-slate-600 bg-slate-500/10 border-slate-500/20 dark:bg-slate-500/20 dark:border-slate-500/30 dark:text-slate-400",
-};
-
-export const PRIORITY_DOTS: Record<PriorityLevel, string> = {
-  High: "bg-indigo-500",
-  Medium: "bg-sky-500",
-  Low: "bg-slate-400 dark:bg-slate-500",
-};
-
-export const STATUS_COLORS: Record<StatusLevel, string> = {
-  Backlog:
-    "bg-slate-500/10 text-slate-600 border-slate-500/20 dark:bg-slate-500/20 dark:text-slate-400 dark:border-slate-500/30",
-  "In Progress":
-    "bg-blue-500/10 text-blue-700 border-blue-500/25 dark:bg-blue-500/20 dark:text-blue-400 dark:border-blue-500/30",
-  Done: "bg-emerald-500/10 text-emerald-700 border-emerald-500/25 dark:bg-emerald-500/20 dark:text-emerald-400 dark:border-emerald-500/30",
-};
-
-export const STATUS_INDICATORS: Record<StatusLevel, string> = {
-  Backlog: "bg-slate-400 dark:bg-slate-500",
-  "In Progress": "bg-blue-500",
-  Done: "bg-emerald-500",
-};
-
 // Helper functions for consistent color tokens
-function module(color: string) {
+function module(
+  color: string,
+  textShade: string = "600",
+  darkTextShade: string = "400",
+) {
+  const text = `text-${color}-${textShade} dark:text-${color}-${darkTextShade}`;
+  const bg = `bg-${color}-500/10 dark:bg-${color}-500/20`;
+  const border = `border-${color}-500/25 dark:border-${color}-500/30`;
+
   return {
-    text: `text-${color}-600 dark:text-${color}-400`,
-    bg: `bg-${color}-500/10 dark:bg-${color}-500/20`,
-    border: `border-${color}-500/25 dark:border-${color}-500/30`,
+    text,
+    bg,
+    border,
     dot: `bg-${color}-500`,
-    icon: `text-${color}-600 dark:text-${color}-400`,
+    icon: text,
     lightBg: `bg-${color}-100/50 dark:bg-${color}-900/20`,
     hoverBg: `hover:bg-${color}-50/50 dark:hover:bg-${color}-900/10`,
+    combined: `${text} ${bg} ${border}`,
   };
+}
+
+// Specialized helper for combined styles (used by Priority and Status)
+function getCombinedColorClasses(
+  color: string,
+  textShade: string = "600",
+  darkTextShade: string = "400",
+): string {
+  return module(color, textShade, darkTextShade).combined;
 }
 
 function neutral() {
+  const text = "text-slate-600 dark:text-slate-400";
+  const bg = "bg-slate-500/10 dark:bg-slate-500/20";
+  const border = "border-slate-500/20 dark:border-slate-500/30";
+
   return {
-    text: "text-slate-600 dark:text-slate-400",
-    bg: "bg-slate-500/10 dark:bg-slate-500/20",
-    border: "border-slate-500/20 dark:border-slate-500/30",
+    text,
+    bg,
+    border,
     dot: "bg-slate-400 dark:bg-slate-500",
-    icon: "text-slate-600 dark:text-slate-400",
+    icon: text,
     lightBg: "bg-slate-100/50 dark:bg-slate-900/20",
     hoverBg: "hover:bg-slate-50/50 dark:hover:bg-slate-900/10",
+    combined: `${text} ${bg} ${border}`,
   };
 }
 
+export type ColorToken = {
+  text: string;
+  bg: string;
+  border: string;
+  dot: string;
+  icon: string;
+  lightBg: string;
+  hoverBg: string;
+  combined: string;
+};
+
+// Priority and Status Styles (Tailwind Classes)
+export const PRIORITY_COLORS: Record<PriorityLevel, ColorToken> = {
+  High: module("indigo", "700"),
+  Medium: module("sky", "700"),
+  Low: module("slate", "600"),
+};
+
+export const PRIORITY_DOTS: Record<PriorityLevel, string> = {
+  High: PRIORITY_COLORS.High.dot,
+  Medium: PRIORITY_COLORS.Medium.dot,
+  Low: PRIORITY_COLORS.Low.dot,
+};
+
+export const STATUS_COLORS: Record<StatusLevel, ColorToken> = {
+  Backlog: module("slate", "600"),
+  "In Progress": module("blue", "700"),
+  Done: module("emerald", "700"),
+};
+
+export const STATUS_INDICATORS: Record<StatusLevel, string> = {
+  Backlog: STATUS_COLORS.Backlog.dot,
+  "In Progress": STATUS_COLORS["In Progress"].dot,
+  Done: STATUS_COLORS.Done.dot,
+};
+
 // Module Color Mappings (Aligns with blueprintData.ts)
-export const MODULE_COLORS: Record<
-  string,
-  {
-    text: string;
-    bg: string;
-    border: string;
-    dot: string;
-    icon: string;
-    lightBg: string;
-    hoverBg: string;
-  }
-> = {
+export const MODULE_COLORS: Record<string, ColorToken> = {
   tasks: module("indigo"),
   crm: module("blue"),
   docs: module("emerald"),
@@ -103,35 +123,15 @@ export const MODULE_COLORS: Record<
 
 // Project specific styles
 export const PROJECT_COLOR_PALETTE = [
-  "bg-slate-500/10 text-slate-600 border-slate-500/20 dark:bg-slate-500/20 dark:text-slate-400 dark:border-slate-500/30",
-  "bg-blue-500/10 text-blue-600 border-blue-500/20 dark:bg-blue-500/20 dark:text-blue-400 dark:border-blue-500/30",
-  "bg-emerald-500/10 text-emerald-600 border-emerald-500/20 dark:bg-emerald-500/20 dark:text-emerald-400 dark:border-emerald-500/30",
-  "bg-indigo-500/10 text-indigo-600 border-indigo-500/20 dark:bg-indigo-500/20 dark:text-indigo-400 dark:border-indigo-500/30",
+  getCombinedColorClasses("slate"),
+  getCombinedColorClasses("blue"),
+  getCombinedColorClasses("emerald"),
+  getCombinedColorClasses("indigo"),
 ];
 
 export const CONTACT_TYPE_COLORS: Record<string, string> = {
-  Client:
-    MODULE_COLORS.crm.text +
-    " " +
-    MODULE_COLORS.crm.bg +
-    " " +
-    MODULE_COLORS.crm.border,
-  Lead:
-    MODULE_COLORS.integrations.text +
-    " " +
-    MODULE_COLORS.integrations.bg +
-    " " +
-    MODULE_COLORS.integrations.border,
-  Vendor:
-    MODULE_COLORS.docs.text +
-    " " +
-    MODULE_COLORS.docs.bg +
-    " " +
-    MODULE_COLORS.docs.border,
-  Partner:
-    MODULE_COLORS.analytics.text +
-    " " +
-    MODULE_COLORS.analytics.bg +
-    " " +
-    MODULE_COLORS.analytics.border,
+  Client: getCombinedColorClasses("blue"),
+  Lead: getCombinedColorClasses("purple"),
+  Vendor: getCombinedColorClasses("emerald"),
+  Partner: getCombinedColorClasses("indigo"),
 };

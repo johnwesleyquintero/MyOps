@@ -42,7 +42,7 @@ const INTEGRATION_TYPES = [
   {
     type: "Webhook",
     icon: "Globe",
-    colors: MODULE_COLORS.integration,
+    colors: MODULE_COLORS.integrations,
   },
 ];
 
@@ -60,7 +60,7 @@ export const IntegrationView: React.FC<IntegrationViewProps> = ({
     useState<Partial<Integration> | null>(null);
   const [isTesting, setIsTesting] = useState<string | null>(null);
 
-  const colors = MODULE_COLORS.integration;
+  const colors = MODULE_COLORS.integrations;
 
   const crmColors = MODULE_COLORS.crm;
 

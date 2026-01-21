@@ -4,7 +4,7 @@ import { Icon, iconProps } from "./Icons";
 import { MODULE_COLORS } from "../constants/ui";
 import { Button } from "./ui/Button";
 import { NAVIGATION_CONFIG } from "../constants/navigation";
-import { useAppContext } from "../contexts/AppContext";
+import { useAppContext } from "../hooks/useAppContext";
 
 interface NavItemProps {
   page: Page;

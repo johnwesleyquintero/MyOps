@@ -9,7 +9,7 @@ import { TaskEntry } from "../types";
 import { PRIORITY_DOTS } from "@/constants";
 import { Icon, iconProps } from "./Icons";
 import { Button } from "./ui/Button";
-import { useAppContext } from "../contexts/AppContext";
+import { useAppContext } from "../hooks/useAppContext";
 
 type CommandType = "ACTION" | "NAVIGATION" | "TASK" | "CONTACT" | "NOTE";
 

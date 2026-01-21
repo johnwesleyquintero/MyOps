@@ -9,7 +9,7 @@ import { CommandPalette } from "./components/CommandPalette";
 import { AiChatSidebar } from "./components/AiChatSidebar";
 import { Toaster } from "sonner";
 import { Spinner } from "./components/ui/Spinner";
-import { useAppContext } from "./contexts/AppContext";
+import { useAppContext } from "./hooks/useAppContext";
 
 // Lazy-loaded views
 const DashboardView = lazy(() =>

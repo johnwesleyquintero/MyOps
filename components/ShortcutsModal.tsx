@@ -1,7 +1,7 @@
 import React from "react";
 import { Icon } from "./Icons";
 import { Button } from "./ui/Button";
-import { useAppContext } from "../contexts/AppContext";
+import { useAppContext } from "../hooks/useAppContext";
 
 export const ShortcutsModal: React.FC = () => {
   const { ui } = useAppContext();

@@ -1,7 +1,7 @@
 import React from "react";
 import { Icon, iconProps } from "./Icons";
 import { Button } from "./ui/Button";
-import { useAppContext } from "../contexts/AppContext";
+import { useAppContext } from "../hooks/useAppContext";
 
 export const Header: React.FC = () => {
   const { config, setConfig, ui } = useAppContext();

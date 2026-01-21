@@ -4,7 +4,7 @@ import { useAiChat } from "../hooks/useAiChat";
 import { Icon, iconProps } from "./Icons";
 import { Button } from "./ui/Button";
 import { toast } from "sonner";
-import { useAppContext } from "../contexts/AppContext";
+import { useAppContext } from "../hooks/useAppContext";
 
 export const AiChatSidebar: React.FC = () => {
   const {

@@ -4,7 +4,7 @@ import { ConnectionSettings } from "./settings/ConnectionSettings";
 import { BackendCodeView } from "./settings/BackendCodeView";
 import { MaintenanceSettings } from "./settings/MaintenanceSettings";
 import { Button } from "./ui/Button";
-import { useAppContext } from "../contexts/AppContext";
+import { useAppContext } from "../hooks/useAppContext";
 
 export const SettingsModal: React.FC = () => {
   const {

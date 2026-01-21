@@ -10,7 +10,7 @@ import { Icon, iconProps } from "./Icons";
 import { Button } from "./ui/Button";
 import { toast } from "sonner";
 import { MODULE_COLORS } from "../constants/ui";
-import { useAppContext } from "../contexts/AppContext";
+import { useAppContext } from "../hooks/useAppContext";
 
 export const TaskModal: React.FC = () => {
   const { ui, tasks } = useAppContext();

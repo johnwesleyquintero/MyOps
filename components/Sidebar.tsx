@@ -151,16 +151,21 @@ export const Sidebar: React.FC = React.memo(() => {
         </nav>
 
         <div
-          className={`p-2 border-t border-notion-border space-y-0.5 ${isCollapsed ? "items-center" : ""}`}
+          className={`p-2 border-t border-notion-border space-y-0.5 flex flex-col ${isCollapsed ? "items-center" : ""}`}
         >
           <Button
             variant="ghost"
             onClick={() => setShowSettings(true)}
-            className={`w-full justify-start ${isCollapsed ? "justify-center px-0" : "px-3"} py-1.5 text-sm text-notion-muted hover:text-notion-text rounded transition-colors group`}
-            leftIcon={<Icon.Settings size={18} />}
+            title={isCollapsed ? "Settings" : ""}
+            className={`w-full justify-start ${isCollapsed ? "justify-center px-0" : "px-3"} py-1.5 text-sm text-notion-muted hover:text-notion-text rounded transition-all duration-150 group`}
+            leftIcon={
+              <span className="flex-shrink-0">
+                <Icon.Settings size={18} />
+              </span>
+            }
           >
             <span
-              className={`ml-2.5 overflow-hidden transition-all duration-300 ${isCollapsed ? "max-w-0 opacity-0" : "max-w-xs opacity-100"}`}
+              className={`ml-2.5 whitespace-nowrap overflow-hidden transition-all duration-300 ${isCollapsed ? "max-w-0 opacity-0" : "max-w-xs opacity-100"}`}
             >
               Settings
             </span>

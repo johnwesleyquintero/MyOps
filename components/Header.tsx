@@ -39,18 +39,18 @@ export const Header: React.FC = () => {
   };
 
   return (
-    <header className="h-14 bg-notion-light-bg dark:bg-notion-dark-bg border-b border-notion-light-border dark:border-notion-dark-border flex items-center justify-between px-4 sm:px-6 sticky top-0 z-30 transition-colors duration-200">
+    <header className="h-14 bg-notion-bg border-b border-notion-border flex items-center justify-between px-4 sm:px-6 sticky top-0 z-30 transition-colors duration-200">
       <div className="flex items-center gap-3">
         {/* Mobile Hamburger */}
         <Button
           variant="ghost"
           size="icon"
           onClick={() => ui.setIsSidebarOpen(true)}
-          className="lg:hidden text-notion-light-muted dark:text-notion-dark-muted"
+          className="lg:hidden text-notion-muted"
           leftIcon={<Icon.Menu {...iconProps(20)} />}
         />
 
-        <h2 className="text-sm font-semibold text-notion-light-text dark:text-notion-dark-text tracking-tight">
+        <h2 className="text-sm font-semibold text-notion-text tracking-tight">
           {getTitle()}
         </h2>
       </div>
@@ -61,7 +61,7 @@ export const Header: React.FC = () => {
           variant="ghost"
           size="sm"
           onClick={() => ui.setIsAiChatOpen(true)}
-          className="hidden sm:flex text-notion-light-muted dark:text-notion-dark-muted font-medium"
+          className="hidden sm:flex text-notion-muted font-medium"
           leftIcon={<Icon.Chat {...iconProps(16)} />}
         >
           Ask Wes
@@ -72,7 +72,7 @@ export const Header: React.FC = () => {
           variant="ghost"
           size="icon"
           onClick={toggleTheme}
-          className="text-notion-light-muted dark:text-notion-dark-muted"
+          className="text-notion-muted"
           title={
             config.theme === "LIGHT"
               ? "Switch to Dark Mode"

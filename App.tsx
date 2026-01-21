@@ -381,7 +381,7 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-notion-light-bg dark:bg-notion-dark-bg text-notion-light-text dark:text-notion-dark-text font-sans selection:bg-violet-100 dark:selection:bg-violet-900/30 transition-colors duration-200">
+    <div className="min-h-screen bg-notion-bg text-notion-text font-sans selection:bg-violet-100 dark:selection:bg-violet-900/30 transition-colors duration-200">
       <Sidebar />
 
       <div
@@ -389,7 +389,7 @@ const App: React.FC = () => {
       >
         <Header />
 
-        <main className="p-4 sm:p-6 lg:p-8 pb-24 bg-notion-light-bg dark:bg-notion-dark-bg scrollbar-thin scrollbar-thumb-notion-light-border dark:scrollbar-thumb-notion-dark-border">
+        <main className="p-4 sm:p-6 lg:p-8 pb-24 bg-notion-bg scrollbar-thin scrollbar-thumb-notion-border">
           <Suspense
             fallback={
               <div className="flex items-center justify-center py-20">
@@ -410,9 +410,8 @@ const App: React.FC = () => {
         <ShortcutsModal />
       </Suspense>
       <Toaster
+        theme={config.theme === "DARK" ? "dark" : "light"}
         position="bottom-right"
-        richColors
-        theme={config.theme.toLowerCase() as "light" | "dark"}
       />
     </div>
   );

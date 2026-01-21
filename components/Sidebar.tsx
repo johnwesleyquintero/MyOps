@@ -36,12 +36,12 @@ const NavItem: React.FC<NavItemProps> = React.memo(
         title={isCollapsed ? label : ""}
         className={`w-full justify-start ${isCollapsed ? "justify-center px-0" : "px-3"} py-1.5 text-sm rounded transition-all duration-150 group ${
           isActive
-            ? "bg-notion-light-hover dark:bg-notion-dark-hover text-notion-light-text dark:text-notion-dark-text font-medium shadow-sm"
-            : "text-notion-light-muted dark:text-notion-dark-muted hover:text-notion-light-text dark:hover:text-notion-dark-text"
+            ? "bg-notion-hover text-notion-text font-medium shadow-sm"
+            : "text-notion-muted hover:text-notion-text"
         }`}
         leftIcon={
           <span
-            className={`${isActive ? "text-notion-light-text dark:text-notion-dark-text" : "text-notion-light-muted dark:text-notion-dark-muted group-hover:text-notion-light-text dark:group-hover:text-notion-dark-text"} flex-shrink-0 transition-colors duration-150`}
+            className={`${isActive ? "text-notion-text" : "text-notion-muted group-hover:text-notion-text"} flex-shrink-0 transition-colors duration-150`}
           >
             {icon}
           </span>
@@ -83,7 +83,7 @@ export const Sidebar: React.FC = React.memo(() => {
       )}
 
       <aside
-        className={`fixed top-0 left-0 z-50 h-screen bg-notion-light-sidebar dark:bg-notion-dark-sidebar border-r border-notion-light-border dark:border-notion-dark-border transition-all duration-300 ease-in-out lg:translate-x-0 ${isOpen ? "translate-x-0 shadow-xl" : "-translate-x-full"} ${widthClass}`}
+        className={`fixed top-0 left-0 z-50 h-screen bg-notion-sidebar border-r border-notion-border transition-all duration-300 ease-in-out lg:translate-x-0 ${isOpen ? "translate-x-0 shadow-xl" : "-translate-x-full"} ${widthClass}`}
       >
         <div
           className={`h-14 flex items-center justify-between transition-all duration-300 ${isCollapsed ? "px-0" : "px-4"}`}
@@ -95,7 +95,7 @@ export const Sidebar: React.FC = React.memo(() => {
               <Icon.Logo size={18} />
             </div>
             {!isCollapsed && (
-              <span className="font-bold text-sm tracking-tight whitespace-nowrap text-notion-light-text dark:text-notion-dark-text">
+              <span className="font-bold text-sm tracking-tight whitespace-nowrap text-notion-text">
                 MyOps <span className="text-[10px] opacity-40 ml-1">v0.8</span>
               </span>
             )}
@@ -105,7 +105,7 @@ export const Sidebar: React.FC = React.memo(() => {
               variant="ghost"
               size="icon"
               onClick={toggleCollapse}
-              className="hidden lg:flex text-notion-light-muted dark:text-notion-dark-muted hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover"
+              className="hidden lg:flex text-notion-muted hover:bg-notion-hover"
             >
               <Icon.ChevronLeft size={16} />
             </Button>
@@ -115,7 +115,7 @@ export const Sidebar: React.FC = React.memo(() => {
               variant="ghost"
               size="icon"
               onClick={toggleCollapse}
-              className="hidden lg:flex absolute -right-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-white dark:bg-notion-dark-sidebar border border-notion-light-border dark:border-notion-dark-border shadow-sm items-center justify-center text-notion-light-muted dark:text-notion-dark-muted z-50 hover:text-violet-500 transition-colors"
+              className="hidden lg:flex absolute -right-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-white dark:bg-notion-sidebar border border-notion-border shadow-sm items-center justify-center text-notion-muted z-50 hover:text-violet-500 transition-colors"
             >
               <Icon.ChevronRight size={12} />
             </Button>
@@ -127,7 +127,7 @@ export const Sidebar: React.FC = React.memo(() => {
             <div key={group.title} className="mb-6 last:mb-0">
               {!isCollapsed && (
                 <div className="px-3 mb-2">
-                  <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-notion-light-muted dark:text-notion-dark-muted/50">
+                  <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-notion-muted">
                     {group.title}
                   </span>
                 </div>
@@ -151,12 +151,12 @@ export const Sidebar: React.FC = React.memo(() => {
         </nav>
 
         <div
-          className={`p-2 border-t border-notion-light-border dark:border-notion-dark-border space-y-0.5 ${isCollapsed ? "items-center" : ""}`}
+          className={`p-2 border-t border-notion-border space-y-0.5 ${isCollapsed ? "items-center" : ""}`}
         >
           <Button
             variant="ghost"
             onClick={() => setShowSettings(true)}
-            className={`w-full justify-start ${isCollapsed ? "justify-center px-0" : "px-3"} py-1.5 text-sm text-notion-light-muted dark:text-notion-dark-muted hover:text-notion-light-text dark:hover:text-notion-dark-text rounded transition-colors group`}
+            className={`w-full justify-start ${isCollapsed ? "justify-center px-0" : "px-3"} py-1.5 text-sm text-notion-muted hover:text-notion-text rounded transition-colors group`}
             leftIcon={<Icon.Settings size={18} />}
           >
             <span

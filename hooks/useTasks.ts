@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useRef } from "react";
+import { useState, useCallback, useEffect, useRef, useMemo } from "react";
 import { TaskEntry, AppConfig, NotificationAction } from "../types";
 import {
   fetchTasks,
@@ -80,120 +80,145 @@ export const useTasks = (
     loadData(true);
   }, [loadData]);
 
-  const saveTransaction = async (entry: TaskEntry, isUpdate: boolean) => {
-    setIsSubmitting(true);
-    const originalState = [...entries];
+  const saveTransaction = useCallback(
+    async (entry: TaskEntry, isUpdate: boolean) => {
+      setIsSubmitting(true);
+      const originalState = [...entries];
 
-    // Optimistic Update
-    const optimisticEntry = { ...entry, id: entry.id || crypto.randomUUID() };
-    const nextState = isUpdate
-      ? entries.map((e) => (e.id === optimisticEntry.id ? optimisticEntry : e))
-      : [optimisticEntry, ...entries];
+      // Optimistic Update
+      const optimisticEntry = { ...entry, id: entry.id || crypto.randomUUID() };
+      const nextState = isUpdate
+        ? entries.map((e) =>
+            e.id === optimisticEntry.id ? optimisticEntry : e,
+          )
+        : [optimisticEntry, ...entries];
 
-    syncState(nextState);
+      syncState(nextState);
 
-    try {
-      if (isUpdate) {
-        const oldEntry = entries.find((e) => e.id === optimisticEntry.id);
-        await updateTask(optimisticEntry, config);
-        showToast("Mission updated", "success");
-
-        // If status changed to Done, trigger event
-        if (oldEntry?.status !== "Done" && optimisticEntry.status === "Done") {
-          integrationService.sendUpdate(
-            "task_completed",
-            optimisticEntry,
-            config,
-          );
-        }
-      } else {
-        const confirmedEntry = await addTask(optimisticEntry, config);
-        // Swap temp with confirmed if needed (though IDs are usually stable UUIDs here)
-        setEntries((prev) =>
-          prev.map((e) => (e.id === optimisticEntry.id ? confirmedEntry : e)),
-        );
-        showToast("Mission initialized", "success");
-        integrationService.sendUpdate("task_created", confirmedEntry, config);
-      }
-      return true;
-    } catch (err: unknown) {
-      showToast(
-        `Error: ${err instanceof Error ? err.message : "Unknown error"}`,
-        "error",
-      );
-      setEntries(originalState);
-      return false;
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const removeTransaction = async (entry: TaskEntry) => {
-    if (!entry.id) return false;
-    const originalState = [...entries];
-
-    // Optimistic Delete
-    syncState(entries.filter((e) => e.id !== entry.id));
-
-    const performDelete = async () => {
       try {
-        await deleteTask(entry.id, config);
-        pendingDeletions.current.delete(entry.id);
+        if (isUpdate) {
+          const oldEntry = entries.find((e) => e.id === optimisticEntry.id);
+          await updateTask(optimisticEntry, config);
+          showToast("Mission updated", "success");
+
+          // If status changed to Done, trigger event
+          if (
+            oldEntry?.status !== "Done" &&
+            optimisticEntry.status === "Done"
+          ) {
+            integrationService.sendUpdate(
+              "task_completed",
+              optimisticEntry,
+              config,
+            );
+          }
+        } else {
+          const confirmedEntry = await addTask(optimisticEntry, config);
+          // Swap temp with confirmed if needed (though IDs are usually stable UUIDs here)
+          setEntries((prev) =>
+            prev.map((e) => (e.id === optimisticEntry.id ? confirmedEntry : e)),
+          );
+          showToast("Mission initialized", "success");
+          integrationService.sendUpdate("task_created", confirmedEntry, config);
+        }
+        return true;
       } catch (err: unknown) {
-        setEntries(originalState);
-        pendingDeletions.current.delete(entry.id);
         showToast(
-          `Abortion failed: ${err instanceof Error ? err.message : "Unknown error"}`,
+          `Error: ${err instanceof Error ? err.message : "Unknown error"}`,
           "error",
         );
+        setEntries(originalState);
+        return false;
+      } finally {
+        setIsSubmitting(false);
       }
-    };
+    },
+    [entries, config, showToast, syncState],
+  );
 
-    const timeoutId = setTimeout(performDelete, 4500);
-    pendingDeletions.current.set(entry.id, timeoutId);
+  const removeTransaction = useCallback(
+    async (entry: TaskEntry) => {
+      if (!entry.id) return false;
+      const originalState = [...entries];
 
-    showToast("Mission aborted", "info", {
-      label: "Undo",
-      onClick: () => {
-        const timer = pendingDeletions.current.get(entry.id);
-        if (timer) clearTimeout(timer);
-        pendingDeletions.current.delete(entry.id);
-        syncState(originalState);
-        showToast("Restoration complete", "success");
-      },
-    });
+      // Optimistic Delete
+      syncState(entries.filter((e) => e.id !== entry.id));
 
-    return true;
-  };
+      const performDelete = async () => {
+        try {
+          await deleteTask(entry.id, config);
+          pendingDeletions.current.delete(entry.id);
+        } catch (err: unknown) {
+          setEntries(originalState);
+          pendingDeletions.current.delete(entry.id);
+          showToast(
+            `Abortion failed: ${err instanceof Error ? err.message : "Unknown error"}`,
+            "error",
+          );
+        }
+      };
 
-  const bulkRemoveTransactions = async (entriesToDelete: TaskEntry[]) => {
-    if (entriesToDelete.length === 0) return;
-    setIsLoading(true);
-    try {
-      const ids = new Set(entriesToDelete.map((e) => e.id));
-      syncState(entries.filter((e) => !ids.has(e.id)));
-      for (const entry of entriesToDelete) {
-        if (entry.id) await deleteTask(entry.id, config);
+      const timeoutId = setTimeout(performDelete, 4500);
+      pendingDeletions.current.set(entry.id, timeoutId);
+
+      showToast("Mission aborted", "info", {
+        label: "Undo",
+        onClick: () => {
+          const timer = pendingDeletions.current.get(entry.id);
+          if (timer) clearTimeout(timer);
+          pendingDeletions.current.delete(entry.id);
+          syncState(originalState);
+          showToast("Restoration complete", "success");
+        },
+      });
+
+      return true;
+    },
+    [entries, config, showToast, syncState],
+  );
+
+  const bulkRemoveTransactions = useCallback(
+    async (entriesToDelete: TaskEntry[]) => {
+      if (entriesToDelete.length === 0) return;
+      setIsLoading(true);
+      try {
+        const ids = new Set(entriesToDelete.map((e) => e.id));
+        syncState(entries.filter((e) => !ids.has(e.id)));
+        for (const entry of entriesToDelete) {
+          if (entry.id) await deleteTask(entry.id, config);
+        }
+        showToast(`Purged ${entriesToDelete.length} missions`, "success");
+      } catch (err: unknown) {
+        showToast(
+          `Bulk error: ${err instanceof Error ? err.message : "Unknown error"}`,
+          "error",
+        );
+        await loadData();
+      } finally {
+        setIsLoading(false);
       }
-      showToast(`Purged ${entriesToDelete.length} missions`, "success");
-    } catch (err: unknown) {
-      showToast(
-        `Bulk error: ${err instanceof Error ? err.message : "Unknown error"}`,
-        "error",
-      );
-      await loadData();
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    },
+    [entries, config, showToast, syncState, loadData],
+  );
 
-  return {
-    entries,
-    isLoading,
-    isSubmitting,
-    loadData,
-    saveTransaction,
-    removeTransaction,
-    bulkRemoveTransactions,
-  };
+  return useMemo(
+    () => ({
+      entries,
+      isLoading,
+      isSubmitting,
+      loadData,
+      saveTransaction,
+      removeTransaction,
+      bulkRemoveTransactions,
+    }),
+    [
+      entries,
+      isLoading,
+      isSubmitting,
+      loadData,
+      saveTransaction,
+      removeTransaction,
+      bulkRemoveTransactions,
+    ],
+  );
 };

@@ -9,6 +9,7 @@ interface ContactModalProps {
   onClose: () => void;
   onSubmit: (contact: Contact, isUpdate: boolean) => Promise<boolean>;
   initialData?: Contact | null;
+  isLoading?: boolean;
 }
 
 export const ContactModal: React.FC<ContactModalProps> = ({
@@ -16,6 +17,7 @@ export const ContactModal: React.FC<ContactModalProps> = ({
   onClose,
   onSubmit,
   initialData,
+  isLoading = false,
 }) => {
   const colors = MODULE_COLORS.crm;
   const [formData, setFormData] = useState<Partial<Contact>>({
@@ -217,14 +219,14 @@ export const ContactModal: React.FC<ContactModalProps> = ({
               variant="ghost"
               onClick={onClose}
               className={`px-4 py-2 text-xs font-black uppercase tracking-widest text-notion-light-muted hover:${colors.text}`}
-              disabled={isSubmitting}
+              disabled={isSubmitting || isLoading}
             >
               Cancel
             </Button>
             <Button
               type="submit"
               variant="custom"
-              isLoading={isSubmitting}
+              isLoading={isSubmitting || isLoading}
               className={`px-6 py-2 ${colors.bg} ${colors.text} ${colors.border} border rounded-xl font-black text-xs uppercase tracking-widest shadow-sm ${colors.hoverBg} transition-all active:scale-95`}
             >
               {initialData ? "Update Profile" : "Lock In Contact"}

@@ -22,6 +22,12 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
   onDuplicate,
   allEntries = [],
 }) => {
+  const entriesMap = useMemo(() => {
+    const map = new Map<string, TaskEntry>();
+    allEntries.forEach((e) => map.set(e.id, e));
+    return map;
+  }, [allEntries]);
+
   const columns = useMemo(() => {
     const cols: Record<StatusLevel, TaskEntry[]> = {
       Backlog: [],
@@ -41,7 +47,7 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
   const getDependencyStatus = (entry: TaskEntry) => {
     if (!entry.dependencies || entry.dependencies.length === 0) return null;
     const blockerCount = entry.dependencies.filter((depId) => {
-      const depTask = allEntries.find((e) => e.id === depId);
+      const depTask = entriesMap.get(depId);
       return depTask && depTask.status !== "Done";
     }).length;
     return {

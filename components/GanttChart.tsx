@@ -35,24 +35,26 @@ export const GanttChart: React.FC<GanttChartProps> = ({ entries, onEdit }) => {
     return d;
   }, []);
 
-  // Group by Project
-  const groupedData = useMemo(() => {
-    const groups: Record<string, TaskEntry[]> = {};
+  // Group by Project and Date
+  const indexedData = useMemo(() => {
+    const data: Record<string, Record<string, TaskEntry[]>> = {};
     entries.forEach((e) => {
-      // Only include items relevant to the window for cleaner view?
-      // Or show all projects, but only tasks in window.
-      if (!groups[e.project]) groups[e.project] = [];
-      groups[e.project].push(e);
+      if (!data[e.project]) data[e.project] = {};
+      if (!data[e.project][e.date]) data[e.project][e.date] = [];
+      data[e.project][e.date].push(e);
     });
-    return groups;
+    return data;
   }, [entries]);
 
-  const projects = Object.keys(groupedData).sort();
+  const projects = useMemo(
+    () => Object.keys(indexedData).sort(),
+    [indexedData],
+  );
 
   // Helper to check if task is on this date
-  const getTaskForDate = (taskList: TaskEntry[], date: Date) => {
+  const getTaskForDate = (projectName: string, date: Date) => {
     const dateStr = date.toISOString().split("T")[0]; // YYYY-MM-DD
-    return taskList.filter((t) => t.date === dateStr);
+    return indexedData[projectName]?.[dateStr] || [];
   };
 
   return (
@@ -125,7 +127,7 @@ export const GanttChart: React.FC<GanttChartProps> = ({ entries, onEdit }) => {
               {/* Grid */}
               <div className="flex-1 flex">
                 {dates.map((d, i) => {
-                  const dayTasks = getTaskForDate(groupedData[proj], d);
+                  const dayTasks = getTaskForDate(proj, d);
                   return (
                     <div
                       key={i}

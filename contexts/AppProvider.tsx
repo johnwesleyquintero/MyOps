@@ -1,4 +1,4 @@
-import React, { ReactNode } from "react";
+import React, { ReactNode, useMemo } from "react";
 import { AppContext } from "./AppContext";
 import { useAppConfig } from "../hooks/useAppConfig";
 import { useNotifications } from "../hooks/useNotifications";
@@ -36,28 +36,46 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
   const tasks = useTasks(config, showToast);
   const operatorMetrics = useOperatorAnalytics(tasks.entries);
 
+  const contextValue = useMemo(
+    () => ({
+      config,
+      setConfig,
+      showToast,
+      ui,
+      tasks,
+      crm,
+      notes,
+      vault,
+      automation,
+      awareness,
+      strategy,
+      assets,
+      reflections,
+      integrations,
+      lifeOps,
+      operatorMetrics,
+    }),
+    [
+      config,
+      setConfig,
+      showToast,
+      ui,
+      tasks,
+      crm,
+      notes,
+      vault,
+      automation,
+      awareness,
+      strategy,
+      assets,
+      reflections,
+      integrations,
+      lifeOps,
+      operatorMetrics,
+    ],
+  );
+
   return (
-    <AppContext.Provider
-      value={{
-        config,
-        setConfig,
-        showToast,
-        ui,
-        tasks,
-        crm,
-        notes,
-        vault,
-        automation,
-        awareness,
-        strategy,
-        assets,
-        reflections,
-        integrations,
-        lifeOps,
-        operatorMetrics,
-      }}
-    >
-      {children}
-    </AppContext.Provider>
+    <AppContext.Provider value={contextValue}>{children}</AppContext.Provider>
   );
 };

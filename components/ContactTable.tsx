@@ -17,11 +17,11 @@ interface ContactTableProps {
 }
 
 const CONTACT_COLUMNS: ColumnConfig[] = [
-  { key: "name", label: "Contact", visible: true, width: "min-w-[200px]" },
-  { key: "company", label: "Company", visible: true, width: "w-40" },
+  { key: "name", label: "Contact", visible: true, width: "w-64" },
+  { key: "company", label: "Company", visible: true, width: "w-48" },
   { key: "type", label: "Type", visible: true, width: "w-32" },
   { key: "status", label: "Status", visible: true, width: "w-32" },
-  { key: "email", label: "Email", visible: true, width: "w-48" },
+  { key: "email", label: "Email", visible: true, width: "w-56" },
   { key: "createdAt", label: "Added", visible: true, width: "w-32" },
 ];
 
@@ -30,7 +30,7 @@ const TableSkeleton = ({ colSpan }: { colSpan: number }) => (
     {[...Array(5)].map((_, i) => (
       <tr key={i}>
         <td colSpan={colSpan} className="px-3 py-4">
-          <div className="flex gap-4">
+          <div className="flex gap-4 items-center">
             <div className="h-4 bg-notion-light-hover dark:bg-notion-dark-hover rounded w-24"></div>
             <div className="h-4 bg-notion-light-hover dark:bg-notion-dark-hover rounded w-full"></div>
             <div className="h-4 bg-notion-light-hover dark:bg-notion-dark-hover rounded w-20"></div>
@@ -65,6 +65,10 @@ export const ContactTable: React.FC<ContactTableProps> = ({
     direction: "asc",
   });
 
+  const isMobileColumn = (key: string) => {
+    return ["company", "email", "createdAt"].includes(key);
+  };
+
   const typeColors = {
     Client:
       MODULE_COLORS.crm.text +
@@ -94,16 +98,16 @@ export const ContactTable: React.FC<ContactTableProps> = ({
 
   return (
     <div className="flex flex-col h-full overflow-hidden bg-notion-light-bg dark:bg-notion-dark-bg transition-colors">
-      <div className="flex-1 overflow-auto custom-scrollbar border border-notion-light-border dark:border-notion-dark-border rounded shadow-sm">
-        <table className="w-full text-left border-collapse table-fixed">
-          <thead className="sticky top-0 z-20 bg-notion-light-sidebar dark:bg-notion-dark-sidebar border-b border-notion-light-border dark:border-notion-dark-border">
+      <div className="flex-1 overflow-auto custom-scrollbar border border-notion-light-border dark:border-notion-dark-border rounded shadow-sm relative">
+        <table className="min-w-full text-left border-collapse table-auto">
+          <thead className="sticky top-0 z-40 bg-notion-light-sidebar dark:bg-notion-dark-sidebar border-b border-notion-light-border dark:border-notion-dark-border">
             <tr>
               {columns
                 .filter((c) => c.visible)
                 .map((col) => (
                   <th
                     key={col.key}
-                    className={`${col.width} px-3 py-2 text-[10px] font-bold text-notion-light-muted dark:text-notion-dark-muted uppercase tracking-widest cursor-pointer ${colors.hoverBg} transition-colors group`}
+                    className={`${col.width} px-3 py-2 text-[10px] font-bold text-notion-light-muted dark:text-notion-dark-muted uppercase tracking-widest cursor-pointer ${colors.hoverBg} transition-colors group ${isMobileColumn(col.key) ? "hidden md:table-cell" : ""} ${col.key === "name" ? "sticky left-0 z-30 bg-notion-light-sidebar dark:bg-notion-dark-sidebar" : ""}`}
                     onClick={() => requestSort(col.key as keyof Contact)}
                   >
                     <div className="flex items-center gap-2">
@@ -114,9 +118,12 @@ export const ContactTable: React.FC<ContactTableProps> = ({
                         </span>
                       )}
                     </div>
+                    {col.key === "name" && (
+                      <div className="absolute right-0 top-0 bottom-0 w-[1px] bg-notion-light-border dark:bg-notion-dark-border shadow-[1px_0_0_0_rgba(0,0,0,0.05)]" />
+                    )}
                   </th>
                 ))}
-              <th className="w-28 px-3 py-2 bg-notion-light-sidebar dark:bg-notion-dark-sidebar border-b border-notion-light-border dark:border-notion-dark-border">
+              <th className="w-28 px-3 py-2 sticky right-0 z-30 bg-notion-light-sidebar dark:bg-notion-dark-sidebar border-b border-notion-light-border dark:border-notion-dark-border shadow-[-4px_0_8px_rgba(0,0,0,0.05)]">
                 <div className="flex items-center justify-end gap-2">
                   <span className="text-[10px] font-bold text-notion-light-muted dark:text-notion-dark-muted uppercase tracking-widest">
                     Actions
@@ -150,7 +157,7 @@ export const ContactTable: React.FC<ContactTableProps> = ({
                     .map((col) => (
                       <td
                         key={col.key}
-                        className="px-3 py-3 align-middle text-sm cursor-pointer"
+                        className={`px-3 py-3 align-middle text-sm cursor-pointer ${isMobileColumn(col.key) ? "hidden md:table-cell" : ""} ${col.key === "name" ? "sticky left-0 z-10 bg-notion-light-bg dark:bg-notion-dark-bg group-hover:bg-notion-light-hover dark:group-hover:bg-notion-dark-hover" : ""}`}
                       >
                         {col.key === "name" && (
                           <div className="flex items-center gap-3">
@@ -166,6 +173,7 @@ export const ContactTable: React.FC<ContactTableProps> = ({
                             <span className="font-bold text-notion-light-text dark:text-notion-dark-text group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
                               {contact.name}
                             </span>
+                            <div className="absolute right-0 top-0 bottom-0 w-[1px] bg-notion-light-border dark:border-notion-dark-border" />
                           </div>
                         )}
                         {col.key === "company" && (
@@ -202,7 +210,7 @@ export const ContactTable: React.FC<ContactTableProps> = ({
                         )}
                       </td>
                     ))}
-                  <td className="px-3 py-3 align-middle">
+                  <td className="px-3 py-2 align-top sticky right-0 z-10 bg-notion-light-bg dark:bg-notion-dark-bg group-hover:bg-notion-light-hover dark:group-hover:bg-notion-dark-hover shadow-[-4px_0_8px_rgba(0,0,0,0.05)]">
                     <div className="flex items-center justify-end gap-1 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
                       <Button
                         onClick={(e) => {

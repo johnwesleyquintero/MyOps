@@ -6,7 +6,7 @@ import { Icon } from "../Icons";
 import { useMarkdownEditor } from "../../hooks/useMarkdownEditor";
 import { useKnowledgeLogic } from "../../hooks/useKnowledgeLogic";
 import { ViewHeader } from "../ViewHeader";
-import { MODULE_COLORS } from "../../constants/ui";
+import { MODULE_COLORS, BUTTON_STYLES } from "../../constants/ui";
 import { Button } from "../ui";
 
 interface KnowledgeViewProps {
@@ -70,7 +70,7 @@ export const KnowledgeView: React.FC<KnowledgeViewProps> = ({
         <Button
           variant="custom"
           onClick={handleCreateNew}
-          className={`w-full md:w-auto flex items-center justify-center gap-2 px-6 py-3 ${colors.bg.replace("/10", "").replace("/20", "")} text-white border ${colors.border} rounded-2xl font-black text-sm uppercase tracking-widest shadow-sm hover:opacity-90 transition-all active:scale-95`}
+          className={`w-full md:w-auto ${BUTTON_STYLES.action} ${BUTTON_STYLES.padding} ${colors.bg.replace("/10", "").replace("/20", "")} text-white border ${colors.border} ${BUTTON_STYLES.rounded} ${BUTTON_STYLES.base} hover:opacity-90`}
         >
           <Icon.Add
             size={18}

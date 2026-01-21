@@ -1,8 +1,7 @@
-import { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo } from "react";
 import { Note } from "../types";
 import { toast } from "sonner";
 import { Icon } from "../components/Icons";
-import React from "react";
 
 interface UseKnowledgeLogicProps {
   notes: Note[];

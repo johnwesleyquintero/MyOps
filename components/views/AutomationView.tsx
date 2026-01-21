@@ -2,7 +2,11 @@ import React from "react";
 import { Icon } from "../Icons";
 import { Automation } from "../../types";
 import { ViewHeader } from "../ViewHeader";
-import { MODULE_COLORS, AUTOMATION_TEMPLATES } from "@/constants";
+import {
+  MODULE_COLORS,
+  AUTOMATION_TEMPLATES,
+  BUTTON_STYLES,
+} from "@/constants";
 import { Button, Spinner } from "../ui";
 import { useAutomationLogic } from "@/hooks/useAutomationLogic";
 
@@ -46,7 +50,7 @@ export const AutomationView: React.FC<AutomationViewProps> = ({
         <Button
           variant="custom"
           onClick={handleAdd}
-          className={`w-full md:w-auto px-4 py-2.5 md:py-2 ${colors.bg} ${colors.text} text-[10px] font-black uppercase tracking-widest border ${colors.border} rounded-xl ${colors.hoverBg} transition-all active:scale-95 shadow-sm mt-2 md:mt-0 group`}
+          className={`w-full md:w-auto ${BUTTON_STYLES.base} ${BUTTON_STYLES.padding} ${BUTTON_STYLES.rounded} ${colors.bg} ${colors.text} border ${colors.border} ${colors.hoverBg} mt-2 md:mt-0 group`}
         >
           <Icon.Add
             size={14}

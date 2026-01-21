@@ -182,3 +182,11 @@ export const CONTACT_TYPE_COLORS: Record<string, string> = {
   Vendor: getCombinedColorClasses("indigo"),
   Partner: getCombinedColorClasses("slate"),
 };
+
+// Standardized Button Styles
+export const BUTTON_STYLES = {
+  base: "transition-all active:scale-95 shadow-sm font-black uppercase tracking-widest text-[10px]",
+  padding: "px-4 py-2.5",
+  rounded: "rounded-xl",
+  action: "flex items-center justify-center gap-2",
+} as const;

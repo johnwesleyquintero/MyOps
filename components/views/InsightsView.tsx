@@ -10,7 +10,11 @@ import { Icon, iconProps } from "../Icons";
 import { Button } from "../ui";
 import { ViewHeader } from "../ViewHeader";
 import { toast } from "sonner";
-import { MODULE_COLORS, INSIGHTS_CHART_COLORS } from "@/constants";
+import {
+  MODULE_COLORS,
+  INSIGHTS_CHART_COLORS,
+  BUTTON_STYLES,
+} from "@/constants";
 import { useInsightsData } from "@/hooks/useInsightsData";
 import { generateInsightsMarkdown } from "@/utils/exportUtils";
 import {
@@ -86,7 +90,7 @@ export const InsightsView: React.FC<InsightsViewProps> = ({
           <Button
             variant="ghost"
             onClick={handleCopyInsights}
-            className="w-full sm:w-auto bg-notion-light-bg dark:bg-notion-dark-bg hover:bg-notion-light-sidebar dark:hover:bg-notion-dark-sidebar rounded-xl border border-notion-light-border dark:border-notion-dark-border text-[10px] font-bold text-notion-light-text dark:text-notion-dark-text group"
+            className={`w-full sm:w-auto ${BUTTON_STYLES.base} ${BUTTON_STYLES.padding} ${BUTTON_STYLES.rounded} bg-notion-light-bg dark:bg-notion-dark-bg hover:bg-notion-light-sidebar dark:hover:bg-notion-dark-sidebar border border-notion-light-border dark:border-notion-dark-border text-notion-light-text dark:text-notion-dark-text group`}
             title="Copy Insights as Markdown"
             leftIcon={
               copied ? (

@@ -1,18 +1,40 @@
 import React, { Suspense, lazy } from "react";
-import { TaskModal } from "./components/TaskModal";
-import { SettingsModal } from "./components/SettingsModal";
 import { Header } from "./components/Header";
 import { Sidebar } from "./components/Sidebar";
-import { ShortcutsModal } from "./components/ShortcutsModal";
-import { FocusMode } from "./components/FocusMode";
-import { CommandPalette } from "./components/CommandPalette";
-import { AiChatSidebar } from "./components/AiChatSidebar";
 import { Toaster } from "sonner";
 import { Spinner } from "./components/ui/Spinner";
 import { useConfig } from "./hooks/useConfig";
 import { useNotification } from "./hooks/useNotification";
 import { useUi } from "./hooks/useUi";
 import { useData } from "./hooks/useData";
+
+// Lazy-loaded components
+const TaskModal = lazy(() =>
+  import("./components/TaskModal").then((m) => ({ default: m.TaskModal })),
+);
+const SettingsModal = lazy(() =>
+  import("./components/SettingsModal").then((m) => ({
+    default: m.SettingsModal,
+  })),
+);
+const ShortcutsModal = lazy(() =>
+  import("./components/ShortcutsModal").then((m) => ({
+    default: m.ShortcutsModal,
+  })),
+);
+const FocusMode = lazy(() =>
+  import("./components/FocusMode").then((m) => ({ default: m.FocusMode })),
+);
+const CommandPalette = lazy(() =>
+  import("./components/CommandPalette").then((m) => ({
+    default: m.CommandPalette,
+  })),
+);
+const AiChatSidebar = lazy(() =>
+  import("./components/AiChatSidebar").then((m) => ({
+    default: m.AiChatSidebar,
+  })),
+);
 
 // Lazy-loaded views
 const DashboardView = lazy(() =>
@@ -151,21 +173,29 @@ const App: React.FC = () => {
 
   if (ui.activePage === "FOCUS" && ui.focusedTask) {
     return (
-      <FocusMode
-        task={ui.focusedTask}
-        onExit={() => {
-          ui.exitFocus();
-          showToast("Focus Mode Disengaged", "info");
-        }}
-        onUpdate={async (u) => {
-          await saveTransaction(u, true);
-          showToast("Session notes archived", "success");
-        }}
-        onComplete={async (u) => {
-          await taskActions.handleFocusComplete(u);
-          showToast("Mission Accomplished", "success");
-        }}
-      />
+      <Suspense
+        fallback={
+          <div className="flex items-center justify-center h-screen bg-notion-dark-bg">
+            <Spinner size="lg" />
+          </div>
+        }
+      >
+        <FocusMode
+          task={ui.focusedTask}
+          onExit={() => {
+            ui.exitFocus();
+            showToast("Focus Mode Disengaged", "info");
+          }}
+          onUpdate={async (u) => {
+            await saveTransaction(u, true);
+            showToast("Session notes archived", "success");
+          }}
+          onComplete={async (u) => {
+            await taskActions.handleFocusComplete(u);
+            showToast("Mission Accomplished", "success");
+          }}
+        />
+      </Suspense>
     );
   }
 
@@ -372,15 +402,13 @@ const App: React.FC = () => {
         </main>
       </div>
 
-      <AiChatSidebar />
-
-      <CommandPalette />
-
-      <TaskModal />
-
-      <SettingsModal />
-
-      <ShortcutsModal />
+      <Suspense fallback={null}>
+        <AiChatSidebar />
+        <CommandPalette />
+        <TaskModal />
+        <SettingsModal />
+        <ShortcutsModal />
+      </Suspense>
       <Toaster
         position="bottom-right"
         richColors

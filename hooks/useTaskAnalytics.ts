@@ -89,8 +89,11 @@ export const useTaskAnalytics = ({
     );
   }, [entries]);
 
-  return {
-    filteredEntries,
-    globalMetrics,
-  };
+  return useMemo(
+    () => ({
+      filteredEntries,
+      globalMetrics,
+    }),
+    [filteredEntries, globalMetrics],
+  );
 };

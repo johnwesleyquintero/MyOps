@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback, useMemo } from "react";
 
 export type SortKey = string;
 
@@ -64,32 +64,44 @@ export const useTableColumns = <T extends string>(
     }
   }
 
-  const saveColumns = (newCols: ColumnConfig[]) => {
-    setColumns(newCols);
-    localStorage.setItem(storageKey, JSON.stringify(newCols));
-  };
+  const saveColumns = useCallback(
+    (newCols: ColumnConfig[]) => {
+      setColumns(newCols);
+      localStorage.setItem(storageKey, JSON.stringify(newCols));
+    },
+    [storageKey],
+  );
 
-  const toggleColumn = (key: T) => {
-    const newCols = columns.map((c) =>
-      c.key === key ? { ...c, visible: !c.visible } : c,
-    );
-    saveColumns(newCols);
-  };
+  const toggleColumn = useCallback(
+    (key: T) => {
+      const newCols = columns.map((c) =>
+        c.key === key ? { ...c, visible: !c.visible } : c,
+      );
+      saveColumns(newCols);
+    },
+    [columns, saveColumns],
+  );
 
-  const moveColumn = (index: number, direction: "up" | "down") => {
-    const newCols = [...columns];
-    const targetIndex = direction === "up" ? index - 1 : index + 1;
-    if (targetIndex < 0 || targetIndex >= newCols.length) return;
-    [newCols[index], newCols[targetIndex]] = [
-      newCols[targetIndex],
-      newCols[index],
-    ];
-    saveColumns(newCols);
-  };
+  const moveColumn = useCallback(
+    (index: number, direction: "up" | "down") => {
+      const newCols = [...columns];
+      const targetIndex = direction === "up" ? index - 1 : index + 1;
+      if (targetIndex < 0 || targetIndex >= newCols.length) return;
+      [newCols[index], newCols[targetIndex]] = [
+        newCols[targetIndex],
+        newCols[index],
+      ];
+      saveColumns(newCols);
+    },
+    [columns, saveColumns],
+  );
 
-  return {
-    columns,
-    toggleColumn,
-    moveColumn,
-  };
+  return useMemo(
+    () => ({
+      columns,
+      toggleColumn,
+      moveColumn,
+    }),
+    [columns, toggleColumn, moveColumn],
+  );
 };

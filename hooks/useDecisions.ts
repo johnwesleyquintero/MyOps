@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { DecisionEntry, AppConfig } from "../types";
 import { fetchDecisions } from "../services/strategyService";
 
@@ -22,5 +22,8 @@ export const useDecisions = (config: AppConfig) => {
     load();
   }, [load]);
 
-  return { decisions, isLoading, reload: load };
+  return useMemo(
+    () => ({ decisions, isLoading, reload: load }),
+    [decisions, isLoading, load],
+  );
 };

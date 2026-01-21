@@ -1,55 +1,16 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
   <defs>
-    <!-- Background Gradient (Notion Dark Palette) -->
-    <radialGradient id="bgGradient" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
-      <stop offset="0%" stop-color="#202020" /> <!-- notion.dark.sidebar -->
-      <stop offset="100%" stop-color="#191919" /> <!-- notion.dark.bg -->
-    </radialGradient>
-    
-    <!-- Pulse Gradient (New Violet/Indigo Palette) -->
-    <linearGradient id="pulseGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#8b5cf6" /> <!-- Violet Accent -->
-      <stop offset="100%" stop-color="#6366f1" /> <!-- Indigo Accent -->
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#8b5cf6" />
+      <stop offset="100%" stop-color="#4f46e5" />
     </linearGradient>
-
-    <!-- Glass Glow Filter -->
-    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
-      <feGaussianBlur stdDeviation="15" result="blur" />
-      <feComposite in="SourceGraphic" in2="blur" operator="over" />
-    </filter>
   </defs>
-
-  <!-- Background: Sleek Rounded Container -->
-  <rect width="512" height="512" rx="144" fill="url(#bgGradient)" />
+  <!-- Background: Rounded square matching sidebar logo style -->
+  <rect width="32" height="32" rx="8" fill="url(#bgGradient)" />
   
-  <!-- Outer Glow Ring (Subtle) -->
-  <circle cx="256" cy="256" r="220" stroke="#D3D3D3" stroke-opacity="0.05" stroke-width="2" fill="none" />
-
-  <!-- Main Icon Group -->
-  <g transform="translate(116, 116)">
-    <!-- Left Blade (System Pillar) -->
-    <rect x="0" y="20" width="60" height="240" rx="30" fill="#D3D3D3" fill-opacity="0.9" /> <!-- notion.dark.text -->
-    <rect x="10" y="30" width="40" height="220" rx="20" fill="#8b5cf6" fill-opacity="0.2" />
-    
-    <!-- Right Blade (System Pillar) -->
-    <rect x="220" y="20" width="60" height="240" rx="30" fill="#D3D3D3" fill-opacity="0.9" /> <!-- notion.dark.text -->
-    <rect x="230" y="30" width="40" height="220" rx="20" fill="#8b5cf6" fill-opacity="0.2" />
-
-    <!-- The Core Execution Pulse (V-Chevron) -->
-    <path d="M30 160 L140 270 L250 160" 
-          stroke="url(#pulseGradient)" 
-          stroke-width="50" 
-          stroke-linecap="round" 
-          stroke-linejoin="round" 
-          filter="url(#glow)" />
-    
-    <!-- Floating Data Core -->
-    <circle cx="140" cy="60" r="45" fill="#8b5cf6" filter="url(#glow)" />
-    <circle cx="140" cy="60" r="25" fill="#FFFFFF" fill-opacity="0.9" />
-    
-    <!-- Decorative Data Bits -->
-    <rect x="130" y="140" width="20" height="20" rx="4" fill="#D3D3D3" fill-opacity="0.2" />
-    <rect x="100" y="170" width="12" height="12" rx="3" fill="#D3D3D3" fill-opacity="0.1" />
-    <rect x="168" y="170" width="12" height="12" rx="3" fill="#D3D3D3" fill-opacity="0.1" />
+  <!-- Terminal Icon (White) centered and scaled to match sidebar proportions -->
+  <g transform="translate(7, 7) scale(0.75)">
+    <polyline points="4 17 10 11 4 5" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+    <line x1="12" x2="20" y1="19" y2="19" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
   </g>
 </svg>

@@ -1,4 +1,4 @@
-import { useRef, useCallback } from "react";
+import { useRef, useCallback, useMemo } from "react";
 
 export const useMarkdownEditor = (
   text: string,
@@ -88,8 +88,11 @@ export const useMarkdownEditor = (
     [text, onTextChange],
   );
 
-  return {
-    textareaRef,
-    applyFormat,
-  };
+  return useMemo(
+    () => ({
+      textareaRef,
+      applyFormat,
+    }),
+    [applyFormat],
+  );
 };

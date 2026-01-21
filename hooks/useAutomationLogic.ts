@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { Automation } from "../types";
 import { toast } from "sonner";
 import { Icon } from "../components/Icons";
@@ -29,7 +29,7 @@ export const useAutomationLogic = ({
   const [editingAutomation, setEditingAutomation] =
     useState<Partial<Automation> | null>(null);
 
-  const handleAdd = () => {
+  const handleAdd = useCallback(() => {
     setEditingAutomation({
       name: "",
       trigger: "",
@@ -37,14 +37,14 @@ export const useAutomationLogic = ({
       status: "Active",
     });
     setIsModalOpen(true);
-  };
+  }, []);
 
-  const handleEdit = (auto: Automation) => {
+  const handleEdit = useCallback((auto: Automation) => {
     setEditingAutomation(auto);
     setIsModalOpen(true);
-  };
+  }, []);
 
-  const handleUseTemplate = (template: AutomationTemplate) => {
+  const handleUseTemplate = useCallback((template: AutomationTemplate) => {
     setEditingAutomation({
       name: template.name,
       trigger: template.trigger,
@@ -56,70 +56,90 @@ export const useAutomationLogic = ({
       description: "Customize the trigger and action, then save to activate.",
       icon: React.createElement(Icon.Settings, { size: 14 }),
     });
-  };
+  }, []);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (editingAutomation) {
-      const isUpdate = !!editingAutomation.id;
-      const success = await onSave(editingAutomation as Automation, isUpdate);
+  const handleSubmit = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+      if (editingAutomation) {
+        const isUpdate = !!editingAutomation.id;
+        const success = await onSave(editingAutomation as Automation, isUpdate);
+        if (success) {
+          setIsModalOpen(false);
+          setEditingAutomation(null);
+          toast.success(
+            isUpdate ? "Automation updated" : "Automation created",
+            {
+              description: `"${editingAutomation.name}" is now ${editingAutomation.status?.toLowerCase()}.`,
+              icon: React.createElement(Icon.Zap, { size: 14 }),
+            },
+          );
+        } else {
+          toast.error("Failed to save automation");
+        }
+      }
+    },
+    [editingAutomation, onSave],
+  );
+
+  const handleDeleteClick = useCallback(
+    async (id: string, name: string) => {
+      if (window.confirm(`Are you sure you want to delete "${name}"?`)) {
+        const success = await onDelete(id);
+        if (success) {
+          toast.success("Automation deleted", {
+            description: `"${name}" has been removed from your workflows.`,
+            icon: React.createElement(Icon.Delete, { size: 14 }),
+          });
+        } else {
+          toast.error("Failed to delete automation");
+        }
+      }
+    },
+    [onDelete],
+  );
+
+  const handleToggleClick = useCallback(
+    async (id: string, currentStatus: string, name: string) => {
+      const success = await onToggle(id);
       if (success) {
-        setIsModalOpen(false);
-        setEditingAutomation(null);
-        toast.success(isUpdate ? "Automation updated" : "Automation created", {
-          description: `"${editingAutomation.name}" is now ${editingAutomation.status?.toLowerCase()}.`,
-          icon: React.createElement(Icon.Zap, { size: 14 }),
+        const newStatus = currentStatus === "Active" ? "Paused" : "Active";
+        toast.info(`Automation ${newStatus.toLowerCase()}`, {
+          description: `"${name}" is now ${newStatus.toLowerCase()}.`,
+          icon:
+            newStatus === "Active"
+              ? React.createElement(Icon.Zap, { size: 14 })
+              : React.createElement(Icon.Pause, { size: 14 }),
         });
       } else {
-        toast.error("Failed to save automation");
+        toast.error("Failed to toggle automation");
       }
-    }
-  };
+    },
+    [onToggle],
+  );
 
-  const handleDeleteClick = async (id: string, name: string) => {
-    if (window.confirm(`Are you sure you want to delete "${name}"?`)) {
-      const success = await onDelete(id);
-      if (success) {
-        toast.success("Automation deleted", {
-          description: `"${name}" has been removed from your workflows.`,
-          icon: React.createElement(Icon.Delete, { size: 14 }),
-        });
-      } else {
-        toast.error("Failed to delete automation");
-      }
-    }
-  };
-
-  const handleToggleClick = async (
-    id: string,
-    currentStatus: string,
-    name: string,
-  ) => {
-    const success = await onToggle(id);
-    if (success) {
-      const newStatus = currentStatus === "Active" ? "Paused" : "Active";
-      toast.info(`Automation ${newStatus.toLowerCase()}`, {
-        description: `"${name}" is now ${newStatus.toLowerCase()}.`,
-        icon:
-          newStatus === "Active"
-            ? React.createElement(Icon.Zap, { size: 14 })
-            : React.createElement(Icon.Pause, { size: 14 }),
-      });
-    } else {
-      toast.error("Failed to toggle automation");
-    }
-  };
-
-  return {
-    isModalOpen,
-    setIsModalOpen,
-    editingAutomation,
-    setEditingAutomation,
-    handleAdd,
-    handleEdit,
-    handleUseTemplate,
-    handleSubmit,
-    handleDeleteClick,
-    handleToggleClick,
-  };
+  return useMemo(
+    () => ({
+      isModalOpen,
+      setIsModalOpen,
+      editingAutomation,
+      setEditingAutomation,
+      handleAdd,
+      handleEdit,
+      handleUseTemplate,
+      handleSubmit,
+      handleDeleteClick,
+      handleToggleClick,
+    }),
+    [
+      isModalOpen,
+      editingAutomation,
+      handleAdd,
+      handleEdit,
+      handleUseTemplate,
+      handleSubmit,
+      handleDeleteClick,
+      handleToggleClick,
+    ],
+  );
 };

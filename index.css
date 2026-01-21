@@ -1,6 +1,94 @@
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
-@config "./tailwind.config.js";
+
+@theme {
+  --font-sans: "Inter", sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+
+  --color-notion-light-bg: #ffffff;
+  --color-notion-light-sidebar: #f7f6f3;
+  --color-notion-light-text: #37352f;
+  --color-notion-light-border: #e9e9e8;
+  --color-notion-light-hover: #efefef;
+  --color-notion-light-muted: #787774;
+
+  --color-notion-dark-bg: #191919;
+  --color-notion-dark-sidebar: #202020;
+  --color-notion-dark-text: #d3d3d3;
+  --color-notion-dark-border: #2e2e2e;
+  --color-notion-dark-hover: #2c2c2c;
+  --color-notion-dark-muted: #9b9b9b;
+
+  --color-chatgpt-light-user: #ffffff;
+  --color-chatgpt-light-assistant: #f7f7f8;
+  --color-chatgpt-light-border: #e5e5e5;
+
+  --color-chatgpt-dark-user: #343541;
+  --color-chatgpt-dark-assistant: #444654;
+  --color-chatgpt-dark-border: #565869;
+
+  --animate-pulse-soft: pulse-soft 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  --animate-slide-up: slide-up 0.3s ease-out forwards;
+  --animate-slide-in-right: slide-in-right 0.3s ease-out forwards;
+  --animate-scale-in: scale-in 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  --animate-view-switch: view-switch 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  --animate-spin-slow: spin 8s linear infinite;
+
+  @keyframes pulse-soft {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.7;
+    }
+  }
+  @keyframes slide-up {
+    0% {
+      transform: translateY(10px);
+      opacity: 0;
+    }
+    100% {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+  @keyframes slide-in-right {
+    0% {
+      transform: translateX(20px);
+      opacity: 0;
+    }
+    100% {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+  @keyframes scale-in {
+    0% {
+      transform: scale(0.95);
+      opacity: 0;
+    }
+    100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+  @keyframes view-switch {
+    0% {
+      opacity: 0;
+      transform: translateY(4px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  @keyframes dash {
+    to {
+      stroke-dashoffset: -8;
+    }
+  }
+}
 
 ::-webkit-scrollbar {
   width: 6px;

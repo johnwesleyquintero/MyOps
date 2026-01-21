@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { Note, AppConfig } from "../types";
 import { noteService } from "../services/noteService";
 
@@ -25,39 +25,48 @@ export const useNotes = (
     loadNotes();
   }, [loadNotes]);
 
-  const saveNote = async (note: Note, isUpdate: boolean) => {
-    try {
-      const success = await noteService.saveNote(note, isUpdate, config);
-      if (success) {
-        await loadNotes();
-        showToast(isUpdate ? "Note saved" : "Note created", "success");
-        return true;
+  const saveNote = useCallback(
+    async (note: Note, isUpdate: boolean) => {
+      try {
+        const success = await noteService.saveNote(note, isUpdate, config);
+        if (success) {
+          await loadNotes();
+          showToast(isUpdate ? "Note saved" : "Note created", "success");
+          return true;
+        }
+      } catch {
+        showToast("Failed to save note", "error");
       }
-    } catch {
-      showToast("Failed to save note", "error");
-    }
-    return false;
-  };
+      return false;
+    },
+    [config, loadNotes, showToast],
+  );
 
-  const deleteNote = async (id: string) => {
-    try {
-      const success = await noteService.deleteNote(id, config);
-      if (success) {
-        await loadNotes();
-        showToast("Note deleted", "success");
-        return true;
+  const deleteNote = useCallback(
+    async (id: string) => {
+      try {
+        const success = await noteService.deleteNote(id, config);
+        if (success) {
+          await loadNotes();
+          showToast("Note deleted", "success");
+          return true;
+        }
+      } catch {
+        showToast("Failed to delete note", "error");
       }
-    } catch {
-      showToast("Failed to delete note", "error");
-    }
-    return false;
-  };
+      return false;
+    },
+    [config, loadNotes, showToast],
+  );
 
-  return {
-    notes,
-    isLoading,
-    saveNote,
-    deleteNote,
-    refreshNotes: loadNotes,
-  };
+  return useMemo(
+    () => ({
+      notes,
+      isLoading,
+      saveNote,
+      deleteNote,
+      refreshNotes: loadNotes,
+    }),
+    [notes, isLoading, saveNote, deleteNote, loadNotes],
+  );
 };

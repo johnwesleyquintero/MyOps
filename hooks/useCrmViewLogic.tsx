@@ -65,30 +65,33 @@ export const useCrmViewLogic = ({
     }
   }, [selectedContact, loadInteractions]);
 
-  const handleSaveInteraction = async (interaction: Interaction) => {
-    const success = await onSaveInteraction(interaction);
-    if (success && selectedContact) {
-      await loadInteractions(selectedContact.id);
-      toast.success("Interaction saved", {
-        description: `Successfully recorded ${interaction.type.toLowerCase()} for ${selectedContact.name}.`,
-      });
-    } else if (!success) {
-      toast.error("Failed to save interaction", {
-        description: "Please check your connection and try again.",
-      });
-    }
-    return success;
-  };
+  const handleSaveInteraction = useCallback(
+    async (interaction: Interaction) => {
+      const success = await onSaveInteraction(interaction);
+      if (success && selectedContact) {
+        await loadInteractions(selectedContact.id);
+        toast.success("Interaction saved", {
+          description: `Successfully recorded ${interaction.type.toLowerCase()} for ${selectedContact.name}.`,
+        });
+      } else if (!success) {
+        toast.error("Failed to save interaction", {
+          description: "Please check your connection and try again.",
+        });
+      }
+      return success;
+    },
+    [onSaveInteraction, selectedContact, loadInteractions],
+  );
 
-  const handleAddInteraction = () => {
+  const handleAddInteraction = useCallback(() => {
     setEditingInteraction(null);
     setIsInteractionModalOpen(true);
-  };
+  }, []);
 
-  const handleEditInteraction = (interaction: Interaction) => {
+  const handleEditInteraction = useCallback((interaction: Interaction) => {
     setEditingInteraction(interaction);
     setIsInteractionModalOpen(true);
-  };
+  }, []);
 
   const filteredContacts = useMemo(() => {
     const query = searchQuery.toLowerCase().trim();
@@ -102,54 +105,60 @@ export const useCrmViewLogic = ({
     });
   }, [contacts, searchQuery]);
 
-  const handleAdd = () => {
+  const handleAdd = useCallback(() => {
     setEditingContact(null);
     setIsModalOpen(true);
-  };
+  }, []);
 
-  const handleEdit = (contact: Contact) => {
+  const handleEdit = useCallback((contact: Contact) => {
     setEditingContact(contact);
     setIsModalOpen(true);
-  };
+  }, []);
 
-  const handleSave = async (contact: Contact, isUpdate: boolean) => {
-    const success = await onSaveContact(contact, isUpdate);
-    if (success) {
-      if (selectedContact?.id === contact.id) {
-        setSelectedContact(contact);
+  const handleSave = useCallback(
+    async (contact: Contact, isUpdate: boolean) => {
+      const success = await onSaveContact(contact, isUpdate);
+      if (success) {
+        if (selectedContact?.id === contact.id) {
+          setSelectedContact(contact);
+        }
+        toast.success(isUpdate ? "Contact updated" : "Contact created", {
+          description: `${contact.name} has been saved to your CRM.`,
+        });
+      } else {
+        toast.error("Failed to save contact", {
+          description: "Please check your connection and try again.",
+        });
       }
-      toast.success(isUpdate ? "Contact updated" : "Contact created", {
-        description: `${contact.name} has been saved to your CRM.`,
-      });
-    } else {
-      toast.error("Failed to save contact", {
-        description: "Please check your connection and try again.",
-      });
-    }
-    return success;
-  };
+      return success;
+    },
+    [onSaveContact, selectedContact],
+  );
 
-  const handleDelete = async (contact: Contact) => {
-    if (!window.confirm(`Are you sure you want to delete ${contact.name}?`)) {
-      return;
-    }
-
-    const success = await onDeleteContact(contact.id);
-    if (success) {
-      if (selectedContact?.id === contact.id) {
-        setSelectedContact(null);
+  const handleDelete = useCallback(
+    async (contact: Contact) => {
+      if (!window.confirm(`Are you sure you want to delete ${contact.name}?`)) {
+        return;
       }
-      toast.success("Contact deleted", {
-        description: `${contact.name} has been removed from your CRM.`,
-      });
-    } else {
-      toast.error("Failed to delete contact", {
-        description: "Please check your connection and try again.",
-      });
-    }
-  };
 
-  const getInteractionIcon = (type: Interaction["type"]) => {
+      const success = await onDeleteContact(contact.id);
+      if (success) {
+        if (selectedContact?.id === contact.id) {
+          setSelectedContact(null);
+        }
+        toast.success("Contact deleted", {
+          description: `${contact.name} has been removed from your CRM.`,
+        });
+      } else {
+        toast.error("Failed to delete contact", {
+          description: "Please check your connection and try again.",
+        });
+      }
+    },
+    [onDeleteContact, selectedContact],
+  );
+
+  const getInteractionIcon = useCallback((type: Interaction["type"]) => {
     switch (type) {
       case "Call":
         return <Icon.Phone size={12} />;
@@ -162,33 +171,55 @@ export const useCrmViewLogic = ({
       default:
         return <Icon.Chat size={12} />;
     }
-  };
+  }, []);
 
-  return {
-    viewMode,
-    setViewMode,
-    searchQuery,
-    setSearchQuery,
-    selectedContact,
-    setSelectedContact,
-    isModalOpen,
-    setIsModalOpen,
-    editingContact,
-    setEditingContact,
-    isInteractionModalOpen,
-    setIsInteractionModalOpen,
-    editingInteraction,
-    setEditingInteraction,
-    interactions,
-    isInteractionsLoading,
-    handleSaveInteraction,
-    handleAddInteraction,
-    handleEditInteraction,
-    filteredContacts,
-    handleAdd,
-    handleEdit,
-    handleSave,
-    handleDelete,
-    getInteractionIcon,
-  };
+  return useMemo(
+    () => ({
+      viewMode,
+      setViewMode,
+      searchQuery,
+      setSearchQuery,
+      selectedContact,
+      setSelectedContact,
+      isModalOpen,
+      setIsModalOpen,
+      editingContact,
+      setEditingContact,
+      isInteractionModalOpen,
+      setIsInteractionModalOpen,
+      editingInteraction,
+      setEditingInteraction,
+      interactions,
+      isInteractionsLoading,
+      handleSaveInteraction,
+      handleAddInteraction,
+      handleEditInteraction,
+      filteredContacts,
+      handleAdd,
+      handleEdit,
+      handleSave,
+      handleDelete,
+      getInteractionIcon,
+    }),
+    [
+      viewMode,
+      searchQuery,
+      selectedContact,
+      isModalOpen,
+      editingContact,
+      isInteractionModalOpen,
+      editingInteraction,
+      interactions,
+      isInteractionsLoading,
+      handleSaveInteraction,
+      handleAddInteraction,
+      handleEditInteraction,
+      filteredContacts,
+      handleAdd,
+      handleEdit,
+      handleSave,
+      handleDelete,
+      getInteractionIcon,
+    ],
+  );
 };

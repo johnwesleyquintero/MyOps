@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { AppConfig } from "../types";
 import { INITIAL_CONFIG_KEY, DEFAULT_GAS_URL } from "@/constants";
 
@@ -27,8 +27,11 @@ export const useAppConfig = () => {
     localStorage.setItem(INITIAL_CONFIG_KEY, JSON.stringify(config));
   }, [config]);
 
-  return {
-    config,
-    setConfig,
-  };
+  return useMemo(
+    () => ({
+      config,
+      setConfig,
+    }),
+    [config],
+  );
 };

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { MentalStateEntry, AppConfig } from "../types";
 import { fetchMentalStates } from "../services/awarenessService";
 
@@ -22,5 +22,8 @@ export const useAwareness = (config: AppConfig) => {
     load();
   }, [load]);
 
-  return { mentalStates, isLoading, reload: load };
+  return useMemo(
+    () => ({ mentalStates, isLoading, reload: load }),
+    [mentalStates, isLoading, load],
+  );
 };

@@ -63,10 +63,13 @@ export const useDashboardLogic = ({
     COLUMN_CONFIG_KEY,
   );
 
-  return {
-    tacticalFocus,
-    xpProgress,
-    columns,
-    toggleColumn,
-  };
+  return useMemo(
+    () => ({
+      tacticalFocus,
+      xpProgress,
+      columns,
+      toggleColumn,
+    }),
+    [tacticalFocus, xpProgress, columns, toggleColumn],
+  );
 };

@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useMemo } from "react";
 import { ReflectionEntry, AppConfig } from "../types";
 import {
   fetchReflections,
@@ -31,51 +31,63 @@ export const useReflection = (
     loadReflections();
   }, [loadReflections]);
 
-  const handleSaveReflection = async (
-    entry: ReflectionEntry,
-    isUpdate: boolean,
-  ) => {
-    try {
-      const saved = await saveReflection(entry, config, isUpdate);
-      setReflections((prev) => {
-        if (isUpdate) {
-          return prev.map((r) => (r.id === saved.id ? saved : r));
+  const handleSaveReflection = useCallback(
+    async (entry: ReflectionEntry, isUpdate: boolean) => {
+      try {
+        const saved = await saveReflection(entry, config, isUpdate);
+        setReflections((prev) => {
+          if (isUpdate) {
+            return prev.map((r) => (r.id === saved.id ? saved : r));
+          }
+          return [saved, ...prev];
+        });
+        showToast(
+          isUpdate ? "Reflection archived" : "Reflection captured",
+          "success",
+        );
+        if (!isUpdate) {
+          integrationService.sendUpdate("reflection_logged", saved, config);
         }
-        return [saved, ...prev];
-      });
-      showToast(
-        isUpdate ? "Reflection archived" : "Reflection captured",
-        "success",
-      );
-      if (!isUpdate) {
-        integrationService.sendUpdate("reflection_logged", saved, config);
+        return true;
+      } catch (err) {
+        showToast("Failed to save reflection", "error");
+        console.error(err);
+        return false;
       }
-      return true;
-    } catch (err) {
-      showToast("Failed to save reflection", "error");
-      console.error(err);
-      return false;
-    }
-  };
+    },
+    [config, showToast],
+  );
 
-  const handleDeleteReflection = async (id: string) => {
-    try {
-      await deleteReflection(id, config);
-      setReflections((prev) => prev.filter((r) => r.id !== id));
-      showToast("Reflection deleted", "success");
-      return true;
-    } catch (err) {
-      showToast("Failed to delete reflection", "error");
-      console.error(err);
-      return false;
-    }
-  };
+  const handleDeleteReflection = useCallback(
+    async (id: string) => {
+      try {
+        await deleteReflection(id, config);
+        setReflections((prev) => prev.filter((r) => r.id !== id));
+        showToast("Reflection deleted", "success");
+        return true;
+      } catch (err) {
+        showToast("Failed to delete reflection", "error");
+        console.error(err);
+        return false;
+      }
+    },
+    [config, showToast],
+  );
 
-  return {
-    reflections,
-    isLoading,
-    saveReflection: handleSaveReflection,
-    deleteReflection: handleDeleteReflection,
-    refreshReflections: loadReflections,
-  };
+  return useMemo(
+    () => ({
+      reflections,
+      isLoading,
+      saveReflection: handleSaveReflection,
+      deleteReflection: handleDeleteReflection,
+      refreshReflections: loadReflections,
+    }),
+    [
+      reflections,
+      isLoading,
+      handleSaveReflection,
+      handleDeleteReflection,
+      loadReflections,
+    ],
+  );
 };

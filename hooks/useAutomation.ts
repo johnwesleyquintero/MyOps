@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { Automation, AppConfig } from "../types";
 import { automationService } from "../services/automationService";
 
@@ -25,59 +25,78 @@ export const useAutomation = (
     loadAutomations();
   }, [config.mode, loadAutomations]);
 
-  const saveAutomation = async (automation: Automation, isUpdate: boolean) => {
-    try {
-      const success = await automationService.saveAutomation(
-        automation,
-        isUpdate,
-        config,
-      );
-      if (success) {
-        await loadAutomations();
-        showToast(
-          isUpdate ? "Automation updated" : "Trigger established",
-          "success",
+  const saveAutomation = useCallback(
+    async (automation: Automation, isUpdate: boolean) => {
+      try {
+        const success = await automationService.saveAutomation(
+          automation,
+          isUpdate,
+          config,
         );
-        return true;
+        if (success) {
+          await loadAutomations();
+          showToast(
+            isUpdate ? "Automation updated" : "Trigger established",
+            "success",
+          );
+          return true;
+        }
+      } catch {
+        showToast("Failed to save automation", "error");
       }
-    } catch {
-      showToast("Failed to save automation", "error");
-    }
-    return false;
-  };
+      return false;
+    },
+    [config, loadAutomations, showToast],
+  );
 
-  const deleteAutomation = async (id: string) => {
-    try {
-      const success = await automationService.deleteAutomation(id, config);
-      if (success) {
-        await loadAutomations();
-        showToast("Automation decommissioned", "success");
-        return true;
+  const deleteAutomation = useCallback(
+    async (id: string) => {
+      try {
+        const success = await automationService.deleteAutomation(id, config);
+        if (success) {
+          await loadAutomations();
+          showToast("Automation decommissioned", "success");
+          return true;
+        }
+      } catch {
+        showToast("Failed to delete automation", "error");
       }
-    } catch {
-      showToast("Failed to delete automation", "error");
-    }
-    return false;
-  };
+      return false;
+    },
+    [config, loadAutomations, showToast],
+  );
 
-  const toggleAutomation = async (id: string) => {
-    const automation = automations.find((a) => a.id === id);
-    if (!automation) return false;
+  const toggleAutomation = useCallback(
+    async (id: string) => {
+      const automation = automations.find((a) => a.id === id);
+      if (!automation) return false;
 
-    const updated: Automation = {
-      ...automation,
-      status: automation.status === "Active" ? "Inactive" : "Active",
-    };
+      const updated: Automation = {
+        ...automation,
+        status: automation.status === "Active" ? "Inactive" : "Active",
+      };
 
-    return saveAutomation(updated, true);
-  };
+      return saveAutomation(updated, true);
+    },
+    [automations, saveAutomation],
+  );
 
-  return {
-    automations,
-    isLoading,
-    saveAutomation,
-    deleteAutomation,
-    toggleAutomation,
-    refreshAutomations: loadAutomations,
-  };
+  return useMemo(
+    () => ({
+      automations,
+      isLoading,
+      saveAutomation,
+      deleteAutomation,
+      toggleAutomation,
+      refreshAutomations: loadAutomations,
+    }),
+    [
+      automations,
+      isLoading,
+      saveAutomation,
+      deleteAutomation,
+      toggleAutomation,
+      loadAutomations,
+    ],
+  );
 };

@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 import { NotificationAction } from "../types";
 import { toast } from "sonner";
 
@@ -34,7 +34,10 @@ export const useNotifications = () => {
     [],
   );
 
-  return {
-    showToast,
-  };
+  return useMemo(
+    () => ({
+      showToast,
+    }),
+    [showToast],
+  );
 };

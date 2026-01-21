@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { TaskEntry, TaskTemplate } from "../types";
 import {
   DEFAULT_PROJECTS,
@@ -63,7 +63,7 @@ export const useTaskForm = (
   });
   const [showTemplates, setShowTemplates] = useState<boolean>(false);
 
-  const resetForm = () => {
+  const resetForm = useCallback(() => {
     setFormData({
       id: "",
       date: getLocalDate(),
@@ -76,7 +76,7 @@ export const useTaskForm = (
     setIsCustomProject(false);
     setShowDeps(false);
     setIsPreviewMode(false);
-  };
+  }, []);
 
   const [prevInitialData, setPrevInitialData] = useState(initialData);
 
@@ -98,19 +98,24 @@ export const useTaskForm = (
   }
 
   // --- Recurrence Logic ---
-  const handleRecurrenceChange = (tag: string) => {
-    let cleanDesc = formData.description;
-    RECURRENCE_OPTIONS.forEach((opt) => {
-      if (opt.tag) cleanDesc = cleanDesc.replace(opt.tag, "");
-    });
-    cleanDesc = cleanDesc.trim();
+  const handleRecurrenceChange = useCallback((tag: string) => {
+    setFormData((prev) => {
+      let cleanDesc = prev.description;
+      RECURRENCE_OPTIONS.forEach((opt) => {
+        if (opt.tag) cleanDesc = cleanDesc.replace(opt.tag, "");
+      });
+      cleanDesc = cleanDesc.trim();
 
-    if (tag) {
-      setFormData({ ...formData, description: `${cleanDesc} ${tag}` });
-    } else {
-      setFormData({ ...formData, description: cleanDesc });
-    }
-  };
+      if (tag) {
+        return {
+          ...prev,
+          description: `${cleanDesc} ${tag}`,
+        };
+      } else {
+        return { ...prev, description: cleanDesc };
+      }
+    });
+  }, []);
 
   const currentRecurrence = useMemo(() => {
     for (const opt of RECURRENCE_OPTIONS) {
@@ -120,7 +125,7 @@ export const useTaskForm = (
   }, [formData.description]);
 
   // --- Dependency Logic ---
-  const toggleDependency = (id: string) => {
+  const toggleDependency = useCallback((id: string) => {
     setFormData((prev) => {
       const current = prev.dependencies || [];
       if (current.includes(id)) {
@@ -129,14 +134,14 @@ export const useTaskForm = (
         return { ...prev, dependencies: [...current, id] };
       }
     });
-  };
+  }, []);
 
   const potentialDeps = useMemo(() => {
     return entries.filter((e) => e.id !== formData.id && e.status !== "Done");
   }, [entries, formData.id]);
 
   // --- Template Logic ---
-  const saveAsTemplate = () => {
+  const saveAsTemplate = useCallback(() => {
     const name = prompt("Template Name:", formData.description.slice(0, 30));
     if (!name) return;
 
@@ -148,13 +153,15 @@ export const useTaskForm = (
       priority: formData.priority,
     };
 
-    const updated = [...templates, newTemplate];
-    setTemplates(updated);
-    localStorage.setItem(TEMPLATE_STORAGE_KEY, JSON.stringify(updated));
+    setTemplates((prev) => {
+      const updated = [...prev, newTemplate];
+      localStorage.setItem(TEMPLATE_STORAGE_KEY, JSON.stringify(updated));
+      return updated;
+    });
     alert("Template Saved!");
-  };
+  }, [formData]);
 
-  const loadTemplate = (template: TaskTemplate) => {
+  const loadTemplate = useCallback((template: TaskTemplate) => {
     setFormData((prev) => ({
       ...prev,
       description: template.description,
@@ -162,34 +169,54 @@ export const useTaskForm = (
       priority: template.priority,
     }));
     setShowTemplates(false);
-  };
+  }, []);
 
-  const deleteTemplate = (id: string) => {
+  const deleteTemplate = useCallback((id: string) => {
     if (!window.confirm("Delete this template?")) return;
-    const updated = templates.filter((t) => t.id !== id);
-    setTemplates(updated);
-    localStorage.setItem(TEMPLATE_STORAGE_KEY, JSON.stringify(updated));
-  };
+    setTemplates((prev) => {
+      const updated = prev.filter((t) => t.id !== id);
+      localStorage.setItem(TEMPLATE_STORAGE_KEY, JSON.stringify(updated));
+      return updated;
+    });
+  }, []);
 
-  return {
-    formData,
-    setFormData,
-    isCustomProject,
-    setIsCustomProject,
-    showDeps,
-    setShowDeps,
-    isPreviewMode,
-    setIsPreviewMode,
-    templates,
-    showTemplates,
-    setShowTemplates,
-    currentRecurrence,
-    potentialDeps,
-    handleRecurrenceChange,
-    toggleDependency,
-    saveAsTemplate,
-    loadTemplate,
-    deleteTemplate,
-    resetForm,
-  };
+  return useMemo(
+    () => ({
+      formData,
+      setFormData,
+      isCustomProject,
+      setIsCustomProject,
+      showDeps,
+      setShowDeps,
+      isPreviewMode,
+      setIsPreviewMode,
+      templates,
+      showTemplates,
+      setShowTemplates,
+      currentRecurrence,
+      potentialDeps,
+      handleRecurrenceChange,
+      toggleDependency,
+      saveAsTemplate,
+      loadTemplate,
+      deleteTemplate,
+      resetForm,
+    }),
+    [
+      formData,
+      isCustomProject,
+      showDeps,
+      isPreviewMode,
+      templates,
+      showTemplates,
+      currentRecurrence,
+      potentialDeps,
+      handleRecurrenceChange,
+      toggleDependency,
+      saveAsTemplate,
+      loadTemplate,
+      deleteTemplate,
+      resetForm,
+    ],
+  );
 };

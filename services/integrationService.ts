@@ -109,8 +109,7 @@ export const integrationService = {
     return true;
   },
 
-  testConnection: async (integration: Integration): Promise<boolean> => {
-    console.log(`[Integration] Testing connection to ${integration.name}...`);
+  testConnection: async (): Promise<boolean> => {
     // In a real app, this would ping the webhook/API
     // For now, we'll simulate a success
     return new Promise((resolve) => setTimeout(() => resolve(true), 1500));
@@ -127,9 +126,6 @@ export const integrationService = {
     );
 
     for (const integration of activeIntegrations) {
-      console.log(
-        `[Integration] Sending ${event} to ${integration.name} (${integration.type})`,
-      );
       // In production, this would call the actual webhook
       if (config.mode === "LIVE" && config.gasDeploymentUrl) {
         await postToGas(config.gasDeploymentUrl, {

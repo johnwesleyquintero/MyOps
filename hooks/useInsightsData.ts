@@ -201,11 +201,14 @@ export const useInsightsData = ({
     [artifacts],
   );
 
-  return {
-    projectData,
-    activityData,
-    radarData,
-    artifacts,
-    unlockedCount,
-  };
+  return useMemo(
+    () => ({
+      projectData,
+      activityData,
+      radarData,
+      artifacts,
+      unlockedCount,
+    }),
+    [projectData, activityData, radarData, artifacts, unlockedCount],
+  );
 };

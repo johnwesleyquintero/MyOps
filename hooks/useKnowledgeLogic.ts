@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useCallback } from "react";
 import { Note } from "../types";
 import { toast } from "sonner";
 import { Icon } from "../components/Icons";
@@ -51,7 +51,7 @@ export const useKnowledgeLogic = ({
   }, [rawSelectedNote, isEditing, notes, isLoading]);
 
   // Handle selection change from outside or internal state
-  const handleSelectNote = (note: Note | null) => {
+  const handleSelectNote = useCallback((note: Note | null) => {
     setRawSelectedNote(note);
     setIsEditing(false);
     if (note) {
@@ -63,15 +63,15 @@ export const useKnowledgeLogic = ({
       setEditContent("");
       setEditTags([]);
     }
-  };
+  }, []);
 
-  const handleCreateNew = () => {
+  const handleCreateNew = useCallback(() => {
     setRawSelectedNote(null);
     setIsEditing(true);
     setEditTitle("");
     setEditContent("");
     setEditTags([]);
-  };
+  }, []);
 
   // Sync state if props change (replaces useEffect that caused lint errors)
   if (initialSelectedNote?.id !== prevInitialNoteId) {
@@ -100,7 +100,7 @@ export const useKnowledgeLogic = ({
     });
   }, [notes, searchQuery]);
 
-  const handleSave = async () => {
+  const handleSave = useCallback(async () => {
     const noteData: Note = {
       id: selectedNote?.id || "",
       title: editTitle || "Untitled Note",
@@ -127,24 +127,34 @@ export const useKnowledgeLogic = ({
     } else {
       toast.error("Failed to save note");
     }
-  };
+  }, [
+    selectedNote,
+    editTitle,
+    editContent,
+    editTags,
+    onSaveNote,
+    rawSelectedNote,
+  ]);
 
-  const handleDelete = async (id: string, title: string) => {
-    if (window.confirm(`Are you sure you want to delete "${title}"?`)) {
-      const success = await onDeleteNote(id);
-      if (success) {
-        setRawSelectedNote(null);
-        toast.success("Note deleted", {
-          description: `"${title}" has been removed.`,
-          icon: React.createElement(Icon.Delete, { size: 14 }),
-        });
-      } else {
-        toast.error("Failed to delete note");
+  const handleDelete = useCallback(
+    async (id: string, title: string) => {
+      if (window.confirm(`Are you sure you want to delete "${title}"?`)) {
+        const success = await onDeleteNote(id);
+        if (success) {
+          setRawSelectedNote(null);
+          toast.success("Note deleted", {
+            description: `"${title}" has been removed.`,
+            icon: React.createElement(Icon.Delete, { size: 14 }),
+          });
+        } else {
+          toast.error("Failed to delete note");
+        }
       }
-    }
-  };
+    },
+    [onDeleteNote],
+  );
 
-  const handleCopyMarkdown = async () => {
+  const handleCopyMarkdown = useCallback(async () => {
     if (!selectedNote) return;
     const markdown = `# ${selectedNote.title}\n\n${selectedNote.content}\n\nTags: ${selectedNote.tags.join(", ")}`;
     try {
@@ -158,27 +168,44 @@ export const useKnowledgeLogic = ({
     } catch (err) {
       console.error("Failed to copy markdown: ", err);
     }
-  };
+  }, [selectedNote]);
 
-  return {
-    searchQuery,
-    setSearchQuery,
-    rawSelectedNote,
-    setRawSelectedNote,
-    isEditing,
-    setIsEditing,
-    selectedNote,
-    editTitle,
-    setEditTitle,
-    editContent,
-    setEditContent,
-    editTags,
-    setEditTags,
-    isCopied,
-    filteredNotes,
-    handleSave,
-    handleDelete,
-    handleCreateNew,
-    handleCopyMarkdown,
-  };
+  return useMemo(
+    () => ({
+      searchQuery,
+      setSearchQuery,
+      rawSelectedNote,
+      setRawSelectedNote,
+      isEditing,
+      setIsEditing,
+      selectedNote,
+      editTitle,
+      setEditTitle,
+      editContent,
+      setEditContent,
+      editTags,
+      setEditTags,
+      isCopied,
+      filteredNotes,
+      handleSave,
+      handleDelete,
+      handleCreateNew,
+      handleCopyMarkdown,
+    }),
+    [
+      searchQuery,
+      rawSelectedNote,
+      isEditing,
+      selectedNote,
+      editTitle,
+      editContent,
+      editTags,
+      isCopied,
+      filteredNotes,
+      handleSave,
+      handleDelete,
+      handleCreateNew,
+      handleCopyMarkdown,
+    ],
+  );
 };

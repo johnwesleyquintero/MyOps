@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { VaultEntry, AppConfig } from "../types";
 import { vaultService } from "../services/vaultService";
 
@@ -25,39 +25,48 @@ export const useVault = (
     loadVault();
   }, [loadVault]);
 
-  const saveVaultEntry = async (entry: VaultEntry, isUpdate: boolean) => {
-    try {
-      const success = await vaultService.saveEntry(entry, isUpdate, config);
-      if (success) {
-        await loadVault();
-        showToast(isUpdate ? "Vault updated" : "Entry secured", "success");
-        return true;
+  const saveVaultEntry = useCallback(
+    async (entry: VaultEntry, isUpdate: boolean) => {
+      try {
+        const success = await vaultService.saveEntry(entry, isUpdate, config);
+        if (success) {
+          await loadVault();
+          showToast(isUpdate ? "Vault updated" : "Entry secured", "success");
+          return true;
+        }
+      } catch {
+        showToast("Failed to save to vault", "error");
       }
-    } catch {
-      showToast("Failed to save to vault", "error");
-    }
-    return false;
-  };
+      return false;
+    },
+    [config, loadVault, showToast],
+  );
 
-  const deleteVaultEntry = async (id: string) => {
-    try {
-      const success = await vaultService.deleteEntry(id, config);
-      if (success) {
-        await loadVault();
-        showToast("Entry removed from vault", "success");
-        return true;
+  const deleteVaultEntry = useCallback(
+    async (id: string) => {
+      try {
+        const success = await vaultService.deleteEntry(id, config);
+        if (success) {
+          await loadVault();
+          showToast("Entry removed from vault", "success");
+          return true;
+        }
+      } catch {
+        showToast("Failed to delete vault entry", "error");
       }
-    } catch {
-      showToast("Failed to delete vault entry", "error");
-    }
-    return false;
-  };
+      return false;
+    },
+    [config, loadVault, showToast],
+  );
 
-  return {
-    vaultEntries,
-    isLoading,
-    saveVaultEntry,
-    deleteVaultEntry,
-    refreshVault: loadVault,
-  };
+  return useMemo(
+    () => ({
+      vaultEntries,
+      isLoading,
+      saveVaultEntry,
+      deleteVaultEntry,
+      refreshVault: loadVault,
+    }),
+    [vaultEntries, isLoading, saveVaultEntry, deleteVaultEntry, loadVault],
+  );
 };

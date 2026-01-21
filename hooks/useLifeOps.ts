@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useMemo } from "react";
 import { LifeConstraintEntry, AppConfig } from "../types";
 import {
   fetchLifeConstraints,
@@ -30,48 +30,60 @@ export const useLifeOps = (
     loadConstraints();
   }, [loadConstraints]);
 
-  const handleSaveConstraint = async (
-    entry: LifeConstraintEntry,
-    isUpdate: boolean,
-  ) => {
-    try {
-      const saved = await saveLifeConstraint(entry, config, isUpdate);
-      setConstraints((prev) => {
-        if (isUpdate) {
-          return prev.map((c) => (c.id === saved.id ? saved : c));
-        }
-        return [saved, ...prev];
-      });
-      showToast(
-        isUpdate ? "Constraint updated" : "Constraint added",
-        "success",
-      );
-      return true;
-    } catch (err) {
-      showToast("Failed to save life constraint", "error");
-      console.error(err);
-      return false;
-    }
-  };
+  const handleSaveConstraint = useCallback(
+    async (entry: LifeConstraintEntry, isUpdate: boolean) => {
+      try {
+        const saved = await saveLifeConstraint(entry, config, isUpdate);
+        setConstraints((prev) => {
+          if (isUpdate) {
+            return prev.map((c) => (c.id === saved.id ? saved : c));
+          }
+          return [saved, ...prev];
+        });
+        showToast(
+          isUpdate ? "Constraint updated" : "Constraint added",
+          "success",
+        );
+        return true;
+      } catch (err) {
+        showToast("Failed to save life constraint", "error");
+        console.error(err);
+        return false;
+      }
+    },
+    [config, showToast],
+  );
 
-  const handleDeleteConstraint = async (id: string) => {
-    try {
-      await deleteLifeConstraint(id, config);
-      setConstraints((prev) => prev.filter((c) => c.id !== id));
-      showToast("Constraint removed", "success");
-      return true;
-    } catch (err) {
-      showToast("Failed to delete constraint", "error");
-      console.error(err);
-      return false;
-    }
-  };
+  const handleDeleteConstraint = useCallback(
+    async (id: string) => {
+      try {
+        await deleteLifeConstraint(id, config);
+        setConstraints((prev) => prev.filter((c) => c.id !== id));
+        showToast("Constraint removed", "success");
+        return true;
+      } catch (err) {
+        showToast("Failed to delete constraint", "error");
+        console.error(err);
+        return false;
+      }
+    },
+    [config, showToast],
+  );
 
-  return {
-    constraints,
-    isLoading,
-    saveConstraint: handleSaveConstraint,
-    deleteConstraint: handleDeleteConstraint,
-    refreshConstraints: loadConstraints,
-  };
+  return useMemo(
+    () => ({
+      constraints,
+      isLoading,
+      saveConstraint: handleSaveConstraint,
+      deleteConstraint: handleDeleteConstraint,
+      refreshConstraints: loadConstraints,
+    }),
+    [
+      constraints,
+      isLoading,
+      handleSaveConstraint,
+      handleDeleteConstraint,
+      loadConstraints,
+    ],
+  );
 };

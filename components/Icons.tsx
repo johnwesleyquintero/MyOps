@@ -11,6 +11,7 @@ import {
   Search,
   ChevronLeft,
   ChevronRight,
+  Terminal,
   Trash2,
   Copy,
   Edit3,
@@ -68,6 +69,7 @@ import {
 export const Icon = {
   Dashboard: LayoutDashboard,
   Missions: ClipboardList,
+  Logo: Terminal,
   Settings: Settings,
   Active: Zap,
   Completed: CheckCircle2,
@@ -77,7 +79,9 @@ export const Icon = {
   Add: Plus,
   Search: Search,
   Prev: ChevronLeft,
+  ChevronLeft: ChevronLeft,
   Next: ChevronRight,
+  ChevronRight: ChevronRight,
   ArrowRight: ArrowRight,
   Delete: Trash2,
   Copy: Copy,
@@ -139,7 +143,6 @@ export const Icon = {
   Mail: Mail,
   Globe: Globe,
   ArrowLeft: ArrowLeft,
-  ChevronRight: ChevronRight,
   X: X,
   Trash: Trash2,
 };

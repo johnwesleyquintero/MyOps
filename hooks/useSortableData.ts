@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 
 export type SortDirection = "asc" | "desc";
 
@@ -109,13 +109,19 @@ export const useSortableData = <T>(
     return sortableItems;
   }, [items, sortConfig]);
 
-  const requestSort = (key: keyof T) => {
-    let direction: SortDirection = "asc";
-    if (sortConfig.key === key && sortConfig.direction === "asc") {
-      direction = "desc";
-    }
-    setSortConfig({ key, direction });
-  };
+  const requestSort = useCallback(
+    (key: keyof T) => {
+      let direction: SortDirection = "asc";
+      if (sortConfig.key === key && sortConfig.direction === "asc") {
+        direction = "desc";
+      }
+      setSortConfig({ key, direction });
+    },
+    [sortConfig],
+  );
 
-  return { items: sortedItems, requestSort, sortConfig };
+  return useMemo(
+    () => ({ items: sortedItems, requestSort, sortConfig }),
+    [sortedItems, requestSort, sortConfig],
+  );
 };

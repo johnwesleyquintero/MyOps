@@ -36,7 +36,8 @@ function module(
     text,
     bg,
     border,
-    dot: `bg-${color}-500`,
+    dot: `bg-${color}-600 dark:bg-${color}-500`,
+    solidBg: `bg-${color}-600 dark:bg-${color}-500`,
     icon: text,
     lightBg: `bg-${color}-100/50 dark:bg-${color}-900/20`,
     hoverBg: `hover:bg-${color}-50/50 dark:hover:bg-${color}-900/10`,
@@ -61,8 +62,9 @@ function neutral() {
   return {
     text,
     bg,
+    solidBg: "bg-slate-600 dark:bg-slate-500",
     border,
-    dot: "bg-slate-400 dark:bg-slate-500",
+    dot: "bg-slate-600 dark:bg-slate-500",
     icon: text,
     lightBg: "bg-slate-100/50 dark:bg-slate-900/20",
     hoverBg: "hover:bg-slate-50/50 dark:hover:bg-slate-900/10",
@@ -73,6 +75,7 @@ function neutral() {
 export type ColorToken = {
   text: string;
   bg: string;
+  solidBg: string;
   border: string;
   dot: string;
   icon: string;
@@ -132,6 +135,7 @@ export type ModuleKey =
   | "success";
 
 // Module Color Mappings (Aligns with blueprintData.ts)
+// Safelist for Tailwind: bg-violet-600 bg-purple-600 bg-indigo-600 bg-slate-600 dark:bg-violet-500 dark:bg-purple-500 dark:bg-indigo-500 dark:bg-slate-500
 export const MODULE_COLORS: Record<ModuleKey, ColorToken> = {
   tasks: module("indigo"),
   crm: module("violet"),

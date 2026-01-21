@@ -5,6 +5,7 @@ import {
   generateAndDownloadCSV,
   generateMarkdownTable,
 } from "../../utils/exportUtils";
+import { prefixToHover } from "@/utils/styleUtils";
 import { FilterBar } from "../FilterBar";
 import { TaskTable } from "../TaskTable";
 import { KanbanBoard } from "../KanbanBoard";
@@ -147,7 +148,7 @@ export const MissionControlView: React.FC<MissionControlViewProps> = React.memo(
                 variant="ghost"
                 size="icon"
                 onClick={() => setIsDeleteModalOpen(true)}
-                className={`${MODULE_COLORS.error.text} ${MODULE_COLORS.error.bg.replace("bg-", "hover:bg-")} transition-colors`}
+                className={`${MODULE_COLORS.error.text} ${prefixToHover(MODULE_COLORS.error.bg)} transition-colors`}
                 title="Clear View"
               >
                 <Icon.Delete {...iconProps(16)} />
@@ -157,7 +158,7 @@ export const MissionControlView: React.FC<MissionControlViewProps> = React.memo(
               variant="ghost"
               size="icon"
               onClick={() => generateAndDownloadCSV(filteredEntries)}
-              className={`${MODULE_COLORS.tasks.text.replace("text-", "hover:text-")} ${MODULE_COLORS.tasks.bg.replace("bg-", "hover:bg-")} transition-colors`}
+              className={`${prefixToHover(MODULE_COLORS.tasks.text)} ${prefixToHover(MODULE_COLORS.tasks.bg)} transition-colors`}
               title="Export CSV"
             >
               <Icon.Download {...iconProps(16)} />
@@ -166,7 +167,7 @@ export const MissionControlView: React.FC<MissionControlViewProps> = React.memo(
               variant="ghost"
               size="icon"
               onClick={handleCopyMarkdown}
-              className={`${MODULE_COLORS.tasks.text.replace("text-", "hover:text-")} ${MODULE_COLORS.tasks.bg.replace("bg-", "hover:bg-")} transition-colors`}
+              className={`${prefixToHover(MODULE_COLORS.tasks.text)} ${prefixToHover(MODULE_COLORS.tasks.bg)} transition-colors`}
               title="Copy as Markdown Table"
             >
               {copiedMd ? (
@@ -179,7 +180,7 @@ export const MissionControlView: React.FC<MissionControlViewProps> = React.memo(
               <ColumnConfigDropdown
                 columns={columns}
                 toggleColumn={toggleColumn}
-                className={`${MODULE_COLORS.tasks.text.replace("text-", "hover:text-")} ${MODULE_COLORS.tasks.bg.replace("bg-", "hover:bg-")} transition-colors`}
+                className={`${prefixToHover(MODULE_COLORS.tasks.text)} ${prefixToHover(MODULE_COLORS.tasks.bg)} transition-colors`}
               />
             )}
           </div>

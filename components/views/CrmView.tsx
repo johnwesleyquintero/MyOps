@@ -8,6 +8,7 @@ import { ViewHeader } from "../ViewHeader";
 import { ContactTable } from "../ContactTable";
 import { MODULE_COLORS, CONTACT_TYPE_COLORS } from "@/constants";
 import { useCrmViewLogic } from "@/hooks/useCrmViewLogic";
+import { prefixToHover } from "@/utils/styleUtils";
 
 interface CrmViewProps {
   contacts: Contact[];
@@ -215,7 +216,7 @@ export const CrmView: React.FC<CrmViewProps> = React.memo(
                   <Button
                     variant="ghost"
                     onClick={() => setSelectedContact(null)}
-                    className={`lg:hidden justify-start gap-2 px-4 py-3 text-notion-light-muted dark:text-notion-dark-muted ${crmColors.text.replace(/text-/g, "hover:text-")} border-b ${crmColors.border} ${crmColors.bg} active:opacity-70 transition-colors w-full text-left font-bold relative z-10`}
+                    className={`lg:hidden justify-start gap-2 px-4 py-3 text-notion-light-muted dark:text-notion-dark-muted ${prefixToHover(crmColors.text)} border-b ${crmColors.border} ${crmColors.bg} active:opacity-70 transition-colors w-full text-left font-bold relative z-10`}
                     leftIcon={<Icon.Prev size={16} />}
                   >
                     Back to Contacts
@@ -264,7 +265,7 @@ export const CrmView: React.FC<CrmViewProps> = React.memo(
                           variant="ghost"
                           size="sm"
                           onClick={() => handleEdit(selectedContact)}
-                          className={`flex-1 md:flex-none ${crmColors.bg} text-notion-light-muted dark:text-notion-dark-muted ${crmColors.text.replace(/text-/g, "hover:text-")} ${crmColors.border.replace(/border-/g, "hover:border-")} border ${crmColors.border} rounded transition-all shadow-sm hover:shadow-md group`}
+                          className={`flex-1 md:flex-none ${crmColors.bg} text-notion-light-muted dark:text-notion-dark-muted ${prefixToHover(crmColors.text)} ${prefixToHover(crmColors.border)} border ${crmColors.border} rounded transition-all shadow-sm hover:shadow-md group`}
                           leftIcon={
                             <Icon.Edit
                               size={18}
@@ -280,7 +281,7 @@ export const CrmView: React.FC<CrmViewProps> = React.memo(
                           variant="ghost"
                           size="sm"
                           onClick={() => handleDelete(selectedContact)}
-                          className={`flex-1 md:flex-none ${crmColors.bg} text-notion-light-muted dark:text-notion-dark-muted ${MODULE_COLORS.error.text.replace(/text-/g, "hover:text-")} ${MODULE_COLORS.error.border.replace(/border-/g, "hover:border-")} border ${crmColors.border} rounded transition-all shadow-sm hover:shadow-md group`}
+                          className={`flex-1 md:flex-none ${crmColors.bg} text-notion-light-muted dark:text-notion-dark-muted ${prefixToHover(MODULE_COLORS.error.text)} ${prefixToHover(MODULE_COLORS.error.border)} border ${crmColors.border} rounded transition-all shadow-sm hover:shadow-md group`}
                           leftIcon={
                             <Icon.Delete
                               size={18}

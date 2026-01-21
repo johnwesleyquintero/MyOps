@@ -4,3 +4,5 @@ export * from "./ui";
 export * from "./aiConfig";
 export * from "./blueprintData";
 export * from "./analytics";
+export * from "./automation";
+export * from "./insights";

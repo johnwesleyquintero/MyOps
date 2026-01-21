@@ -139,7 +139,7 @@ export type ModuleKey =
 export const MODULE_COLORS: Record<ModuleKey, ColorToken> = {
   tasks: module("indigo"),
   crm: module("violet"),
-  docs: module("purple"),
+  docs: module("violet"),
   analytics: module("indigo"),
   automation: module("violet"),
   ai: module("purple"),

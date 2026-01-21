@@ -1,11 +1,11 @@
-import React, { useState, useMemo } from "react";
+import React from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { Note } from "../../types";
 import { Icon } from "../Icons";
 import { useMarkdownEditor } from "../../hooks/useMarkdownEditor";
+import { useKnowledgeLogic } from "../../hooks/useKnowledgeLogic";
 import { ViewHeader } from "../ViewHeader";
-import { toast } from "sonner";
 import { MODULE_COLORS } from "../../constants/ui";
 import { Button } from "../ui";
 
@@ -27,141 +27,39 @@ export const KnowledgeView: React.FC<KnowledgeViewProps> = ({
   initialIsCreating,
 }) => {
   const colors = MODULE_COLORS.docs;
-  const [searchQuery, setSearchQuery] = useState("");
-  const [rawSelectedNote, setRawSelectedNote] = useState<Note | null>(
-    initialSelectedNote || null,
-  );
-  const [isEditing, setIsEditing] = useState(initialIsCreating || false);
-
-  const selectedNote = useMemo(() => {
-    if (rawSelectedNote) return rawSelectedNote;
-    // When editing/creating and no specific note is selected, we treat it as a new note
-    if (isEditing && !rawSelectedNote) return null;
-    // On mobile, if no note is explicitly selected, we don't default to the first one
-    // to allow the list view to show
-    if (typeof window !== "undefined" && window.innerWidth < 1024) return null;
-    // Otherwise, default to the first note if available (desktop view)
-    return notes.length > 0 && !isLoading ? notes[0] : null;
-  }, [rawSelectedNote, isEditing, notes, isLoading]);
-
-  const [editTitle, setEditTitle] = useState(selectedNote?.title || "");
-  const [editContent, setEditContent] = useState(selectedNote?.content || "");
-  const [editTags, setEditTags] = useState<string[]>(selectedNote?.tags || []);
-  const [isCopied, setIsCopied] = useState(false);
-  const [prevSelectedNote, setPrevSelectedNote] = useState<Note | null>(null);
-
-  React.useEffect(() => {
-    if (initialSelectedNote) {
-      setRawSelectedNote(initialSelectedNote);
-      setIsEditing(false);
-    } else if (initialIsCreating) {
-      setRawSelectedNote(null);
-      setIsEditing(true);
-      setEditTitle("");
-      setEditContent("");
-      setEditTags([]);
-    }
-  }, [initialSelectedNote, initialIsCreating]);
-
-  const handleCopyMarkdown = async () => {
-    if (!selectedNote) return;
-
-    const markdown = `# ${selectedNote.title}\n\n${selectedNote.content}\n\nTags: ${selectedNote.tags.join(", ")}`;
-
-    try {
-      await navigator.clipboard.writeText(markdown);
-      setIsCopied(true);
-      toast.success("Document copied", {
-        description: "Note content copied as Markdown.",
-        icon: <Icon.Copy size={14} />,
-      });
-      setTimeout(() => setIsCopied(false), 2000);
-    } catch (err) {
-      console.error("Failed to copy markdown: ", err);
-    }
-  };
-
-  if (selectedNote !== prevSelectedNote) {
-    setPrevSelectedNote(selectedNote);
-    if (selectedNote && !isEditing) {
-      setEditTitle(selectedNote.title);
-      setEditContent(selectedNote.content);
-      setEditTags(selectedNote.tags);
-    } else if (!selectedNote && !isEditing) {
-      setEditTitle("");
-      setEditContent("");
-      setEditTags([]);
-    }
-  }
+  const {
+    searchQuery,
+    setSearchQuery,
+    rawSelectedNote,
+    setRawSelectedNote,
+    isEditing,
+    setIsEditing,
+    selectedNote,
+    editTitle,
+    setEditTitle,
+    editContent,
+    setEditContent,
+    editTags,
+    setEditTags,
+    isCopied,
+    filteredNotes,
+    handleSave,
+    handleDelete,
+    handleCreateNew,
+    handleCopyMarkdown,
+  } = useKnowledgeLogic({
+    notes,
+    isLoading,
+    onSaveNote,
+    onDeleteNote,
+    initialSelectedNote,
+    initialIsCreating,
+  });
 
   const { textareaRef, applyFormat } = useMarkdownEditor(
     editContent,
     setEditContent,
   );
-
-  const filteredNotes = useMemo(() => {
-    return notes.filter(
-      (n) =>
-        n.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        n.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        n.tags.some((t) => t.toLowerCase().includes(searchQuery.toLowerCase())),
-    );
-  }, [notes, searchQuery]);
-
-  const handleSave = async () => {
-    const noteData: Note = {
-      id: selectedNote?.id || "",
-      title: editTitle || "Untitled Note",
-      content: editContent,
-      tags: editTags,
-      lastModified: new Date().toISOString(),
-      createdAt: selectedNote?.createdAt || new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      isFavorite: selectedNote?.isFavorite,
-    };
-
-    const success = await onSaveNote(noteData, !!selectedNote);
-    if (success) {
-      setIsEditing(false);
-      // If we were creating a new note, we reset the raw selection
-      // so it defaults to the first note in the updated list (the new one)
-      if (!rawSelectedNote) {
-        setRawSelectedNote(null);
-      } else {
-        // If we were updating, we update the raw selected note with the new data
-        setRawSelectedNote(noteData);
-      }
-      toast.success(selectedNote ? "Note updated" : "Note created", {
-        description: `"${noteData.title}" has been saved to your knowledge base.`,
-        icon: <Icon.Missions size={14} />,
-      });
-    } else {
-      toast.error("Failed to save note");
-    }
-  };
-
-  const handleDelete = async (id: string, title: string) => {
-    if (window.confirm(`Are you sure you want to delete "${title}"?`)) {
-      const success = await onDeleteNote(id);
-      if (success) {
-        setRawSelectedNote(null);
-        toast.success("Note deleted", {
-          description: `"${title}" has been removed.`,
-          icon: <Icon.Delete size={14} />,
-        });
-      } else {
-        toast.error("Failed to delete note");
-      }
-    }
-  };
-
-  const handleCreateNew = () => {
-    setRawSelectedNote(null);
-    setIsEditing(true);
-    setEditTitle("");
-    setEditContent("");
-    setEditTags([]);
-  };
 
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-12">

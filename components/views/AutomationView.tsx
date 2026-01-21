@@ -1,45 +1,10 @@
-import React, { useState } from "react";
+import React from "react";
 import { Icon } from "../Icons";
 import { Automation } from "../../types";
 import { ViewHeader } from "../ViewHeader";
-import { toast } from "sonner";
-import { MODULE_COLORS } from "@/constants";
+import { MODULE_COLORS, AUTOMATION_TEMPLATES } from "@/constants";
 import { Button, Spinner } from "../ui";
-
-const AUTOMATION_TEMPLATES = [
-  {
-    name: "Lead-to-Mission",
-    trigger: "Webhook",
-    action: "Create Task",
-    description: "Convert incoming webhooks into active mission tasks.",
-    icon: "Zap",
-    colors: MODULE_COLORS.crm,
-  },
-  {
-    name: "Vault Sync",
-    trigger: "Scheduled",
-    action: "Category Update",
-    description: "Automatically categorize transactions in your Vault.",
-    icon: "Vault",
-    colors: MODULE_COLORS.vault,
-  },
-  {
-    name: "Empire Pulse",
-    trigger: "Daily 00:00",
-    action: "Generate Report",
-    description: "Daily automated summary of your empire's performance.",
-    icon: "Strategy",
-    colors: MODULE_COLORS.strategy,
-  },
-  {
-    name: "AI Co-pilot Sync",
-    trigger: "Manual",
-    action: "Update Blueprint",
-    description: "Sync AI suggestions directly into your Master Blueprint.",
-    icon: "Bot",
-    colors: MODULE_COLORS.ai,
-  },
-];
+import { useAutomationLogic } from "@/hooks/useAutomationLogic";
 
 interface AutomationViewProps {
   automations: Automation[];
@@ -56,95 +21,21 @@ export const AutomationView: React.FC<AutomationViewProps> = ({
   onDelete,
   onToggle,
 }) => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingAutomation, setEditingAutomation] =
-    useState<Partial<Automation> | null>(null);
+  const {
+    isModalOpen,
+    setIsModalOpen,
+    editingAutomation,
+    setEditingAutomation,
+    handleAdd,
+    handleEdit,
+    handleUseTemplate,
+    handleSubmit,
+    handleDeleteClick,
+    handleToggleClick,
+  } = useAutomationLogic({ onSave, onDelete, onToggle });
 
   const colors = MODULE_COLORS.automation;
   const aiColors = MODULE_COLORS.ai;
-
-  const handleAdd = () => {
-    setEditingAutomation({
-      name: "",
-      trigger: "",
-      action: "",
-      status: "Active",
-    });
-    setIsModalOpen(true);
-  };
-
-  const handleEdit = (auto: Automation) => {
-    setEditingAutomation(auto);
-    setIsModalOpen(true);
-  };
-
-  const handleUseTemplate = (template: (typeof AUTOMATION_TEMPLATES)[0]) => {
-    setEditingAutomation({
-      name: template.name,
-      trigger: template.trigger,
-      action: template.action,
-      status: "Active",
-    });
-    setIsModalOpen(true);
-    toast.info("Template loaded", {
-      description: "Customize the trigger and action, then save to activate.",
-      icon: <Icon.Settings size={14} />,
-    });
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (editingAutomation) {
-      const isUpdate = !!editingAutomation.id;
-      const success = await onSave(editingAutomation as Automation, isUpdate);
-      if (success) {
-        setIsModalOpen(false);
-        setEditingAutomation(null);
-        toast.success(isUpdate ? "Automation updated" : "Automation created", {
-          description: `"${editingAutomation.name}" is now ${editingAutomation.status?.toLowerCase()}.`,
-          icon: <Icon.Zap size={14} />,
-        });
-      } else {
-        toast.error("Failed to save automation");
-      }
-    }
-  };
-
-  const handleDeleteClick = async (id: string, name: string) => {
-    if (window.confirm(`Are you sure you want to delete "${name}"?`)) {
-      const success = await onDelete(id);
-      if (success) {
-        toast.success("Automation deleted", {
-          description: `"${name}" has been removed from your workflows.`,
-          icon: <Icon.Delete size={14} />,
-        });
-      } else {
-        toast.error("Failed to delete automation");
-      }
-    }
-  };
-
-  const handleToggleClick = async (
-    id: string,
-    currentStatus: string,
-    name: string,
-  ) => {
-    const success = await onToggle(id);
-    if (success) {
-      const newStatus = currentStatus === "Active" ? "Paused" : "Active";
-      toast.info(`Automation ${newStatus.toLowerCase()}`, {
-        description: `"${name}" is now ${newStatus.toLowerCase()}.`,
-        icon:
-          newStatus === "Active" ? (
-            <Icon.Zap size={14} />
-          ) : (
-            <Icon.Pause size={14} />
-          ),
-      });
-    } else {
-      toast.error("Failed to toggle automation");
-    }
-  };
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">

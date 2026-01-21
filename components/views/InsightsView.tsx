@@ -10,7 +10,7 @@ import { Icon, iconProps } from "../Icons";
 import { Button } from "../ui";
 import { ViewHeader } from "../ViewHeader";
 import { toast } from "sonner";
-import { MODULE_COLORS, PALETTE_HEX } from "@/constants";
+import { MODULE_COLORS, INSIGHTS_CHART_COLORS } from "@/constants";
 import { useInsightsData } from "@/hooks/useInsightsData";
 import { generateInsightsMarkdown } from "@/utils/exportUtils";
 import {
@@ -56,15 +56,6 @@ export const InsightsView: React.FC<InsightsViewProps> = ({
       contacts,
       vaultEntries,
     });
-
-  const CHART_COLORS = [
-    PALETTE_HEX.violet,
-    PALETTE_HEX.purple,
-    PALETTE_HEX.indigo,
-    PALETTE_HEX.violet,
-    PALETTE_HEX.purple,
-    PALETTE_HEX.indigo,
-  ];
 
   const handleCopyInsights = () => {
     const md = generateInsightsMarkdown({
@@ -429,7 +420,11 @@ export const InsightsView: React.FC<InsightsViewProps> = ({
                     {projectData.map((entry, index) => (
                       <Cell
                         key={`cell-${index}`}
-                        fill={CHART_COLORS[index % CHART_COLORS.length]}
+                        fill={
+                          INSIGHTS_CHART_COLORS[
+                            index % INSIGHTS_CHART_COLORS.length
+                          ]
+                        }
                         stroke="none"
                       />
                     ))}

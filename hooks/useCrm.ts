@@ -65,10 +65,25 @@ export const useCrm = (
     return false;
   };
 
+  const deleteContact = async (id: string) => {
+    try {
+      const success = await crmService.deleteContact(id, config);
+      if (success) {
+        await loadContacts();
+        showToast("Contact deleted", "success");
+        return true;
+      }
+    } catch {
+      showToast("Failed to delete contact", "error");
+    }
+    return false;
+  };
+
   return {
     contacts,
     isLoading,
     saveContact,
+    deleteContact,
     getInteractions,
     saveInteraction,
     refreshContacts: loadContacts,

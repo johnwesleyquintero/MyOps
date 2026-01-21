@@ -108,3 +108,30 @@ export const PROJECT_COLOR_PALETTE = [
   "bg-emerald-500/10 text-emerald-600 border-emerald-500/20 dark:bg-emerald-500/20 dark:text-emerald-400 dark:border-emerald-500/30",
   "bg-indigo-500/10 text-indigo-600 border-indigo-500/20 dark:bg-indigo-500/20 dark:text-indigo-400 dark:border-indigo-500/30",
 ];
+
+export const CONTACT_TYPE_COLORS: Record<string, string> = {
+  Client:
+    MODULE_COLORS.crm.text +
+    " " +
+    MODULE_COLORS.crm.bg +
+    " " +
+    MODULE_COLORS.crm.border,
+  Lead:
+    MODULE_COLORS.integrations.text +
+    " " +
+    MODULE_COLORS.integrations.bg +
+    " " +
+    MODULE_COLORS.integrations.border,
+  Vendor:
+    MODULE_COLORS.docs.text +
+    " " +
+    MODULE_COLORS.docs.bg +
+    " " +
+    MODULE_COLORS.docs.border,
+  Partner:
+    MODULE_COLORS.analytics.text +
+    " " +
+    MODULE_COLORS.analytics.bg +
+    " " +
+    MODULE_COLORS.analytics.border,
+};

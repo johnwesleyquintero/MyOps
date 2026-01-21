@@ -3,6 +3,7 @@ import { Page } from "../types";
 import { Icon, iconProps } from "./Icons";
 import { MODULE_COLORS } from "../constants/ui";
 import { Button } from "./ui/Button";
+import { NAVIGATION_CONFIG } from "../constants/navigation";
 
 interface SidebarProps {
   activePage: Page;
@@ -168,125 +169,20 @@ export const Sidebar: React.FC<SidebarProps> = ({
         )}
 
         <nav className="px-2 pt-2 pb-20 space-y-0.5 mt-1 overflow-y-auto max-h-[calc(100vh-140px)] custom-scrollbar pr-1">
-          <div
-            className={`px-3 mb-2 flex items-center gap-2 text-[10px] font-bold text-notion-light-text/30 dark:text-notion-dark-text/30 uppercase tracking-[0.2em] transition-all duration-300 ${isCollapsed ? "opacity-0 h-0 hidden" : "opacity-100"}`}
-          >
-            <span className="flex-shrink-0">Operational</span>
-            <div className="flex-1 h-[1px] bg-notion-light-border/50 dark:bg-notion-dark-border/20"></div>
-          </div>
+          {NAVIGATION_CONFIG.map((category, catIndex) => (
+            <React.Fragment key={category.title}>
+              <div
+                className={`px-3 mb-2 flex items-center gap-2 text-[10px] font-bold text-notion-light-text/30 dark:text-notion-dark-text/30 uppercase tracking-[0.2em] transition-all duration-300 ${catIndex > 0 ? "mt-6" : ""} ${isCollapsed ? "opacity-0 h-0 hidden" : "opacity-100"}`}
+              >
+                <span className="flex-shrink-0">{category.title}</span>
+                <div className="flex-1 h-[1px] bg-notion-light-border/50 dark:bg-notion-dark-border/20"></div>
+              </div>
 
-          {renderNavItem(
-            "DASHBOARD",
-            "Command Center",
-            <Icon.Dashboard {...iconProps(18)} />,
-          )}
-
-          {renderNavItem(
-            "MISSIONS",
-            "Mission Control",
-            <Icon.Missions {...iconProps(18)} />,
-          )}
-
-          {renderNavItem(
-            "CRM",
-            "CRM & Contacts",
-            <Icon.Users {...iconProps(18)} />,
-          )}
-
-          {renderNavItem(
-            "AUTOMATION",
-            "Active Agents",
-            <Icon.Active {...iconProps(18)} />,
-          )}
-
-          {renderNavItem(
-            "INTEGRATIONS",
-            "Integration Hub",
-            <Icon.Link {...iconProps(18)} />,
-          )}
-
-          <div
-            className={`px-3 mb-2 mt-6 flex items-center gap-2 text-[10px] font-bold text-notion-light-text/30 dark:text-notion-dark-text/30 uppercase tracking-[0.2em] transition-all duration-300 ${isCollapsed ? "opacity-0 h-0 hidden" : "opacity-100"}`}
-          >
-            <span className="flex-shrink-0">Intelligence</span>
-            <div className="flex-1 h-[1px] bg-notion-light-border/50 dark:bg-notion-dark-border/20"></div>
-          </div>
-
-          {renderNavItem(
-            "KNOWLEDGE",
-            "Knowledge Base",
-            <Icon.Docs {...iconProps(18)} />,
-          )}
-
-          {renderNavItem(
-            "INSIGHTS",
-            "Insights & XP",
-            <Icon.Analytics {...iconProps(18)} />,
-          )}
-
-          {renderNavItem(
-            "WESAI",
-            "WesAI Co-Pilot",
-            <Icon.Ai {...iconProps(18)} />,
-          )}
-
-          {renderNavItem(
-            "ASSETS",
-            "Asset Registry",
-            <Icon.Project {...iconProps(18)} />,
-          )}
-
-          {renderNavItem(
-            "REFLECTION",
-            "Reflection Logs",
-            <Icon.History {...iconProps(18)} />,
-          )}
-
-          {renderNavItem(
-            "AWARENESS",
-            "Mental State",
-            <Icon.Activity {...iconProps(18)} />,
-          )}
-
-          {renderNavItem(
-            "VAULT",
-            "Secure Vault",
-            <Icon.Vault {...iconProps(18)} />,
-          )}
-
-          <div
-            className={`px-3 mb-2 mt-6 flex items-center gap-2 text-[10px] font-bold text-notion-light-text/30 dark:text-notion-dark-text/30 uppercase tracking-[0.2em] transition-all duration-300 ${isCollapsed ? "opacity-0 h-0 hidden" : "opacity-100"}`}
-          >
-            <span className="flex-shrink-0">Strategy</span>
-            <div className="flex-1 h-[1px] bg-notion-light-border/50 dark:border-notion-dark-border/20"></div>
-          </div>
-
-          {renderNavItem(
-            "BLUEPRINT",
-            "Master Blueprint",
-            <Icon.Blueprint {...iconProps(18)} />,
-          )}
-
-          {renderNavItem("LIFE", "Life Ops", <Icon.Heart {...iconProps(18)} />)}
-
-          {renderNavItem(
-            "STRATEGY",
-            "Decision Journal",
-            <Icon.Strategy {...iconProps(18)} />,
-          )}
-
-          <div
-            className={`px-3 mb-2 mt-6 flex items-center gap-2 text-[10px] font-bold text-notion-light-text/30 dark:text-notion-dark-text/30 uppercase tracking-[0.2em] transition-all duration-300 ${isCollapsed ? "opacity-0 h-0 hidden" : "opacity-100"}`}
-          >
-            <span className="flex-shrink-0">Reporting</span>
-            <div className="flex-1 h-[1px] bg-notion-light-border/50 dark:border-notion-dark-border/20"></div>
-          </div>
-
-          {renderNavItem(
-            "REPORT",
-            "Reporting",
-            <Icon.Report {...iconProps(18)} />,
-          )}
+              {category.items.map((item) =>
+                renderNavItem(item.page, item.label, item.icon),
+              )}
+            </React.Fragment>
+          ))}
         </nav>
 
         <div className="absolute bottom-0 left-0 w-full bg-notion-light-sidebar dark:bg-notion-dark-sidebar border-t border-notion-light-border dark:border-notion-dark-border">

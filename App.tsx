@@ -234,6 +234,7 @@ const App: React.FC = () => {
               contacts={crm.contacts}
               isLoading={crm.isLoading}
               onSaveContact={crm.saveContact}
+              onDeleteContact={crm.deleteContact}
               onGetInteractions={crm.getInteractions}
               onSaveInteraction={crm.saveInteraction}
               initialSelectedContact={ui.editingContact}

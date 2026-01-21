@@ -75,6 +75,37 @@ export const crmService = {
     return true;
   },
 
+  deleteContact: async (id: string, config: AppConfig): Promise<boolean> => {
+    if (config.mode === "DEMO") {
+      const contacts = await crmService.getContacts(config);
+      const updated = contacts.filter((c) => c.id !== id);
+      localStorage.setItem(CRM_CACHE_KEY, JSON.stringify(updated));
+
+      // Also cleanup interactions
+      const cachedInteractions = localStorage.getItem(INTERACTIONS_CACHE_KEY);
+      if (cachedInteractions) {
+        const interactions: Interaction[] = JSON.parse(cachedInteractions);
+        const filteredInteractions = interactions.filter(
+          (i) => i.contactId !== id,
+        );
+        localStorage.setItem(
+          INTERACTIONS_CACHE_KEY,
+          JSON.stringify(filteredInteractions),
+        );
+      }
+      return true;
+    }
+
+    if (!config.gasDeploymentUrl) return false;
+    await postToGas(config.gasDeploymentUrl, {
+      action: "delete",
+      module: "contacts",
+      id,
+      token: config.apiToken,
+    });
+    return true;
+  },
+
   getInteractions: async (
     contactId: string,
     config: AppConfig,

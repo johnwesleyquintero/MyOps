@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React from "react";
 import { Contact, Interaction } from "../../types";
 import { Icon } from "../Icons";
 import { Button } from "../ui/Button";
@@ -6,13 +6,14 @@ import { ContactModal } from "../ContactModal";
 import { InteractionModal } from "../InteractionModal";
 import { ViewHeader } from "../ViewHeader";
 import { ContactTable } from "../ContactTable";
-import { toast } from "sonner";
-import { MODULE_COLORS } from "@/constants";
+import { MODULE_COLORS, CONTACT_TYPE_COLORS } from "@/constants";
+import { useCrmViewLogic } from "@/hooks/useCrmViewLogic";
 
 interface CrmViewProps {
   contacts: Contact[];
   isLoading: boolean;
   onSaveContact: (contact: Contact, isUpdate: boolean) => Promise<boolean>;
+  onDeleteContact: (id: string) => Promise<boolean>;
   onGetInteractions: (contactId: string) => Promise<Interaction[]>;
   onSaveInteraction: (interaction: Interaction) => Promise<boolean>;
   initialSelectedContact?: Contact | null;
@@ -22,159 +23,45 @@ export const CrmView: React.FC<CrmViewProps> = ({
   contacts,
   isLoading,
   onSaveContact,
+  onDeleteContact,
   onGetInteractions,
   onSaveInteraction,
   initialSelectedContact,
 }) => {
-  const [viewMode, setViewMode] = useState<"LIST" | "TABLE">("LIST");
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedContact, setSelectedContact] = useState<Contact | null>(
-    initialSelectedContact || null,
-  );
-
-  useEffect(() => {
-    if (initialSelectedContact) {
-      setSelectedContact(initialSelectedContact);
-    }
-  }, [initialSelectedContact]);
-
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingContact, setEditingContact] = useState<Contact | null>(null);
-  const [isInteractionModalOpen, setIsInteractionModalOpen] = useState(false);
-  const [editingInteraction, setEditingInteraction] =
-    useState<Interaction | null>(null);
-  const [interactions, setInteractions] = useState<Interaction[]>([]);
-  const [isInteractionsLoading, setIsInteractionsLoading] = useState(false);
-
-  const loadInteractions = useCallback(
-    async (contactId: string) => {
-      setIsInteractionsLoading(true);
-      try {
-        const data = await onGetInteractions(contactId);
-        setInteractions(
-          data.sort(
-            (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
-          ),
-        );
-      } finally {
-        setIsInteractionsLoading(false);
-      }
-    },
-    [onGetInteractions],
-  );
-
-  useEffect(() => {
-    if (selectedContact) {
-      loadInteractions(selectedContact.id);
-    } else {
-      setInteractions([]);
-    }
-  }, [selectedContact, loadInteractions]);
-
-  const handleSaveInteraction = async (interaction: Interaction) => {
-    const success = await onSaveInteraction(interaction);
-    if (success && selectedContact) {
-      await loadInteractions(selectedContact.id);
-      toast.success("Interaction saved", {
-        description: `Successfully recorded ${interaction.type.toLowerCase()} for ${selectedContact.name}.`,
-        icon: <Icon.Chat size={14} />,
-      });
-    } else if (!success) {
-      toast.error("Failed to save interaction", {
-        description: "Please check your connection and try again.",
-      });
-    }
-    return success;
-  };
-
-  const handleAddInteraction = () => {
-    setEditingInteraction(null);
-    setIsInteractionModalOpen(true);
-  };
-
-  const handleEditInteraction = (interaction: Interaction) => {
-    setEditingInteraction(interaction);
-    setIsInteractionModalOpen(true);
-  };
-
-  const getInteractionIcon = (type: Interaction["type"]) => {
-    switch (type) {
-      case "Call":
-        return <Icon.Chat size={12} />;
-      case "Email":
-        return <Icon.Chat size={12} />;
-      case "Message":
-        return <Icon.Chat size={12} />;
-      case "Meeting":
-        return <Icon.Users size={12} />;
-      default:
-        return <Icon.Chat size={12} />;
-    }
-  };
-
-  const filteredContacts = contacts.filter(
-    (c) =>
-      c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      c.company?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      c.email?.toLowerCase().includes(searchQuery.toLowerCase()),
-  );
-
-  const handleAdd = () => {
-    setEditingContact(null);
-    setIsModalOpen(true);
-  };
-
-  const handleEdit = (contact: Contact) => {
-    setEditingContact(contact);
-    setIsModalOpen(true);
-  };
-
-  const handleSave = async (contact: Contact, isUpdate: boolean) => {
-    const success = await onSaveContact(contact, isUpdate);
-    if (success) {
-      if (selectedContact?.id === contact.id) {
-        setSelectedContact(contact);
-      }
-      toast.success(isUpdate ? "Contact updated" : "Contact created", {
-        description: `${contact.name} has been saved to your CRM.`,
-        icon: <Icon.Users size={14} />,
-      });
-    } else {
-      toast.error("Failed to save contact", {
-        description: "Please check your connection and try again.",
-      });
-    }
-    return success;
-  };
+  const {
+    viewMode,
+    setViewMode,
+    searchQuery,
+    setSearchQuery,
+    selectedContact,
+    setSelectedContact,
+    isModalOpen,
+    setIsModalOpen,
+    editingContact,
+    isInteractionModalOpen,
+    setIsInteractionModalOpen,
+    editingInteraction,
+    interactions,
+    isInteractionsLoading,
+    handleSaveInteraction,
+    handleAddInteraction,
+    handleEditInteraction,
+    filteredContacts,
+    handleAdd,
+    handleEdit,
+    handleSave,
+    handleDelete,
+    getInteractionIcon,
+  } = useCrmViewLogic({
+    contacts,
+    onSaveContact,
+    onDeleteContact,
+    onGetInteractions,
+    onSaveInteraction,
+    initialSelectedContact,
+  });
 
   const crmColors = MODULE_COLORS.crm;
-
-  const typeColors = {
-    Client:
-      MODULE_COLORS.crm.text +
-      " " +
-      MODULE_COLORS.crm.bg +
-      " " +
-      MODULE_COLORS.crm.border,
-    Lead:
-      MODULE_COLORS.integrations.text +
-      " " +
-      MODULE_COLORS.integrations.bg +
-      " " +
-      MODULE_COLORS.integrations.border,
-    Vendor:
-      MODULE_COLORS.docs.text +
-      " " +
-      MODULE_COLORS.docs.bg +
-      " " +
-      MODULE_COLORS.docs.border,
-    Partner:
-      MODULE_COLORS.analytics.text +
-      " " +
-      MODULE_COLORS.analytics.bg +
-      " " +
-      MODULE_COLORS.analytics.border,
-  };
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
@@ -279,7 +166,7 @@ export const CrmView: React.FC<CrmViewProps> = ({
                         </div>
                       </div>
                       <span
-                        className={`text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider shadow-sm border flex-shrink-0 ${typeColors[contact.type as keyof typeof typeColors]}`}
+                        className={`text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider shadow-sm border flex-shrink-0 ${CONTACT_TYPE_COLORS[contact.type as keyof typeof CONTACT_TYPE_COLORS]}`}
                       >
                         {contact.type}
                       </span>
@@ -362,7 +249,7 @@ export const CrmView: React.FC<CrmViewProps> = ({
                             className={`hidden xs:block w-1.5 h-1.5 rounded-full ${crmColors.dot} opacity-30`}
                           ></div>
                           <span
-                            className={`text-[9px] md:text-[10px] font-bold px-2 py-0.5 md:px-3 md:py-1 rounded-full uppercase tracking-wider shadow-sm border ${typeColors[selectedContact.type as keyof typeof typeColors]}`}
+                            className={`text-[9px] md:text-[10px] font-bold px-2 py-0.5 md:px-3 md:py-1 rounded-full uppercase tracking-wider shadow-sm border ${CONTACT_TYPE_COLORS[selectedContact.type as keyof typeof CONTACT_TYPE_COLORS]}`}
                           >
                             {selectedContact.type}
                           </span>
@@ -389,6 +276,7 @@ export const CrmView: React.FC<CrmViewProps> = ({
                       <Button
                         variant="ghost"
                         size="sm"
+                        onClick={() => handleDelete(selectedContact)}
                         className={`flex-1 md:flex-none ${crmColors.bg} text-notion-light-muted dark:text-notion-dark-muted ${MODULE_COLORS.error.text.replace("text-", "hover:text-")} ${MODULE_COLORS.error.border.replace("border-", "hover:border-")} border ${crmColors.border} rounded transition-all shadow-sm hover:shadow-md group`}
                         leftIcon={
                           <Icon.Delete

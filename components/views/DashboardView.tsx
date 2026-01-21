@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React from "react";
 import { TaskEntry, MetricSummary, Page, OperatorMetrics } from "@/types";
 import { SummaryCards } from "../SummaryCards";
 import { MissionTrendChart } from "../analytics/MissionTrendChart";
@@ -8,23 +8,9 @@ import { Icon, iconProps } from "../Icons";
 import { ViewHeader } from "../ViewHeader";
 import { Button, Card } from "../ui";
 import { toast } from "sonner";
-import { useTableColumns, ColumnConfig } from "../../hooks/useTableColumns";
-import { COLUMN_CONFIG_KEY } from "../../constants/storage";
 import { ColumnConfigDropdown } from "../ColumnConfigDropdown";
 import { MODULE_COLORS } from "@/constants";
-
-const DEFAULT_COLUMNS = [
-  { key: "date", label: "Due", visible: true, width: "w-32" },
-  {
-    key: "description",
-    label: "Mission",
-    visible: true,
-    width: "min-w-[300px]",
-  },
-  { key: "project", label: "Project", visible: true, width: "w-32" },
-  { key: "priority", label: "Priority", visible: true, width: "w-28" },
-  { key: "status", label: "Status", visible: true, width: "w-32" },
-];
+import { useDashboardLogic } from "../../hooks/useDashboardLogic";
 
 interface DashboardViewProps {
   entries: TaskEntry[];
@@ -55,39 +41,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   onNavigate,
   onOpenCreate,
 }) => {
-  const tacticalFocus = useMemo(() => {
-    const today = new Date().toISOString().split("T")[0];
-
-    return entries
-      .filter((e) => e.status !== "Done")
-      .map((t) => {
-        let score = 0;
-        // Priority Score
-        if (t.priority === "High") score += 3;
-        // Date Score (Overdue is highest priority)
-        if (t.date < today) score += 5;
-        // Imminent (Due today or tomorrow)
-        else if (t.date === today) score += 2;
-
-        // Dependency Score (Blocking others)
-        const isBlockingOthers = entries.some(
-          (other) =>
-            other.dependencies?.includes(t.id) && other.status !== "Done",
-        );
-        if (isBlockingOthers) score += 2;
-
-        return { ...t, score };
-      })
-      .sort((a, b) => b.score - a.score)
-      .slice(0, 5);
-  }, [entries]);
-
-  const xpProgress = (operatorMetrics.xp % 1000) / 10; // Simple XP bar logic
-
-  const { columns, toggleColumn } = useTableColumns(
-    DEFAULT_COLUMNS as ColumnConfig[],
-    COLUMN_CONFIG_KEY,
-  );
+  const { tacticalFocus, xpProgress, columns, toggleColumn } =
+    useDashboardLogic({ entries, operatorMetrics });
 
   return (
     <div className="animate-fade-in space-y-8">

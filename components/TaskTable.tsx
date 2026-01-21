@@ -63,196 +63,198 @@ const TableSkeleton = ({ colSpan }: { colSpan: number }) => (
   </tbody>
 );
 
-export const TaskTable: React.FC<TaskTableProps> = ({
-  entries,
-  isLoading,
-  onEdit,
-  onDelete,
-  onStatusUpdate,
-  onFocus,
-  onDuplicate,
-  externalColumns,
-  externalToggleColumn,
-  showConfigGear = true,
-}) => {
-  const { columns: internalColumns, toggleColumn: internalToggleColumn } =
-    useTableColumns(DEFAULT_COLUMNS, COLUMN_CONFIG_KEY);
+export const TaskTable: React.FC<TaskTableProps> = React.memo(
+  ({
+    entries,
+    isLoading,
+    onEdit,
+    onDelete,
+    onStatusUpdate,
+    onFocus,
+    onDuplicate,
+    externalColumns,
+    externalToggleColumn,
+    showConfigGear = true,
+  }) => {
+    const { columns: internalColumns, toggleColumn: internalToggleColumn } =
+      useTableColumns(DEFAULT_COLUMNS, COLUMN_CONFIG_KEY);
 
-  const colors = MODULE_COLORS.tasks;
+    const colors = MODULE_COLORS.tasks;
 
-  const columns = externalColumns || internalColumns;
-  const toggleColumn = externalToggleColumn || internalToggleColumn;
+    const columns = externalColumns || internalColumns;
+    const toggleColumn = externalToggleColumn || internalToggleColumn;
 
-  const {
-    items: sortedEntries,
-    requestSort,
-    sortConfig,
-  } = useSortableData(entries);
+    const {
+      items: sortedEntries,
+      requestSort,
+      sortConfig,
+    } = useSortableData(entries);
 
-  return (
-    <div className="flex flex-col h-full overflow-hidden bg-notion-light-bg dark:bg-notion-dark-bg transition-colors">
-      <div className="flex-1 overflow-auto custom-scrollbar border border-notion-light-border dark:border-notion-dark-border rounded shadow-sm">
-        <table className="w-full text-left border-collapse table-fixed">
-          <thead className="sticky top-0 z-20 bg-notion-light-sidebar dark:bg-notion-dark-sidebar border-b border-notion-light-border dark:border-notion-dark-border">
-            <tr>
-              {columns
-                .filter((c) => c.visible)
-                .map((col) => (
-                  <th
-                    key={col.key}
-                    className={`${col.width} px-3 py-2 text-[10px] font-bold text-notion-light-muted dark:text-notion-dark-muted uppercase tracking-widest cursor-pointer ${colors.hoverBg} transition-colors group ${["project", "priority"].includes(col.key) ? "hidden md:table-cell" : ""}`}
-                    onClick={() => requestSort(col.key as keyof TaskEntry)}
-                  >
-                    <div className="flex items-center gap-2">
-                      {col.label}
-                      {sortConfig?.key === col.key && (
-                        <span className="text-notion-light-text dark:text-notion-dark-text">
-                          {sortConfig.direction === "asc" ? "↑" : "↓"}
-                        </span>
-                      )}
-                    </div>
-                  </th>
-                ))}
-              <th className="w-28 px-3 py-2 bg-notion-light-sidebar dark:bg-notion-dark-sidebar border-b border-notion-light-border dark:border-notion-dark-border">
-                <div className="flex items-center justify-end gap-2">
-                  <span className="text-[10px] font-bold text-notion-light-muted dark:text-notion-dark-muted uppercase tracking-widest">
-                    Actions
-                  </span>
-                  {showConfigGear && (
-                    <ColumnConfigDropdown
-                      columns={columns}
-                      toggleColumn={toggleColumn}
-                    />
-                  )}
-                </div>
-              </th>
-            </tr>
-          </thead>
-          {isLoading ? (
-            <TableSkeleton
-              colSpan={columns.filter((c) => c.visible).length + 1}
-            />
-          ) : (
-            <tbody className="divide-y divide-notion-light-border dark:divide-notion-dark-border">
-              {sortedEntries.map((task) => (
-                <tr
-                  key={task.id}
-                  className={`group ${colors.hoverBg} transition-colors`}
-                >
-                  {columns
-                    .filter((c) => c.visible)
-                    .map((col) => (
-                      <td
-                        key={col.key}
-                        className={`px-3 py-2 align-top text-sm ${["project", "priority"].includes(col.key) ? "hidden md:table-cell" : ""}`}
-                        onClick={() => {
-                          if (col.key !== "description") onEdit(task);
-                        }}
-                      >
-                        {col.key === "date" && (
-                          <div className="flex flex-col">
-                            <span
-                              className={`text-[10px] font-medium ${formatRelativeDate(task.date).colorClass}`}
-                            >
-                              {formatRelativeDate(task.date).text}
-                            </span>
-                          </div>
-                        )}
-                        {col.key === "description" && (
-                          <div
-                            className="relative pr-8 cursor-pointer group/desc"
-                            onClick={() => onEdit(task)}
-                          >
-                            <p
-                              className={`text-notion-light-text dark:text-notion-dark-text font-medium leading-relaxed group-hover/desc:${colors.text} transition-colors`}
-                            >
-                              {task.description.split("\n")[0]}
-                            </p>
-                          </div>
-                        )}
-                        {col.key === "project" && (
-                          <span
-                            className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium border ${getProjectBadgeStyle(task.project)}`}
-                          >
-                            {task.project}
+    return (
+      <div className="flex flex-col h-full overflow-hidden bg-notion-light-bg dark:bg-notion-dark-bg transition-colors">
+        <div className="flex-1 overflow-auto custom-scrollbar border border-notion-light-border dark:border-notion-dark-border rounded shadow-sm">
+          <table className="w-full text-left border-collapse table-fixed">
+            <thead className="sticky top-0 z-20 bg-notion-light-sidebar dark:bg-notion-dark-sidebar border-b border-notion-light-border dark:border-notion-dark-border">
+              <tr>
+                {columns
+                  .filter((c) => c.visible)
+                  .map((col) => (
+                    <th
+                      key={col.key}
+                      className={`${col.width} px-3 py-2 text-[10px] font-bold text-notion-light-muted dark:text-notion-dark-muted uppercase tracking-widest cursor-pointer ${colors.hoverBg} transition-colors group ${["project", "priority"].includes(col.key) ? "hidden md:table-cell" : ""}`}
+                      onClick={() => requestSort(col.key as keyof TaskEntry)}
+                    >
+                      <div className="flex items-center gap-2">
+                        {col.label}
+                        {sortConfig?.key === col.key && (
+                          <span className="text-notion-light-text dark:text-notion-dark-text">
+                            {sortConfig.direction === "asc" ? "↑" : "↓"}
                           </span>
                         )}
-                        {col.key === "priority" && (
-                          <div className="flex items-center gap-1.5">
+                      </div>
+                    </th>
+                  ))}
+                <th className="w-28 px-3 py-2 bg-notion-light-sidebar dark:bg-notion-dark-sidebar border-b border-notion-light-border dark:border-notion-dark-border">
+                  <div className="flex items-center justify-end gap-2">
+                    <span className="text-[10px] font-bold text-notion-light-muted dark:text-notion-dark-muted uppercase tracking-widest">
+                      Actions
+                    </span>
+                    {showConfigGear && (
+                      <ColumnConfigDropdown
+                        columns={columns}
+                        toggleColumn={toggleColumn}
+                      />
+                    )}
+                  </div>
+                </th>
+              </tr>
+            </thead>
+            {isLoading ? (
+              <TableSkeleton
+                colSpan={columns.filter((c) => c.visible).length + 1}
+              />
+            ) : (
+              <tbody className="divide-y divide-notion-light-border dark:divide-notion-dark-border">
+                {sortedEntries.map((task) => (
+                  <tr
+                    key={task.id}
+                    className={`group ${colors.hoverBg} transition-colors`}
+                  >
+                    {columns
+                      .filter((c) => c.visible)
+                      .map((col) => (
+                        <td
+                          key={col.key}
+                          className={`px-3 py-2 align-top text-sm ${["project", "priority"].includes(col.key) ? "hidden md:table-cell" : ""}`}
+                          onClick={() => {
+                            if (col.key !== "description") onEdit(task);
+                          }}
+                        >
+                          {col.key === "date" && (
+                            <div className="flex flex-col">
+                              <span
+                                className={`text-[10px] font-medium ${formatRelativeDate(task.date).colorClass}`}
+                              >
+                                {formatRelativeDate(task.date).text}
+                              </span>
+                            </div>
+                          )}
+                          {col.key === "description" && (
                             <div
-                              className={`w-1.5 h-1.5 rounded-full ${PRIORITY_DOTS[task.priority]}`}
-                            />
-                            <span className="text-xs text-notion-light-text dark:text-notion-dark-text">
-                              {task.priority}
-                            </span>
-                          </div>
-                        )}
-                        {col.key === "status" && (
-                          <div
-                            className="flex items-center gap-1.5 cursor-pointer group/status"
-                            onClick={() =>
-                              onStatusUpdate && onStatusUpdate(task)
-                            }
-                          >
-                            <div
-                              className={`w-1.5 h-1.5 rounded-full ${STATUS_INDICATORS[task.status]} group-hover/status:ring-2 group-hover/status:ring-offset-1 group-hover/status:ring-current transition-all`}
-                            />
-                            <span
-                              className={`text-xs text-notion-light-text dark:text-notion-dark-text group-hover/status:underline group-hover/status:${colors.text}`}
+                              className="relative pr-8 cursor-pointer group/desc"
+                              onClick={() => onEdit(task)}
                             >
-                              {task.status}
+                              <p
+                                className={`text-notion-light-text dark:text-notion-dark-text font-medium leading-relaxed group-hover/desc:${colors.text} transition-colors`}
+                              >
+                                {task.description.split("\n")[0]}
+                              </p>
+                            </div>
+                          )}
+                          {col.key === "project" && (
+                            <span
+                              className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium border ${getProjectBadgeStyle(task.project)}`}
+                            >
+                              {task.project}
                             </span>
-                          </div>
-                        )}
-                      </td>
-                    ))}
-                  <td className="px-3 py-2 align-top">
-                    <div className="flex items-center justify-end gap-0.5 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
-                      <Button
-                        onClick={() => onEdit(task)}
-                        variant="custom"
-                        size="icon"
-                        className={`text-notion-light-muted hover:${colors.text} ${colors.lightBg} rounded-lg`}
-                        title="Edit Mission"
-                      >
-                        <Icon.Edit {...iconProps(14)} />
-                      </Button>
-                      <Button
-                        onClick={() => onDuplicate(task)}
-                        variant="custom"
-                        size="icon"
-                        className={`text-notion-light-muted hover:${colors.text} ${colors.lightBg} rounded-lg`}
-                        title="Duplicate Mission"
-                      >
-                        <Icon.Copy {...iconProps(14)} />
-                      </Button>
-                      <Button
-                        onClick={() => onFocus(task)}
-                        variant="custom"
-                        size="icon"
-                        className={`text-notion-light-muted hover:${colors.text} ${colors.lightBg} rounded-lg`}
-                        title="Focus Mode"
-                      >
-                        <Icon.Focus {...iconProps(14)} />
-                      </Button>
-                      <div className="w-px h-3 bg-notion-light-border dark:bg-notion-dark-border mx-0.5" />
-                      <Button
-                        onClick={() => onDelete(task)}
-                        variant="custom"
-                        size="icon"
-                        className="text-notion-light-muted hover:text-purple-500 hover:bg-purple-500/10 rounded-lg"
-                        title="Terminate Mission"
-                      >
-                        <Icon.Delete {...iconProps(14)} />
-                      </Button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          )}
-        </table>
+                          )}
+                          {col.key === "priority" && (
+                            <div className="flex items-center gap-1.5">
+                              <div
+                                className={`w-1.5 h-1.5 rounded-full ${PRIORITY_DOTS[task.priority]}`}
+                              />
+                              <span className="text-xs text-notion-light-text dark:text-notion-dark-text">
+                                {task.priority}
+                              </span>
+                            </div>
+                          )}
+                          {col.key === "status" && (
+                            <div
+                              className="flex items-center gap-1.5 cursor-pointer group/status"
+                              onClick={() =>
+                                onStatusUpdate && onStatusUpdate(task)
+                              }
+                            >
+                              <div
+                                className={`w-1.5 h-1.5 rounded-full ${STATUS_INDICATORS[task.status]} group-hover/status:ring-2 group-hover/status:ring-offset-1 group-hover/status:ring-current transition-all`}
+                              />
+                              <span
+                                className={`text-xs text-notion-light-text dark:text-notion-dark-text group-hover/status:underline group-hover/status:${colors.text}`}
+                              >
+                                {task.status}
+                              </span>
+                            </div>
+                          )}
+                        </td>
+                      ))}
+                    <td className="px-3 py-2 align-top">
+                      <div className="flex items-center justify-end gap-0.5 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
+                        <Button
+                          onClick={() => onEdit(task)}
+                          variant="custom"
+                          size="icon"
+                          className={`text-notion-light-muted hover:${colors.text} ${colors.lightBg} rounded-lg`}
+                          title="Edit Mission"
+                        >
+                          <Icon.Edit {...iconProps(14)} />
+                        </Button>
+                        <Button
+                          onClick={() => onDuplicate(task)}
+                          variant="custom"
+                          size="icon"
+                          className={`text-notion-light-muted hover:${colors.text} ${colors.lightBg} rounded-lg`}
+                          title="Duplicate Mission"
+                        >
+                          <Icon.Copy {...iconProps(14)} />
+                        </Button>
+                        <Button
+                          onClick={() => onFocus(task)}
+                          variant="custom"
+                          size="icon"
+                          className={`text-notion-light-muted hover:${colors.text} ${colors.lightBg} rounded-lg`}
+                          title="Focus Mode"
+                        >
+                          <Icon.Focus {...iconProps(14)} />
+                        </Button>
+                        <div className="w-px h-3 bg-notion-light-border dark:bg-notion-dark-border mx-0.5" />
+                        <Button
+                          onClick={() => onDelete(task)}
+                          variant="custom"
+                          size="icon"
+                          className="text-notion-light-muted hover:text-purple-500 hover:bg-purple-500/10 rounded-lg"
+                          title="Terminate Mission"
+                        >
+                          <Icon.Delete {...iconProps(14)} />
+                        </Button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            )}
+          </table>
+        </div>
       </div>
-    </div>
-  );
-};
+    );
+  },
+);

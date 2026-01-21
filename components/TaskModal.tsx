@@ -10,10 +10,12 @@ import { Icon, iconProps } from "./Icons";
 import { Button } from "./ui/Button";
 import { toast } from "sonner";
 import { MODULE_COLORS } from "../constants/ui";
-import { useAppContext } from "../hooks/useAppContext";
+import { useUi } from "../hooks/useUi";
+import { useData } from "../hooks/useData";
 
 export const TaskModal: React.FC = () => {
-  const { ui, tasks } = useAppContext();
+  const ui = useUi();
+  const { tasks } = useData();
   const {
     entries,
     saveTransaction: saveEntry,

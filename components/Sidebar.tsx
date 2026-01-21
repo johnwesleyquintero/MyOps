@@ -4,7 +4,7 @@ import { Icon, iconProps } from "./Icons";
 import { MODULE_COLORS } from "../constants/ui";
 import { Button } from "./ui/Button";
 import { NAVIGATION_CONFIG } from "../constants/navigation";
-import { useAppContext } from "../hooks/useAppContext";
+import { useUi } from "../hooks/useUi";
 
 interface NavItemProps {
   page: Page;
@@ -57,7 +57,7 @@ const NavItem: React.FC<NavItemProps> = ({
 };
 
 export const Sidebar: React.FC = () => {
-  const { ui } = useAppContext();
+  const ui = useUi();
   const {
     activePage,
     setActivePage,

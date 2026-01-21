@@ -89,12 +89,15 @@ export const useKnowledgeLogic = ({
   }
 
   const filteredNotes = useMemo(() => {
-    return notes.filter(
-      (n) =>
-        n.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        n.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        n.tags.some((t) => t.toLowerCase().includes(searchQuery.toLowerCase())),
-    );
+    const query = searchQuery.toLowerCase().trim();
+    if (!query) return notes;
+
+    return notes.filter((n) => {
+      const titleMatch = n.title.toLowerCase().includes(query);
+      const contentMatch = n.content.toLowerCase().includes(query);
+      const tagsMatch = n.tags.some((t) => t.toLowerCase().includes(query));
+      return titleMatch || contentMatch || tagsMatch;
+    });
   }, [notes, searchQuery]);
 
   const handleSave = async () => {

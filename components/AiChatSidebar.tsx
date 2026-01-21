@@ -4,12 +4,14 @@ import { useAiChat } from "../hooks/useAiChat";
 import { Icon, iconProps } from "./Icons";
 import { Button } from "./ui/Button";
 import { toast } from "sonner";
-import { useAppContext } from "../hooks/useAppContext";
+import { useConfig } from "../hooks/useConfig";
+import { useUi } from "../hooks/useUi";
+import { useData } from "../hooks/useData";
 
 export const AiChatSidebar: React.FC = () => {
+  const { config } = useConfig();
+  const ui = useUi();
   const {
-    config,
-    ui,
     tasks,
     crm,
     notes: notesData,
@@ -20,7 +22,7 @@ export const AiChatSidebar: React.FC = () => {
     assets: assetsData,
     reflections: reflectionsData,
     lifeOps,
-  } = useAppContext();
+  } = useData();
 
   const { isAiChatOpen: isOpen, setIsAiChatOpen: setIsOpen } = ui;
   const {

@@ -4,7 +4,7 @@ import { Icon } from "../Icons";
 import { ViewHeader } from "../ViewHeader";
 import { AssetModal } from "../AssetModal";
 import { MODULE_COLORS } from "@/constants";
-import { Button } from "../ui";
+import { Button, DebouncedInput } from "../ui";
 import { AssetCard } from "../AssetCard";
 
 interface AssetsViewProps {
@@ -37,10 +37,11 @@ export const AssetsView: React.FC<AssetsViewProps> = ({
   }, []);
 
   const filteredAssets = useMemo(() => {
+    const query = filter.toLowerCase();
     return assets.filter(
       (a) =>
-        a.title.toLowerCase().includes(filter.toLowerCase()) ||
-        a.type.toLowerCase().includes(filter.toLowerCase()),
+        a.title.toLowerCase().includes(query) ||
+        a.type.toLowerCase().includes(query),
     );
   }, [assets, filter]);
 
@@ -67,19 +68,13 @@ export const AssetsView: React.FC<AssetsViewProps> = ({
         subTitle="Catalog and track your digital frameworks and SOPs"
       >
         <div className="flex items-center gap-3">
-          <div className="relative group">
-            <Icon.Search
-              className={`absolute left-3 top-1/2 -translate-y-1/2 text-notion-light-muted dark:text-notion-dark-muted group-focus-within:${colors.text} transition-colors`}
-              size={14}
-            />
-            <input
-              type="text"
-              placeholder="Search assets..."
-              value={filter}
-              onChange={(e) => setFilter(e.target.value)}
-              className={`pl-9 pr-4 py-2 bg-notion-light-sidebar dark:bg-notion-dark-sidebar border border-notion-light-border dark:border-notion-dark-border rounded-xl text-xs focus:outline-none focus:ring-1 focus:${colors.border} transition-all w-64`}
-            />
-          </div>
+          <DebouncedInput
+            placeholder="Search assets..."
+            value={filter}
+            onChange={setFilter}
+            className={`pl-9 pr-4 py-2 bg-notion-light-sidebar dark:bg-notion-dark-sidebar border border-notion-light-border dark:border-notion-dark-border rounded-xl text-xs focus:outline-none focus:ring-1 focus:${colors.border} transition-all w-64`}
+            icon={<Icon.Search size={14} />}
+          />
           <Button
             variant="custom"
             className={`flex items-center gap-2 px-4 py-2 ${colors.solidBg} text-white border ${colors.border} rounded-xl text-[10px] font-bold uppercase tracking-widest hover:opacity-90 transition-all active:scale-95 group`}

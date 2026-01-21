@@ -91,12 +91,15 @@ export const useCrmViewLogic = ({
   };
 
   const filteredContacts = useMemo(() => {
-    return contacts.filter(
-      (c) =>
-        c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        c.company?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        c.email?.toLowerCase().includes(searchQuery.toLowerCase()),
-    );
+    const query = searchQuery.toLowerCase().trim();
+    if (!query) return contacts;
+
+    return contacts.filter((c) => {
+      const nameMatch = c.name.toLowerCase().includes(query);
+      const companyMatch = c.company?.toLowerCase().includes(query);
+      const emailMatch = c.email?.toLowerCase().includes(query);
+      return nameMatch || companyMatch || emailMatch;
+    });
   }, [contacts, searchQuery]);
 
   const handleAdd = () => {

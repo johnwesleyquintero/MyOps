@@ -9,7 +9,10 @@ import { CommandPalette } from "./components/CommandPalette";
 import { AiChatSidebar } from "./components/AiChatSidebar";
 import { Toaster } from "sonner";
 import { Spinner } from "./components/ui/Spinner";
-import { useAppContext } from "./hooks/useAppContext";
+import { useConfig } from "./hooks/useConfig";
+import { useNotification } from "./hooks/useNotification";
+import { useUi } from "./hooks/useUi";
+import { useData } from "./hooks/useData";
 
 // Lazy-loaded views
 const DashboardView = lazy(() =>
@@ -102,10 +105,10 @@ import { useTheme } from "./hooks/useTheme";
 import { useAppShortcuts } from "./hooks/useAppShortcuts";
 
 const App: React.FC = () => {
+  const { config } = useConfig();
+  const { showToast } = useNotification();
+  const ui = useUi();
   const {
-    config,
-    showToast,
-    ui,
     tasks,
     crm,
     notes,
@@ -118,7 +121,7 @@ const App: React.FC = () => {
     integrations,
     lifeOps,
     operatorMetrics,
-  } = useAppContext();
+  } = useData();
 
   useTheme(config.theme);
 
@@ -127,7 +130,7 @@ const App: React.FC = () => {
   const taskActions = useTaskActions({ saveTransaction, showToast });
   const missionControl = useMissionControl(entries);
 
-  const { filteredEntries, metrics } = useTaskAnalytics({
+  const { filteredEntries, globalMetrics } = useTaskAnalytics({
     entries,
     searchQuery: missionControl.searchQuery,
     selectedCategory: missionControl.selectedCategory,
@@ -172,7 +175,7 @@ const App: React.FC = () => {
         return (
           <DashboardView
             entries={entries}
-            metrics={metrics}
+            metrics={globalMetrics}
             operatorMetrics={operatorMetrics}
             isLoading={isLoading}
             onEdit={ui.openEdit}

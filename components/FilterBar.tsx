@@ -1,7 +1,7 @@
 import React from "react";
 import { STATUSES } from "@/constants";
 import { Icon, iconProps } from "./Icons";
-import { Button } from "./ui";
+import { Button, DebouncedInput } from "./ui";
 
 interface FilterBarProps {
   searchQuery: string;
@@ -47,33 +47,13 @@ export const FilterBar: React.FC<FilterBarProps> = ({
   return (
     <div className="flex flex-col lg:flex-row gap-4 mb-6 bg-notion-light-bg dark:bg-notion-dark-bg p-3 border border-notion-light-border dark:border-notion-dark-border rounded-lg items-center transition-colors">
       {/* Search Input */}
-      <div className="flex-[2] w-full relative group">
-        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-          <Icon.Search
-            {...iconProps(
-              14,
-              "text-notion-light-muted dark:text-notion-dark-muted",
-            )}
-          />
-        </div>
-        <input
-          id="global-search"
-          type="text"
-          className="notion-input block w-full pl-9 pr-8"
-          placeholder="Search..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-        />
-        {searchQuery && (
-          <Button
-            variant="custom"
-            onClick={() => setSearchQuery("")}
-            className="absolute inset-y-0 right-0 pr-2 flex items-center text-notion-light-muted hover:text-notion-light-text dark:hover:text-notion-dark-text bg-transparent"
-          >
-            <Icon.Close {...iconProps(12)} />
-          </Button>
-        )}
-      </div>
+      <DebouncedInput
+        id="global-search"
+        className="flex-[2] w-full"
+        placeholder="Search missions..."
+        value={searchQuery}
+        onChange={setSearchQuery}
+      />
 
       {/* Month Navigator Group */}
       <div className="flex items-center w-full lg:w-auto gap-1">

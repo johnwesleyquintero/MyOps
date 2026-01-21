@@ -7,7 +7,7 @@ import { useMarkdownEditor } from "../../hooks/useMarkdownEditor";
 import { useKnowledgeLogic } from "../../hooks/useKnowledgeLogic";
 import { ViewHeader } from "../ViewHeader";
 import { MODULE_COLORS, BUTTON_STYLES } from "../../constants/ui";
-import { Button } from "../ui";
+import { Button, DebouncedInput } from "../ui";
 
 interface KnowledgeViewProps {
   notes: Note[];
@@ -85,20 +85,13 @@ export const KnowledgeView: React.FC<KnowledgeViewProps> = ({
         <div
           className={`w-full lg:w-80 xl:w-96 flex-shrink-0 space-y-4 ${rawSelectedNote || isEditing ? "hidden lg:block" : "block"}`}
         >
-          <div className="relative group">
-            <div
-              className={`absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-notion-light-muted dark:text-notion-dark-muted group-focus-within:${colors.text} transition-colors`}
-            >
-              <Icon.Search size={16} />
-            </div>
-            <input
-              type="text"
-              placeholder="Search knowledge..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className={`notion-input w-full pl-11 pr-4 py-2.5 focus:${colors.border}`}
-            />
-          </div>
+          <DebouncedInput
+            placeholder="Search knowledge..."
+            value={searchQuery}
+            onChange={setSearchQuery}
+            className={`w-full pl-11 pr-4 py-2.5 focus:${colors.border}`}
+            icon={<Icon.Search size={16} />}
+          />
 
           <div className="space-y-1.5 max-h-[calc(100vh-280px)] overflow-y-auto overflow-x-hidden pr-2 custom-scrollbar">
             {isLoading ? (

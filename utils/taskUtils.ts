@@ -1,10 +1,16 @@
 import { TaskEntry } from "../types";
 
 export const sortTasks = (tasks: TaskEntry[]): TaskEntry[] => {
-  return [...tasks].sort((a, b) => {
+  // Pre-calculate sort values to avoid repeated parsing inside the sort loop
+  const prepared = tasks.map((t) => ({
+    task: t,
+    time: t.date ? new Date(t.date).getTime() : 0,
+  }));
+
+  prepared.sort((a, b) => {
     // 1. Sort by Date (Descending - Newest first)
-    const timeA = a.date ? new Date(a.date).getTime() : 0;
-    const timeB = b.date ? new Date(b.date).getTime() : 0;
+    const timeA = a.time;
+    const timeB = b.time;
 
     const isInvalidA = isNaN(timeA) || timeA === 0;
     const isInvalidB = isNaN(timeB) || timeB === 0;
@@ -24,8 +30,8 @@ export const sortTasks = (tasks: TaskEntry[]): TaskEntry[] => {
       Medium: 1,
       Low: 2,
     };
-    const prioA = priorityOrder[a.priority as string] ?? 3;
-    const prioB = priorityOrder[b.priority as string] ?? 3;
+    const prioA = priorityOrder[a.task.priority as string] ?? 3;
+    const prioB = priorityOrder[b.task.priority as string] ?? 3;
 
     if (prioA !== prioB) {
       return prioA - prioB;
@@ -37,8 +43,10 @@ export const sortTasks = (tasks: TaskEntry[]): TaskEntry[] => {
       Backlog: 1,
       Done: 2,
     };
-    const statA = statusOrder[a.status as string] ?? 3;
-    const statB = statusOrder[b.status as string] ?? 3;
+    const statA = statusOrder[a.task.status as string] ?? 3;
+    const statB = statusOrder[b.task.status as string] ?? 3;
     return statA - statB;
   });
+
+  return prepared.map((p) => p.task);
 };

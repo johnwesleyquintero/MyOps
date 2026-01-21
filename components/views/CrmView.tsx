@@ -1,7 +1,7 @@
 import React from "react";
 import { Contact, Interaction } from "../../types";
 import { Icon } from "../Icons";
-import { Button, Spinner } from "../ui";
+import { Button, Spinner, DebouncedInput } from "../ui";
 import { ContactModal } from "../ContactModal";
 import { InteractionModal } from "../InteractionModal";
 import { ViewHeader } from "../ViewHeader";
@@ -110,17 +110,12 @@ export const CrmView: React.FC<CrmViewProps> = React.memo(
               className={`lg:col-span-1 space-y-5 ${selectedContact ? "hidden lg:block" : "block"}`}
             >
               <div className="relative group">
-                <div
-                  className={`absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-notion-light-muted dark:text-notion-dark-muted group-focus-within:${crmColors.text} transition-colors`}
-                >
-                  <Icon.Search size={16} />
-                </div>
-                <input
-                  type="text"
+                <DebouncedInput
                   placeholder="Search contacts..."
                   value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className={`notion-input block w-full pl-11 pr-4 focus:${crmColors.border}`}
+                  onChange={setSearchQuery}
+                  className={`block w-full pl-11 pr-4 focus:${crmColors.border}`}
+                  icon={<Icon.Search size={16} />}
                 />
               </div>
 

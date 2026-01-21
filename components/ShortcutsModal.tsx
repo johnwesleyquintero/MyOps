@@ -1,10 +1,10 @@
 import React from "react";
 import { Icon } from "./Icons";
 import { Button } from "./ui/Button";
-import { useAppContext } from "../hooks/useAppContext";
+import { useUi } from "../hooks/useUi";
 
 export const ShortcutsModal: React.FC = () => {
-  const { ui } = useAppContext();
+  const ui = useUi();
   const { showShortcuts: isOpen, setShowShortcuts: setIsOpen } = ui;
 
   if (!isOpen) return null;

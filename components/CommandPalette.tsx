@@ -9,7 +9,8 @@ import { TaskEntry } from "../types";
 import { PRIORITY_DOTS } from "@/constants";
 import { Icon, iconProps } from "./Icons";
 import { Button } from "./ui/Button";
-import { useAppContext } from "../hooks/useAppContext";
+import { useUi } from "../hooks/useUi";
+import { useData } from "../hooks/useData";
 
 type CommandType = "ACTION" | "NAVIGATION" | "TASK" | "CONTACT" | "NOTE";
 
@@ -24,7 +25,8 @@ interface CommandItem {
 }
 
 export const CommandPalette: React.FC = () => {
-  const { ui, tasks, crm, notes: notesData } = useAppContext();
+  const ui = useUi();
+  const { tasks, crm, notes: notesData } = useData();
   const { entries } = tasks;
   const { contacts } = crm;
   const { notes } = notesData;

@@ -1,5 +1,4 @@
 import { createContext } from "react";
-import { useUiState } from "../hooks/useUiState";
 import { useTasks } from "../hooks/useTasks";
 import { useCrm } from "../hooks/useCrm";
 import { useNotes } from "../hooks/useNotes";
@@ -12,17 +11,8 @@ import { useReflection } from "../hooks/useReflection";
 import { useIntegrations } from "../hooks/useIntegrations";
 import { useLifeOps } from "../hooks/useLifeOps";
 import { useOperatorAnalytics } from "../hooks/useOperatorAnalytics";
-import { AppConfig, NotificationAction } from "../types";
 
-export interface AppContextType {
-  config: AppConfig;
-  setConfig: (config: AppConfig) => void;
-  showToast: (
-    msg: string,
-    type: "success" | "error" | "info",
-    action?: NotificationAction,
-  ) => void;
-  ui: ReturnType<typeof useUiState>;
+export interface DataContextType {
   tasks: ReturnType<typeof useTasks>;
   crm: ReturnType<typeof useCrm>;
   notes: ReturnType<typeof useNotes>;
@@ -37,4 +27,6 @@ export interface AppContextType {
   operatorMetrics: ReturnType<typeof useOperatorAnalytics>;
 }
 
-export const AppContext = createContext<AppContextType | undefined>(undefined);
+export const DataContext = createContext<DataContextType | undefined>(
+  undefined,
+);

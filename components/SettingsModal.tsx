@@ -4,13 +4,14 @@ import { ConnectionSettings } from "./settings/ConnectionSettings";
 import { BackendCodeView } from "./settings/BackendCodeView";
 import { MaintenanceSettings } from "./settings/MaintenanceSettings";
 import { Button } from "./ui/Button";
-import { useAppContext } from "../hooks/useAppContext";
+import { useConfig } from "../hooks/useConfig";
+import { useUi } from "../hooks/useUi";
+import { useData } from "../hooks/useData";
 
 export const SettingsModal: React.FC = () => {
+  const { config, setConfig: onSave } = useConfig();
+  const ui = useUi();
   const {
-    config,
-    setConfig: onSave,
-    ui,
     tasks,
     crm,
     notes: notesData,
@@ -20,7 +21,7 @@ export const SettingsModal: React.FC = () => {
     assets: assetsData,
     reflections: reflectionsData,
     lifeOps,
-  } = useAppContext();
+  } = useData();
 
   const { showSettings: isOpen, setShowSettings } = ui;
   const { entries } = tasks;

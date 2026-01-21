@@ -3,8 +3,9 @@ import { ReflectionEntry } from "../../types";
 import { Icon, iconProps } from "../Icons";
 import { ViewHeader } from "../ViewHeader";
 import { ReflectionModal } from "../ReflectionModal";
-import { Button } from "../ui";
+import { Button, DebouncedInput } from "../ui";
 import { MODULE_COLORS } from "@/constants";
+import { useMemo } from "react";
 
 interface ReflectionViewProps {
   reflections: ReflectionEntry[];
@@ -34,12 +35,17 @@ export const ReflectionView: React.FC<ReflectionViewProps> = ({
     setIsModalOpen(true);
   };
 
-  const filteredReflections = reflections.filter(
-    (r) =>
-      r.title.toLowerCase().includes(filter.toLowerCase()) ||
-      r.type.toLowerCase().includes(filter.toLowerCase()) ||
-      r.content.toLowerCase().includes(filter.toLowerCase()),
-  );
+  const filteredReflections = useMemo(() => {
+    const query = filter.toLowerCase().trim();
+    if (!query) return reflections;
+
+    return reflections.filter((r) => {
+      const titleMatch = r.title.toLowerCase().includes(query);
+      const typeMatch = r.type.toLowerCase().includes(query);
+      const contentMatch = r.content.toLowerCase().includes(query);
+      return titleMatch || typeMatch || contentMatch;
+    });
+  }, [reflections, filter]);
 
   const colors = MODULE_COLORS.reflection;
   const aiColors = MODULE_COLORS.ai;
@@ -52,19 +58,13 @@ export const ReflectionView: React.FC<ReflectionViewProps> = ({
         subTitle="Close the loop on missions and capture mistake avoidance logs"
       >
         <div className="flex items-center gap-3">
-          <div className="relative">
-            <Icon.Search
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-notion-light-muted dark:text-notion-dark-muted"
-              size={14}
-            />
-            <input
-              type="text"
-              placeholder="Search reflections..."
-              value={filter}
-              onChange={(e) => setFilter(e.target.value)}
-              className="pl-9 pr-4 py-2 bg-notion-light-sidebar dark:bg-notion-dark-sidebar border border-notion-light-border dark:border-notion-dark-border rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-notion-light-text/20 transition-all w-64"
-            />
-          </div>
+          <DebouncedInput
+            placeholder="Search reflections..."
+            value={filter}
+            onChange={setFilter}
+            className="w-64"
+            icon={<Icon.Search size={14} />}
+          />
           <Button
             variant="custom"
             onClick={handleCreate}

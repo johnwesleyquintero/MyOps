@@ -28,6 +28,14 @@ export const useDashboardLogic = ({
   const tacticalFocus = useMemo(() => {
     const today = new Date().toISOString().split("T")[0];
 
+    // Pre-calculate which tasks are blocking others to avoid O(n^2) complexity
+    const blockingTasks = new Set<string>();
+    entries.forEach((e) => {
+      if (e.status !== "Done" && e.dependencies) {
+        e.dependencies.forEach((depId) => blockingTasks.add(depId));
+      }
+    });
+
     return entries
       .filter((e) => e.status !== "Done")
       .map((t) => {
@@ -40,11 +48,7 @@ export const useDashboardLogic = ({
         else if (t.date === today) score += 2;
 
         // Dependency Score (Blocking others)
-        const isBlockingOthers = entries.some(
-          (other) =>
-            other.dependencies?.includes(t.id) && other.status !== "Done",
-        );
-        if (isBlockingOthers) score += 2;
+        if (blockingTasks.has(t.id)) score += 2;
 
         return { ...t, score };
       })

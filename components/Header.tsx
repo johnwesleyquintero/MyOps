@@ -1,10 +1,12 @@
 import React from "react";
 import { Icon, iconProps } from "./Icons";
 import { Button } from "./ui/Button";
-import { useAppContext } from "../hooks/useAppContext";
+import { useConfig } from "../hooks/useConfig";
+import { useUi } from "../hooks/useUi";
 
 export const Header: React.FC = () => {
-  const { config, setConfig, ui } = useAppContext();
+  const { config, setConfig } = useConfig();
+  const ui = useUi();
 
   const getTitle = () => {
     switch (ui.activePage) {

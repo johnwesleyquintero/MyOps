@@ -1,4 +1,4 @@
-import { useMemo, useState, useEffect } from "react";
+import { useMemo } from "react";
 import { TaskEntry, MetricSummary } from "../types";
 
 interface UseTaskAnalyticsProps {
@@ -10,20 +10,6 @@ interface UseTaskAnalyticsProps {
   isAiSortEnabled?: boolean;
 }
 
-// Internal debounce hook
-function useDebounce<T>(value: T, delay: number): T {
-  const [debouncedValue, setDebouncedValue] = useState(value);
-  useEffect(() => {
-    const handler = setTimeout(() => {
-      setDebouncedValue(value);
-    }, delay);
-    return () => {
-      clearTimeout(handler);
-    };
-  }, [value, delay]);
-  return debouncedValue;
-}
-
 export const useTaskAnalytics = ({
   entries,
   searchQuery,
@@ -32,16 +18,13 @@ export const useTaskAnalytics = ({
   selectedMonth,
   isAiSortEnabled = false,
 }: UseTaskAnalyticsProps) => {
-  // Debounce the search query to prevent stuttering on rapid typing
-  const debouncedSearch = useDebounce(searchQuery, 300);
-
   const filteredEntries = useMemo(() => {
     const today = new Date().toISOString().split("T")[0];
 
     const filtered = entries.filter((entry) => {
       const matchesSearch = entry.description
         .toLowerCase()
-        .includes(debouncedSearch.toLowerCase());
+        .includes(searchQuery.toLowerCase());
       const matchesProject = selectedCategory
         ? entry.project === selectedCategory
         : true;
@@ -56,6 +39,9 @@ export const useTaskAnalytics = ({
     });
 
     if (isAiSortEnabled) {
+      // Pre-calculate status map for faster dependency checks
+      const statusMap = new Map(entries.map((e) => [e.id, e.status]));
+
       return [...filtered].sort((a, b) => {
         const getScore = (t: TaskEntry) => {
           if (t.status === "Done") return -100; // Done tasks always last
@@ -67,8 +53,8 @@ export const useTaskAnalytics = ({
 
           if (t.dependencies && t.dependencies.length > 0) {
             const blocked = t.dependencies.some((depId) => {
-              const dep = entries.find((e) => e.id === depId);
-              return dep && dep.status !== "Done";
+              const status = statusMap.get(depId);
+              return status && status !== "Done";
             });
             score += blocked ? -2 : 2;
           }
@@ -81,15 +67,15 @@ export const useTaskAnalytics = ({
     return filtered;
   }, [
     entries,
-    debouncedSearch,
+    searchQuery,
     selectedCategory,
     selectedStatus,
     selectedMonth,
     isAiSortEnabled,
   ]);
 
-  const metrics: MetricSummary = useMemo(() => {
-    return filteredEntries.reduce(
+  const globalMetrics: MetricSummary = useMemo(() => {
+    return entries.reduce(
       (acc, curr) => {
         return {
           total: acc.total + 1,
@@ -101,10 +87,10 @@ export const useTaskAnalytics = ({
       },
       { total: 0, backlog: 0, inProgress: 0, done: 0 },
     );
-  }, [filteredEntries]);
+  }, [entries]);
 
   return {
     filteredEntries,
-    metrics,
+    globalMetrics,
   };
 };

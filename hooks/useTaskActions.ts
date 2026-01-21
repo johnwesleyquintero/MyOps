@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 import { TaskEntry, NotificationAction } from "../types";
 import { STATUSES, RECURRENCE_OPTIONS } from "@/constants";
 
@@ -122,10 +122,18 @@ export const useTaskActions = ({
     [saveTransaction, showToast],
   );
 
-  return {
-    handleDuplicate,
-    handleDescriptionUpdate,
-    handleStatusUpdate,
-    handleFocusComplete,
-  };
+  return useMemo(
+    () => ({
+      handleDuplicate,
+      handleDescriptionUpdate,
+      handleStatusUpdate,
+      handleFocusComplete,
+    }),
+    [
+      handleDuplicate,
+      handleDescriptionUpdate,
+      handleStatusUpdate,
+      handleFocusComplete,
+    ],
+  );
 };

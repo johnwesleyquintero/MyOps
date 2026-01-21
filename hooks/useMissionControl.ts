@@ -22,19 +22,30 @@ export const useMissionControl = (entries: TaskEntry[]) => {
     return [...DEFAULT_PROJECTS, ...Array.from(new Set(custom))];
   }, [entries]);
 
-  return {
-    viewMode,
-    setViewMode,
-    searchQuery,
-    setSearchQuery,
-    selectedCategory,
-    setSelectedCategory,
-    selectedStatus,
-    setSelectedStatus,
-    selectedMonth,
-    setSelectedMonth,
-    isAiSortEnabled,
-    setIsAiSortEnabled,
-    availableCategories,
-  };
+  return useMemo(
+    () => ({
+      viewMode,
+      setViewMode,
+      searchQuery,
+      setSearchQuery,
+      selectedCategory,
+      setSelectedCategory,
+      selectedStatus,
+      setSelectedStatus,
+      selectedMonth,
+      setSelectedMonth,
+      isAiSortEnabled,
+      setIsAiSortEnabled,
+      availableCategories,
+    }),
+    [
+      viewMode,
+      searchQuery,
+      selectedCategory,
+      selectedStatus,
+      selectedMonth,
+      isAiSortEnabled,
+      availableCategories,
+    ],
+  );
 };

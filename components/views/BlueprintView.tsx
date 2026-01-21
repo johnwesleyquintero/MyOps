@@ -68,7 +68,7 @@ export const BlueprintView: React.FC<BlueprintViewProps> = ({ onNavigate }) => {
 
           <div className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2 bg-notion-light-sidebar dark:bg-notion-dark-sidebar rounded-xl border border-notion-light-border dark:border-notion-dark-border">
             <div
-              className={`w-1.5 h-1.5 rounded-full ${crmColors.dot} shadow-[0_0_8px_rgba(16,185,129,0.5)] animate-pulse`}
+              className={`w-1.5 h-1.5 rounded-full ${crmColors.dot} shadow-[0_0_8px_rgba(139,92,246,0.5)] animate-pulse`}
             ></div>
             <span className="text-[10px] font-bold text-notion-light-text dark:text-notion-dark-text opacity-70 uppercase tracking-widest">
               v2.2 Deployment Ready

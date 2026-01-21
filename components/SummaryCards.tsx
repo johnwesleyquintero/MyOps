@@ -36,7 +36,7 @@ export const SummaryCards: React.FC<SummaryCardsProps> = ({ metrics }) => {
             <h3 className="notion-label text-slate-400 dark:text-slate-500">
               Active
             </h3>
-            <div className="p-2 bg-slate-50 dark:bg-white/5 rounded-xl text-slate-400 dark:text-slate-400 group-hover:bg-blue-50 dark:group-hover:bg-blue-500/10 group-hover:text-blue-600 transition-colors">
+            <div className="p-2 bg-slate-50 dark:bg-white/5 rounded-xl text-slate-400 dark:text-slate-400 group-hover:bg-violet-50 dark:group-hover:bg-violet-500/10 group-hover:text-violet-600 transition-colors">
               <Icon.Active {...iconProps(20)} />
             </div>
           </div>
@@ -51,7 +51,7 @@ export const SummaryCards: React.FC<SummaryCardsProps> = ({ metrics }) => {
             <h3 className="notion-label text-slate-400 dark:text-slate-500">
               Completed
             </h3>
-            <div className="p-2 bg-slate-50 dark:bg-white/5 rounded-xl text-slate-400 dark:text-slate-400 group-hover:bg-emerald-50 dark:group-hover:bg-emerald-500/10 group-hover:text-emerald-600 transition-colors">
+            <div className="p-2 bg-slate-50 dark:bg-white/5 rounded-xl text-slate-400 dark:text-slate-400 group-hover:bg-purple-50 dark:group-hover:bg-purple-500/10 group-hover:text-purple-600 transition-colors">
               <Icon.Completed {...iconProps(20)} />
             </div>
           </div>
@@ -78,7 +78,7 @@ export const SummaryCards: React.FC<SummaryCardsProps> = ({ metrics }) => {
         </div>
         <div className="flex-1 h-3 bg-slate-100 dark:bg-white/5 rounded-full overflow-hidden relative border border-slate-200/10 dark:border-white/5">
           <div
-            className="h-full bg-gradient-to-r from-indigo-500 via-purple-500 to-emerald-500 rounded-full transition-all duration-1000 ease-out shadow-[0_0_15px_rgba(99,102,241,0.4)]"
+            className="h-full bg-gradient-to-r from-indigo-500 via-violet-500 to-purple-500 rounded-full transition-all duration-1000 ease-out shadow-[0_0_15px_rgba(139,92,246,0.4)]"
             style={{ width: `${completionRate}%` }}
           />
         </div>

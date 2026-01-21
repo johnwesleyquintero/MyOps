@@ -70,8 +70,9 @@ export const CrmView: React.FC<CrmViewProps> = ({
         subTitle="Manage your network and interaction logs"
       >
         <Button
+          variant="custom"
           onClick={handleAdd}
-          className={`w-full md:w-auto px-6 py-3 ${crmColors.bg} border ${crmColors.border} ${crmColors.text} rounded-2xl font-black text-sm uppercase tracking-widest shadow-sm ${crmColors.hoverBg} group`}
+          className={`w-full md:w-auto px-6 py-3 ${crmColors.bg.replace("/10", "").replace("/20", "")} text-white border ${crmColors.border} rounded-2xl font-black text-sm uppercase tracking-widest shadow-sm hover:opacity-90 group transition-all active:scale-95`}
           leftIcon={
             <Icon.Add
               size={16}

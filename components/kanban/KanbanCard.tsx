@@ -46,7 +46,7 @@ export const KanbanCard: React.FC<KanbanCardProps> = ({
         <div className="flex gap-1.5 items-center">
           {dependencyStatus && (
             <div
-              className={`flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-bold border transition-colors ${dependencyStatus.blocked ? "bg-red-500/10 dark:bg-red-500/20 text-red-600 dark:text-red-400 border-red-500/20 dark:border-red-500/30" : "bg-notion-light-sidebar dark:bg-notion-dark-sidebar text-notion-light-muted dark:text-notion-dark-muted border-notion-light-border dark:border-notion-dark-border"}`}
+              className={`flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-bold border transition-colors ${dependencyStatus.blocked ? "bg-purple-500/10 dark:bg-purple-500/20 text-purple-600 dark:text-purple-400 border-purple-500/20 dark:border-purple-500/30" : "bg-notion-light-sidebar dark:bg-notion-dark-sidebar text-notion-light-muted dark:text-notion-dark-muted border-notion-light-border dark:border-notion-dark-border"}`}
               title={dependencyStatus.blocked ? "Blocked" : "Dependencies"}
             >
               <Icon.Link className="w-2.5 h-2.5" strokeWidth={3} />

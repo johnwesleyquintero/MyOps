@@ -108,7 +108,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
           onClick={() => setIsAiSortEnabled(!isAiSortEnabled)}
           className={`flex items-center gap-2 px-3 py-1.5 rounded border transition-all w-full lg:w-auto justify-center ${
             isAiSortEnabled
-              ? "bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800 text-blue-600 dark:text-blue-400"
+              ? "bg-violet-50 dark:bg-violet-900/20 border-violet-200 dark:border-violet-800 text-violet-600 dark:text-violet-400"
               : "bg-notion-light-sidebar dark:bg-notion-dark-sidebar border-notion-light-border dark:border-notion-dark-border text-notion-light-muted dark:text-notion-dark-muted hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover"
           }`}
           title={isAiSortEnabled ? "Disable AI Sort" : "Enable AI Sort"}
@@ -170,7 +170,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
             setSelectedStatus("");
             setSelectedMonth(new Date().toISOString().slice(0, 7));
           }}
-          className="w-full lg:w-auto px-4 py-2 notion-label hover:text-red-600 dark:hover:text-red-400 border border-transparent hover:border-red-200 dark:hover:border-red-900 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-all whitespace-nowrap text-center"
+          className="w-full lg:w-auto px-4 py-2 notion-label hover:text-purple-600 dark:hover:text-purple-400 border border-transparent hover:border-purple-200 dark:hover:border-purple-900 hover:bg-purple-50 dark:hover:bg-purple-900/20 rounded transition-all whitespace-nowrap text-center"
         >
           Reset Filters
         </Button>

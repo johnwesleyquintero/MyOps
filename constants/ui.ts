@@ -4,9 +4,27 @@ import { PriorityLevel, StatusLevel } from "../types";
 export const UI_TRANSITION_SPEED = "transition-all duration-300 ease-in-out";
 export const UI_MODAL_ANIMATION = "animate-scale-in";
 
+// Color definitions
+export const PALETTE = {
+  violet: "violet",
+  purple: "purple",
+  indigo: "indigo",
+  slate: "slate",
+} as const;
+
+export type PaletteColor = keyof typeof PALETTE;
+
+// Map Palette colors to Hex for Charts
+export const PALETTE_HEX: Record<PaletteColor, string> = {
+  violet: "#8b5cf6",
+  purple: "#a855f7",
+  indigo: "#6366f1",
+  slate: "#64748b",
+};
+
 // Helper functions for consistent color tokens
 function module(
-  color: string,
+  color: PaletteColor,
   textShade: string = "600",
   darkTextShade: string = "400",
 ) {
@@ -28,7 +46,7 @@ function module(
 
 // Specialized helper for combined styles (used by Priority and Status)
 function getCombinedColorClasses(
-  color: string,
+  color: PaletteColor,
   textShade: string = "600",
   darkTextShade: string = "400",
 ): string {
@@ -65,9 +83,9 @@ export type ColorToken = {
 
 // Priority and Status Styles (Tailwind Classes)
 export const PRIORITY_COLORS: Record<PriorityLevel, ColorToken> = {
-  High: module("indigo", "700"),
-  Medium: module("sky", "700"),
-  Low: module("slate", "600"),
+  High: module("violet", "700"),
+  Medium: module("purple", "700"),
+  Low: module("indigo", "600"),
 };
 
 export const PRIORITY_DOTS: Record<PriorityLevel, string> = {
@@ -77,9 +95,9 @@ export const PRIORITY_DOTS: Record<PriorityLevel, string> = {
 };
 
 export const STATUS_COLORS: Record<StatusLevel, ColorToken> = {
-  Backlog: module("slate", "600"),
-  "In Progress": module("blue", "700"),
-  Done: module("emerald", "700"),
+  Backlog: module("indigo", "600"),
+  "In Progress": module("violet", "700"),
+  Done: module("purple", "700"),
 };
 
 export const STATUS_INDICATORS: Record<StatusLevel, string> = {
@@ -88,50 +106,75 @@ export const STATUS_INDICATORS: Record<StatusLevel, string> = {
   Done: STATUS_COLORS.Done.dot,
 };
 
+export type ModuleKey =
+  | "tasks"
+  | "crm"
+  | "docs"
+  | "analytics"
+  | "automation"
+  | "ai"
+  | "strategy"
+  | "sovereign"
+  | "vault"
+  | "report"
+  | "assets"
+  | "awareness"
+  | "reflection"
+  | "life"
+  | "integrations"
+  | "integration"
+  | "energy_high"
+  | "energy_medium"
+  | "energy_low"
+  | "status_active"
+  | "status_idle"
+  | "error"
+  | "success";
+
 // Module Color Mappings (Aligns with blueprintData.ts)
-export const MODULE_COLORS: Record<string, ColorToken> = {
+export const MODULE_COLORS: Record<ModuleKey, ColorToken> = {
   tasks: module("indigo"),
-  crm: module("blue"),
-  docs: module("emerald"),
+  crm: module("violet"),
+  docs: module("purple"),
   analytics: module("indigo"),
-  automation: module("blue"),
-  ai: module("violet"),
-  strategy: module("purple"),
-  sovereign: module("cyan"),
+  automation: module("violet"),
+  ai: module("purple"),
+  strategy: module("violet"),
+  sovereign: module("indigo"),
 
   vault: neutral(),
   report: module("indigo"),
-  assets: module("teal"),
+  assets: module("purple"),
 
-  awareness: module("sky"),
-  reflection: module("teal"),
-  life: module("emerald"),
+  awareness: module("violet"),
+  reflection: module("indigo"),
+  life: module("purple"),
 
-  integrations: module("purple"),
-  integration: module("purple"),
+  integrations: module("violet"),
+  integration: module("violet"),
 
-  energy_high: module("emerald"),
-  energy_medium: module("sky"),
+  energy_high: module("violet"),
+  energy_medium: module("purple"),
   energy_low: neutral(),
 
-  status_active: module("emerald"),
+  status_active: module("violet"),
   status_idle: neutral(),
 
-  error: module("indigo"),
-  success: module("emerald"),
+  error: module("purple", "800"),
+  success: module("violet", "500"),
 };
 
 // Project specific styles
 export const PROJECT_COLOR_PALETTE = [
-  getCombinedColorClasses("slate"),
-  getCombinedColorClasses("blue"),
-  getCombinedColorClasses("emerald"),
+  getCombinedColorClasses("violet"),
+  getCombinedColorClasses("purple"),
   getCombinedColorClasses("indigo"),
+  getCombinedColorClasses("slate"),
 ];
 
 export const CONTACT_TYPE_COLORS: Record<string, string> = {
-  Client: getCombinedColorClasses("blue"),
+  Client: getCombinedColorClasses("violet"),
   Lead: getCombinedColorClasses("purple"),
-  Vendor: getCombinedColorClasses("emerald"),
-  Partner: getCombinedColorClasses("indigo"),
+  Vendor: getCombinedColorClasses("indigo"),
+  Partner: getCombinedColorClasses("slate"),
 };

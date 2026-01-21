@@ -70,7 +70,7 @@ export const ColumnConfigDropdown: React.FC<ColumnConfigDropdownProps> = ({
                   type="checkbox"
                   checked={col.visible}
                   onChange={() => toggleColumn(col.key)}
-                  className="w-3.5 h-3.5 rounded border-notion-light-border dark:border-notion-dark-border text-blue-600 focus:ring-0 focus:ring-offset-0 bg-transparent"
+                  className="w-3.5 h-3.5 rounded border-notion-light-border dark:border-notion-dark-border text-violet-600 focus:ring-0 focus:ring-offset-0 bg-transparent"
                 />
                 <span className="text-xs font-medium text-notion-light-text dark:text-notion-dark-text group-hover:text-notion-light-text dark:group-hover:text-notion-dark-text">
                   {col.label}

@@ -224,7 +224,6 @@ const App: React.FC = () => {
               showToast("Mission Cloned", "success");
             }}
             onNavigate={ui.setActivePage}
-            onOpenCreate={ui.openCreate}
           />
         );
       case "MISSIONS":
@@ -384,7 +383,7 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-notion-light-bg dark:bg-notion-dark-bg text-notion-light-text dark:text-notion-dark-text font-sans selection:bg-blue-100 dark:selection:bg-blue-900/30 transition-colors duration-200">
+    <div className="min-h-screen bg-notion-light-bg dark:bg-notion-dark-bg text-notion-light-text dark:text-notion-dark-text font-sans selection:bg-violet-100 dark:selection:bg-violet-900/30 transition-colors duration-200">
       <Sidebar
         activePage={ui.activePage}
         setActivePage={ui.setActivePage}

@@ -10,7 +10,7 @@ import { Icon, iconProps } from "../Icons";
 import { Button } from "../ui";
 import { ViewHeader } from "../ViewHeader";
 import { toast } from "sonner";
-import { MODULE_COLORS, CHART_COLORS } from "@/constants";
+import { MODULE_COLORS, PALETTE_HEX } from "@/constants";
 import { useInsightsData } from "@/hooks/useInsightsData";
 import { generateInsightsMarkdown } from "@/utils/exportUtils";
 import {
@@ -56,6 +56,15 @@ export const InsightsView: React.FC<InsightsViewProps> = ({
       contacts,
       vaultEntries,
     });
+
+  const CHART_COLORS = [
+    PALETTE_HEX.violet,
+    PALETTE_HEX.purple,
+    PALETTE_HEX.indigo,
+    PALETTE_HEX.violet,
+    PALETTE_HEX.purple,
+    PALETTE_HEX.indigo,
+  ];
 
   const handleCopyInsights = () => {
     const md = generateInsightsMarkdown({
@@ -121,7 +130,7 @@ export const InsightsView: React.FC<InsightsViewProps> = ({
           className={`rounded-2xl p-6 text-notion-light-bg dark:text-notion-dark-bg shadow-xl relative overflow-hidden group ${colors.bg.replace("/10", "").replace("/20", "").replace("bg-", "bg-")}`}
         >
           {/* Using a custom gradient for the operator card that matches analytics theme */}
-          <div className="absolute inset-0 opacity-100 bg-gradient-to-br from-rose-600 to-indigo-600 dark:from-rose-500 dark:to-indigo-500" />
+          <div className="absolute inset-0 opacity-100 bg-gradient-to-br from-violet-600 to-indigo-600 dark:from-violet-500 dark:to-indigo-500" />
 
           <div className="relative z-10">
             <div className="absolute right-[-10%] top-[-10%] opacity-10 rotate-12 group-hover:rotate-0 transition-transform duration-700">

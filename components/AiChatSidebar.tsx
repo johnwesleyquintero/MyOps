@@ -184,9 +184,9 @@ export const AiChatSidebar: React.FC<AiChatSidebarProps> = ({
           <div className="flex items-center gap-3">
             <div className="relative">
               <div
-                className={`w-2.5 h-2.5 rounded-full ${config.geminiApiKey ? "bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.5)]" : "bg-red-500"} animate-pulse`}
+                className={`w-2.5 h-2.5 rounded-full ${config.geminiApiKey ? "bg-violet-500 shadow-[0_0_10px_rgba(139,92,246,0.5)]" : "bg-purple-600"} animate-pulse`}
               ></div>
-              <div className="absolute inset-0 rounded-full bg-blue-500 animate-ping opacity-20"></div>
+              <div className="absolute inset-0 rounded-full bg-violet-500 animate-ping opacity-20"></div>
             </div>
             <h2 className="font-semibold text-notion-light-text dark:text-notion-dark-text tracking-tight flex items-center gap-2">
               WesAI
@@ -312,8 +312,8 @@ export const AiChatSidebar: React.FC<AiChatSidebarProps> = ({
                           alt="Attachment"
                           className="w-32 h-32 object-cover"
                         />
-                        <div className="absolute inset-0 bg-blue-500/10 pointer-events-none mix-blend-overlay"></div>
-                        <div className="absolute inset-0 bg-[linear-gradient(transparent_0%,rgba(0,100,255,0.1)_50%,transparent_100%)] bg-[length:100%_4px] animate-[scan_2s_linear_infinite] pointer-events-none"></div>
+                        <div className="absolute inset-0 bg-violet-500/10 pointer-events-none mix-blend-overlay"></div>
+                        <div className="absolute inset-0 bg-[linear-gradient(transparent_0%,rgba(139,92,246,0.1)_50%,transparent_100%)] bg-[length:100%_4px] animate-[scan_2s_linear_infinite] pointer-events-none"></div>
                       </div>
                     ))}
                   </div>
@@ -417,7 +417,7 @@ export const AiChatSidebar: React.FC<AiChatSidebarProps> = ({
                 }
                 disabled={!config.geminiApiKey}
                 rows={1}
-                className="w-full bg-notion-light-sidebar dark:bg-notion-dark-sidebar border border-notion-light-border dark:border-notion-dark-border rounded-xl pl-4 pr-12 py-3.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500/50 transition-all duration-300 resize-none custom-scrollbar text-notion-light-text dark:text-notion-dark-text placeholder-notion-light-text/30 dark:placeholder-notion-dark-text/30 disabled:opacity-50 disabled:cursor-not-allowed shadow-inner"
+                className="w-full bg-notion-light-sidebar dark:bg-notion-dark-sidebar border border-notion-light-border dark:border-notion-dark-border rounded-xl pl-4 pr-12 py-3.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500/50 transition-all duration-300 resize-none custom-scrollbar text-notion-light-text dark:text-notion-dark-text placeholder-notion-light-text/30 dark:placeholder-notion-dark-text/30 disabled:opacity-50 disabled:cursor-not-allowed shadow-inner"
                 style={{ minHeight: "48px", maxHeight: "160px" }}
               />
               <Button
@@ -436,11 +436,11 @@ export const AiChatSidebar: React.FC<AiChatSidebarProps> = ({
             </div>
           </div>
           <div className="text-[10px] text-notion-light-text/30 dark:text-notion-dark-text/30 text-center mt-3 flex justify-center items-center gap-3 font-medium uppercase tracking-widest">
-            <span className="hover:text-blue-500 transition-colors cursor-default">
+            <span className="hover:text-violet-500 transition-colors cursor-default">
               WesAI v2.3
             </span>
             <span className="w-1 h-1 rounded-full bg-notion-light-border dark:bg-notion-dark-border"></span>
-            <span className="hover:text-blue-500 transition-colors cursor-default">
+            <span className="hover:text-violet-500 transition-colors cursor-default">
               Neural Link Active
             </span>
           </div>

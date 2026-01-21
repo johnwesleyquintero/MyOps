@@ -62,6 +62,7 @@ import {
   Mail,
   Globe,
   ArrowLeft,
+  ArrowRight,
 } from "lucide-react";
 
 export const Icon = {
@@ -77,6 +78,7 @@ export const Icon = {
   Search: Search,
   Prev: ChevronLeft,
   Next: ChevronRight,
+  ArrowRight: ArrowRight,
   Delete: Trash2,
   Copy: Copy,
   Edit: Edit3,

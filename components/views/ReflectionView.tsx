@@ -66,8 +66,9 @@ export const ReflectionView: React.FC<ReflectionViewProps> = ({
             />
           </div>
           <Button
+            variant="custom"
             onClick={handleCreate}
-            className={`w-full md:w-auto px-6 py-3 ${colors.bg} border ${colors.border} ${colors.text} rounded-2xl font-black text-sm uppercase tracking-widest shadow-sm ${colors.hoverBg} group`}
+            className={`w-full md:w-auto px-6 py-3 ${colors.bg.replace("/10", "").replace("/20", "")} text-white border ${colors.border} rounded-2xl font-black text-sm uppercase tracking-widest shadow-sm hover:opacity-90 group transition-all active:scale-95`}
             leftIcon={
               <Icon.Add
                 size={16}

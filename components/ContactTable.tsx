@@ -224,7 +224,7 @@ export const ContactTable: React.FC<ContactTableProps> = ({
                           }}
                           variant="custom"
                           size="icon"
-                          className="text-notion-light-muted hover:text-red-500 hover:bg-red-500/10 rounded-lg"
+                          className="text-notion-light-muted hover:text-purple-500 hover:bg-purple-500/10 rounded-lg"
                           title="Delete Contact"
                         >
                           <Icon.Delete {...iconProps(14)} />

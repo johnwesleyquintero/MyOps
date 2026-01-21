@@ -88,7 +88,7 @@ export const VaultView: React.FC<VaultViewProps> = ({
         <Button
           variant="custom"
           onClick={() => setIsAdding(true)}
-          className={`w-full md:w-auto flex items-center justify-center gap-2 px-6 py-3 ${colors.bg} border ${colors.border} ${colors.text} rounded-2xl font-black text-sm uppercase tracking-widest shadow-sm hover:opacity-90 transition-all active:scale-95`}
+          className={`w-full md:w-auto flex items-center justify-center gap-2 px-6 py-3 ${colors.bg.replace("/10", "").replace("/20", "")} text-white border ${colors.border} rounded-2xl font-black text-sm uppercase tracking-widest shadow-sm hover:opacity-90 transition-all active:scale-95`}
         >
           <Icon.Vault size={20} />
           Secure New Item

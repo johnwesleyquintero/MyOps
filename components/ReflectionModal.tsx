@@ -142,7 +142,7 @@ export const ReflectionModal: React.FC<ReflectionModalProps> = ({
                 autoFocus
                 type="text"
                 placeholder="What are we reflecting on?"
-                className={`w-full px-3 py-2 bg-transparent border border-notion-light-border dark:border-notion-dark-border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 dark:focus:border-teal-400 transition-all text-sm`}
+                className={`w-full px-3 py-2 bg-transparent border border-notion-light-border dark:border-notion-dark-border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 dark:focus:border-indigo-400 transition-all text-sm`}
                 value={formData.title}
                 onChange={(e) =>
                   setFormData({ ...formData, title: e.target.value })
@@ -157,7 +157,7 @@ export const ReflectionModal: React.FC<ReflectionModalProps> = ({
               </label>
               <input
                 type="date"
-                className={`w-full px-3 py-2 bg-transparent border border-notion-light-border dark:border-notion-dark-border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 dark:focus:border-teal-400 transition-all text-sm`}
+                className={`w-full px-3 py-2 bg-transparent border border-notion-light-border dark:border-notion-dark-border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 dark:focus:border-indigo-400 transition-all text-sm`}
                 value={formData.date}
                 onChange={(e) =>
                   setFormData({ ...formData, date: e.target.value })
@@ -171,7 +171,7 @@ export const ReflectionModal: React.FC<ReflectionModalProps> = ({
                 Type
               </label>
               <select
-                className={`w-full px-3 py-2 bg-transparent border border-notion-light-border dark:border-notion-dark-border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 dark:focus:border-teal-400 transition-all text-sm`}
+                className={`w-full px-3 py-2 bg-transparent border border-notion-light-border dark:border-notion-dark-border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 dark:focus:border-indigo-400 transition-all text-sm`}
                 value={formData.type}
                 onChange={(e) =>
                   setFormData({
@@ -197,7 +197,7 @@ export const ReflectionModal: React.FC<ReflectionModalProps> = ({
             <textarea
               placeholder="Deep dive into what happened..."
               rows={4}
-              className={`w-full px-3 py-2 bg-transparent border border-notion-light-border dark:border-notion-dark-border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 dark:focus:border-teal-400 transition-all text-sm resize-none`}
+              className={`w-full px-3 py-2 bg-transparent border border-notion-light-border dark:border-notion-dark-border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 dark:focus:border-indigo-400 transition-all text-sm resize-none`}
               value={formData.content}
               onChange={(e) =>
                 setFormData({ ...formData, content: e.target.value })
@@ -228,7 +228,7 @@ export const ReflectionModal: React.FC<ReflectionModalProps> = ({
                   <input
                     type="text"
                     placeholder="Insight..."
-                    className={`flex-1 px-3 py-1.5 bg-transparent border border-notion-light-border dark:border-notion-dark-border rounded-md focus:outline-none focus:ring-1 focus:ring-teal-500 transition-all text-xs`}
+                    className={`flex-1 px-3 py-1.5 bg-transparent border border-notion-light-border dark:border-notion-dark-border rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-all text-xs`}
                     value={item}
                     onChange={(e) =>
                       updateListEntry("learnings", index, e.target.value)
@@ -276,7 +276,7 @@ export const ReflectionModal: React.FC<ReflectionModalProps> = ({
                   <input
                     type="text"
                     placeholder="Next step..."
-                    className={`flex-1 px-3 py-1.5 bg-transparent border border-notion-light-border dark:border-notion-dark-border rounded-md focus:outline-none focus:ring-1 focus:ring-teal-500 transition-all text-xs`}
+                    className={`flex-1 px-3 py-1.5 bg-transparent border border-notion-light-border dark:border-notion-dark-border rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-all text-xs`}
                     value={item}
                     onChange={(e) =>
                       updateListEntry("actionItems", index, e.target.value)

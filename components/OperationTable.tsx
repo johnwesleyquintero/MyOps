@@ -372,11 +372,8 @@ export const OperationTable: React.FC<OperationTableProps> = ({
             {/* Status Dot */}
             <span
               className={`w-1.5 h-1.5 rounded-full ${
-                entry.status === "Done"
-                  ? "bg-emerald-500"
-                  : entry.status === "In Progress"
-                    ? "bg-blue-500"
-                    : "bg-notion-light-muted dark:text-notion-dark-muted"
+                STATUS_COLORS[entry.status]?.dot ||
+                "bg-notion-light-muted dark:text-notion-dark-muted"
               }`}
             ></span>
             {entry.status}
@@ -525,7 +522,7 @@ export const OperationTable: React.FC<OperationTableProps> = ({
                           variant="ghost"
                           size="icon"
                           onClick={() => onEdit(entry)}
-                          className="text-notion-light-muted hover:text-blue-600 dark:hover:text-blue-400 p-1.5 rounded hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover transition-colors h-8 w-8"
+                          className="text-notion-light-muted hover:text-violet-600 dark:hover:text-violet-400 p-1.5 rounded hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover transition-colors h-8 w-8"
                           title="Edit Task"
                         >
                           <svg

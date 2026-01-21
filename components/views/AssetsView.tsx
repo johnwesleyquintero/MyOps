@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useMemo, useCallback } from "react";
 import { AssetEntry } from "../../types";
-import { Icon, iconProps } from "../Icons";
+import { Icon } from "../Icons";
 import { ViewHeader } from "../ViewHeader";
 import { AssetModal } from "../AssetModal";
 import { MODULE_COLORS } from "@/constants";
 import { Button } from "../ui";
+import { AssetCard } from "../AssetCard";
 
 interface AssetsViewProps {
   assets: AssetEntry[];
@@ -25,20 +26,38 @@ export const AssetsView: React.FC<AssetsViewProps> = ({
 
   const colors = MODULE_COLORS.assets;
 
-  const handleCreate = () => {
+  const handleCreate = useCallback(() => {
     setEditingAsset(null);
     setIsModalOpen(true);
-  };
+  }, []);
 
-  const handleEdit = (asset: AssetEntry) => {
+  const handleEdit = useCallback((asset: AssetEntry) => {
     setEditingAsset(asset);
     setIsModalOpen(true);
-  };
+  }, []);
 
-  const filteredAssets = assets.filter(
-    (a) =>
-      a.title.toLowerCase().includes(filter.toLowerCase()) ||
-      a.type.toLowerCase().includes(filter.toLowerCase()),
+  const filteredAssets = useMemo(() => {
+    return assets.filter(
+      (a) =>
+        a.title.toLowerCase().includes(filter.toLowerCase()) ||
+        a.type.toLowerCase().includes(filter.toLowerCase()),
+    );
+  }, [assets, filter]);
+
+  const handleDeleteClick = useCallback(
+    async (assetId: string): Promise<boolean> => {
+      try {
+        const success = await onDelete(assetId);
+        if (!success) {
+          console.error("Failed to delete asset.");
+        }
+        return success;
+      } catch (error) {
+        console.error("Error deleting asset:", error);
+        return false;
+      }
+    },
+    [onDelete],
   );
 
   return (
@@ -63,7 +82,7 @@ export const AssetsView: React.FC<AssetsViewProps> = ({
           </div>
           <Button
             variant="custom"
-            className={`flex items-center gap-2 px-4 py-2 ${colors.bg} ${colors.text} border ${colors.border} rounded-xl text-[10px] font-bold uppercase tracking-widest ${colors.hoverBg} transition-all active:scale-95 group`}
+            className={`flex items-center gap-2 px-4 py-2 ${colors.bg.replace("/10", "").replace("/20", "")} text-white border ${colors.border} rounded-xl text-[10px] font-bold uppercase tracking-widest hover:opacity-90 transition-all active:scale-95 group`}
             onClick={handleCreate}
           >
             <Icon.Add
@@ -110,99 +129,13 @@ export const AssetsView: React.FC<AssetsViewProps> = ({
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredAssets.map((asset) => (
-            <div
+            <AssetCard
               key={asset.id}
-              className={`group bg-notion-light-bg dark:bg-notion-dark-bg border border-notion-light-border dark:border-notion-dark-border rounded-2xl p-6 hover:shadow-xl transition-all duration-300 flex flex-col hover:${colors.border}`}
-            >
-              <div className="flex items-start justify-between mb-4">
-                <div
-                  className={`w-10 h-10 rounded-xl ${colors.bg} ${colors.text} flex items-center justify-center border ${colors.border} group-hover:scale-110 transition-transform`}
-                >
-                  <Icon.Project {...iconProps(20)} />
-                </div>
-                <div className="flex gap-2">
-                  <span
-                    className={`text-[10px] font-bold px-2 py-0.5 bg-notion-light-sidebar dark:bg-notion-dark-sidebar rounded-full uppercase tracking-wider border border-notion-light-border dark:border-notion-dark-border group-hover:${colors.border} transition-colors`}
-                  >
-                    {asset.type}
-                  </span>
-                </div>
-              </div>
-
-              <h3
-                className={`text-sm font-bold text-notion-light-text dark:text-notion-dark-text mb-2 group-hover:${colors.text} transition-colors`}
-              >
-                {asset.title}
-              </h3>
-
-              <p className="text-[11px] text-notion-light-muted dark:text-notion-dark-muted line-clamp-2 mb-6 flex-grow">
-                {asset.notes || "No description provided."}
-              </p>
-
-              <div
-                className={`flex items-center justify-between pt-4 border-t border-notion-light-border dark:border-notion-dark-border group-hover:${colors.border} transition-colors`}
-              >
-                <div className="flex items-center gap-3">
-                  <div className="flex flex-col">
-                    <span className="text-[8px] uppercase tracking-tighter text-notion-light-muted dark:text-notion-dark-muted font-bold">
-                      Reusability
-                    </span>
-                    <div className="flex gap-0.5 mt-0.5">
-                      {[1, 2, 3, 4, 5].map((i) => (
-                        <div
-                          key={i}
-                          className={`w-2.5 h-1 rounded-full ${
-                            i <= asset.reusabilityScore
-                              ? colors.dot
-                              : "bg-notion-light-border dark:bg-notion-dark-border opacity-30"
-                          }`}
-                        ></div>
-                      ))}
-                    </div>
-                  </div>
-                  <div className="flex flex-col">
-                    <span className="text-[8px] uppercase tracking-tighter text-notion-light-muted dark:text-notion-dark-muted font-bold">
-                      Potential
-                    </span>
-                    <div className="flex gap-0.5 mt-0.5">
-                      {[1, 2, 3, 4, 5].map((i) => (
-                        <div
-                          key={i}
-                          className={`w-2.5 h-1 rounded-full ${
-                            i <= asset.monetizationPotential
-                              ? colors.dot
-                              : "bg-notion-light-border dark:bg-notion-dark-border opacity-30"
-                          }`}
-                        ></div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <Button
-                    variant="custom"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onDelete(asset.id);
-                    }}
-                    className="p-1.5 hover:bg-red-500/10 text-red-400 rounded-lg transition-colors"
-                  >
-                    <Icon.Delete size={14} />
-                  </Button>
-                  <Button
-                    variant="custom"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleEdit(asset);
-                    }}
-                    className={`p-1.5 ${colors.hoverBg} ${colors.text} rounded-lg transition-colors`}
-                  >
-                    <Icon.Edit size={14} />
-                  </Button>
-                </div>
-              </div>
-            </div>
+              asset={asset}
+              colors={colors}
+              onEdit={handleEdit}
+              onDelete={handleDeleteClick}
+            />
           ))}
         </div>
       )}

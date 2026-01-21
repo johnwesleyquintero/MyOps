@@ -100,11 +100,11 @@ export const IntegrationStoryView: React.FC<IntegrationStoryViewProps> = ({
           {/* Step 2: The Hub (Processing) */}
           <div className="relative py-12 lg:py-0">
             {/* Arrows/Lines */}
-            <div className="hidden lg:block absolute left-0 top-1/2 -translate-x-full -translate-y-1/2 w-12 h-[2px] bg-gradient-to-r from-transparent to-blue-500/50 dark:to-blue-400/50" />
-            <div className="hidden lg:block absolute right-0 top-1/2 translate-x-full -translate-y-1/2 w-12 h-[2px] bg-gradient-to-l from-transparent to-blue-500/50 dark:to-blue-400/50" />
-
-            <div className="flex flex-col items-center text-center">
-              <div className="w-24 h-24 bg-gradient-to-br from-blue-500 to-blue-700 dark:from-blue-400 dark:to-blue-600 rounded-full flex items-center justify-center shadow-2xl mb-6 relative group">
+            <div className="hidden lg:block absolute left-0 top-1/2 -translate-x-full -translate-y-1/2 w-12 h-[2px] bg-gradient-to-r from-transparent to-indigo-500/50 dark:to-indigo-400/50" />
+            <div className="hidden lg:block absolute right-0 top-1/2 translate-x-full -translate-y-1/2 w-12 h-[2px] bg-gradient-to-l from-transparent to-indigo-500/50 dark:to-indigo-400/50" />
+            <div className="relative">
+              {/* Central Logo */}
+              <div className="w-24 h-24 bg-gradient-to-br from-indigo-500 to-indigo-700 dark:from-indigo-400 dark:to-indigo-600 rounded-full flex items-center justify-center shadow-2xl mb-6 relative group">
                 <div
                   className={`absolute inset-0 ${hubColors.bg} rounded-full animate-ping opacity-20 group-hover:opacity-40`}
                 />

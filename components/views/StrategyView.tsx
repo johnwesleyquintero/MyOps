@@ -122,7 +122,7 @@ export const StrategyView: React.FC<StrategyViewProps> = ({ config }) => {
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center gap-3">
                   <div
-                    className={`w-2 h-2 rounded-full ${decision.status === "PENDING" ? "bg-amber-500" : crmColors.dot}`}
+                    className={`w-2 h-2 rounded-full ${decision.status === "PENDING" ? "bg-indigo-500" : colors.dot}`}
                   ></div>
                   <span className="text-[10px] font-bold uppercase tracking-widest opacity-60">
                     {decision.date}

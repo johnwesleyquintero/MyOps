@@ -48,7 +48,7 @@ export const useTasks = (
               setEntries(JSON.parse(cached));
               setIsLoading(false);
             } catch {
-              console.warn("Cache corrupted");
+              // Cache corrupted, ignore
             }
           }
         }

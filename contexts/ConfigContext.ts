@@ -1,9 +1,9 @@
-import { createContext } from "react";
+import { createContext, Dispatch, SetStateAction } from "react";
 import { AppConfig } from "../types";
 
 export interface ConfigContextType {
   config: AppConfig;
-  setConfig: (config: AppConfig) => void;
+  setConfig: Dispatch<SetStateAction<AppConfig>>;
 }
 
 export const ConfigContext = createContext<ConfigContextType | undefined>(

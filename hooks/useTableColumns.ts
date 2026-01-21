@@ -31,7 +31,7 @@ export const useTableColumns = <T extends string>(
         return [...ordered, ...missing];
       }
     } catch {
-      console.warn("Failed to load column config");
+      // Fail silently
     }
     return defaultColumns;
   });
@@ -60,7 +60,7 @@ export const useTableColumns = <T extends string>(
         setColumns(defaultColumns);
       }
     } catch {
-      console.warn("Failed to sync column config");
+      // Fail silently
     }
   }
 

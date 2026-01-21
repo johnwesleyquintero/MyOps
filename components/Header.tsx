@@ -1,14 +1,14 @@
-import React from "react";
+import React, { useMemo, useCallback } from "react";
 import { Icon, iconProps } from "./Icons";
 import { Button } from "./ui/Button";
 import { useConfig } from "../hooks/useConfig";
 import { useUi } from "../hooks/useUi";
 
-export const Header: React.FC = () => {
+export const Header: React.FC = React.memo(() => {
   const { config, setConfig } = useConfig();
   const ui = useUi();
 
-  const getTitle = () => {
+  const title = useMemo(() => {
     switch (ui.activePage) {
       case "DASHBOARD":
         return "Command Center";
@@ -29,14 +29,14 @@ export const Header: React.FC = () => {
       default:
         return "System";
     }
-  };
+  }, [ui.activePage]);
 
-  const toggleTheme = () => {
-    setConfig({
-      ...config,
-      theme: config.theme === "LIGHT" ? "DARK" : "LIGHT",
-    });
-  };
+  const toggleTheme = useCallback(() => {
+    setConfig((prev) => ({
+      ...prev,
+      theme: prev.theme === "LIGHT" ? "DARK" : "LIGHT",
+    }));
+  }, [setConfig]);
 
   return (
     <header className="h-14 bg-notion-bg border-b border-notion-border flex items-center justify-between px-4 sm:px-6 sticky top-0 z-30 transition-colors duration-200">
@@ -51,7 +51,7 @@ export const Header: React.FC = () => {
         />
 
         <h2 className="text-sm font-semibold text-notion-text tracking-tight">
-          {getTitle()}
+          {title}
         </h2>
       </div>
 
@@ -100,4 +100,4 @@ export const Header: React.FC = () => {
       </div>
     </header>
   );
-};
+});

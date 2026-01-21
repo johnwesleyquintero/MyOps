@@ -139,6 +139,7 @@ export const Icon = {
   Mail: Mail,
   Globe: Globe,
   ArrowLeft: ArrowLeft,
+  ChevronRight: ChevronRight,
   X: X,
   Trash: Trash2,
 };

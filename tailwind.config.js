@@ -69,6 +69,9 @@ export default {
           "0%": { opacity: 0, transform: "translateY(4px)" },
           "100%": { opacity: 1, transform: "translateY(0)" },
         },
+        dash: {
+          to: { "stroke-dashoffset": "-8" },
+        },
       },
       animation: {
         "pulse-soft": "pulse-soft 2s cubic-bezier(0.4, 0, 0.6, 1) infinite",
@@ -76,6 +79,7 @@ export default {
         "slide-in-right": "slide-in-right 0.3s ease-out forwards",
         "scale-in": "scale-in 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards",
         "view-switch": "view-switch 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards",
+        "spin-slow": "spin 8s linear infinite",
       },
     },
   },

@@ -66,7 +66,8 @@ export const useDashboardLogic = ({
 
     // Calculate base XP for pending tasks
     const basePendingXP = pendingTasks.reduce((acc, t) => {
-      const base = t.priority === "High" ? 150 : t.priority === "Medium" ? 120 : 100;
+      const base =
+        t.priority === "High" ? 150 : t.priority === "Medium" ? 120 : 100;
       return acc + base;
     }, 0);
 
@@ -75,24 +76,26 @@ export const useDashboardLogic = ({
     const estimatedMultiplier = 1.1; // Assume slight positive bias for prediction
 
     const predictedXP = Math.round(basePendingXP * estimatedMultiplier);
-    
+
     // Streak Forecast
     const streakForecast = operatorMetrics.streak + 1;
-    const isStreakAtRisk = !operatorMetrics.lastActiveDate || operatorMetrics.lastActiveDate < today;
+    const isStreakAtRisk =
+      !operatorMetrics.lastActiveDate || operatorMetrics.lastActiveDate < today;
 
     return {
-       predictedXP,
-       streakForecast,
-       isStreakAtRisk,
-       potentialLevel: Math.floor((operatorMetrics.xp + predictedXP) / 1000) + 1,
-     };
-   }, [entries, operatorMetrics]);
+      predictedXP,
+      streakForecast,
+      isStreakAtRisk,
+      potentialLevel: Math.floor((operatorMetrics.xp + predictedXP) / 1000) + 1,
+    };
+  }, [entries, operatorMetrics]);
 
   const calibrationMetrics = useMemo(() => {
     if (!decisions.length) return { calibrationScore: 0, bias: "neutral" };
 
     const reviewedDecisions = decisions.filter((d) => d.status === "REVIEWED");
-    if (!reviewedDecisions.length) return { calibrationScore: 50, bias: "neutral" };
+    if (!reviewedDecisions.length)
+      return { calibrationScore: 50, bias: "neutral" };
 
     // Simple calibration: How close was confidence to impact?
     // impact is 1-5, confidence is 1-100
@@ -132,6 +135,13 @@ export const useDashboardLogic = ({
       columns,
       toggleColumn,
     }),
-    [tacticalFocus, xpProgress, predictiveMetrics, calibrationMetrics, columns, toggleColumn],
+    [
+      tacticalFocus,
+      xpProgress,
+      predictiveMetrics,
+      calibrationMetrics,
+      columns,
+      toggleColumn,
+    ],
   );
 };

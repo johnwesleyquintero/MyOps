@@ -84,6 +84,7 @@ export interface OperatorMetrics {
   artifactsGained: number;
   totalTasksCompleted: number;
   lastActiveDate: string;
+  peakStateCompletions: number;
 }
 
 export interface VaultEntry {

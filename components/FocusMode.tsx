@@ -4,6 +4,8 @@ import { TaskEntry, MentalStateEntry } from "../types";
 import { PRIORITY_DOTS } from "@/constants";
 import { Icon } from "./Icons";
 import { Button } from "./ui/Button";
+import { useUi } from "@/hooks/useUi";
+import { useRewards } from "@/contexts/RewardContext";
 
 interface FocusModeProps {
   task: TaskEntry;
@@ -28,6 +30,7 @@ export const FocusMode: React.FC<FocusModeProps> = ({
   const [mode, setMode] = useState<"WORK" | "BREAK">("WORK");
   const [sessionNotes, setSessionNotes] = useState("");
   const [showDetails, setShowDetails] = useState(false);
+  const { triggerXpPop } = useRewards();
 
   // Calculate session value multiplier based on mental state
   const sessionMultiplier = useMemo(() => {
@@ -104,13 +107,13 @@ export const FocusMode: React.FC<FocusModeProps> = ({
 
       await onUpdate({ ...task, description: newDescription });
     }
-    
+
     // Auto-trigger reflection for significant sessions
     if (isActive || sessionNotes.trim().length > 50) {
       if (window.confirm("Log a quick reflection for this session?")) {
         onExit();
         // The App.tsx handles navigation, we just need to ensure onExit is called
-        // and ideally we'd pass a flag to navigate to REFLECTION, but for now 
+        // and ideally we'd pass a flag to navigate to REFLECTION, but for now
         // let's rely on the existing toast mechanism or a manual move.
       } else {
         onExit();
@@ -122,6 +125,14 @@ export const FocusMode: React.FC<FocusModeProps> = ({
 
   const handleCompleteTask = async () => {
     if (window.confirm("Mark mission accomplished?")) {
+      // Calculate XP and trigger pop before exit
+      const baseXP =
+        task.priority === "High" ? 150 : task.priority === "Medium" ? 120 : 100;
+      // Note: Actual XP is calculated in useTaskActions, but we simulate the pop here for immediate feedback
+      if (isHudMode) {
+        triggerXpPop(Math.round(baseXP * sessionMultiplier));
+      }
+
       if (sessionNotes.trim()) {
         const timestamp = new Date().toLocaleTimeString([], {
           hour: "2-digit",
@@ -175,16 +186,29 @@ export const FocusMode: React.FC<FocusModeProps> = ({
         {isHudMode && (
           <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-8 bg-black/5 dark:bg-white/5 px-6 py-2 rounded-2xl border border-notion-light-border dark:border-notion-dark-border backdrop-blur-sm animate-slide-up">
             <div className="flex flex-col items-center">
-              <span className="text-[8px] font-black text-notion-light-muted dark:text-notion-dark-muted uppercase tracking-widest">Efficiency</span>
-              <span className={`text-sm font-black ${isPeakState ? "text-indigo-500" : "text-notion-light-text dark:text-notion-dark-text"}`}>
+              <span className="text-[8px] font-black text-notion-light-muted dark:text-notion-dark-muted uppercase tracking-widest">
+                Efficiency
+              </span>
+              <span
+                className={`text-sm font-black ${isPeakState ? "text-indigo-500" : "text-notion-light-text dark:text-notion-dark-text"}`}
+              >
                 {Math.round(sessionMultiplier * 100)}%
               </span>
             </div>
             <div className="w-px h-6 bg-notion-light-border dark:border-notion-dark-border" />
             <div className="flex flex-col items-center">
-              <span className="text-[8px] font-black text-notion-light-muted dark:text-notion-dark-muted uppercase tracking-widest">Est. XP</span>
+              <span className="text-[8px] font-black text-notion-light-muted dark:text-notion-dark-muted uppercase tracking-widest">
+                Est. XP
+              </span>
               <span className="text-sm font-black text-indigo-500">
-                +{Math.round((task.priority === "High" ? 150 : task.priority === "Medium" ? 120 : 100) * sessionMultiplier)}
+                +
+                {Math.round(
+                  (task.priority === "High"
+                    ? 150
+                    : task.priority === "Medium"
+                      ? 120
+                      : 100) * sessionMultiplier,
+                )}
               </span>
             </div>
           </div>

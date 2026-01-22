@@ -14,6 +14,7 @@ import { useReflection } from "../hooks/useReflection";
 import { useIntegrations } from "../hooks/useIntegrations";
 import { useLifeOps } from "../hooks/useLifeOps";
 import { useOperatorAnalytics } from "../hooks/useOperatorAnalytics";
+import { RewardProvider } from "./RewardProvider";
 
 export const DataProvider: React.FC<{ children: ReactNode }> = ({
   children,
@@ -32,7 +33,10 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({
   const integrations = useIntegrations(config, showToast);
   const lifeOps = useLifeOps(config, showToast);
   const tasks = useTasks(config, showToast);
-  const operatorMetrics = useOperatorAnalytics(tasks.entries);
+  const operatorMetrics = useOperatorAnalytics(
+    tasks.entries,
+    awareness.mentalStates,
+  );
 
   const value = useMemo(
     () => ({
@@ -65,5 +69,9 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({
     ],
   );
 
-  return <DataContext.Provider value={value}>{children}</DataContext.Provider>;
+  return (
+    <DataContext.Provider value={value}>
+      <RewardProvider metrics={operatorMetrics}>{children}</RewardProvider>
+    </DataContext.Provider>
+  );
 };

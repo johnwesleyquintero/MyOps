@@ -1,7 +1,10 @@
 import { useMemo } from "react";
-import { TaskEntry, OperatorMetrics } from "../types";
+import { TaskEntry, OperatorMetrics, MentalStateEntry } from "../types";
 
-export const useOperatorAnalytics = (entries: TaskEntry[]) => {
+export const useOperatorAnalytics = (
+  entries: TaskEntry[],
+  mentalStates: MentalStateEntry[] = [],
+) => {
   const metrics: OperatorMetrics = useMemo(() => {
     const doneTasks = entries.filter((e) => e.status === "Done");
     const totalTasksCompleted = doneTasks.length;
@@ -54,6 +57,12 @@ export const useOperatorAnalytics = (entries: TaskEntry[]) => {
       }
     }
 
+    // Peak State Completions
+    const peakStateCompletions = doneTasks.filter((task) => {
+      const stateOnDate = mentalStates.find((m) => m.date === task.date);
+      return stateOnDate?.energy === "high" && stateOnDate?.clarity === "sharp";
+    }).length;
+
     // Artifacts: 1 artifact per 5 tasks
     const artifactsGained = Math.floor(totalTasksCompleted / 5);
 
@@ -64,8 +73,9 @@ export const useOperatorAnalytics = (entries: TaskEntry[]) => {
       artifactsGained,
       totalTasksCompleted,
       lastActiveDate: completionDates[0] || "",
+      peakStateCompletions,
     };
-  }, [entries]);
+  }, [entries, mentalStates]);
 
   return metrics;
 };

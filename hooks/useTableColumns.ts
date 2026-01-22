@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useEffect } from "react";
 
 export type SortKey = string;
 
@@ -36,11 +36,8 @@ export const useTableColumns = <T extends string>(
     return defaultColumns;
   });
 
-  const [prevStorageKey, setPrevStorageKey] = useState(storageKey);
-
   // If storageKey changes, reset columns from localStorage
-  if (storageKey !== prevStorageKey) {
-    setPrevStorageKey(storageKey);
+  useEffect(() => {
     try {
       const saved = localStorage.getItem(storageKey);
       if (saved) {
@@ -55,46 +52,41 @@ export const useTableColumns = <T extends string>(
         const missing = defaultColumns.filter(
           (d) => !ordered.find((o) => o.key === d.key),
         );
-        setColumns([...ordered, ...missing]);
+        const nextCols = [...ordered, ...missing];
+        const timeoutId = setTimeout(() => setColumns(nextCols), 0);
+        return () => clearTimeout(timeoutId);
       } else {
-        setColumns(defaultColumns);
+        const timeoutId = setTimeout(() => setColumns(defaultColumns), 0);
+        return () => clearTimeout(timeoutId);
       }
     } catch {
       // Fail silently
     }
-  }
+  }, [storageKey, defaultColumns]);
 
-  const saveColumns = useCallback(
-    (newCols: ColumnConfig[]) => {
-      setColumns(newCols);
-      localStorage.setItem(storageKey, JSON.stringify(newCols));
-    },
-    [storageKey],
-  );
+  // Sync columns to localStorage
+  useEffect(() => {
+    localStorage.setItem(storageKey, JSON.stringify(columns));
+  }, [columns, storageKey]);
 
-  const toggleColumn = useCallback(
-    (key: T) => {
-      const newCols = columns.map((c) =>
-        c.key === key ? { ...c, visible: !c.visible } : c,
-      );
-      saveColumns(newCols);
-    },
-    [columns, saveColumns],
-  );
+  const toggleColumn = useCallback((key: T) => {
+    setColumns((prev) =>
+      prev.map((c) => (c.key === key ? { ...c, visible: !c.visible } : c)),
+    );
+  }, []);
 
-  const moveColumn = useCallback(
-    (index: number, direction: "up" | "down") => {
-      const newCols = [...columns];
+  const moveColumn = useCallback((index: number, direction: "up" | "down") => {
+    setColumns((prev) => {
+      const newCols = [...prev];
       const targetIndex = direction === "up" ? index - 1 : index + 1;
-      if (targetIndex < 0 || targetIndex >= newCols.length) return;
+      if (targetIndex < 0 || targetIndex >= newCols.length) return prev;
       [newCols[index], newCols[targetIndex]] = [
         newCols[targetIndex],
         newCols[index],
       ];
-      saveColumns(newCols);
-    },
-    [columns, saveColumns],
-  );
+      return newCols;
+    });
+  }, []);
 
   return useMemo(
     () => ({

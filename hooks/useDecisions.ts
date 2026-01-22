@@ -6,9 +6,11 @@ import {
   updateDecision,
   deleteDecision as deleteDecisionService,
 } from "../services/strategyService";
-import { toast } from "sonner";
 
-export const useDecisions = (config: AppConfig) => {
+export const useDecisions = (
+  config: AppConfig,
+  showToast: (msg: string, type: "success" | "error" | "info") => void,
+) => {
   const [decisions, setDecisions] = useState<DecisionEntry[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -19,10 +21,11 @@ export const useDecisions = (config: AppConfig) => {
       setDecisions(data);
     } catch (e) {
       console.error("Failed to load decisions", e);
+      showToast("Failed to load decisions", "error");
     } finally {
       setIsLoading(false);
     }
-  }, [config]);
+  }, [config, showToast]);
 
   useEffect(() => {
     load();
@@ -32,35 +35,40 @@ export const useDecisions = (config: AppConfig) => {
     async (entry: DecisionEntry) => {
       try {
         if (entry.id) {
-          await updateDecision(entry, config);
-          toast.success("Decision updated");
+          const updated = await updateDecision(entry, config);
+          setDecisions((prev) =>
+            prev.map((d) => (d.id === updated.id ? updated : d)),
+          );
+          showToast("Decision updated", "success");
+          return updated;
         } else {
-          await addDecision(entry, config);
-          toast.success("Decision logged");
+          const created = await addDecision(entry, config);
+          setDecisions((prev) => [created, ...prev]);
+          showToast("Decision logged", "success");
+          return created;
         }
-        await load();
       } catch (error) {
         console.error("Failed to save decision", error);
-        toast.error("Failed to save decision");
+        showToast("Failed to save decision", "error");
         throw error;
       }
     },
-    [config, load],
+    [config, showToast],
   );
 
   const deleteDecision = useCallback(
     async (id: string) => {
       try {
         await deleteDecisionService(id, config);
-        await load();
-        toast.success("Decision deleted");
+        setDecisions((prev) => prev.filter((d) => d.id !== id));
+        showToast("Decision deleted", "success");
       } catch (error) {
         console.error("Failed to delete decision", error);
-        toast.error("Failed to delete decision");
+        showToast("Failed to delete decision", "error");
         throw error;
       }
     },
-    [config, load],
+    [config, showToast],
   );
 
   return useMemo(

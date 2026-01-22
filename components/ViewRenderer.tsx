@@ -1,4 +1,4 @@
-import React, { lazy } from "react";
+import React, { lazy, useCallback } from "react";
 import { useConfig } from "../hooks/useConfig";
 import { useNotification } from "../hooks/useNotification";
 import { useUi } from "../hooks/useUi";
@@ -6,6 +6,7 @@ import { useData } from "../hooks/useData";
 import { useTaskActions } from "../hooks/useTaskActions";
 import { useTaskAnalytics } from "../hooks/useTaskAnalytics";
 import { useMissionControl } from "../hooks/useMissionControl";
+import { TaskEntry } from "../types";
 
 // Lazy-loaded views
 const DashboardView = lazy(() =>
@@ -117,6 +118,31 @@ export const ViewRenderer: React.FC = React.memo(() => {
     mentalStates: awareness.mentalStates,
     setActivePage: ui.setActivePage,
   });
+
+  const handleFocus = useCallback(
+    (e: TaskEntry) => {
+      ui.enterFocus(e);
+      showToast("Focus Mode Engaged", "info");
+    },
+    [ui, showToast],
+  );
+
+  const handleDuplicate = useCallback(
+    (e: TaskEntry) => {
+      ui.setEditingEntry(taskActions.handleDuplicate(e));
+      ui.setIsTaskModalOpen(true);
+      showToast("Mission Cloned", "success");
+    },
+    [ui, taskActions, showToast],
+  );
+
+  const showIntegrations = useCallback(
+    () => ui.setActivePage("INTEGRATIONS"),
+    [ui],
+  );
+  const showStory = useCallback(() => ui.setActivePage("STORY"), [ui]);
+  const openSettings = useCallback(() => ui.setShowSettings(true), [ui]);
+
   const missionControl = useMissionControl(entries);
 
   const { filteredEntries, globalMetrics } = useTaskAnalytics({
@@ -142,15 +168,8 @@ export const ViewRenderer: React.FC = React.memo(() => {
           onEdit={ui.openEdit}
           onDelete={removeTransaction}
           onStatusUpdate={taskActions.handleStatusUpdate}
-          onFocus={(e) => {
-            ui.enterFocus(e);
-            showToast("Focus Mode Engaged", "info");
-          }}
-          onDuplicate={(e) => {
-            ui.setEditingEntry(taskActions.handleDuplicate(e));
-            ui.setIsTaskModalOpen(true);
-            showToast("Mission Cloned", "success");
-          }}
+          onFocus={handleFocus}
+          onDuplicate={handleDuplicate}
           onNavigate={ui.setActivePage}
         />
       );
@@ -164,15 +183,8 @@ export const ViewRenderer: React.FC = React.memo(() => {
           onDelete={removeTransaction}
           onBulkDelete={tasks.bulkRemoveTransactions}
           onStatusUpdate={taskActions.handleStatusUpdate}
-          onFocus={(e) => {
-            ui.enterFocus(e);
-            showToast("Focus Mode Engaged", "info");
-          }}
-          onDuplicate={(e) => {
-            ui.setEditingEntry(taskActions.handleDuplicate(e));
-            ui.setIsTaskModalOpen(true);
-            showToast("Mission Cloned", "success");
-          }}
+          onFocus={handleFocus}
+          onDuplicate={handleDuplicate}
           onAdd={ui.openCreate}
           {...missionControl}
         />
@@ -181,7 +193,7 @@ export const ViewRenderer: React.FC = React.memo(() => {
       return (
         <BlueprintView
           onNavigate={ui.setActivePage}
-          onOpenSettings={() => ui.setShowSettings(true)}
+          onOpenSettings={openSettings}
         />
       );
     case "CRM":
@@ -275,13 +287,11 @@ export const ViewRenderer: React.FC = React.memo(() => {
           onDelete={integrations.deleteIntegration}
           onToggle={integrations.toggleIntegration}
           onTest={integrations.testConnection}
-          onShowStory={() => ui.setActivePage("STORY")}
+          onShowStory={showStory}
         />
       );
     case "STORY":
-      return (
-        <IntegrationStoryView onBack={() => ui.setActivePage("INTEGRATIONS")} />
-      );
+      return <IntegrationStoryView onBack={showIntegrations} />;
     case "LIFE":
       return (
         <LifeView

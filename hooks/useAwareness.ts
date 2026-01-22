@@ -5,7 +5,10 @@ import {
   saveMentalState as saveMentalStateService,
 } from "../services/awarenessService";
 
-export const useAwareness = (config: AppConfig) => {
+export const useAwareness = (
+  config: AppConfig,
+  showToast?: (msg: string, type: "success" | "error" | "info") => void,
+) => {
   const [mentalStates, setMentalStates] = useState<MentalStateEntry[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -16,10 +19,11 @@ export const useAwareness = (config: AppConfig) => {
       setMentalStates(data);
     } catch (e) {
       console.error("Failed to load mental states", e);
+      if (showToast) showToast("Failed to load mental states", "error");
     } finally {
       setIsLoading(false);
     }
-  }, [config]);
+  }, [config, showToast]);
 
   useEffect(() => {
     load();
@@ -33,13 +37,15 @@ export const useAwareness = (config: AppConfig) => {
           const filtered = prev.filter((e) => e.date !== saved.date);
           return [saved, ...filtered];
         });
+        if (showToast) showToast("Mental state logged", "success");
         return saved;
       } catch (e) {
         console.error("Failed to save mental state", e);
+        if (showToast) showToast("Failed to save state", "error");
         throw e;
       }
     },
-    [config],
+    [config, showToast],
   );
 
   return useMemo(

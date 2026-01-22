@@ -45,7 +45,7 @@ export const addDecision = async (
 export const updateDecision = async (
   entry: DecisionEntry,
   config: AppConfig,
-): Promise<void> => {
+): Promise<DecisionEntry> => {
   if (config.mode === "DEMO") {
     await new Promise((resolve) => setTimeout(resolve, 50));
     const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
@@ -61,6 +61,7 @@ export const updateDecision = async (
       token: config.apiToken,
     });
   }
+  return entry;
 };
 
 export const deleteDecision = async (

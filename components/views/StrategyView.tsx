@@ -6,12 +6,13 @@ import { ViewHeader } from "../ViewHeader";
 import { Button, Spinner } from "../ui";
 import { MODULE_COLORS } from "@/constants";
 import { useAwareness } from "@/hooks/useAwareness";
+import { ConfirmationModal } from "../ConfirmationModal";
 
 interface StrategyViewProps {
   config: AppConfig;
   decisions: DecisionEntry[];
   isLoading: boolean;
-  onSave: (entry: DecisionEntry) => Promise<void>;
+  onSave: (entry: DecisionEntry) => Promise<DecisionEntry>;
   onDelete: (id: string) => Promise<void>;
 }
 
@@ -20,6 +21,9 @@ export const StrategyView: React.FC<StrategyViewProps> = React.memo(
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingDecision, setEditingDecision] =
       useState<DecisionEntry | null>(null);
+    const [decisionToDelete, setDecisionToDelete] = useState<string | null>(
+      null,
+    );
 
     const colors = MODULE_COLORS.strategy;
     const tacticColors = MODULE_COLORS.sovereign;
@@ -30,18 +34,18 @@ export const StrategyView: React.FC<StrategyViewProps> = React.memo(
         await onSave(entry);
         setIsModalOpen(false);
         setEditingDecision(null);
-      } catch (error) {
-        console.error("Failed to save decision", error);
+      } catch {
+        // Error handling is in the hook
       }
     };
 
-    const handleDelete = async (id: string) => {
-      if (confirm("Are you sure you want to abort this decision log?")) {
-        try {
-          await onDelete(id);
-        } catch (error) {
-          console.error("Failed to delete decision", error);
-        }
+    const handleDelete = async () => {
+      if (!decisionToDelete) return;
+      try {
+        await onDelete(decisionToDelete);
+        setDecisionToDelete(null);
+      } catch {
+        // Error handling is in the hook
       }
     };
 
@@ -110,7 +114,7 @@ export const StrategyView: React.FC<StrategyViewProps> = React.memo(
                     </Button>
                     <Button
                       variant="custom"
-                      onClick={() => handleDelete(decision.id)}
+                      onClick={() => setDecisionToDelete(decision.id)}
                       className={`p-1.5 ${MODULE_COLORS.error.bg.replace("bg-", "hover:bg-")} ${MODULE_COLORS.error.text.replace("text-", "hover:text-")} rounded-lg text-notion-light-muted dark:text-notion-dark-muted transition-all`}
                     >
                       <Icon.Delete size={14} />
@@ -221,6 +225,17 @@ export const StrategyView: React.FC<StrategyViewProps> = React.memo(
             config={config}
           />
         )}
+
+        <ConfirmationModal
+          isOpen={!!decisionToDelete}
+          onClose={() => setDecisionToDelete(null)}
+          onConfirm={handleDelete}
+          title="Delete Decision Log"
+          confirmText="Delete"
+        >
+          Are you sure you want to abort this decision log? This action cannot
+          be undone.
+        </ConfirmationModal>
       </div>
     );
   },
@@ -228,7 +243,7 @@ export const StrategyView: React.FC<StrategyViewProps> = React.memo(
 
 interface DecisionModalProps {
   onClose: () => void;
-  onSave: (entry: DecisionEntry) => void;
+  onSave: (entry: DecisionEntry) => Promise<void>;
   initialData: DecisionEntry | null;
   config: AppConfig;
 }
@@ -405,7 +420,7 @@ const DecisionModal: React.FC<DecisionModalProps> = ({
             <input
               type="text"
               placeholder="e.g. Market will grow, No new competitors..."
-              value={formData.assumptions.join(", ")}
+              value={(formData.assumptions || []).join(", ")}
               onChange={(e) =>
                 setFormData({
                   ...formData,

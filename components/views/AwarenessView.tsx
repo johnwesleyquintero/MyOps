@@ -3,7 +3,6 @@ import { MentalStateEntry } from "@/types";
 import { ViewHeader } from "../ViewHeader";
 import { Icon } from "../Icons";
 import { Button, Spinner } from "../ui";
-import { toast } from "sonner";
 import { MODULE_COLORS } from "@/constants";
 
 interface AwarenessViewProps {
@@ -40,12 +39,8 @@ export const AwarenessView: React.FC<AwarenessViewProps> = React.memo(
     const handleSave = async () => {
       try {
         await onSave(todayEntry);
-        toast.success("Mental state logged", {
-          description: "Your capacity constraints have been updated.",
-        });
-      } catch (e) {
-        console.error("Failed to save mental state", e);
-        toast.error("Failed to save state");
+      } catch {
+        // Error handling is now in the hook/service layer
       }
     };
 

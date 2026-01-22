@@ -1,10 +1,12 @@
 import React, { useState } from "react";
-import { Icon, iconProps } from "../Icons";
+import { Icon } from "../Icons";
 import { ViewHeader } from "../ViewHeader";
-import { Button } from "../ui";
+import { Button, Card } from "../ui";
 import { toast } from "sonner";
 import reportData from "../../code-check-report.json";
 import { MODULE_COLORS } from "@/constants";
+import { EmpirePulseReport } from "../analytics/EmpirePulseReport";
+import { useEmpirePulse } from "../../hooks/useEmpirePulse";
 
 interface CheckResult {
   name: string;
@@ -20,6 +22,8 @@ interface ReportData {
 }
 
 export const ReportView: React.FC = () => {
+  const [activeTab, setActiveTab] = useState<"pulse" | "code">("pulse");
+  const pulseData = useEmpirePulse();
   const [report] = useState<ReportData | null>(reportData as ReportData);
   const [loading] = useState(false);
   const [error] = useState<string | null>(
@@ -27,9 +31,42 @@ export const ReportView: React.FC = () => {
       ? null
       : "Report data not found. Run 'npm run check:json' first.",
   );
-  const [copied, setCopied] = useState(false);
+  const [, setCopied] = useState(false);
 
   const generateMarkdown = () => {
+    if (activeTab === "pulse") {
+      let md = `# 🛡️ EMPIRE PULSE REPORT\n\n`;
+      md += `> *Operational Intelligence Briefing for ${new Date().toLocaleDateString()}*\n\n`;
+
+      md += `## 🤖 Commander's Briefing\n${pulseData.commanderBriefing}\n\n`;
+
+      md += `## 📊 Core Metrics\n`;
+      md += `- **Strategic Accuracy**: \`${pulseData.overallAccuracy}%\` (${pulseData.calibrationTrend.toUpperCase()})\n`;
+      md += `- **Operational Streak**: \`${pulseData.activeStreak} Days\` 🔥\n`;
+      md += `- **Peak State Sessions**: \`${pulseData.peakStateSessions}\` ⚡\n`;
+      md += `- **Total XP**: \`${pulseData.totalXp}\` 🏆\n\n`;
+
+      md += `## 🎯 Decision Calibration\n`;
+      md += `- **Avg Confidence**: \`${pulseData.decisionInsights.avgConfidence}%\`\n`;
+      md += `- **Calibration Gap**: \`${pulseData.decisionInsights.calibrationGap}%\` (${pulseData.decisionInsights.calibrationGap < 15 ? "SYNCED" : "OFFSET"})\n`;
+      md += `- **High Impact Decisions**: \`${pulseData.decisionInsights.highImpact}\` / \`${pulseData.decisionInsights.total}\` total\n\n`;
+
+      if (pulseData.topProject) {
+        md += `## 🚩 Top Theater: ${pulseData.topProject.name.toUpperCase()}\n`;
+        md += `- **Momentum Score**: \`${pulseData.topProject.momentum}\`\n`;
+        md += `- **Theater Accuracy**: \`${pulseData.topProject.accuracy}%\`\n`;
+        md += `- **Peak Multiplier**: \`${pulseData.topProject.peakStateMultiplier}x\`\n`;
+        md += `- **Completion Rate**: \`${pulseData.topProject.completionRate}%\`\n\n`;
+      }
+
+      md += `## ⚠️ Risk Assessment\n`;
+      md += `- **Stagnant Theaters**: \`${pulseData.projectsAtRisk}\` ${pulseData.projectsAtRisk > 0 ? "🔴" : "🟢"}\n`;
+      md += `- **System Status**: \`${pulseData.projectsAtRisk > 0 ? "ENGAGEMENT REQUIRED" : "OPTIMAL"}\`\n\n`;
+
+      md += `--- \n*Generated via MyOps Command Center*`;
+      return md;
+    }
+
     if (!report) return "";
 
     let md = "# Code Check Report\n\n";
@@ -67,125 +104,128 @@ export const ReportView: React.FC = () => {
     );
   }
 
-  if (error) {
-    return (
-      <div
-        className={`p-8 text-center bg-notion-light-sidebar dark:bg-notion-dark-sidebar rounded-2xl border ${MODULE_COLORS.error.border}`}
-      >
-        <Icon.Alert
-          className={`mx-auto mb-4 ${MODULE_COLORS.error.text}`}
-          size={32}
-        />
-        <h3 className="text-lg font-bold text-notion-light-text dark:text-notion-dark-text mb-2">
-          Error Loading Report
-        </h3>
-        <p className="text-notion-light-muted dark:text-notion-dark-muted mb-4">
-          {error}
-        </p>
-        <Button
-          variant="danger"
-          onClick={() => window.location.reload()}
-          className="mx-auto"
-        >
-          Retry
-        </Button>
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-8 animate-in fade-in duration-500 pb-20">
       <ViewHeader
-        title="Code Intelligence"
-        subTitle="Automated codebase health and architecture report"
+        title="Intelligence Reports"
+        subTitle="Operational briefings and system diagnostics"
       >
-        <Button
-          variant="custom"
-          onClick={handleCopyMd}
-          className={`w-full sm:w-auto justify-center transition-all px-4 py-2 rounded font-medium active:scale-95 ${
-            copied
-              ? `${MODULE_COLORS.crm.bg} ${MODULE_COLORS.crm.border} ${MODULE_COLORS.crm.text}`
-              : "hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover text-notion-light-muted dark:text-notion-dark-muted hover:text-notion-light-text dark:hover:text-notion-dark-text border border-notion-light-border dark:border-notion-dark-border"
-          }`}
-        >
-          {copied ? (
-            <>
-              <Icon.Check {...iconProps(14)} />
-              COPIED!
-            </>
-          ) : (
-            <>
-              <Icon.Copy {...iconProps(14)} />
-              COPY
-            </>
-          )}
-        </Button>
+        <div className="flex items-center gap-2">
+          <div className="flex bg-black/5 dark:bg-white/5 p-1 rounded-xl border border-notion-light-border dark:border-white/10">
+            <button
+              onClick={() => setActiveTab("pulse")}
+              className={`px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${
+                activeTab === "pulse"
+                  ? "bg-indigo-500 text-white shadow-lg"
+                  : "text-notion-light-muted dark:text-white/40 hover:text-notion-light-text dark:hover:text-white/60"
+              }`}
+            >
+              Empire Pulse
+            </button>
+            <button
+              onClick={() => setActiveTab("code")}
+              className={`px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${
+                activeTab === "code"
+                  ? "bg-indigo-500 text-white shadow-lg"
+                  : "text-notion-light-muted dark:text-white/40 hover:text-notion-light-text dark:hover:text-white/60"
+              }`}
+            >
+              Code Health
+            </button>
+          </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleCopyMd}
+            className="flex items-center gap-2 text-notion-light-text dark:text-notion-dark-text"
+          >
+            <Icon.Copy size={14} />
+            <span className="text-[10px] font-black uppercase tracking-widest">
+              Copy MD
+            </span>
+          </Button>
+        </div>
       </ViewHeader>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {report?.results.map((res, idx) => (
-          <div
-            key={idx}
-            className={`p-4 rounded-2xl border transition-all duration-300 ${
-              res.success
-                ? `bg-notion-light-bg dark:bg-notion-dark-bg ${MODULE_COLORS.crm.border}`
-                : `bg-notion-light-bg dark:bg-notion-dark-bg ${MODULE_COLORS.error.border}`
-            }`}
-          >
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-[10px] font-black uppercase tracking-widest opacity-40 text-notion-light-text dark:text-notion-dark-text">
-                Check Unit
-              </span>
-              {res.success ? (
-                <Icon.Completed className={MODULE_COLORS.crm.text} size={16} />
-              ) : (
-                <Icon.Alert className={MODULE_COLORS.error.text} size={16} />
-              )}
+      {activeTab === "pulse" ? (
+        <EmpirePulseReport data={pulseData} />
+      ) : (
+        <div className="space-y-6">
+          {error ? (
+            <div
+              className={`p-8 text-center bg-notion-light-sidebar dark:bg-notion-dark-sidebar rounded-2xl border ${MODULE_COLORS.error.border}`}
+            >
+              <Icon.Alert
+                className={`mx-auto mb-4 ${MODULE_COLORS.error.text}`}
+                size={32}
+              />
+              <h3 className="text-lg font-bold text-notion-light-text dark:text-notion-dark-text mb-2">
+                Error Loading Report
+              </h3>
+              <p className="text-notion-light-muted dark:text-notion-dark-muted mb-4">
+                {error}
+              </p>
+              <Button
+                variant="danger"
+                onClick={() => window.location.reload()}
+                className="mx-auto"
+              >
+                Retry
+              </Button>
             </div>
-            <h3 className="text-sm font-bold text-notion-light-text dark:text-notion-dark-text">
-              {res.name}
-            </h3>
-            <code className="text-[10px] block mt-1 opacity-60 font-mono text-notion-light-text dark:text-notion-dark-text">
-              {res.command}
-            </code>
-          </div>
-        ))}
-      </div>
-
-      <div className="space-y-6">
-        {report?.results.map((res, idx) => (
-          <div
-            key={idx}
-            className="bg-notion-light-sidebar dark:bg-notion-dark-sidebar rounded-2xl border border-notion-light-border dark:border-notion-dark-border overflow-hidden"
-          >
-            <div className="px-5 py-3 border-b border-notion-light-border dark:border-notion-dark-border flex items-center justify-between bg-notion-light-bg dark:bg-notion-dark-bg">
-              <div className="flex items-center gap-3">
-                <div
-                  className={`w-2 h-2 rounded-full ${res.success ? MODULE_COLORS.crm.dot : `${MODULE_COLORS.error.dot} animate-pulse`}`}
-                ></div>
-                <h3 className="text-xs font-bold text-notion-light-text dark:text-notion-dark-text uppercase tracking-wider">
-                  {res.name} Output
-                </h3>
-              </div>
-              <span
-                className={`text-[9px] font-black px-2 py-0.5 rounded-full ${
-                  res.success
-                    ? `${MODULE_COLORS.crm.bg} ${MODULE_COLORS.crm.text} border ${MODULE_COLORS.crm.border}`
-                    : `${MODULE_COLORS.error.bg} ${MODULE_COLORS.error.text} border ${MODULE_COLORS.error.border}`
+          ) : (
+            report?.results.map((res, i) => (
+              <Card
+                key={i}
+                className={`overflow-hidden border-l-4 ${
+                  res.success ? "border-l-emerald-500" : "border-l-rose-500"
                 }`}
               >
-                {res.success ? "PASSED" : "FAILED"}
-              </span>
-            </div>
-            <div className="p-5 font-mono text-[11px] leading-relaxed overflow-x-auto max-h-[400px] custom-scrollbar bg-black/5 dark:bg-black/20">
-              <pre className="text-notion-light-text dark:text-notion-dark-text whitespace-pre-wrap">
-                {/* eslint-disable-next-line no-control-regex */}
-                {res.combinedOutput.replace(/\x1b\[\d+m/g, "")}
-              </pre>
-            </div>
-          </div>
-        ))}
-      </div>
+                <div className="p-6">
+                  <div className="flex justify-between items-center mb-4">
+                    <div className="flex items-center gap-3">
+                      <div
+                        className={`p-2 rounded-lg ${
+                          res.success
+                            ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-500"
+                            : "bg-rose-500/10 text-rose-600 dark:text-rose-500"
+                        }`}
+                      >
+                        {res.success ? (
+                          <Icon.Completed size={20} />
+                        ) : (
+                          <Icon.Alert size={20} />
+                        )}
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-bold text-notion-light-text dark:text-white">
+                          {res.name}
+                        </h3>
+                        <p className="text-[10px] font-bold text-notion-light-muted dark:text-white/40 uppercase tracking-widest">
+                          {res.command}
+                        </p>
+                      </div>
+                    </div>
+                    <span
+                      className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${
+                        res.success
+                          ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-500"
+                          : "bg-rose-500/10 text-rose-600 dark:text-rose-500"
+                      }`}
+                    >
+                      {res.success ? "Passed" : "Failed"}
+                    </span>
+                  </div>
+                  <div className="bg-black/5 dark:bg-black/40 border border-notion-light-border dark:border-white/5 rounded-xl p-4 font-mono text-xs text-notion-light-text/70 dark:text-white/60 overflow-x-auto whitespace-pre">
+                    {/* eslint-disable-next-line no-control-regex */}
+                    {res.combinedOutput.replace(/\x1b\[\d+m/g, "")}
+                  </div>
+                </div>
+              </Card>
+            ))
+          )}
+        </div>
+      )}
     </div>
   );
 };

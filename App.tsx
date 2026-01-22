@@ -259,7 +259,12 @@ const App: React.FC = () => {
           />
         );
       case "BLUEPRINT":
-        return <BlueprintView onNavigate={ui.setActivePage} />;
+        return (
+          <BlueprintView
+            onNavigate={ui.setActivePage}
+            onOpenSettings={() => ui.setShowSettings(true)}
+          />
+        );
       case "CRM":
         return (
           <CrmView
@@ -385,6 +390,10 @@ const App: React.FC = () => {
         );
       case "AWARENESS":
         return <AwarenessView config={config} />;
+      case "FOCUS":
+        // Fallback if accessed without a focused task
+        ui.setActivePage("MISSIONS");
+        return null;
       default:
         return null;
     }

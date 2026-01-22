@@ -8,9 +8,13 @@ import { Button, Card, Badge } from "../ui";
 
 interface BlueprintViewProps {
   onNavigate?: (page: Page) => void;
+  onOpenSettings?: () => void;
 }
 
-export const BlueprintView: React.FC<BlueprintViewProps> = ({ onNavigate }) => {
+export const BlueprintView: React.FC<BlueprintViewProps> = ({
+  onNavigate,
+  onOpenSettings,
+}) => {
   const [copied, setCopied] = useState(false);
   const crmColors = MODULE_COLORS.crm;
   const docsColors = MODULE_COLORS.docs;
@@ -166,16 +170,21 @@ export const BlueprintView: React.FC<BlueprintViewProps> = ({ onNavigate }) => {
               <div className="mt-8 pt-5 border-t border-notion-light-border dark:border-notion-dark-border flex items-center justify-between group-hover:border-notion-light-text/10 dark:group-hover:border-notion-dark-text/10 transition-colors">
                 <Button
                   onClick={() => {
-                    if (mod.status === "ACTIVE" && onNavigate) {
-                      const targetPage =
-                        mod.pageId || (mod.id.toUpperCase() as Page);
-                      onNavigate(targetPage);
+                    if (mod.status === "ACTIVE") {
+                      if (mod.pageId === "SETTINGS" && onOpenSettings) {
+                        onOpenSettings();
+                        return;
+                      }
+
+                      if (onNavigate) {
+                        const targetPage =
+                          mod.pageId || (mod.id.toUpperCase() as Page);
+                        onNavigate(targetPage);
+                      }
                     } else {
                       toast.info(`${mod.title} initialization`, {
                         description:
-                          mod.status === "ACTIVE"
-                            ? "Module is already active."
-                            : "This module is in the roadmap and will be available soon.",
+                          "This module is in the roadmap and will be available soon.",
                       });
                     }
                   }}

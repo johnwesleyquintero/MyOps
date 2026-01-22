@@ -187,6 +187,8 @@ const App: React.FC = () => {
       >
         <FocusMode
           task={ui.focusedTask}
+          mentalStates={awareness.mentalStates}
+          isHudMode={ui.isHudMode}
           onExit={() => {
             ui.exitFocus();
             showToast("Focus Mode Disengaged", "info");
@@ -212,6 +214,7 @@ const App: React.FC = () => {
             entries={entries}
             metrics={globalMetrics}
             operatorMetrics={operatorMetrics}
+            mentalStates={awareness.mentalStates}
             isLoading={isLoading}
             onEdit={ui.openEdit}
             onDelete={removeTransaction}

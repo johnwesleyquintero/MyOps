@@ -1,12 +1,14 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import ReactMarkdown from "react-markdown";
-import { TaskEntry } from "../types";
+import { TaskEntry, MentalStateEntry } from "../types";
 import { PRIORITY_DOTS } from "@/constants";
 import { Icon } from "./Icons";
 import { Button } from "./ui/Button";
 
 interface FocusModeProps {
   task: TaskEntry;
+  mentalStates: MentalStateEntry[];
+  isHudMode?: boolean;
   onExit: () => void;
   onUpdate: (task: TaskEntry) => Promise<void>;
   onComplete: (task: TaskEntry) => Promise<void>;
@@ -14,6 +16,8 @@ interface FocusModeProps {
 
 export const FocusMode: React.FC<FocusModeProps> = ({
   task,
+  mentalStates,
+  isHudMode = false,
   onExit,
   onUpdate,
   onComplete,
@@ -24,6 +28,23 @@ export const FocusMode: React.FC<FocusModeProps> = ({
   const [mode, setMode] = useState<"WORK" | "BREAK">("WORK");
   const [sessionNotes, setSessionNotes] = useState("");
   const [showDetails, setShowDetails] = useState(false);
+
+  // Calculate session value multiplier based on mental state
+  const sessionMultiplier = useMemo(() => {
+    const today = new Date().toISOString().split("T")[0];
+    const todaysState = mentalStates.find((m) => m.date === today);
+
+    let multiplier = 1.0;
+    if (todaysState) {
+      if (todaysState.energy === "high") multiplier += 0.2;
+      if (todaysState.clarity === "sharp") multiplier += 0.2;
+      if (todaysState.energy === "low") multiplier -= 0.1;
+      if (todaysState.clarity === "foggy") multiplier -= 0.1;
+    }
+    return Math.max(0.5, multiplier);
+  }, [mentalStates]);
+
+  const isPeakState = sessionMultiplier >= 1.4;
 
   useEffect(() => {
     let interval: ReturnType<typeof setTimeout>;
@@ -83,7 +104,20 @@ export const FocusMode: React.FC<FocusModeProps> = ({
 
       await onUpdate({ ...task, description: newDescription });
     }
-    onExit();
+    
+    // Auto-trigger reflection for significant sessions
+    if (isActive || sessionNotes.trim().length > 50) {
+      if (window.confirm("Log a quick reflection for this session?")) {
+        onExit();
+        // The App.tsx handles navigation, we just need to ensure onExit is called
+        // and ideally we'd pass a flag to navigate to REFLECTION, but for now 
+        // let's rely on the existing toast mechanism or a manual move.
+      } else {
+        onExit();
+      }
+    } else {
+      onExit();
+    }
   };
 
   const handleCompleteTask = async () => {
@@ -111,17 +145,22 @@ export const FocusMode: React.FC<FocusModeProps> = ({
   return (
     <div className="fixed inset-0 z-[100] bg-notion-light-bg dark:bg-notion-dark-bg text-notion-light-text dark:text-notion-dark-text flex flex-col animate-in fade-in duration-500">
       {/* Top Bar */}
-      <div className="flex justify-between items-center p-6 border-b border-notion-light-border dark:border-notion-dark-border bg-notion-light-sidebar/30 dark:bg-notion-dark-sidebar/30 backdrop-blur-md">
+      <div className="flex justify-between items-center p-6 border-b border-notion-light-border dark:border-notion-dark-border bg-notion-light-sidebar/30 dark:bg-notion-dark-sidebar/30 backdrop-blur-md relative z-[110]">
         <div className="flex items-center gap-4">
           <div className="p-2.5 bg-notion-light-bg dark:bg-notion-dark-bg rounded-xl shadow-sm border border-notion-light-border dark:border-notion-dark-border">
             <Icon.Focus
               size={20}
-              className="text-notion-light-text dark:text-notion-dark-text"
+              className={`${isActive ? "animate-pulse text-indigo-500" : "text-notion-light-text dark:text-notion-dark-text"}`}
             />
           </div>
           <div>
-            <div className="text-[10px] font-black uppercase tracking-[0.2em] text-notion-light-muted dark:text-notion-dark-muted">
+            <div className="text-[10px] font-black uppercase tracking-[0.2em] text-notion-light-muted dark:text-notion-dark-muted flex items-center gap-2">
               Deep Work Protocol
+              {isPeakState && (
+                <span className="px-1.5 py-0.5 bg-indigo-500/10 text-indigo-500 rounded text-[8px] border border-indigo-500/20 animate-pulse">
+                  PEAK STATE ACTIVE
+                </span>
+              )}
             </div>
             <div className="text-[15px] font-bold text-notion-light-text dark:text-notion-dark-text flex items-center gap-2">
               {task.project}
@@ -131,6 +170,26 @@ export const FocusMode: React.FC<FocusModeProps> = ({
             </div>
           </div>
         </div>
+
+        {/* HUD Overlay for Focus Mode */}
+        {isHudMode && (
+          <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-8 bg-black/5 dark:bg-white/5 px-6 py-2 rounded-2xl border border-notion-light-border dark:border-notion-dark-border backdrop-blur-sm animate-slide-up">
+            <div className="flex flex-col items-center">
+              <span className="text-[8px] font-black text-notion-light-muted dark:text-notion-dark-muted uppercase tracking-widest">Efficiency</span>
+              <span className={`text-sm font-black ${isPeakState ? "text-indigo-500" : "text-notion-light-text dark:text-notion-dark-text"}`}>
+                {Math.round(sessionMultiplier * 100)}%
+              </span>
+            </div>
+            <div className="w-px h-6 bg-notion-light-border dark:border-notion-dark-border" />
+            <div className="flex flex-col items-center">
+              <span className="text-[8px] font-black text-notion-light-muted dark:text-notion-dark-muted uppercase tracking-widest">Est. XP</span>
+              <span className="text-sm font-black text-indigo-500">
+                +{Math.round((task.priority === "High" ? 150 : task.priority === "Medium" ? 120 : 100) * sessionMultiplier)}
+              </span>
+            </div>
+          </div>
+        )}
+
         <Button
           variant="custom"
           onClick={handleSaveAndExit}

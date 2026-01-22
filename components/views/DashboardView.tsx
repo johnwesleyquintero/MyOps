@@ -1,5 +1,11 @@
-import React from "react";
-import { TaskEntry, MetricSummary, Page, OperatorMetrics } from "@/types";
+import React, { useMemo } from "react";
+import {
+  TaskEntry,
+  MetricSummary,
+  Page,
+  OperatorMetrics,
+  MentalStateEntry,
+} from "@/types";
 import { SummaryCards } from "../SummaryCards";
 import { MissionTrendChart } from "../analytics/MissionTrendChart";
 import { ProjectDistributionList } from "../analytics/ProjectDistributionList";
@@ -10,11 +16,13 @@ import { Button, Card } from "../ui";
 import { ColumnConfigDropdown } from "../ColumnConfigDropdown";
 import { MODULE_COLORS } from "@/constants";
 import { useDashboardLogic } from "../../hooks/useDashboardLogic";
+import { useUi } from "@/hooks/useUi";
 
 interface DashboardViewProps {
   entries: TaskEntry[];
   metrics: MetricSummary;
   operatorMetrics: OperatorMetrics;
+  mentalStates: MentalStateEntry[];
   isLoading: boolean;
   onEdit: (entry: TaskEntry) => void;
   onDelete: (entry: TaskEntry) => void;
@@ -30,6 +38,7 @@ export const DashboardView: React.FC<DashboardViewProps> = React.memo(
     entries,
     metrics,
     operatorMetrics,
+    mentalStates,
     isLoading,
     onEdit,
     onDelete,
@@ -41,13 +50,192 @@ export const DashboardView: React.FC<DashboardViewProps> = React.memo(
   }) => {
     const { tacticalFocus, xpProgress, columns, toggleColumn } =
       useDashboardLogic({ entries, operatorMetrics });
+    const { isHudMode, toggleHudMode } = useUi();
+
+    // Calculate Confidence Score
+    const confidenceScore = useMemo(() => {
+      let score = 50; // Base score
+
+      // Streak Bonus (cap at 30)
+      score += Math.min(operatorMetrics.streak * 5, 30);
+
+      // Mental State Impact
+      const today = new Date().toISOString().split("T")[0];
+      const todaysState = mentalStates.find((m) => m.date === today);
+
+      if (todaysState) {
+        if (todaysState.energy === "high") score += 10;
+        if (todaysState.energy === "low") score -= 10;
+
+        if (todaysState.clarity === "sharp") score += 10;
+        if (todaysState.clarity === "foggy") score -= 10;
+      }
+
+      return Math.min(Math.max(score, 0), 100);
+    }, [operatorMetrics.streak, mentalStates]);
+
+    const getConfidenceColor = (score: number) => {
+      if (score >= 80) return "text-emerald-400";
+      if (score >= 50) return "text-indigo-400";
+      return "text-amber-400";
+    };
 
     return (
-      <div className="animate-fade-in space-y-8">
+      <div
+        className={`animate-fade-in space-y-8 relative ${isHudMode ? "hud-mode" : ""}`}
+      >
         <ViewHeader
           title="Command Center"
           subTitle="Operational overview and tactical focus"
-        />
+        >
+          <button
+            onClick={toggleHudMode}
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl border transition-all duration-300 ${
+              isHudMode
+                ? "bg-indigo-600 text-white border-indigo-500 shadow-[0_0_15px_rgba(79,70,229,0.4)]"
+                : "bg-notion-light-sidebar dark:bg-notion-dark-sidebar border-notion-light-border dark:border-notion-dark-border text-notion-light-text/60 dark:text-notion-dark-text/60 hover:border-indigo-500"
+            }`}
+          >
+            <Icon.Rank size={16} className={isHudMode ? "animate-pulse" : ""} />
+            <span className="text-[10px] font-black uppercase tracking-widest">
+              {isHudMode ? "HUD Active" : "HUD Mode"}
+            </span>
+          </button>
+        </ViewHeader>
+
+        {/* HUD Elements Overlay (Conditional) */}
+        {isHudMode && (
+          <div className="fixed bottom-8 right-8 z-50 flex flex-col items-end gap-4 pointer-events-none">
+            {/* XP HUD Snippet */}
+            <div className="pointer-events-auto bg-black/80 backdrop-blur-xl border border-white/10 p-4 rounded-2xl shadow-2xl flex flex-col gap-2 min-w-[200px] animate-slide-up">
+              <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest text-white/60">
+                <span>XP PROGRESS</span>
+                <span className="text-indigo-400">
+                  LVL {operatorMetrics.level}
+                </span>
+              </div>
+              <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-gradient-to-r from-indigo-500 to-violet-500 rounded-full shadow-[0_0_10px_rgba(99,102,241,0.5)] transition-all duration-1000"
+                  style={{ width: `${xpProgress}%` }}
+                />
+              </div>
+              <div className="flex justify-between text-[9px] font-mono text-white/40">
+                <span>{operatorMetrics.xp % 1000}</span>
+                <span>1000</span>
+              </div>
+            </div>
+
+            {/* Streak HUD Snippet */}
+            <div className="pointer-events-auto bg-black/80 backdrop-blur-xl border border-white/10 p-4 rounded-2xl shadow-2xl flex items-center gap-4 animate-slide-up [animation-delay:100ms]">
+              <div className="p-3 bg-violet-500/20 rounded-xl text-violet-400 border border-violet-500/20">
+                <Icon.Streak size={20} className="animate-pulse" />
+              </div>
+              <div>
+                <span className="text-[10px] font-black uppercase tracking-widest text-white/60 block mb-0.5">
+                  OPERATOR STREAK
+                </span>
+                <span className="text-xl font-black text-white">
+                  {operatorMetrics.streak} DAYS
+                </span>
+              </div>
+            </div>
+
+            {/* Confidence Dial HUD Snippet */}
+            <div className="pointer-events-auto bg-black/80 backdrop-blur-xl border border-white/10 p-4 rounded-2xl shadow-2xl flex flex-col gap-3 min-w-[200px] animate-slide-up [animation-delay:200ms]">
+              <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest text-white/60">
+                <span>CONFIDENCE DIAL</span>
+                <span className={getConfidenceColor(confidenceScore)}>
+                  {confidenceScore}%
+                </span>
+              </div>
+              <div className="relative h-2 bg-white/10 rounded-full overflow-hidden">
+                <div
+                  className={`h-full transition-all duration-1000 ${
+                    confidenceScore >= 80
+                      ? "bg-emerald-500"
+                      : confidenceScore >= 50
+                        ? "bg-indigo-500"
+                        : "bg-amber-500"
+                  }`}
+                  style={{ width: `${confidenceScore}%` }}
+                />
+              </div>
+              <div className="flex justify-between items-center">
+                <div className="flex gap-1">
+                  {[...Array(5)].map((_, i) => (
+                    <div
+                      key={i}
+                      className={`w-2 h-1 rounded-full ${
+                        i < Math.floor(confidenceScore / 20)
+                          ? confidenceScore >= 80
+                            ? "bg-emerald-500"
+                            : confidenceScore >= 50
+                              ? "bg-indigo-500"
+                              : "bg-amber-500"
+                          : "bg-white/10"
+                      }`}
+                    />
+                  ))}
+                </div>
+                <span className="text-[9px] font-mono text-white/40 uppercase tracking-tighter">
+                  {confidenceScore >= 80
+                    ? "OPTIMAL"
+                    : confidenceScore >= 50
+                      ? "STABLE"
+                      : "CAUTION"}
+                </span>
+              </div>
+            </div>
+
+            {/* Mental State Overlays */}
+            <div className="pointer-events-auto bg-black/80 backdrop-blur-xl border border-white/10 p-4 rounded-2xl shadow-2xl flex flex-col gap-3 min-w-[200px] animate-slide-up [animation-delay:300ms]">
+              <div className="text-[10px] font-black uppercase tracking-widest text-white/60">
+                BIOMETRIC OVERLAY
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <div className="bg-white/5 p-2 rounded-lg border border-white/5">
+                  <span className="text-[8px] text-white/40 block uppercase mb-1">
+                    ENERGY
+                  </span>
+                  <div className="flex items-center gap-1.5">
+                    <div
+                      className={`w-1.5 h-1.5 rounded-full ${
+                        mentalStates[0]?.energy === "high"
+                          ? "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)]"
+                          : mentalStates[0]?.energy === "low"
+                            ? "bg-amber-500"
+                            : "bg-indigo-500"
+                      }`}
+                    />
+                    <span className="text-[10px] font-bold text-white uppercase">
+                      {mentalStates[0]?.energy || "N/A"}
+                    </span>
+                  </div>
+                </div>
+                <div className="bg-white/5 p-2 rounded-lg border border-white/5">
+                  <span className="text-[8px] text-white/40 block uppercase mb-1">
+                    CLARITY
+                  </span>
+                  <div className="flex items-center gap-1.5">
+                    <div
+                      className={`w-1.5 h-1.5 rounded-full ${
+                        mentalStates[0]?.clarity === "sharp"
+                          ? "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)]"
+                          : mentalStates[0]?.clarity === "foggy"
+                            ? "bg-amber-500"
+                            : "bg-indigo-500"
+                      }`}
+                    />
+                    <span className="text-[10px] font-bold text-white uppercase">
+                      {mentalStates[0]?.clarity || "N/A"}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Top Row: Core Metrics & Operator Status */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">

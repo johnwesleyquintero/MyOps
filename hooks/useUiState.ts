@@ -17,6 +17,12 @@ export const useUiState = () => {
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
   const [isCmdPaletteOpen, setIsCmdPaletteOpen] = useState(false);
   const [isAiChatOpen, setIsAiChatOpen] = useState(false);
+  const [isHudMode, setIsHudMode] = useState(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("myops_hud_mode") === "true";
+    }
+    return false;
+  });
 
   const [editingEntry, setEditingEntry] = useState<TaskEntry | null>(null);
   const [editingContact, setEditingContact] = useState<Contact | null>(null);
@@ -69,6 +75,14 @@ export const useUiState = () => {
     setActivePage("MISSIONS");
   }, []);
 
+  const toggleHudMode = useCallback(() => {
+    setIsHudMode((prev) => {
+      const newState = !prev;
+      localStorage.setItem("myops_hud_mode", String(newState));
+      return newState;
+    });
+  }, []);
+
   return useMemo(
     () => ({
       activePage,
@@ -87,6 +101,8 @@ export const useUiState = () => {
       setIsCmdPaletteOpen,
       isAiChatOpen,
       setIsAiChatOpen,
+      isHudMode,
+      toggleHudMode,
       editingEntry,
       setEditingEntry,
       editingContact,
@@ -115,6 +131,8 @@ export const useUiState = () => {
       isTaskModalOpen,
       isCmdPaletteOpen,
       isAiChatOpen,
+      isHudMode,
+      toggleHudMode,
       editingEntry,
       editingContact,
       editingNote,

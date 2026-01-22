@@ -224,4 +224,32 @@ export const BLUEPRINT_MODULES: BlueprintModule[] = [
     ],
     colorKey: "report",
   },
+  {
+    id: "blueprint",
+    pageId: "BLUEPRINT",
+    title: "Master Blueprint",
+    status: "ACTIVE",
+    iconKey: "Blueprint",
+    features: [
+      "Solo Operator Roadmap",
+      "Module status tracking",
+      "Feature-set inventory",
+      "Markdown blueprint export",
+    ],
+    colorKey: "strategy",
+  },
+  {
+    id: "story",
+    pageId: "STORY",
+    title: "The Integration Story",
+    status: "ACTIVE",
+    iconKey: "History",
+    features: [
+      "Visual workflow mapping",
+      "End-to-end data flow",
+      "Action-to-Output story",
+      "Sync hub visualization",
+    ],
+    colorKey: "integrations",
+  },
 ];

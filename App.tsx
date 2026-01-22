@@ -216,6 +216,7 @@ const App: React.FC = () => {
             operatorMetrics={operatorMetrics}
             mentalStates={awareness.mentalStates}
             decisions={strategy.decisions}
+            reflections={reflections.reflections}
             isLoading={isLoading}
             onEdit={ui.openEdit}
             onDelete={removeTransaction}

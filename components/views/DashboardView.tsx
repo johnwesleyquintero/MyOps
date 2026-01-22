@@ -6,10 +6,15 @@ import {
   OperatorMetrics,
   MentalStateEntry,
   DecisionEntry,
+  ReflectionEntry,
 } from "@/types";
 import { SummaryCards } from "../SummaryCards";
 import { MissionTrendChart } from "../analytics/MissionTrendChart";
 import { ProjectDistributionList } from "../analytics/ProjectDistributionList";
+import {
+  ProjectDebriefPanel,
+  ProjectDebrief,
+} from "../analytics/ProjectDebriefPanel";
 import { TaskTable } from "../TaskTable";
 import { Icon, iconProps } from "../Icons";
 import { ViewHeader } from "../ViewHeader";
@@ -25,6 +30,7 @@ interface DashboardViewProps {
   operatorMetrics: OperatorMetrics;
   mentalStates: MentalStateEntry[];
   decisions: DecisionEntry[];
+  reflections: ReflectionEntry[];
   isLoading: boolean;
   onEdit: (entry: TaskEntry) => void;
   onDelete: (entry: TaskEntry) => void;
@@ -42,6 +48,7 @@ export const DashboardView: React.FC<DashboardViewProps> = React.memo(
     operatorMetrics,
     mentalStates,
     decisions,
+    reflections,
     isLoading,
     onEdit,
     onDelete,
@@ -64,8 +71,11 @@ export const DashboardView: React.FC<DashboardViewProps> = React.memo(
       entries,
       operatorMetrics,
       decisions,
+      mentalStates,
+      reflections,
     });
     const { isHudMode, toggleHudMode } = useUi();
+    const [isDebriefMode, setIsDebriefMode] = React.useState(false);
 
     // Calculate Confidence Score
     const confidenceScore = useMemo(() => {
@@ -315,64 +325,100 @@ export const DashboardView: React.FC<DashboardViewProps> = React.memo(
               </div>
             </div>
 
-            {/* Project Momentum HUD Snippet */}
+            {/* Project Momentum HUD Snippet (Advanced) */}
             {projectMomentum && projectMomentum.length > 0 && (
               <div className="pointer-events-auto bg-black/80 backdrop-blur-xl border border-white/10 p-4 rounded-2xl shadow-2xl flex flex-col gap-3 min-w-[200px] animate-slide-up [animation-delay:200ms]">
                 <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest text-white/60">
                   <span>PROJECT MOMENTUM</span>
-                  <Icon.Target size={14} className="text-indigo-400" />
+                  <button
+                    onClick={() => setIsDebriefMode(!isDebriefMode)}
+                    className={`px-2 py-0.5 rounded text-[8px] font-black uppercase transition-all ${
+                      isDebriefMode
+                        ? "bg-indigo-500 text-white shadow-[0_0_10px_rgba(99,102,241,0.5)]"
+                        : "bg-white/5 text-white/40 hover:bg-white/10"
+                    }`}
+                  >
+                    {isDebriefMode ? "Close Debrief" : "Debrief Layer"}
+                  </button>
                 </div>
                 <div className="space-y-3">
                   {projectMomentum.map((p) => (
                     <div key={p.name} className="flex flex-col gap-1.5">
-                      <div className="flex justify-between items-end">
-                        <span className="text-[10px] font-bold text-white/80 truncate max-w-[120px]">
+                      <div className="flex justify-between items-center">
+                        <span className="text-[11px] font-bold text-white/80 truncate max-w-[120px]">
                           {p.name}
                         </span>
-                        <span className="text-[9px] font-mono text-indigo-400">
-                          {p.xp} XP
-                        </span>
+                        <div className="flex items-center gap-1.5">
+                          <span
+                            className={`text-[10px] font-black ${p.trend === "up" ? "text-emerald-400" : p.trend === "down" ? "text-rose-400" : "text-white/40"}`}
+                          >
+                            {p.momentum}
+                          </span>
+                          {p.isAtRisk && (
+                            <div className="w-1 h-1 rounded-full bg-rose-500 animate-pulse" />
+                          )}
+                        </div>
                       </div>
-                      <div className="h-1 bg-white/5 rounded-full overflow-hidden">
+                      <div className="h-1 w-full bg-white/5 rounded-full overflow-hidden">
                         <div
-                          className={`h-full rounded-full transition-all duration-1000 ${
-                            p.isAtRisk ? "bg-amber-500" : "bg-indigo-500"
-                          }`}
+                          className={`h-full rounded-full transition-all duration-1000 ${p.isAtRisk ? "bg-rose-500" : "bg-indigo-500"}`}
                           style={{ width: `${p.completionRate}%` }}
                         />
                       </div>
-                      <div className="flex justify-between items-center">
-                        <div className="flex items-center gap-2">
-                          <div className="flex items-center gap-1">
-                            <Icon.Zap size={8} className="text-amber-400" />
-                            <span className="text-[8px] text-white/40 uppercase">
-                              Acc:
-                            </span>
-                          </div>
-                          <span
-                            className={`text-[9px] font-bold ${
-                              p.accuracy >= 80
-                                ? "text-emerald-400"
-                                : p.accuracy >= 50
-                                  ? "text-indigo-400"
-                                  : "text-amber-400"
-                            }`}
-                          >
-                            {p.accuracy}%
-                          </span>
-                        </div>
-                        <span
-                          className={`text-[8px] font-black uppercase tracking-tighter ${
-                            p.isAtRisk
-                              ? "text-amber-500"
-                              : "text-emerald-500/60"
-                          }`}
-                        >
-                          {p.isAtRisk ? "STALLED" : "ACTIVE"}
-                        </span>
-                      </div>
                     </div>
                   ))}
+                </div>
+              </div>
+            )}
+
+            {/* Debrief Layer Overlay */}
+            {isDebriefMode && (
+              <div className="fixed inset-0 z-[100] flex items-center justify-center p-8 pointer-events-none">
+                <div
+                  className="absolute inset-0 bg-black/60 backdrop-blur-md pointer-events-auto"
+                  onClick={() => setIsDebriefMode(false)}
+                />
+                <div className="relative w-full max-w-5xl pointer-events-auto animate-in zoom-in-95 duration-300">
+                  <div className="flex justify-between items-end mb-6">
+                    <div>
+                      <h2 className="text-[12px] font-black uppercase tracking-[0.3em] text-indigo-400 mb-1">
+                        Strategic Command
+                      </h2>
+                      <h1 className="text-3xl font-black text-white">
+                        Mission Debrief <span className="text-white/20">/</span>{" "}
+                        Project Insights
+                      </h1>
+                    </div>
+                    <button
+                      onClick={() => setIsDebriefMode(false)}
+                      className="p-3 rounded-full bg-white/5 text-white/40 hover:bg-white/10 transition-all"
+                    >
+                      <Icon.Close size={24} />
+                    </button>
+                  </div>
+                  <ProjectDebriefPanel
+                    projects={projectMomentum as ProjectDebrief[]}
+                  />
+
+                  <div className="mt-8 p-6 bg-indigo-500/5 border border-indigo-500/20 rounded-2xl flex items-center gap-4">
+                    <div className="p-3 bg-indigo-500/10 rounded-xl text-indigo-400">
+                      <Icon.Bot size={24} />
+                    </div>
+                    <div>
+                      <h4 className="text-[11px] font-black uppercase tracking-widest text-indigo-300">
+                        Operational Intelligence
+                      </h4>
+                      <p className="text-sm text-indigo-100/60 max-w-2xl">
+                        Your peak state multiplier is currently at its highest
+                        in the <strong>{projectMomentum[0]?.name}</strong>{" "}
+                        theater. Strategic accuracy across all sectors is
+                        holding at{" "}
+                        <strong>{calibrationMetrics.calibrationScore}%</strong>.
+                        Maintain momentum to avoid streak degradation in
+                        high-risk zones.
+                      </p>
+                    </div>
+                  </div>
                 </div>
               </div>
             )}

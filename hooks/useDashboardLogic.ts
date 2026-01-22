@@ -1,5 +1,11 @@
 import { useMemo } from "react";
-import { TaskEntry, OperatorMetrics, DecisionEntry } from "../types";
+import {
+  TaskEntry,
+  OperatorMetrics,
+  DecisionEntry,
+  MentalStateEntry,
+  ReflectionEntry,
+} from "../types";
 import { useTableColumns, ColumnConfig } from "./useTableColumns";
 import { COLUMN_CONFIG_KEY } from "../constants/storage";
 
@@ -20,12 +26,16 @@ interface UseDashboardLogicProps {
   entries: TaskEntry[];
   operatorMetrics: OperatorMetrics;
   decisions?: DecisionEntry[];
+  mentalStates?: MentalStateEntry[];
+  reflections?: ReflectionEntry[];
 }
 
 export const useDashboardLogic = ({
   entries,
   operatorMetrics,
   decisions = [],
+  mentalStates = [],
+  reflections = [],
 }: UseDashboardLogicProps) => {
   const tacticalFocus = useMemo(() => {
     const today = new Date().toISOString().split("T")[0];
@@ -167,6 +177,11 @@ export const useDashboardLogic = ({
   }, [decisions]);
 
   const projectMomentum = useMemo(() => {
+    const today = new Date();
+    const sevenDaysAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000)
+      .toISOString()
+      .split("T")[0];
+
     const projects: Record<
       string,
       {
@@ -178,6 +193,9 @@ export const useDashboardLogic = ({
         accuracyCount: number;
         streak: number;
         lastActive: string;
+        peakStateCount: number;
+        recentActivity: number[]; // Momentum over last 7 days
+        reflections: number;
       }
     > = {};
 
@@ -194,6 +212,9 @@ export const useDashboardLogic = ({
           accuracyCount: 0,
           streak: 0,
           lastActive: "",
+          peakStateCount: 0,
+          recentActivity: Array(7).fill(0),
+          reflections: 0,
         };
       }
 
@@ -206,6 +227,24 @@ export const useDashboardLogic = ({
           (!projects[p].lastActive || t.createdAt > projects[p].lastActive)
         ) {
           projects[p].lastActive = t.createdAt;
+        }
+
+        // Track peak state impact
+        const taskDate = t.date;
+        const stateOnDay = mentalStates.find((m) => m.date === taskDate);
+        if (stateOnDay?.energy === "high" && stateOnDay?.clarity === "sharp") {
+          projects[p].peakStateCount += 1;
+        }
+
+        // Trend calculation
+        if (t.date >= sevenDaysAgo) {
+          const daysAgo = Math.floor(
+            (today.getTime() - new Date(t.date).getTime()) /
+              (24 * 60 * 60 * 1000),
+          );
+          if (daysAgo >= 0 && daysAgo < 7) {
+            projects[p].recentActivity[6 - daysAgo] += 1;
+          }
         }
       }
     });
@@ -223,6 +262,9 @@ export const useDashboardLogic = ({
           accuracyCount: 0,
           streak: 0,
           lastActive: "",
+          peakStateCount: 0,
+          recentActivity: Array(7).fill(0),
+          reflections: 0,
         };
       }
 
@@ -234,24 +276,78 @@ export const useDashboardLogic = ({
         projects[p].accuracy += 100 - diff;
         projects[p].accuracyCount += 1;
       }
+
+      // Track peak state decisions
+      if (
+        d.biometricContext?.energy === "high" &&
+        d.biometricContext?.clarity === "sharp"
+      ) {
+        projects[p].peakStateCount += 1;
+      }
+    });
+
+    // Process Reflections
+    reflections.forEach((r) => {
+      const p = r.linkedProjectId || "General";
+      if (projects[p]) {
+        projects[p].reflections += 1;
+      }
     });
 
     return Object.entries(projects)
-      .map(([name, data]) => ({
-        name,
-        xp: data.xp,
-        completionRate: data.totalTasks
-          ? Math.round((data.completedTasks / data.totalTasks) * 100)
-          : 0,
-        accuracy: data.accuracyCount
-          ? Math.round(data.accuracy / data.accuracyCount)
-          : 0,
-        momentum: data.completedTasks + data.decisions, // Simple momentum metric
-        isAtRisk: data.totalTasks > 0 && data.completedTasks === 0,
-      }))
+      .map(([name, data]) => {
+        const momentum = data.completedTasks + data.decisions;
+        const prevMomentum = data.recentActivity
+          .slice(0, 3)
+          .reduce((a, b) => a + b, 0);
+        const currentMomentum = data.recentActivity
+          .slice(4)
+          .reduce((a, b) => a + b, 0);
+        const trend =
+          currentMomentum > prevMomentum
+            ? "up"
+            : currentMomentum < prevMomentum
+              ? "down"
+              : "stable";
+
+        const lastActiveDate = data.lastActive
+          ? new Date(data.lastActive)
+          : null;
+        const hoursSinceActive = lastActiveDate
+          ? (today.getTime() - lastActiveDate.getTime()) / (1000 * 60 * 60)
+          : 999;
+
+        return {
+          name,
+          xp: data.xp,
+          completionRate: data.totalTasks
+            ? Math.round((data.completedTasks / data.totalTasks) * 100)
+            : 0,
+          accuracy: data.accuracyCount
+            ? Math.round(data.accuracy / data.accuracyCount)
+            : 0,
+          momentum,
+          peakStateMultiplier:
+            momentum > 0
+              ? (1 + data.peakStateCount / momentum).toFixed(2)
+              : "1.00",
+          trend,
+          isAtRisk:
+            hoursSinceActive > 48 ||
+            (data.totalTasks > 0 && data.completedTasks === 0),
+          riskFactor:
+            hoursSinceActive > 72
+              ? "High"
+              : hoursSinceActive > 48
+                ? "Medium"
+                : "Low",
+          reflections: data.reflections,
+          recentActivity: data.recentActivity,
+        };
+      })
       .sort((a, b) => b.momentum - a.momentum)
       .slice(0, 3);
-  }, [entries, decisions]);
+  }, [entries, decisions, mentalStates, reflections]);
 
   const { columns, toggleColumn } = useTableColumns(
     DASHBOARD_COLUMNS as ColumnConfig[],

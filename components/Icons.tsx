@@ -57,6 +57,8 @@ import {
   Heart,
   Download,
   Database,
+  TrendingUp,
+  TrendingDown,
   MoreHorizontal,
   MessageSquare,
   Phone,
@@ -146,6 +148,8 @@ export const Icon = {
   ArrowLeft: ArrowLeft,
   X: X,
   Trash: Trash2,
+  TrendUp: TrendingUp,
+  TrendDown: TrendingDown,
 };
 
 // Standard props helper for consistent sizing

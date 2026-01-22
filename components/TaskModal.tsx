@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { TaskEntry, PriorityLevel, StatusLevel } from "../types";
-import { DEFAULT_PROJECTS, PRIORITIES, STATUSES } from "@/constants";
+import { PRIORITIES, STATUSES } from "@/constants";
 import { CopyIdButton } from "./CopyIdButton";
 import { useTaskForm } from "../hooks/useTaskForm";
 import { useMarkdownEditor } from "../hooks/useMarkdownEditor";
@@ -15,13 +15,14 @@ import { useData } from "../hooks/useData";
 
 export const TaskModal: React.FC = () => {
   const ui = useUi();
-  const { tasks } = useData();
+  const { tasks, strategy } = useData();
   const {
     entries,
     saveTransaction: saveEntry,
     removeTransaction: deleteEntry,
     isSubmitting,
   } = tasks;
+  const { decisions: decisionEntries } = strategy;
   const {
     isTaskModalOpen: isOpen,
     setIsTaskModalOpen,
@@ -38,8 +39,13 @@ export const TaskModal: React.FC = () => {
     await deleteEntry(entry);
   };
 
-  const { formData, setFormData, isCustomProject, setIsCustomProject } =
-    useTaskForm(initialData, entries);
+  const {
+    formData,
+    setFormData,
+    isCustomProject,
+    setIsCustomProject,
+    availableProjects,
+  } = useTaskForm(initialData, entries, decisionEntries);
 
   const successColors = MODULE_COLORS.success;
 
@@ -219,7 +225,7 @@ export const TaskModal: React.FC = () => {
                       }
                     }}
                   >
-                    {DEFAULT_PROJECTS.map((p) => (
+                    {availableProjects.map((p) => (
                       <option key={p} value={p}>
                         {p}
                       </option>

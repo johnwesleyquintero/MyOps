@@ -1,5 +1,5 @@
 import { useState, useMemo, useCallback } from "react";
-import { TaskEntry, TaskTemplate } from "../types";
+import { TaskEntry, TaskTemplate, DecisionEntry } from "../types";
 import {
   DEFAULT_PROJECTS,
   RECURRENCE_OPTIONS,
@@ -21,6 +21,7 @@ const getLocalDate = (offsetDays: number = 0) => {
 export const useTaskForm = (
   initialData: TaskEntry | null | undefined,
   entries: TaskEntry[],
+  decisionEntries: DecisionEntry[] = [],
 ) => {
   // Form State
   const [formData, setFormData] = useState<TaskEntry>(() => {
@@ -80,6 +81,20 @@ export const useTaskForm = (
 
   const [prevInitialData, setPrevInitialData] = useState(initialData);
 
+  const availableProjects = useMemo(() => {
+    const taskProjects = entries
+      .map((e) => e.project)
+      .filter((p) => p && !DEFAULT_PROJECTS.includes(p));
+
+    const decisionProjects = decisionEntries
+      .map((d) => d.project)
+      .filter((p): p is string => !!p && !DEFAULT_PROJECTS.includes(p));
+
+    return Array.from(
+      new Set([...DEFAULT_PROJECTS, ...taskProjects, ...decisionProjects]),
+    );
+  }, [entries, decisionEntries]);
+
   // Sync form data when initialData changes (e.g. switching between different tasks in edit mode)
   if (initialData !== prevInitialData) {
     setPrevInitialData(initialData);
@@ -88,7 +103,15 @@ export const useTaskForm = (
         ...initialData,
         dependencies: initialData.dependencies || [],
       });
-      setIsCustomProject(!DEFAULT_PROJECTS.includes(initialData.project));
+      // Check if project exists in available projects list (default + extracted)
+      // If not in the list, treat as custom (though logic below adds it to availableProjects,
+      // but 'isCustomProject' state here specifically controls the "Manual Input" UI toggle)
+      // Actually, we want to allow selection of ANY existing project.
+      // So 'isCustomProject' should only be true if we are creating a NEW project not in the list.
+      // But for edit mode, if the project is already in the list (which it will be via useMemo),
+      // we don't need to force custom input unless the user wants to type a new one.
+      setIsCustomProject(false);
+
       setShowDeps(
         !!(initialData.dependencies && initialData.dependencies.length > 0),
       );
@@ -191,6 +214,7 @@ export const useTaskForm = (
       isPreviewMode,
       setIsPreviewMode,
       templates,
+      setTemplates,
       showTemplates,
       setShowTemplates,
       currentRecurrence,
@@ -201,6 +225,7 @@ export const useTaskForm = (
       loadTemplate,
       deleteTemplate,
       resetForm,
+      availableProjects,
     }),
     [
       formData,
@@ -217,6 +242,7 @@ export const useTaskForm = (
       loadTemplate,
       deleteTemplate,
       resetForm,
+      availableProjects,
     ],
   );
 };

@@ -21,7 +21,7 @@ interface ReportData {
   results: CheckResult[];
 }
 
-export const ReportView: React.FC = () => {
+export const ReportView: React.FC = React.memo(() => {
   const [activeTab, setActiveTab] = useState<"pulse" | "code">("pulse");
   const pulseData = useEmpirePulse();
   const [report] = useState<ReportData | null>(reportData as ReportData);
@@ -228,4 +228,4 @@ export const ReportView: React.FC = () => {
       )}
     </div>
   );
-};
+});

@@ -13,7 +13,7 @@ import { MODULE_COLORS } from "../constants/ui";
 import { useUi } from "../hooks/useUi";
 import { useData } from "../hooks/useData";
 
-export const TaskModal: React.FC = () => {
+export const TaskModal: React.FC = React.memo(() => {
   const ui = useUi();
   const { tasks, strategy } = useData();
   const {
@@ -351,4 +351,4 @@ export const TaskModal: React.FC = () => {
       </div>
     </div>
   );
-};
+});

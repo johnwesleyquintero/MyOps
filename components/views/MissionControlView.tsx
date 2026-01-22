@@ -54,7 +54,6 @@ interface MissionControlViewProps {
   onDelete: (entry: TaskEntry) => void;
   onBulkDelete: (entries: TaskEntry[]) => Promise<void>;
   onStatusUpdate: (entry: TaskEntry) => void;
-  onDescriptionUpdate: (entry: TaskEntry, desc: string) => void;
   onFocus: (entry: TaskEntry) => void;
   onDuplicate: (entry: TaskEntry) => void;
   onAdd: () => void;
@@ -82,7 +81,6 @@ export const MissionControlView: React.FC<MissionControlViewProps> = React.memo(
     onDelete,
     onBulkDelete,
     onStatusUpdate,
-    onDescriptionUpdate,
     onFocus,
     onDuplicate,
     onAdd,
@@ -231,10 +229,8 @@ export const MissionControlView: React.FC<MissionControlViewProps> = React.memo(
               onEdit={onEdit}
               onDelete={onDelete}
               onStatusUpdate={onStatusUpdate}
-              onDescriptionUpdate={onDescriptionUpdate}
               onFocus={onFocus}
               onDuplicate={onDuplicate}
-              allEntries={entries}
               externalColumns={columns}
               externalToggleColumn={toggleColumn}
               showConfigGear={false}

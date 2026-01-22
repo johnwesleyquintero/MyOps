@@ -41,211 +41,206 @@ const TableSkeleton = ({ colSpan }: { colSpan: number }) => (
   </tbody>
 );
 
-export const ContactTable: React.FC<ContactTableProps> = ({
-  contacts,
-  isLoading,
-  onEdit,
-  onDelete,
-  onSelect,
-  selectedContactId,
-}) => {
-  const { columns, toggleColumn } = useTableColumns<keyof Contact>(
-    CONTACT_COLUMNS,
-    CRM_COLUMN_CONFIG_KEY,
-  );
+export const ContactTable: React.FC<ContactTableProps> = React.memo(
+  ({ contacts, isLoading, onEdit, onDelete, onSelect, selectedContactId }) => {
+    const { columns, toggleColumn } = useTableColumns<keyof Contact>(
+      CONTACT_COLUMNS,
+      CRM_COLUMN_CONFIG_KEY,
+    );
 
-  const colors = MODULE_COLORS.crm;
+    const colors = MODULE_COLORS.crm;
 
-  const {
-    items: sortedContacts,
-    requestSort,
-    sortConfig,
-  } = useSortableData<Contact>(contacts, {
-    key: "name",
-    direction: "asc",
-  });
+    const {
+      items: sortedContacts,
+      requestSort,
+      sortConfig,
+    } = useSortableData<Contact>(contacts, {
+      key: "name",
+      direction: "asc",
+    });
 
-  const isMobileColumn = (key: string) => {
-    return ["company", "email", "createdAt"].includes(key);
-  };
+    const isMobileColumn = (key: string) => {
+      return ["company", "email", "createdAt"].includes(key);
+    };
 
-  const typeColors = {
-    Client:
-      MODULE_COLORS.crm.text +
-      " " +
-      MODULE_COLORS.crm.bg +
-      " " +
-      MODULE_COLORS.crm.border,
-    Lead:
-      MODULE_COLORS.integrations.text +
-      " " +
-      MODULE_COLORS.integrations.bg +
-      " " +
-      MODULE_COLORS.integrations.border,
-    Vendor:
-      MODULE_COLORS.docs.text +
-      " " +
-      MODULE_COLORS.docs.bg +
-      " " +
-      MODULE_COLORS.docs.border,
-    Partner:
-      MODULE_COLORS.analytics.text +
-      " " +
-      MODULE_COLORS.analytics.bg +
-      " " +
-      MODULE_COLORS.analytics.border,
-  };
+    const typeColors = {
+      Client:
+        MODULE_COLORS.crm.text +
+        " " +
+        MODULE_COLORS.crm.bg +
+        " " +
+        MODULE_COLORS.crm.border,
+      Lead:
+        MODULE_COLORS.integrations.text +
+        " " +
+        MODULE_COLORS.integrations.bg +
+        " " +
+        MODULE_COLORS.integrations.border,
+      Vendor:
+        MODULE_COLORS.docs.text +
+        " " +
+        MODULE_COLORS.docs.bg +
+        " " +
+        MODULE_COLORS.docs.border,
+      Partner:
+        MODULE_COLORS.analytics.text +
+        " " +
+        MODULE_COLORS.analytics.bg +
+        " " +
+        MODULE_COLORS.analytics.border,
+    };
 
-  return (
-    <div className="flex flex-col h-full overflow-hidden bg-notion-light-bg dark:bg-notion-dark-bg transition-colors">
-      <div className="flex-1 overflow-auto custom-scrollbar border border-notion-light-border dark:border-notion-dark-border rounded shadow-sm relative">
-        <table className="min-w-full text-left border-collapse table-auto">
-          <thead className="sticky top-0 z-40 bg-notion-light-sidebar dark:bg-notion-dark-sidebar border-b border-notion-light-border dark:border-notion-dark-border">
-            <tr>
-              {columns
-                .filter((c) => c.visible)
-                .map((col) => (
-                  <th
-                    key={col.key}
-                    className={`${col.width} px-3 py-2 text-[10px] font-bold text-notion-light-muted dark:text-notion-dark-muted uppercase tracking-widest cursor-pointer ${colors.hoverBg} transition-colors group ${isMobileColumn(col.key) ? "hidden md:table-cell" : ""} ${col.key === "name" ? "sticky left-0 z-30 bg-notion-light-sidebar dark:bg-notion-dark-sidebar" : ""}`}
-                    onClick={() => requestSort(col.key as keyof Contact)}
-                  >
-                    <div className="flex items-center gap-2">
-                      {col.label}
-                      {sortConfig?.key === col.key && (
-                        <span className="text-notion-light-text dark:text-notion-dark-text">
-                          {sortConfig.direction === "asc" ? "↑" : "↓"}
-                        </span>
+    return (
+      <div className="flex flex-col h-full overflow-hidden bg-notion-light-bg dark:bg-notion-dark-bg transition-colors">
+        <div className="flex-1 overflow-auto custom-scrollbar border border-notion-light-border dark:border-notion-dark-border rounded shadow-sm relative">
+          <table className="min-w-full text-left border-collapse table-auto">
+            <thead className="sticky top-0 z-40 bg-notion-light-sidebar dark:bg-notion-dark-sidebar border-b border-notion-light-border dark:border-notion-dark-border">
+              <tr>
+                {columns
+                  .filter((c) => c.visible)
+                  .map((col) => (
+                    <th
+                      key={col.key}
+                      className={`${col.width} px-3 py-2 text-[10px] font-bold text-notion-light-muted dark:text-notion-dark-muted uppercase tracking-widest cursor-pointer ${colors.hoverBg} transition-colors group ${isMobileColumn(col.key) ? "hidden md:table-cell" : ""} ${col.key === "name" ? "sticky left-0 z-30 bg-notion-light-sidebar dark:bg-notion-dark-sidebar" : ""}`}
+                      onClick={() => requestSort(col.key as keyof Contact)}
+                    >
+                      <div className="flex items-center gap-2">
+                        {col.label}
+                        {sortConfig?.key === col.key && (
+                          <span className="text-notion-light-text dark:text-notion-dark-text">
+                            {sortConfig.direction === "asc" ? "↑" : "↓"}
+                          </span>
+                        )}
+                      </div>
+                      {col.key === "name" && (
+                        <div className="absolute right-0 top-0 bottom-0 w-[1px] bg-notion-light-border dark:bg-notion-dark-border shadow-[1px_0_0_0_rgba(0,0,0,0.05)]" />
                       )}
-                    </div>
-                    {col.key === "name" && (
-                      <div className="absolute right-0 top-0 bottom-0 w-[1px] bg-notion-light-border dark:bg-notion-dark-border shadow-[1px_0_0_0_rgba(0,0,0,0.05)]" />
-                    )}
-                  </th>
-                ))}
-              <th className="w-28 px-3 py-2 sticky right-0 z-30 bg-notion-light-sidebar dark:bg-notion-dark-sidebar border-b border-notion-light-border dark:border-notion-dark-border shadow-[-4px_0_8px_rgba(0,0,0,0.05)]">
-                <div className="flex items-center justify-end gap-2">
-                  <span className="text-[10px] font-bold text-notion-light-muted dark:text-notion-dark-muted uppercase tracking-widest">
-                    Actions
-                  </span>
-                  <ColumnConfigDropdown
-                    columns={columns}
-                    toggleColumn={toggleColumn}
-                  />
-                </div>
-              </th>
-            </tr>
-          </thead>
-          {isLoading ? (
-            <TableSkeleton
-              colSpan={columns.filter((c) => c.visible).length + 1}
-            />
-          ) : (
-            <tbody className="divide-y divide-notion-light-border dark:divide-notion-dark-border">
-              {sortedContacts.map((contact) => (
-                <tr
-                  key={contact.id}
-                  className={`group transition-colors ${
-                    selectedContactId === contact.id
-                      ? colors.lightBg
-                      : `hover:${colors.lightBg}`
-                  }`}
-                  onClick={() => onSelect(contact)}
-                >
-                  {columns
-                    .filter((c) => c.visible)
-                    .map((col) => (
-                      <td
-                        key={col.key}
-                        className={`px-3 py-3 align-middle text-sm cursor-pointer ${isMobileColumn(col.key) ? "hidden md:table-cell" : ""} ${col.key === "name" ? "sticky left-0 z-10 bg-notion-light-bg dark:bg-notion-dark-bg group-hover:bg-notion-light-hover dark:group-hover:bg-notion-dark-hover" : ""}`}
-                      >
-                        {col.key === "name" && (
-                          <div className="flex items-center gap-3">
-                            <div
-                              className={`w-8 h-8 rounded flex items-center justify-center text-xs font-bold shadow-sm ${
-                                selectedContactId === contact.id
-                                  ? `${colors.dot} text-white`
-                                  : `${colors.lightBg} ${colors.text} border ${colors.border}`
-                              }`}
-                            >
-                              {contact.name.charAt(0)}
+                    </th>
+                  ))}
+                <th className="w-28 px-3 py-2 sticky right-0 z-30 bg-notion-light-sidebar dark:bg-notion-dark-sidebar border-b border-notion-light-border dark:border-notion-dark-border shadow-[-4px_0_8px_rgba(0,0,0,0.05)]">
+                  <div className="flex items-center justify-end gap-2">
+                    <span className="text-[10px] font-bold text-notion-light-muted dark:text-notion-dark-muted uppercase tracking-widest">
+                      Actions
+                    </span>
+                    <ColumnConfigDropdown
+                      columns={columns}
+                      toggleColumn={toggleColumn}
+                    />
+                  </div>
+                </th>
+              </tr>
+            </thead>
+            {isLoading ? (
+              <TableSkeleton
+                colSpan={columns.filter((c) => c.visible).length + 1}
+              />
+            ) : (
+              <tbody className="divide-y divide-notion-light-border dark:divide-notion-dark-border">
+                {sortedContacts.map((contact) => (
+                  <tr
+                    key={contact.id}
+                    className={`group transition-colors ${
+                      selectedContactId === contact.id
+                        ? colors.lightBg
+                        : `hover:${colors.lightBg}`
+                    }`}
+                    onClick={() => onSelect(contact)}
+                  >
+                    {columns
+                      .filter((c) => c.visible)
+                      .map((col) => (
+                        <td
+                          key={col.key}
+                          className={`px-3 py-3 align-middle text-sm cursor-pointer ${isMobileColumn(col.key) ? "hidden md:table-cell" : ""} ${col.key === "name" ? "sticky left-0 z-10 bg-notion-light-bg dark:bg-notion-dark-bg group-hover:bg-notion-light-hover dark:group-hover:bg-notion-dark-hover" : ""}`}
+                        >
+                          {col.key === "name" && (
+                            <div className="flex items-center gap-3">
+                              <div
+                                className={`w-8 h-8 rounded flex items-center justify-center text-xs font-bold shadow-sm ${
+                                  selectedContactId === contact.id
+                                    ? `${colors.dot} text-white`
+                                    : `${colors.lightBg} ${colors.text} border ${colors.border}`
+                                }`}
+                              >
+                                {contact.name.charAt(0)}
+                              </div>
+                              <span className="font-bold text-notion-light-text dark:text-notion-dark-text group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+                                {contact.name}
+                              </span>
+                              <div className="absolute right-0 top-0 bottom-0 w-[1px] bg-notion-light-border dark:border-notion-dark-border" />
                             </div>
-                            <span className="font-bold text-notion-light-text dark:text-notion-dark-text group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
-                              {contact.name}
+                          )}
+                          {col.key === "company" && (
+                            <span className="text-notion-light-muted dark:text-notion-dark-muted">
+                              {contact.company || "Individual"}
                             </span>
-                            <div className="absolute right-0 top-0 bottom-0 w-[1px] bg-notion-light-border dark:border-notion-dark-border" />
-                          </div>
-                        )}
-                        {col.key === "company" && (
-                          <span className="text-notion-light-muted dark:text-notion-dark-muted">
-                            {contact.company || "Individual"}
-                          </span>
-                        )}
-                        {col.key === "type" && (
-                          <span
-                            className={`text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider shadow-sm border ${typeColors[contact.type as keyof typeof typeColors]}`}
-                          >
-                            {contact.type}
-                          </span>
-                        )}
-                        {col.key === "status" && (
-                          <div className="flex items-center gap-1.5">
-                            <div
-                              className={`w-1.5 h-1.5 rounded-full ${colors.dot}`}
-                            />
-                            <span className="text-xs text-notion-light-text dark:text-notion-dark-text">
-                              {contact.status}
+                          )}
+                          {col.key === "type" && (
+                            <span
+                              className={`text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider shadow-sm border ${typeColors[contact.type as keyof typeof typeColors]}`}
+                            >
+                              {contact.type}
                             </span>
-                          </div>
-                        )}
-                        {col.key === "email" && (
-                          <span className="text-xs text-notion-light-muted dark:text-notion-dark-muted truncate block max-w-full">
-                            {contact.email || "N/A"}
-                          </span>
-                        )}
-                        {col.key === "createdAt" && (
-                          <span className="text-[10px] text-notion-light-muted dark:text-notion-dark-muted">
-                            {new Date(contact.createdAt).toLocaleDateString()}
-                          </span>
-                        )}
-                      </td>
-                    ))}
-                  <td className="px-3 py-2 align-top sticky right-0 z-10 bg-notion-light-bg dark:bg-notion-dark-bg group-hover:bg-notion-light-hover dark:group-hover:bg-notion-dark-hover shadow-[-4px_0_8px_rgba(0,0,0,0.05)]">
-                    <div className="flex items-center justify-end gap-1 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
-                      <Button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onEdit(contact);
-                        }}
-                        variant="custom"
-                        size="icon"
-                        className={`text-notion-light-muted hover:${colors.text} ${colors.lightBg} rounded-lg`}
-                        title="Edit Contact"
-                      >
-                        <Icon.Edit {...iconProps(14)} />
-                      </Button>
-                      {onDelete && (
+                          )}
+                          {col.key === "status" && (
+                            <div className="flex items-center gap-1.5">
+                              <div
+                                className={`w-1.5 h-1.5 rounded-full ${colors.dot}`}
+                              />
+                              <span className="text-xs text-notion-light-text dark:text-notion-dark-text">
+                                {contact.status}
+                              </span>
+                            </div>
+                          )}
+                          {col.key === "email" && (
+                            <span className="text-xs text-notion-light-muted dark:text-notion-dark-muted truncate block max-w-full">
+                              {contact.email || "N/A"}
+                            </span>
+                          )}
+                          {col.key === "createdAt" && (
+                            <span className="text-[10px] text-notion-light-muted dark:text-notion-dark-muted">
+                              {new Date(contact.createdAt).toLocaleDateString()}
+                            </span>
+                          )}
+                        </td>
+                      ))}
+                    <td className="px-3 py-2 align-top sticky right-0 z-10 bg-notion-light-bg dark:bg-notion-dark-bg group-hover:bg-notion-light-hover dark:group-hover:bg-notion-dark-hover shadow-[-4px_0_8px_rgba(0,0,0,0.05)]">
+                      <div className="flex items-center justify-end gap-1 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
                         <Button
                           onClick={(e) => {
                             e.stopPropagation();
-                            onDelete(contact);
+                            onEdit(contact);
                           }}
                           variant="custom"
                           size="icon"
-                          className="text-notion-light-muted hover:text-purple-500 hover:bg-purple-500/10 rounded-lg"
-                          title="Delete Contact"
+                          className={`text-notion-light-muted hover:${colors.text} ${colors.lightBg} rounded-lg`}
+                          title="Edit Contact"
                         >
-                          <Icon.Delete {...iconProps(14)} />
+                          <Icon.Edit {...iconProps(14)} />
                         </Button>
-                      )}
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          )}
-        </table>
+                        {onDelete && (
+                          <Button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onDelete(contact);
+                            }}
+                            variant="custom"
+                            size="icon"
+                            className="text-notion-light-muted hover:text-purple-500 hover:bg-purple-500/10 rounded-lg"
+                            title="Delete Contact"
+                          >
+                            <Icon.Delete {...iconProps(14)} />
+                          </Button>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            )}
+          </table>
+        </div>
       </div>
-    </div>
-  );
-};
+    );
+  },
+);

@@ -24,10 +24,8 @@ interface TaskTableProps {
   onEdit: (entry: TaskEntry) => void;
   onDelete: (entry: TaskEntry) => void;
   onStatusUpdate?: (entry: TaskEntry) => void;
-  onDescriptionUpdate?: (entry: TaskEntry, newDesc: string) => void;
   onFocus: (entry: TaskEntry) => void;
   onDuplicate: (entry: TaskEntry) => void;
-  allEntries?: TaskEntry[];
   // Optional external column control
   externalColumns?: ColumnConfig[];
   externalToggleColumn?: (key: SortKey) => void;

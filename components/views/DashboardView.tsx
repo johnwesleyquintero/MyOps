@@ -35,7 +35,6 @@ interface DashboardViewProps {
   onEdit: (entry: TaskEntry) => void;
   onDelete: (entry: TaskEntry) => void;
   onStatusUpdate: (entry: TaskEntry) => void;
-  onDescriptionUpdate: (entry: TaskEntry, desc: string) => void;
   onFocus: (entry: TaskEntry) => void;
   onDuplicate: (entry: TaskEntry) => void;
   onNavigate: (page: Page) => void;
@@ -53,7 +52,6 @@ export const DashboardView: React.FC<DashboardViewProps> = React.memo(
     onEdit,
     onDelete,
     onStatusUpdate,
-    onDescriptionUpdate,
     onFocus,
     onDuplicate,
     onNavigate,
@@ -627,10 +625,8 @@ export const DashboardView: React.FC<DashboardViewProps> = React.memo(
               onEdit={onEdit}
               onDelete={onDelete}
               onStatusUpdate={onStatusUpdate}
-              onDescriptionUpdate={onDescriptionUpdate}
               onFocus={onFocus}
               onDuplicate={onDuplicate}
-              allEntries={entries}
               externalColumns={columns}
               externalToggleColumn={toggleColumn}
               showConfigGear={false}

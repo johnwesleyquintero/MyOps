@@ -14,204 +14,201 @@ interface ReflectionViewProps {
   onDelete: (id: string) => Promise<boolean>;
 }
 
-export const ReflectionView: React.FC<ReflectionViewProps> = ({
-  reflections,
-  isLoading,
-  onSave,
-  onDelete,
-}) => {
-  const [filter, setFilter] = useState<string>("");
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingReflection, setEditingReflection] =
-    useState<ReflectionEntry | null>(null);
+export const ReflectionView: React.FC<ReflectionViewProps> = React.memo(
+  ({ reflections, isLoading, onSave, onDelete }) => {
+    const [filter, setFilter] = useState<string>("");
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [editingReflection, setEditingReflection] =
+      useState<ReflectionEntry | null>(null);
 
-  const handleCreate = () => {
-    setEditingReflection(null);
-    setIsModalOpen(true);
-  };
+    const handleCreate = () => {
+      setEditingReflection(null);
+      setIsModalOpen(true);
+    };
 
-  const handleEdit = (reflection: ReflectionEntry) => {
-    setEditingReflection(reflection);
-    setIsModalOpen(true);
-  };
+    const handleEdit = (reflection: ReflectionEntry) => {
+      setEditingReflection(reflection);
+      setIsModalOpen(true);
+    };
 
-  const filteredReflections = useMemo(() => {
-    const query = filter.toLowerCase().trim();
-    if (!query) return reflections;
+    const filteredReflections = useMemo(() => {
+      const query = filter.toLowerCase().trim();
+      if (!query) return reflections;
 
-    return reflections.filter((r) => {
-      const titleMatch = r.title.toLowerCase().includes(query);
-      const typeMatch = r.type.toLowerCase().includes(query);
-      const contentMatch = r.content.toLowerCase().includes(query);
-      return titleMatch || typeMatch || contentMatch;
-    });
-  }, [reflections, filter]);
+      return reflections.filter((r) => {
+        const titleMatch = r.title.toLowerCase().includes(query);
+        const typeMatch = r.type.toLowerCase().includes(query);
+        const contentMatch = r.content.toLowerCase().includes(query);
+        return titleMatch || typeMatch || contentMatch;
+      });
+    }, [reflections, filter]);
 
-  const colors = MODULE_COLORS.reflection;
-  const aiColors = MODULE_COLORS.ai;
-  const crmColors = MODULE_COLORS.crm;
+    const colors = MODULE_COLORS.reflection;
+    const aiColors = MODULE_COLORS.ai;
+    const crmColors = MODULE_COLORS.crm;
 
-  return (
-    <div className="space-y-8 animate-in fade-in duration-500">
-      <ViewHeader
-        title="Feedback & Reflection"
-        subTitle="Close the loop on missions and capture mistake avoidance logs"
-      >
-        <div className="flex items-center gap-3">
-          <DebouncedInput
-            placeholder="Search reflections..."
-            value={filter}
-            onChange={setFilter}
-            className="w-64"
-            icon={<Icon.Search size={14} />}
-          />
-          <Button
-            variant="custom"
-            onClick={handleCreate}
-            className={`w-full md:w-auto px-6 py-3 ${colors.solidBg} text-white border ${colors.border} rounded-2xl font-black text-sm uppercase tracking-widest shadow-sm hover:opacity-90 group transition-all active:scale-95`}
-            leftIcon={
-              <Icon.Add
-                size={16}
-                className="group-hover:rotate-90 transition-transform duration-300"
-              />
-            }
-          >
-            New Reflection
-          </Button>
-        </div>
-      </ViewHeader>
-
-      <ReflectionModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onSave={onSave}
-        initialData={editingReflection}
-      />
-
-      {isLoading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {[1, 2, 3].map((i) => (
-            <div
-              key={i}
-              className="h-64 bg-notion-light-sidebar dark:bg-notion-dark-sidebar animate-pulse rounded-2xl border border-notion-light-border dark:border-notion-dark-border"
-            ></div>
-          ))}
-        </div>
-      ) : filteredReflections.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-20 bg-notion-light-sidebar dark:bg-notion-dark-sidebar rounded-3xl border border-dashed border-notion-light-border dark:border-notion-dark-border">
-          <div className="w-16 h-16 bg-notion-light-bg dark:bg-notion-dark-bg rounded-2xl flex items-center justify-center mb-4 shadow-sm">
-            <Icon.History size={32} className="opacity-20" />
-          </div>
-          <h3 className="text-sm font-bold text-notion-light-text dark:text-notion-dark-text">
-            No reflections found
-          </h3>
-          <p className="text-xs text-notion-light-muted dark:text-notion-dark-muted mt-1">
-            Capture learnings from your completed projects.
-          </p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredReflections.map((reflection) => (
-            <div
-              key={reflection.id}
-              className={`group relative bg-notion-light-sidebar dark:bg-notion-dark-sidebar p-6 rounded-2xl border border-notion-light-border dark:border-notion-dark-border ${colors.border.replace("border-", "hover:border-").split(" ")[0]} transition-all hover:shadow-xl ${colors.bg.replace("bg-", "hover:shadow-").split("/")[0]}/5 flex flex-col gap-4 cursor-pointer`}
-              onClick={() => handleEdit(reflection)}
+    return (
+      <div className="space-y-8 animate-in fade-in duration-500">
+        <ViewHeader
+          title="Feedback & Reflection"
+          subTitle="Close the loop on missions and capture mistake avoidance logs"
+        >
+          <div className="flex items-center gap-3">
+            <DebouncedInput
+              placeholder="Search reflections..."
+              value={filter}
+              onChange={setFilter}
+              className="w-64"
+              icon={<Icon.Search size={14} />}
+            />
+            <Button
+              variant="custom"
+              onClick={handleCreate}
+              className={`w-full md:w-auto px-6 py-3 ${colors.solidBg} text-white border ${colors.border} rounded-2xl font-black text-sm uppercase tracking-widest shadow-sm hover:opacity-90 group transition-all active:scale-95`}
+              leftIcon={
+                <Icon.Add
+                  size={16}
+                  className="group-hover:rotate-90 transition-transform duration-300"
+                />
+              }
             >
-              <div className="flex items-start justify-between">
-                <div className="flex flex-col gap-1">
-                  <div className="flex items-center gap-2">
-                    <span
-                      className={`text-[10px] font-bold uppercase tracking-widest ${colors.text}`}
-                    >
-                      {reflection.type}
-                    </span>
-                    <span className="text-[10px] text-notion-light-muted dark:text-notion-dark-muted">
-                      {reflection.date}
-                    </span>
-                  </div>
-                  <h3 className="text-sm font-bold text-notion-light-text dark:text-notion-dark-text line-clamp-1">
-                    {reflection.title}
-                  </h3>
-                </div>
-                <Button
-                  variant="custom"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    if (confirm("Delete this reflection?"))
-                      onDelete(reflection.id);
-                  }}
-                  className={`opacity-0 group-hover:opacity-100 p-1.5 ${MODULE_COLORS.error.bg.replace("bg-", "hover:bg-")} text-notion-light-muted ${MODULE_COLORS.error.text.replace("text-", "hover:text-")} rounded-md transition-all`}
-                >
-                  <Icon.Delete {...iconProps(14)} />
-                </Button>
-              </div>
+              New Reflection
+            </Button>
+          </div>
+        </ViewHeader>
 
-              <p className="text-xs text-notion-light-muted dark:text-notion-dark-muted line-clamp-3 leading-relaxed">
-                {reflection.content}
-              </p>
+        <ReflectionModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          onSave={onSave}
+          initialData={editingReflection}
+        />
 
-              {(reflection.learnings?.length > 0 ||
-                reflection.actionItems?.length > 0) && (
-                <div className="pt-4 border-t border-notion-light-border dark:border-notion-dark-border mt-auto flex flex-col gap-3">
-                  {reflection.learnings?.length > 0 && (
-                    <div className="flex flex-col gap-1.5">
-                      <span className="text-[10px] font-semibold text-notion-light-muted dark:text-notion-dark-muted flex items-center gap-1.5">
-                        <Icon.Active
-                          size={10}
-                          className={crmColors.text.split(" ")[0]}
-                        />
-                        LEARNINGS
-                      </span>
-                      <div className="flex flex-wrap gap-1.5">
-                        {reflection.learnings.slice(0, 2).map((l, i) => (
-                          <span
-                            key={i}
-                            className={`px-2 py-0.5 ${crmColors.bg} ${crmColors.text} rounded-full text-[9px] font-medium border ${crmColors.border} max-w-full truncate`}
-                          >
-                            {l}
-                          </span>
-                        ))}
-                        {reflection.learnings.length > 2 && (
-                          <span className="text-[9px] text-notion-light-muted">
-                            +{reflection.learnings.length - 2} more
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  )}
-
-                  {reflection.actionItems?.length > 0 && (
-                    <div className="flex flex-col gap-1.5">
-                      <span className="text-[10px] font-semibold text-notion-light-muted dark:text-notion-dark-muted flex items-center gap-1.5">
-                        <Icon.Bot
-                          size={10}
-                          className={aiColors.text.split(" ")[0]}
-                        />
-                        ACTION ITEMS
-                      </span>
-                      <div className="flex flex-wrap gap-1.5">
-                        {reflection.actionItems.slice(0, 2).map((a, i) => (
-                          <span
-                            key={i}
-                            className={`px-2 py-0.5 ${aiColors.bg} ${aiColors.text} rounded-full text-[9px] font-medium border ${aiColors.border} max-w-full truncate`}
-                          >
-                            {a}
-                          </span>
-                        ))}
-                        {reflection.actionItems.length > 2 && (
-                          <span className="text-[9px] text-notion-light-muted">
-                            +{reflection.actionItems.length - 2} more
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
+        {isLoading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[1, 2, 3].map((i) => (
+              <div
+                key={i}
+                className="h-64 bg-notion-light-sidebar dark:bg-notion-dark-sidebar animate-pulse rounded-2xl border border-notion-light-border dark:border-notion-dark-border"
+              ></div>
+            ))}
+          </div>
+        ) : filteredReflections.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-20 bg-notion-light-sidebar dark:bg-notion-dark-sidebar rounded-3xl border border-dashed border-notion-light-border dark:border-notion-dark-border">
+            <div className="w-16 h-16 bg-notion-light-bg dark:bg-notion-dark-bg rounded-2xl flex items-center justify-center mb-4 shadow-sm">
+              <Icon.History size={32} className="opacity-20" />
             </div>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-};
+            <h3 className="text-sm font-bold text-notion-light-text dark:text-notion-dark-text">
+              No reflections found
+            </h3>
+            <p className="text-xs text-notion-light-muted dark:text-notion-dark-muted mt-1">
+              Capture learnings from your completed projects.
+            </p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredReflections.map((reflection) => (
+              <div
+                key={reflection.id}
+                className={`group relative bg-notion-light-sidebar dark:bg-notion-dark-sidebar p-6 rounded-2xl border border-notion-light-border dark:border-notion-dark-border ${colors.border.replace("border-", "hover:border-").split(" ")[0]} transition-all hover:shadow-xl ${colors.bg.replace("bg-", "hover:shadow-").split("/")[0]}/5 flex flex-col gap-4 cursor-pointer`}
+                onClick={() => handleEdit(reflection)}
+              >
+                <div className="flex items-start justify-between">
+                  <div className="flex flex-col gap-1">
+                    <div className="flex items-center gap-2">
+                      <span
+                        className={`text-[10px] font-bold uppercase tracking-widest ${colors.text}`}
+                      >
+                        {reflection.type}
+                      </span>
+                      <span className="text-[10px] text-notion-light-muted dark:text-notion-dark-muted">
+                        {reflection.date}
+                      </span>
+                    </div>
+                    <h3 className="text-sm font-bold text-notion-light-text dark:text-notion-dark-text line-clamp-1">
+                      {reflection.title}
+                    </h3>
+                  </div>
+                  <Button
+                    variant="custom"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (confirm("Delete this reflection?"))
+                        onDelete(reflection.id);
+                    }}
+                    className={`opacity-0 group-hover:opacity-100 p-1.5 ${MODULE_COLORS.error.bg.replace("bg-", "hover:bg-")} text-notion-light-muted ${MODULE_COLORS.error.text.replace("text-", "hover:text-")} rounded-md transition-all`}
+                  >
+                    <Icon.Delete {...iconProps(14)} />
+                  </Button>
+                </div>
+
+                <p className="text-xs text-notion-light-muted dark:text-notion-dark-muted line-clamp-3 leading-relaxed">
+                  {reflection.content}
+                </p>
+
+                {(reflection.learnings?.length > 0 ||
+                  reflection.actionItems?.length > 0) && (
+                  <div className="pt-4 border-t border-notion-light-border dark:border-notion-dark-border mt-auto flex flex-col gap-3">
+                    {reflection.learnings?.length > 0 && (
+                      <div className="flex flex-col gap-1.5">
+                        <span className="text-[10px] font-semibold text-notion-light-muted dark:text-notion-dark-muted flex items-center gap-1.5">
+                          <Icon.Active
+                            size={10}
+                            className={crmColors.text.split(" ")[0]}
+                          />
+                          LEARNINGS
+                        </span>
+                        <div className="flex flex-wrap gap-1.5">
+                          {reflection.learnings.slice(0, 2).map((l, i) => (
+                            <span
+                              key={i}
+                              className={`px-2 py-0.5 ${crmColors.bg} ${crmColors.text} rounded-full text-[9px] font-medium border ${crmColors.border} max-w-full truncate`}
+                            >
+                              {l}
+                            </span>
+                          ))}
+                          {reflection.learnings.length > 2 && (
+                            <span className="text-[9px] text-notion-light-muted">
+                              +{reflection.learnings.length - 2} more
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    {reflection.actionItems?.length > 0 && (
+                      <div className="flex flex-col gap-1.5">
+                        <span className="text-[10px] font-semibold text-notion-light-muted dark:text-notion-dark-muted flex items-center gap-1.5">
+                          <Icon.Bot
+                            size={10}
+                            className={aiColors.text.split(" ")[0]}
+                          />
+                          ACTION ITEMS
+                        </span>
+                        <div className="flex flex-wrap gap-1.5">
+                          {reflection.actionItems.slice(0, 2).map((a, i) => (
+                            <span
+                              key={i}
+                              className={`px-2 py-0.5 ${aiColors.bg} ${aiColors.text} rounded-full text-[9px] font-medium border ${aiColors.border} max-w-full truncate`}
+                            >
+                              {a}
+                            </span>
+                          ))}
+                          {reflection.actionItems.length > 2 && (
+                            <span className="text-[9px] text-notion-light-muted">
+                              +{reflection.actionItems.length - 2} more
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  },
+);

@@ -1,261 +1,230 @@
-import React, { useState, useEffect, useCallback, useMemo } from "react";
+import React, { useState, useMemo } from "react";
 import { Icon } from "../Icons";
 import { DecisionEntry, AppConfig } from "@/types";
-import {
-  fetchDecisions,
-  addDecision,
-  updateDecision,
-  deleteDecision,
-} from "@/services/strategyService";
 import ReactMarkdown from "react-markdown";
 import { ViewHeader } from "../ViewHeader";
 import { Button, Spinner } from "../ui";
-import { toast } from "sonner";
 import { MODULE_COLORS } from "@/constants";
 import { useAwareness } from "@/hooks/useAwareness";
 
 interface StrategyViewProps {
   config: AppConfig;
+  decisions: DecisionEntry[];
+  isLoading: boolean;
+  onSave: (entry: DecisionEntry) => Promise<void>;
+  onDelete: (id: string) => Promise<void>;
 }
 
-export const StrategyView: React.FC<StrategyViewProps> = ({ config }) => {
-  const [decisions, setDecisions] = useState<DecisionEntry[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingDecision, setEditingDecision] = useState<DecisionEntry | null>(
-    null,
-  );
+export const StrategyView: React.FC<StrategyViewProps> = React.memo(
+  ({ config, decisions, isLoading, onSave, onDelete }) => {
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [editingDecision, setEditingDecision] =
+      useState<DecisionEntry | null>(null);
 
-  const colors = MODULE_COLORS.strategy;
-  const tacticColors = MODULE_COLORS.sovereign;
-  const crmColors = MODULE_COLORS.crm;
+    const colors = MODULE_COLORS.strategy;
+    const tacticColors = MODULE_COLORS.sovereign;
+    const crmColors = MODULE_COLORS.crm;
 
-  const loadDecisions = useCallback(async () => {
-    setIsLoading(true);
-    try {
-      const data = await fetchDecisions(config);
-      setDecisions(data);
-    } catch (error) {
-      console.error("Failed to load decisions", error);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [config]);
-
-  useEffect(() => {
-    loadDecisions();
-  }, [loadDecisions]);
-
-  const handleSave = async (entry: DecisionEntry) => {
-    try {
-      if (entry.id) {
-        await updateDecision(entry, config);
-        toast.success("Decision updated");
-      } else {
-        await addDecision(entry, config);
-        toast.success("Decision logged");
-      }
-      loadDecisions();
-      setIsModalOpen(false);
-      setEditingDecision(null);
-    } catch (error) {
-      console.error("Failed to save decision", error);
-      toast.error("Failed to save decision");
-    }
-  };
-
-  const handleDelete = async (id: string) => {
-    if (confirm("Are you sure you want to abort this decision log?")) {
+    const handleSave = async (entry: DecisionEntry) => {
       try {
-        await deleteDecision(id, config);
-        loadDecisions();
-        toast.success("Decision deleted");
+        await onSave(entry);
+        setIsModalOpen(false);
+        setEditingDecision(null);
       } catch (error) {
-        console.error("Failed to delete decision", error);
-        toast.error("Failed to delete decision");
+        console.error("Failed to save decision", error);
       }
-    }
-  };
+    };
 
-  return (
-    <div className="space-y-6 animate-in fade-in duration-500">
-      <ViewHeader
-        title="Decision Journal"
-        subTitle="Strategy & assumption tracking for the one-man empire."
-      >
-        <Button
-          variant="custom"
-          onClick={() => {
-            setEditingDecision(null);
-            setIsModalOpen(true);
-          }}
-          className={`inline-flex items-center justify-center gap-2 px-4 py-2 ${colors.solidBg} text-white w-full sm:w-auto font-semibold rounded-lg hover:opacity-90 transition-all shadow-lg shadow-black/5 active:scale-95`}
+    const handleDelete = async (id: string) => {
+      if (confirm("Are you sure you want to abort this decision log?")) {
+        try {
+          await onDelete(id);
+        } catch (error) {
+          console.error("Failed to delete decision", error);
+        }
+      }
+    };
+
+    return (
+      <div className="space-y-6 animate-in fade-in duration-500">
+        <ViewHeader
+          title="Decision Journal"
+          subTitle="Strategy & assumption tracking for the one-man empire."
         >
-          <Icon.Add size={18} />
-          <span>Log Decision</span>
-        </Button>
-      </ViewHeader>
+          <Button
+            variant="custom"
+            onClick={() => {
+              setEditingDecision(null);
+              setIsModalOpen(true);
+            }}
+            className={`inline-flex items-center justify-center gap-2 px-4 py-2 ${colors.solidBg} text-white w-full sm:w-auto font-semibold rounded-lg hover:opacity-90 transition-all shadow-lg shadow-black/5 active:scale-95`}
+          >
+            <Icon.Add size={18} />
+            <span>Log Decision</span>
+          </Button>
+        </ViewHeader>
 
-      {isLoading ? (
-        <div className="flex items-center justify-center py-20">
-          <Spinner size="lg" />
-        </div>
-      ) : decisions.length === 0 ? (
-        <div className="text-center py-20 bg-notion-light-sidebar dark:bg-notion-dark-sidebar rounded-2xl border border-dashed border-notion-light-border dark:border-notion-dark-border">
-          <Icon.Strategy
-            size={48}
-            className={`mx-auto mb-4 ${colors.text} opacity-20`}
-          />
-          <h3 className="text-lg font-medium text-notion-light-text dark:text-notion-dark-text">
-            No decisions logged yet
-          </h3>
-          <p className="text-sm text-notion-light-muted dark:text-notion-dark-muted mt-1">
-            Force clarity before execution. Start your first log.
-          </p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {decisions.map((decision) => (
-            <div
-              key={decision.id}
-              className={`bg-notion-light-bg dark:bg-notion-dark-bg border border-notion-light-border dark:border-notion-dark-border rounded-2xl p-6 hover:shadow-lg transition-all group ${colors.border.replace("border-", "hover:border-")}`}
-            >
-              <div className="flex items-start justify-between mb-4">
-                <div className="flex items-center gap-3">
-                  <div
-                    className={`w-2 h-2 rounded-full ${decision.status === "PENDING" ? "bg-indigo-500" : colors.dot}`}
-                  ></div>
-                  <span className="text-[10px] font-bold uppercase tracking-widest opacity-60">
-                    {decision.date}
-                  </span>
-                </div>
-                <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <Button
-                    variant="custom"
-                    onClick={() => {
-                      setEditingDecision(decision);
-                      setIsModalOpen(true);
-                    }}
-                    className={`p-1.5 ${colors.hoverBg} rounded-lg text-notion-light-muted dark:text-notion-dark-muted ${colors.text.replace("text-", "hover:text-")}`}
-                  >
-                    <Icon.Edit size={14} />
-                  </Button>
-                  <Button
-                    variant="custom"
-                    onClick={() => handleDelete(decision.id)}
-                    className={`p-1.5 ${MODULE_COLORS.error.bg.replace("bg-", "hover:bg-")} ${MODULE_COLORS.error.text.replace("text-", "hover:text-")} rounded-lg text-notion-light-muted dark:text-notion-dark-muted transition-all`}
-                  >
-                    <Icon.Delete size={14} />
-                  </Button>
-                </div>
-              </div>
-
-              <h3 className="text-lg font-bold text-notion-light-text dark:text-notion-dark-text mb-2">
-                <span
-                  className={`mr-2 px-1.5 py-0.5 rounded text-[10px] font-black uppercase tracking-tighter ${decision.decisionType === "strategy" ? `${colors.bg} ${colors.text} border ${colors.border}` : `${tacticColors.bg} ${tacticColors.text} border ${tacticColors.border}`}`}
-                >
-                  {decision.decisionType}
-                </span>
-                {decision.title}
-              </h3>
-
-              <div className="prose prose-sm dark:prose-invert max-w-none line-clamp-3 mb-4 text-sm text-notion-light-muted dark:text-notion-dark-muted">
-                <ReactMarkdown>{decision.context}</ReactMarkdown>
-              </div>
-
-              {decision.predictedImpact && (
-                <div className="mb-4 flex items-start gap-2">
-                  <Icon.Zap
-                    size={14}
-                    className={`${colors.text} mt-0.5 opacity-70`}
-                  />
-                  <p className="text-[11px] font-medium text-notion-light-text dark:text-notion-dark-text italic">
-                    {decision.predictedImpact}
-                  </p>
-                </div>
-              )}
-
-              {decision.assumptions && decision.assumptions.length > 0 && (
-                <div className="mb-4">
-                  <span className="text-[10px] font-bold uppercase tracking-widest opacity-40 block mb-1">
-                    Assumptions
-                  </span>
-                  <div className="flex flex-wrap gap-1">
-                    {decision.assumptions.map((a, i) => (
-                      <span
-                        key={i}
-                        className="text-[10px] bg-notion-light-sidebar dark:bg-notion-dark-sidebar px-1.5 py-0.5 rounded border border-notion-light-border dark:border-notion-dark-border"
-                      >
-                        {a}
-                      </span>
-                    ))}
+        {isLoading ? (
+          <div className="flex items-center justify-center py-20">
+            <Spinner size="lg" />
+          </div>
+        ) : decisions.length === 0 ? (
+          <div className="text-center py-20 bg-notion-light-sidebar dark:bg-notion-dark-sidebar rounded-2xl border border-dashed border-notion-light-border dark:border-notion-dark-border">
+            <Icon.Strategy
+              size={48}
+              className={`mx-auto mb-4 ${colors.text} opacity-20`}
+            />
+            <h3 className="text-lg font-medium text-notion-light-text dark:text-notion-dark-text">
+              No decisions logged yet
+            </h3>
+            <p className="text-sm text-notion-light-muted dark:text-notion-dark-muted mt-1">
+              Force clarity before execution. Start your first log.
+            </p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {decisions.map((decision) => (
+              <div
+                key={decision.id}
+                className={`bg-notion-light-bg dark:bg-notion-dark-bg border border-notion-light-border dark:border-notion-dark-border rounded-2xl p-6 hover:shadow-lg transition-all group ${colors.border.replace("border-", "hover:border-")}`}
+              >
+                <div className="flex items-start justify-between mb-4">
+                  <div className="flex items-center gap-3">
+                    <div
+                      className={`w-2 h-2 rounded-full ${decision.status === "PENDING" ? "bg-indigo-500" : colors.dot}`}
+                    ></div>
+                    <span className="text-[10px] font-bold uppercase tracking-widest opacity-60">
+                      {decision.date}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <Button
+                      variant="custom"
+                      onClick={() => {
+                        setEditingDecision(decision);
+                        setIsModalOpen(true);
+                      }}
+                      className={`p-1.5 ${colors.hoverBg} rounded-lg text-notion-light-muted dark:text-notion-dark-muted ${colors.text.replace("text-", "hover:text-")}`}
+                    >
+                      <Icon.Edit size={14} />
+                    </Button>
+                    <Button
+                      variant="custom"
+                      onClick={() => handleDelete(decision.id)}
+                      className={`p-1.5 ${MODULE_COLORS.error.bg.replace("bg-", "hover:bg-")} ${MODULE_COLORS.error.text.replace("text-", "hover:text-")} rounded-lg text-notion-light-muted dark:text-notion-dark-muted transition-all`}
+                    >
+                      <Icon.Delete size={14} />
+                    </Button>
                   </div>
                 </div>
-              )}
 
-              {decision.actualOutcome && (
-                <div
-                  className={`mb-4 p-3 ${crmColors.bg} border ${crmColors.border} rounded-xl`}
-                >
+                <h3 className="text-lg font-bold text-notion-light-text dark:text-notion-dark-text mb-2">
                   <span
-                    className={`text-[10px] font-bold uppercase tracking-widest ${crmColors.text} block mb-1`}
+                    className={`mr-2 px-1.5 py-0.5 rounded text-[10px] font-black uppercase tracking-tighter ${decision.decisionType === "strategy" ? `${colors.bg} ${colors.text} border ${colors.border}` : `${tacticColors.bg} ${tacticColors.text} border ${tacticColors.border}`}`}
                   >
-                    Actual Outcome
+                    {decision.decisionType}
                   </span>
-                  <p className="text-sm text-notion-light-text dark:text-notion-dark-text italic">
-                    {decision.actualOutcome}
-                  </p>
-                </div>
-              )}
+                  {decision.title}
+                </h3>
 
-              <div className="flex items-center justify-between mt-6 pt-4 border-t border-notion-light-border dark:border-notion-dark-border">
-                <div className="flex items-center gap-4">
-                  <div className="flex flex-col">
-                    <span className="text-[10px] uppercase tracking-wider opacity-50">
-                      Impact
+                <div className="prose prose-sm dark:prose-invert max-w-none line-clamp-3 mb-4 text-sm text-notion-light-muted dark:text-notion-dark-muted">
+                  <ReactMarkdown>{decision.context}</ReactMarkdown>
+                </div>
+
+                {decision.predictedImpact && (
+                  <div className="mb-4 flex items-start gap-2">
+                    <Icon.Zap
+                      size={14}
+                      className={`${colors.text} mt-0.5 opacity-70`}
+                    />
+                    <p className="text-[11px] font-medium text-notion-light-text dark:text-notion-dark-text italic">
+                      {decision.predictedImpact}
+                    </p>
+                  </div>
+                )}
+
+                {decision.assumptions && decision.assumptions.length > 0 && (
+                  <div className="mb-4">
+                    <span className="text-[10px] font-bold uppercase tracking-widest opacity-40 block mb-1">
+                      Assumptions
                     </span>
-                    <div className="flex gap-0.5">
-                      {[1, 2, 3, 4, 5].map((i) => (
-                        <div
+                    <div className="flex flex-wrap gap-1">
+                      {decision.assumptions.map((a, i) => (
+                        <span
                           key={i}
-                          className={`w-3 h-1 rounded-full ${i <= decision.impact ? colors.dot : "bg-notion-light-border dark:bg-notion-dark-border"}`}
-                        ></div>
+                          className="text-[10px] bg-notion-light-sidebar dark:bg-notion-dark-sidebar px-1.5 py-0.5 rounded border border-notion-light-border dark:border-notion-dark-border"
+                        >
+                          {a}
+                        </span>
                       ))}
                     </div>
                   </div>
+                )}
 
-                  <div className="flex flex-col">
-                    <span className="text-[10px] uppercase tracking-wider opacity-50">
-                      Confidence
+                {decision.actualOutcome && (
+                  <div
+                    className={`mb-4 p-3 ${crmColors.bg} border ${crmColors.border} rounded-xl`}
+                  >
+                    <span
+                      className={`text-[10px] font-bold uppercase tracking-widest ${crmColors.text} block mb-1`}
+                    >
+                      Actual Outcome
                     </span>
-                    <span className="text-[10px] font-mono font-bold">
-                      {decision.confidenceScore || 70}%
-                    </span>
+                    <p className="text-sm text-notion-light-text dark:text-notion-dark-text italic">
+                      {decision.actualOutcome}
+                    </p>
+                  </div>
+                )}
+
+                <div className="flex items-center justify-between mt-6 pt-4 border-t border-notion-light-border dark:border-notion-dark-border">
+                  <div className="flex items-center gap-4">
+                    <div className="flex flex-col">
+                      <span className="text-[10px] uppercase tracking-wider opacity-50">
+                        Impact
+                      </span>
+                      <div className="flex gap-0.5">
+                        {[1, 2, 3, 4, 5].map((i) => (
+                          <div
+                            key={i}
+                            className={`w-3 h-1 rounded-full ${i <= decision.impact ? colors.dot : "bg-notion-light-border dark:bg-notion-dark-border"}`}
+                          ></div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="flex flex-col">
+                      <span className="text-[10px] uppercase tracking-wider opacity-50">
+                        Confidence
+                      </span>
+                      <span className="text-[10px] font-mono font-bold">
+                        {decision.confidenceScore || 70}%
+                      </span>
+                    </div>
+                  </div>
+                  <div
+                    className={`text-[10px] font-bold px-2 py-0.5 ${colors.bg} ${colors.text} rounded-full uppercase tracking-wider`}
+                  >
+                    {decision.status}
                   </div>
                 </div>
-                <div
-                  className={`text-[10px] font-bold px-2 py-0.5 ${colors.bg} ${colors.text} rounded-full uppercase tracking-wider`}
-                >
-                  {decision.status}
-                </div>
               </div>
-            </div>
-          ))}
-        </div>
-      )}
+            ))}
+          </div>
+        )}
 
-      {/* Basic Modal Implementation */}
-      {isModalOpen && (
-        <DecisionModal
-          onClose={() => setIsModalOpen(false)}
-          onSave={handleSave}
-          initialData={editingDecision}
-          config={config}
-        />
-      )}
-    </div>
-  );
-};
+        {/* Basic Modal Implementation */}
+        {isModalOpen && (
+          <DecisionModal
+            onClose={() => setIsModalOpen(false)}
+            onSave={handleSave}
+            initialData={editingDecision}
+            config={config}
+          />
+        )}
+      </div>
+    );
+  },
+);
 
 interface DecisionModalProps {
   onClose: () => void;

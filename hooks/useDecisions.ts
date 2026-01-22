@@ -1,6 +1,12 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { DecisionEntry, AppConfig } from "../types";
-import { fetchDecisions } from "../services/strategyService";
+import {
+  fetchDecisions,
+  addDecision,
+  updateDecision,
+  deleteDecision as deleteDecisionService,
+} from "../services/strategyService";
+import { toast } from "sonner";
 
 export const useDecisions = (config: AppConfig) => {
   const [decisions, setDecisions] = useState<DecisionEntry[]>([]);
@@ -22,8 +28,49 @@ export const useDecisions = (config: AppConfig) => {
     load();
   }, [load]);
 
+  const saveDecision = useCallback(
+    async (entry: DecisionEntry) => {
+      try {
+        if (entry.id) {
+          await updateDecision(entry, config);
+          toast.success("Decision updated");
+        } else {
+          await addDecision(entry, config);
+          toast.success("Decision logged");
+        }
+        await load();
+      } catch (error) {
+        console.error("Failed to save decision", error);
+        toast.error("Failed to save decision");
+        throw error;
+      }
+    },
+    [config, load],
+  );
+
+  const deleteDecision = useCallback(
+    async (id: string) => {
+      try {
+        await deleteDecisionService(id, config);
+        await load();
+        toast.success("Decision deleted");
+      } catch (error) {
+        console.error("Failed to delete decision", error);
+        toast.error("Failed to delete decision");
+        throw error;
+      }
+    },
+    [config, load],
+  );
+
   return useMemo(
-    () => ({ decisions, isLoading, reload: load }),
-    [decisions, isLoading, load],
+    () => ({
+      decisions,
+      isLoading,
+      reload: load,
+      saveDecision,
+      deleteDecision,
+    }),
+    [decisions, isLoading, load, saveDecision, deleteDecision],
   );
 };

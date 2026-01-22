@@ -8,7 +8,7 @@ import { useConfig } from "../hooks/useConfig";
 import { useUi } from "../hooks/useUi";
 import { useData } from "../hooks/useData";
 
-export const AiChatSidebar: React.FC = () => {
+export const AiChatSidebar: React.FC = React.memo(() => {
   const { config } = useConfig();
   const ui = useUi();
   const {
@@ -425,4 +425,4 @@ export const AiChatSidebar: React.FC = () => {
       </div>
     </>
   );
-};
+});

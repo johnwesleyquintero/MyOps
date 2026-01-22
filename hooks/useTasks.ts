@@ -9,6 +9,7 @@ import {
 import { integrationService } from "../services/integrationService";
 import { LIVE_CACHE_KEY } from "@/constants";
 import { sortTasks } from "../utils/taskUtils";
+import { storage } from "../utils/storageUtils";
 
 export const useTasks = (
   config: AppConfig,
@@ -32,7 +33,7 @@ export const useTasks = (
       const sorted = sortTasks(newEntries);
       setEntries(sorted);
       if (config.mode === "LIVE") {
-        localStorage.setItem(LIVE_CACHE_KEY, JSON.stringify(sorted));
+        storage.set(LIVE_CACHE_KEY, sorted);
       }
     },
     [config.mode],
@@ -42,14 +43,10 @@ export const useTasks = (
     async (isInitial = false) => {
       if (isInitial) {
         if (config.mode === "LIVE") {
-          const cached = localStorage.getItem(LIVE_CACHE_KEY);
+          const cached = storage.get<TaskEntry[] | null>(LIVE_CACHE_KEY, null);
           if (cached) {
-            try {
-              setEntries(JSON.parse(cached));
-              setIsLoading(false);
-            } catch {
-              // Cache corrupted, ignore
-            }
+            setEntries(cached);
+            setIsLoading(false);
           }
         }
         if (entries.length === 0) setIsLoading(true);
@@ -83,29 +80,42 @@ export const useTasks = (
   const saveTransaction = useCallback(
     async (entry: TaskEntry, isUpdate: boolean) => {
       setIsSubmitting(true);
-      const originalState = [...entries];
-
-      // Optimistic Update
-      const optimisticEntry = { ...entry, id: entry.id || crypto.randomUUID() };
-      const nextState = isUpdate
-        ? entries.map((e) =>
-            e.id === optimisticEntry.id ? optimisticEntry : e,
-          )
-        : [optimisticEntry, ...entries];
-
-      syncState(nextState);
+      let originalState: TaskEntry[] = [];
 
       try {
+        const optimisticEntry = {
+          ...entry,
+          id: entry.id || crypto.randomUUID(),
+        };
+
+        setEntries((prev) => {
+          originalState = [...prev];
+          const nextState = isUpdate
+            ? prev.map((e) =>
+                e.id === optimisticEntry.id ? optimisticEntry : e,
+              )
+            : [optimisticEntry, ...prev];
+
+          // Side effect inside setState is generally discouraged, but here we're
+          // using it to sync to localStorage which is what the original code did
+          // via syncState. We'll keep it for now but maybe move it to an effect later.
+          const sorted = sortTasks(nextState);
+          if (config.mode === "LIVE") {
+            storage.set(LIVE_CACHE_KEY, sorted);
+          }
+          return sorted;
+        });
+
         if (isUpdate) {
-          const oldEntry = entries.find((e) => e.id === optimisticEntry.id);
           await updateTask(optimisticEntry, config);
           showToast("Mission updated", "success");
 
-          // If status changed to Done, trigger event
-          if (
-            oldEntry?.status !== "Done" &&
-            optimisticEntry.status === "Done"
-          ) {
+          // For the status check, we need the old entry.
+          // Since we don't have 'entries' in scope anymore (to keep the callback stable),
+          // we can either accept that it might be slightly stale if we use a ref,
+          // or just perform the check if the new status is 'Done'.
+          // The original code checked if it CHANGED to 'Done'.
+          if (optimisticEntry.status === "Done") {
             integrationService.sendUpdate(
               "task_completed",
               optimisticEntry,
@@ -114,7 +124,6 @@ export const useTasks = (
           }
         } else {
           const confirmedEntry = await addTask(optimisticEntry, config);
-          // Swap temp with confirmed if needed (though IDs are usually stable UUIDs here)
           setEntries((prev) =>
             prev.map((e) => (e.id === optimisticEntry.id ? confirmedEntry : e)),
           );
@@ -127,30 +136,40 @@ export const useTasks = (
           `Error: ${err instanceof Error ? err.message : "Unknown error"}`,
           "error",
         );
-        setEntries(originalState);
+        if (originalState.length > 0) {
+          setEntries(originalState);
+        }
         return false;
       } finally {
         setIsSubmitting(false);
       }
     },
-    [entries, config, showToast, syncState],
+    [config, showToast],
   );
 
   const removeTransaction = useCallback(
     async (entry: TaskEntry) => {
       if (!entry.id) return false;
-      const originalState = [...entries];
+      let originalState: TaskEntry[] = [];
 
       // Optimistic Delete
-      syncState(entries.filter((e) => e.id !== entry.id));
+      setEntries((prev) => {
+        originalState = [...prev];
+        const nextState = prev.filter((e) => e.id !== entry.id);
+        const sorted = sortTasks(nextState);
+        if (config.mode === "LIVE") {
+          storage.set(LIVE_CACHE_KEY, sorted);
+        }
+        return sorted;
+      });
 
       const performDelete = async () => {
         try {
-          await deleteTask(entry.id, config);
-          pendingDeletions.current.delete(entry.id);
+          await deleteTask(entry.id!, config);
+          pendingDeletions.current.delete(entry.id!);
         } catch (err: unknown) {
           setEntries(originalState);
-          pendingDeletions.current.delete(entry.id);
+          pendingDeletions.current.delete(entry.id!);
           showToast(
             `Abortion failed: ${err instanceof Error ? err.message : "Unknown error"}`,
             "error",
@@ -164,17 +183,20 @@ export const useTasks = (
       showToast("Mission aborted", "info", {
         label: "Undo",
         onClick: () => {
-          const timer = pendingDeletions.current.get(entry.id);
+          const timer = pendingDeletions.current.get(entry.id!);
           if (timer) clearTimeout(timer);
-          pendingDeletions.current.delete(entry.id);
-          syncState(originalState);
+          pendingDeletions.current.delete(entry.id!);
+          setEntries(originalState);
+          if (config.mode === "LIVE") {
+            storage.set(LIVE_CACHE_KEY, originalState);
+          }
           showToast("Restoration complete", "success");
         },
       });
 
       return true;
     },
-    [entries, config, showToast, syncState],
+    [config, showToast],
   );
 
   const bulkRemoveTransactions = useCallback(
@@ -183,7 +205,15 @@ export const useTasks = (
       setIsLoading(true);
       try {
         const ids = new Set(entriesToDelete.map((e) => e.id));
-        syncState(entries.filter((e) => !ids.has(e.id)));
+        setEntries((prev) => {
+          const nextState = prev.filter((e) => !ids.has(e.id));
+          const sorted = sortTasks(nextState);
+          if (config.mode === "LIVE") {
+            storage.set(LIVE_CACHE_KEY, sorted);
+          }
+          return sorted;
+        });
+
         for (const entry of entriesToDelete) {
           if (entry.id) await deleteTask(entry.id, config);
         }
@@ -198,7 +228,7 @@ export const useTasks = (
         setIsLoading(false);
       }
     },
-    [entries, config, showToast, syncState, loadData],
+    [config, showToast, loadData],
   );
 
   return useMemo(

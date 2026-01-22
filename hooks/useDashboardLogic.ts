@@ -166,6 +166,93 @@ export const useDashboardLogic = ({
       .filter((s) => s.count > 0);
   }, [decisions]);
 
+  const projectMomentum = useMemo(() => {
+    const projects: Record<
+      string,
+      {
+        xp: number;
+        completedTasks: number;
+        totalTasks: number;
+        decisions: number;
+        accuracy: number;
+        accuracyCount: number;
+        streak: number;
+        lastActive: string;
+      }
+    > = {};
+
+    // Process Tasks
+    entries.forEach((t) => {
+      const p = t.project || "General";
+      if (!projects[p]) {
+        projects[p] = {
+          xp: 0,
+          completedTasks: 0,
+          totalTasks: 0,
+          decisions: 0,
+          accuracy: 0,
+          accuracyCount: 0,
+          streak: 0,
+          lastActive: "",
+        };
+      }
+
+      projects[p].totalTasks += 1;
+      if (t.status === "Done") {
+        projects[p].completedTasks += 1;
+        projects[p].xp += t.xpAwarded || 100;
+        if (
+          t.createdAt &&
+          (!projects[p].lastActive || t.createdAt > projects[p].lastActive)
+        ) {
+          projects[p].lastActive = t.createdAt;
+        }
+      }
+    });
+
+    // Process Decisions
+    decisions.forEach((d) => {
+      const p = d.project || "General";
+      if (!projects[p]) {
+        projects[p] = {
+          xp: 0,
+          completedTasks: 0,
+          totalTasks: 0,
+          decisions: 0,
+          accuracy: 0,
+          accuracyCount: 0,
+          streak: 0,
+          lastActive: "",
+        };
+      }
+
+      projects[p].decisions += 1;
+      if (d.status === "REVIEWED") {
+        const normalizedImpact = (d.impact / 5) * 100;
+        const confidence = d.confidenceScore || 50;
+        const diff = Math.abs(normalizedImpact - confidence);
+        projects[p].accuracy += 100 - diff;
+        projects[p].accuracyCount += 1;
+      }
+    });
+
+    return Object.entries(projects)
+      .map(([name, data]) => ({
+        name,
+        xp: data.xp,
+        completionRate: data.totalTasks
+          ? Math.round((data.completedTasks / data.totalTasks) * 100)
+          : 0,
+        accuracy: data.accuracyCount
+          ? Math.round(data.accuracy / data.accuracyCount)
+          : 0,
+        momentum: data.completedTasks + data.decisions, // Simple momentum metric
+        isAtRisk: data.totalTasks > 0 && data.completedTasks === 0,
+      }))
+      .sort((a, b) => b.momentum - a.momentum)
+      .slice(0, 3);
+  }, [entries, decisions]);
+
   const { columns, toggleColumn } = useTableColumns(
     DASHBOARD_COLUMNS as ColumnConfig[],
     COLUMN_CONFIG_KEY,
@@ -178,6 +265,7 @@ export const useDashboardLogic = ({
       predictiveMetrics,
       calibrationMetrics,
       biometricCalibration,
+      projectMomentum,
       columns,
       toggleColumn,
     }),
@@ -187,6 +275,7 @@ export const useDashboardLogic = ({
       predictiveMetrics,
       calibrationMetrics,
       biometricCalibration,
+      projectMomentum,
       columns,
       toggleColumn,
     ],

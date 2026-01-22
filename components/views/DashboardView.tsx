@@ -18,8 +18,6 @@ import { ColumnConfigDropdown } from "../ColumnConfigDropdown";
 import { MODULE_COLORS } from "@/constants";
 import { useDashboardLogic } from "../../hooks/useDashboardLogic";
 import { useUi } from "@/hooks/useUi";
-import { useRewards } from "@/contexts/RewardContext";
-import { BADGES } from "@/constants/rewards";
 
 interface DashboardViewProps {
   entries: TaskEntry[];
@@ -59,11 +57,15 @@ export const DashboardView: React.FC<DashboardViewProps> = React.memo(
       predictiveMetrics,
       calibrationMetrics,
       biometricCalibration,
+      projectMomentum,
       columns,
       toggleColumn,
-    } = useDashboardLogic({ entries, operatorMetrics, decisions });
+    } = useDashboardLogic({
+      entries,
+      operatorMetrics,
+      decisions,
+    });
     const { isHudMode, toggleHudMode } = useUi();
-    const { unlockedBadges } = useRewards();
 
     // Calculate Confidence Score
     const confidenceScore = useMemo(() => {
@@ -266,53 +268,8 @@ export const DashboardView: React.FC<DashboardViewProps> = React.memo(
               </div>
             </div>
 
-            {/* XP HUD Snippet */}
-            <div className="pointer-events-auto bg-black/80 backdrop-blur-xl border border-white/10 p-4 rounded-2xl shadow-2xl flex flex-col gap-2 min-w-[200px] animate-slide-up [animation-delay:100ms]">
-              <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest text-white/60">
-                <span>XP PROGRESS</span>
-                <span className="text-indigo-400">
-                  LVL {operatorMetrics.level}
-                </span>
-              </div>
-              <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-gradient-to-r from-indigo-500 to-violet-500 rounded-full shadow-[0_0_10px_rgba(99,102,241,0.5)] transition-all duration-1000"
-                  style={{ width: `${xpProgress}%` }}
-                />
-              </div>
-              <div className="flex justify-between text-[9px] font-mono text-white/40">
-                <span>{operatorMetrics.xp % 1000}</span>
-                <span>1000</span>
-              </div>
-            </div>
-
-            {/* Badge Reel HUD Snippet */}
-            {unlockedBadges.length > 0 && (
-              <div className="pointer-events-auto bg-black/80 backdrop-blur-xl border border-white/10 p-4 rounded-2xl shadow-2xl flex flex-col gap-2 min-w-[200px] animate-slide-up [animation-delay:150ms]">
-                <div className="text-[10px] font-black uppercase tracking-widest text-white/60 mb-1">
-                  OPERATOR ACHIEVEMENTS
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {BADGES.filter((b) => unlockedBadges.includes(b.id)).map(
-                    (badge) => (
-                      <div
-                        key={badge.id}
-                        className="w-8 h-8 rounded-lg bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center text-indigo-400 group relative"
-                        title={badge.name}
-                      >
-                        <badge.icon size={16} />
-                        <div className="absolute bottom-full right-0 mb-2 px-2 py-1 bg-black text-[8px] text-white rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none border border-white/10">
-                          {badge.name}
-                        </div>
-                      </div>
-                    ),
-                  )}
-                </div>
-              </div>
-            )}
-
             {/* Confidence Dial HUD Snippet */}
-            <div className="pointer-events-auto bg-black/80 backdrop-blur-xl border border-white/10 p-4 rounded-2xl shadow-2xl flex flex-col gap-3 min-w-[200px] animate-slide-up [animation-delay:200ms]">
+            <div className="pointer-events-auto bg-black/80 backdrop-blur-xl border border-white/10 p-4 rounded-2xl shadow-2xl flex flex-col gap-3 min-w-[200px] animate-slide-up [animation-delay:100ms]">
               <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest text-white/60">
                 <span>CONFIDENCE DIAL</span>
                 <span className={getConfidenceColor(confidenceScore)}>
@@ -358,52 +315,67 @@ export const DashboardView: React.FC<DashboardViewProps> = React.memo(
               </div>
             </div>
 
-            {/* Mental State Overlays */}
-            <div className="pointer-events-auto bg-black/80 backdrop-blur-xl border border-white/10 p-4 rounded-2xl shadow-2xl flex flex-col gap-3 min-w-[200px] animate-slide-up [animation-delay:300ms]">
-              <div className="text-[10px] font-black uppercase tracking-widest text-white/60">
-                BIOMETRIC OVERLAY
-              </div>
-              <div className="grid grid-cols-2 gap-2">
-                <div className="bg-white/5 p-2 rounded-lg border border-white/5">
-                  <span className="text-[8px] text-white/40 block uppercase mb-1">
-                    ENERGY
-                  </span>
-                  <div className="flex items-center gap-1.5">
-                    <div
-                      className={`w-1.5 h-1.5 rounded-full ${
-                        mentalStates[0]?.energy === "high"
-                          ? "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)]"
-                          : mentalStates[0]?.energy === "low"
-                            ? "bg-amber-500"
-                            : "bg-indigo-500"
-                      }`}
-                    />
-                    <span className="text-[10px] font-bold text-white uppercase">
-                      {mentalStates[0]?.energy || "N/A"}
-                    </span>
-                  </div>
+            {/* Project Momentum HUD Snippet */}
+            {projectMomentum && projectMomentum.length > 0 && (
+              <div className="pointer-events-auto bg-black/80 backdrop-blur-xl border border-white/10 p-4 rounded-2xl shadow-2xl flex flex-col gap-3 min-w-[200px] animate-slide-up [animation-delay:200ms]">
+                <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest text-white/60">
+                  <span>PROJECT MOMENTUM</span>
+                  <Icon.Target size={14} className="text-indigo-400" />
                 </div>
-                <div className="bg-white/5 p-2 rounded-lg border border-white/5">
-                  <span className="text-[8px] text-white/40 block uppercase mb-1">
-                    CLARITY
-                  </span>
-                  <div className="flex items-center gap-1.5">
-                    <div
-                      className={`w-1.5 h-1.5 rounded-full ${
-                        mentalStates[0]?.clarity === "sharp"
-                          ? "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)]"
-                          : mentalStates[0]?.clarity === "foggy"
-                            ? "bg-amber-500"
-                            : "bg-indigo-500"
-                      }`}
-                    />
-                    <span className="text-[10px] font-bold text-white uppercase">
-                      {mentalStates[0]?.clarity || "N/A"}
-                    </span>
-                  </div>
+                <div className="space-y-3">
+                  {projectMomentum.map((p) => (
+                    <div key={p.name} className="flex flex-col gap-1.5">
+                      <div className="flex justify-between items-end">
+                        <span className="text-[10px] font-bold text-white/80 truncate max-w-[120px]">
+                          {p.name}
+                        </span>
+                        <span className="text-[9px] font-mono text-indigo-400">
+                          {p.xp} XP
+                        </span>
+                      </div>
+                      <div className="h-1 bg-white/5 rounded-full overflow-hidden">
+                        <div
+                          className={`h-full rounded-full transition-all duration-1000 ${
+                            p.isAtRisk ? "bg-amber-500" : "bg-indigo-500"
+                          }`}
+                          style={{ width: `${p.completionRate}%` }}
+                        />
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-1">
+                            <Icon.Zap size={8} className="text-amber-400" />
+                            <span className="text-[8px] text-white/40 uppercase">
+                              Acc:
+                            </span>
+                          </div>
+                          <span
+                            className={`text-[9px] font-bold ${
+                              p.accuracy >= 80
+                                ? "text-emerald-400"
+                                : p.accuracy >= 50
+                                  ? "text-indigo-400"
+                                  : "text-amber-400"
+                            }`}
+                          >
+                            {p.accuracy}%
+                          </span>
+                        </div>
+                        <span
+                          className={`text-[8px] font-black uppercase tracking-tighter ${
+                            p.isAtRisk
+                              ? "text-amber-500"
+                              : "text-emerald-500/60"
+                          }`}
+                        >
+                          {p.isAtRisk ? "STALLED" : "ACTIVE"}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
-            </div>
+            )}
           </div>
         )}
 

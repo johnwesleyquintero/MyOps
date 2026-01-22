@@ -165,6 +165,7 @@ export interface DecisionEntry {
   impact: 1 | 2 | 3 | 4 | 5;
   confidenceScore?: number; // 1-100
   predictedImpact?: string;
+  project?: string;
   tags?: string[];
   biometricContext?: {
     energy: "low" | "medium" | "high";

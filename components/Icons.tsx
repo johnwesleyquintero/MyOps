@@ -134,6 +134,7 @@ export const Icon = {
   Knowledge: Book,
   Report: FileCheck,
   Strategy: Target,
+  Target: Target,
   Activity: Activity,
   History: History,
   Heart: Heart,

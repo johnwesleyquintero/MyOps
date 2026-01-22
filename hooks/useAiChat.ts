@@ -321,34 +321,7 @@ export const useAiChat = ({
               activeConstraints,
             };
           }
-          case "get_operator_summary": {
-            const today = new Date().toISOString().split("T")[0];
-            const activeTasks = entries.filter((t) => t.status !== "Done");
-            const overdueTasks = activeTasks.filter((t) => t.date < today);
-            const highPriorityTasks = activeTasks.filter(
-              (t) => t.priority === "High",
-            );
-            const currentMentalState =
-              mentalStates.find((m) => m.date === today) || mentalStates[0];
-            const activeConstraints = lifeConstraints.filter((c) => c.isActive);
 
-            return {
-              summary: {
-                taskLoad: {
-                  totalActive: activeTasks.length,
-                  overdue: overdueTasks.length,
-                  highPriority: highPriorityTasks.length,
-                },
-                mentalState: currentMentalState,
-                constraints: activeConstraints,
-                metrics: {
-                  xp: metrics.xp,
-                  level: metrics.level,
-                  streak: metrics.streak,
-                },
-              },
-            };
-          }
           case "get_tasks":
             return {
               tasks: entries.map(
@@ -556,6 +529,41 @@ export const useAiChat = ({
                   energyRequirement: c.energyRequirement,
                 })),
             };
+          case "get_operator_summary": {
+            const today = new Date().toISOString().split("T")[0];
+            const currentMentalState =
+              mentalStates.find((m) => m.date === today) || mentalStates[0];
+            const activeConstraints = lifeConstraints.filter((c) => c.isActive);
+            const taskStats = {
+              total: entries.length,
+              backlog: entries.filter((e) => e.status === "Backlog").length,
+              inProgress: entries.filter((e) => e.status === "In Progress")
+                .length,
+              done: entries.filter((e) => e.status === "Done").length,
+              highPriority: entries.filter(
+                (e) => e.priority === "High" && e.status !== "Done",
+              ).length,
+              overdue: entries.filter(
+                (e) => e.date < today && e.status !== "Done",
+              ).length,
+            };
+
+            return {
+              summary: {
+                taskStats,
+                mentalState: currentMentalState,
+                activeConstraints: activeConstraints.map((c) => ({
+                  title: c.title,
+                  category: c.category,
+                })),
+                metrics: {
+                  xp: metrics.xp,
+                  level: metrics.level,
+                  streak: metrics.streak,
+                },
+              },
+            };
+          }
           default:
             return { error: "Tool not found" };
         }
@@ -624,9 +632,35 @@ export const useAiChat = ({
           });
         }
 
-        let result = await chatSession.current.sendMessage({
-          message: messageParts,
-        });
+        let result;
+        let retries = 0;
+        const maxRetries = 3;
+
+        while (retries < maxRetries) {
+          try {
+            result = await chatSession.current.sendMessage({
+              message: messageParts,
+            });
+            break;
+          } catch (err: unknown) {
+            const error = err as { message?: string };
+            if (
+              error.message?.includes("503") ||
+              error.message?.includes("overloaded")
+            ) {
+              retries++;
+              if (retries === maxRetries) throw err;
+              await new Promise((resolve) =>
+                setTimeout(resolve, 1000 * retries),
+              );
+              continue;
+            }
+            throw err;
+          }
+        }
+
+        if (!result) throw new Error("Failed to get response from WesAI.");
+
         while (result.functionCalls?.length) {
           const responses = await Promise.all(
             result.functionCalls.map(async (call) => ({
@@ -637,9 +671,30 @@ export const useAiChat = ({
               },
             })),
           );
-          result = await chatSession.current.sendMessage({
-            message: responses,
-          });
+
+          retries = 0;
+          while (retries < maxRetries) {
+            try {
+              result = await chatSession.current.sendMessage({
+                message: responses,
+              });
+              break;
+            } catch (err: unknown) {
+              const error = err as { message?: string };
+              if (
+                error.message?.includes("503") ||
+                error.message?.includes("overloaded")
+              ) {
+                retries++;
+                if (retries === maxRetries) throw err;
+                await new Promise((resolve) =>
+                  setTimeout(resolve, 1000 * retries),
+                );
+                continue;
+              }
+              throw err;
+            }
+          }
         }
         setMessages((prev) => [
           ...prev,

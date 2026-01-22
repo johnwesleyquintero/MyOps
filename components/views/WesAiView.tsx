@@ -363,7 +363,7 @@ export const WesAiView: React.FC<WesAiViewProps> = ({
                 <Button
                   variant="custom"
                   onClick={() => removeAttachment(idx)}
-                  className={`absolute -top-2 -right-2 ${MODULE_COLORS.error.bg.replace("/10", "").replace("/20", "")} text-white rounded-full p-1 shadow-md opacity-0 group-hover:opacity-100 transition-opacity`}
+                  className={`absolute -top-2 -right-2 ${MODULE_COLORS.error.solidBg} text-white rounded-full p-1 shadow-md opacity-0 group-hover:opacity-100 transition-opacity`}
                 >
                   <Icon.Close {...iconProps(12)} />
                 </Button>

@@ -122,7 +122,7 @@ export const InsightsView: React.FC<InsightsViewProps> = ({
       {/* Gamification Layer */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         <div
-          className={`rounded-2xl p-6 text-notion-light-bg dark:text-notion-dark-bg shadow-xl relative overflow-hidden group ${colors.bg.replace("/10", "").replace("/20", "").replace("bg-", "bg-")}`}
+          className={`rounded-2xl p-6 text-notion-light-bg dark:text-notion-dark-bg shadow-xl relative overflow-hidden group ${colors.solidBg}`}
         >
           {/* Using a custom gradient for the operator card that matches analytics theme */}
           <div className="absolute inset-0 opacity-100 bg-gradient-to-br from-violet-600 to-indigo-600 dark:from-violet-500 dark:to-indigo-500" />
@@ -244,7 +244,7 @@ export const InsightsView: React.FC<InsightsViewProps> = ({
             </div>
             <div className="h-1.5 bg-notion-light-sidebar dark:bg-notion-dark-sidebar rounded-full overflow-hidden">
               <div
-                className={`h-full ${colors.bg.replace("/10", "").replace("/20", "")} transition-all duration-1000`}
+                className={`h-full ${colors.solidBg} transition-all duration-1000`}
                 style={{ width: `${(metrics.xp % 1000) / 10}%` }}
               />
             </div>

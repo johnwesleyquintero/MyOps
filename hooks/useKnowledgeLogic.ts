@@ -120,12 +120,6 @@ export const useKnowledgeLogic = ({
       } else {
         setRawSelectedNote(noteData);
       }
-      toast.success(selectedNote ? "Note updated" : "Note created", {
-        description: `"${noteData.title}" has been saved to your knowledge base.`,
-        icon: React.createElement(Icon.Missions, { size: 14 }),
-      });
-    } else {
-      toast.error("Failed to save note");
     }
   }, [
     selectedNote,
@@ -142,12 +136,6 @@ export const useKnowledgeLogic = ({
         const success = await onDeleteNote(id);
         if (success) {
           setRawSelectedNote(null);
-          toast.success("Note deleted", {
-            description: `"${title}" has been removed.`,
-            icon: React.createElement(Icon.Delete, { size: 14 }),
-          });
-        } else {
-          toast.error("Failed to delete note");
         }
       }
     },

@@ -135,9 +135,7 @@ export const AutomationView: React.FC<AutomationViewProps> = ({
                   <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end border-t sm:border-t-0 border-notion-light-border dark:border-notion-dark-border pt-3 sm:pt-0">
                     <Button
                       variant="custom"
-                      onClick={() =>
-                        handleToggleClick(auto.id, auto.status, auto.name)
-                      }
+                      onClick={() => handleToggleClick(auto.id)}
                       className={`flex-1 sm:flex-none px-4 sm:px-3 py-2 sm:py-1 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all border shadow-sm ${
                         auto.status === "Active"
                           ? `${colors.bg} ${colors.text} border-transparent font-black`

@@ -67,15 +67,6 @@ export const useAutomationLogic = ({
         if (success) {
           setIsModalOpen(false);
           setEditingAutomation(null);
-          toast.success(
-            isUpdate ? "Automation updated" : "Automation created",
-            {
-              description: `"${editingAutomation.name}" is now ${editingAutomation.status?.toLowerCase()}.`,
-              icon: React.createElement(Icon.Zap, { size: 14 }),
-            },
-          );
-        } else {
-          toast.error("Failed to save automation");
         }
       }
     },
@@ -85,35 +76,15 @@ export const useAutomationLogic = ({
   const handleDeleteClick = useCallback(
     async (id: string, name: string) => {
       if (window.confirm(`Are you sure you want to delete "${name}"?`)) {
-        const success = await onDelete(id);
-        if (success) {
-          toast.success("Automation deleted", {
-            description: `"${name}" has been removed from your workflows.`,
-            icon: React.createElement(Icon.Delete, { size: 14 }),
-          });
-        } else {
-          toast.error("Failed to delete automation");
-        }
+        await onDelete(id);
       }
     },
     [onDelete],
   );
 
   const handleToggleClick = useCallback(
-    async (id: string, currentStatus: string, name: string) => {
-      const success = await onToggle(id);
-      if (success) {
-        const newStatus = currentStatus === "Active" ? "Paused" : "Active";
-        toast.info(`Automation ${newStatus.toLowerCase()}`, {
-          description: `"${name}" is now ${newStatus.toLowerCase()}.`,
-          icon:
-            newStatus === "Active"
-              ? React.createElement(Icon.Zap, { size: 14 })
-              : React.createElement(Icon.Pause, { size: 14 }),
-        });
-      } else {
-        toast.error("Failed to toggle automation");
-      }
+    async (id: string) => {
+      await onToggle(id);
     },
     [onToggle],
   );

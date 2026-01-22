@@ -70,7 +70,7 @@ export const KnowledgeView: React.FC<KnowledgeViewProps> = ({
         <Button
           variant="custom"
           onClick={handleCreateNew}
-          className={`w-full md:w-auto ${BUTTON_STYLES.action} ${BUTTON_STYLES.padding} ${colors.bg.replace("/10", "").replace("/20", "")} text-white border ${colors.border} ${BUTTON_STYLES.rounded} ${BUTTON_STYLES.base} hover:opacity-90`}
+          className={`w-full md:w-auto ${BUTTON_STYLES.action} ${BUTTON_STYLES.padding} ${colors.solidBg} text-white border ${colors.border} ${BUTTON_STYLES.rounded} ${BUTTON_STYLES.base} hover:opacity-90`}
         >
           <Icon.Add
             size={18}

@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { Contact, Interaction } from "../types";
-import { toast } from "sonner";
 import { Icon } from "../components/Icons";
 
 interface UseCrmViewLogicProps {
@@ -70,13 +69,6 @@ export const useCrmViewLogic = ({
       const success = await onSaveInteraction(interaction);
       if (success && selectedContact) {
         await loadInteractions(selectedContact.id);
-        toast.success("Interaction saved", {
-          description: `Successfully recorded ${interaction.type.toLowerCase()} for ${selectedContact.name}.`,
-        });
-      } else if (!success) {
-        toast.error("Failed to save interaction", {
-          description: "Please check your connection and try again.",
-        });
       }
       return success;
     },
@@ -122,13 +114,6 @@ export const useCrmViewLogic = ({
         if (selectedContact?.id === contact.id) {
           setSelectedContact(contact);
         }
-        toast.success(isUpdate ? "Contact updated" : "Contact created", {
-          description: `${contact.name} has been saved to your CRM.`,
-        });
-      } else {
-        toast.error("Failed to save contact", {
-          description: "Please check your connection and try again.",
-        });
       }
       return success;
     },
@@ -146,13 +131,6 @@ export const useCrmViewLogic = ({
         if (selectedContact?.id === contact.id) {
           setSelectedContact(null);
         }
-        toast.success("Contact deleted", {
-          description: `${contact.name} has been removed from your CRM.`,
-        });
-      } else {
-        toast.error("Failed to delete contact", {
-          description: "Please check your connection and try again.",
-        });
       }
     },
     [onDeleteContact, selectedContact],

@@ -195,11 +195,9 @@ const App: React.FC = () => {
           }}
           onUpdate={async (u) => {
             await saveTransaction(u, true);
-            showToast("Session notes archived", "success");
           }}
           onComplete={async (u) => {
             await taskActions.handleFocusComplete(u);
-            showToast("Mission Accomplished", "success");
           }}
         />
       </Suspense>

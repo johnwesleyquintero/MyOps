@@ -48,26 +48,14 @@ export const VaultView: React.FC<VaultViewProps> = ({
       setIsAdding(false);
       setNewLabel("");
       setNewValue("");
-      toast.success("Item secured", {
-        description: `"${newLabel}" has been added to your vault.`,
-        icon: <Icon.Vault size={14} />,
-      });
     } else {
-      toast.error("Failed to secure item");
+      // toast error handled by hook
     }
   };
 
   const handleDelete = async (id: string, label: string) => {
     if (window.confirm(`Are you sure you want to delete "${label}"?`)) {
-      const success = await onDeleteEntry(id);
-      if (success) {
-        toast.success("Item deleted", {
-          description: `"${label}" has been removed from your vault.`,
-          icon: <Icon.Delete size={14} />,
-        });
-      } else {
-        toast.error("Failed to delete item");
-      }
+      await onDeleteEntry(id);
     }
   };
 
@@ -88,7 +76,7 @@ export const VaultView: React.FC<VaultViewProps> = ({
         <Button
           variant="custom"
           onClick={() => setIsAdding(true)}
-          className={`w-full md:w-auto flex items-center justify-center gap-2 px-6 py-3 ${colors.bg.replace("/10", "").replace("/20", "")} text-white border ${colors.border} rounded-2xl font-black text-sm uppercase tracking-widest shadow-sm hover:opacity-90 transition-all active:scale-95`}
+          className={`w-full md:w-auto flex items-center justify-center gap-2 px-6 py-3 ${colors.solidBg} text-white border ${colors.border} rounded-2xl font-black text-sm uppercase tracking-widest shadow-sm hover:opacity-90 transition-all active:scale-95`}
         >
           <Icon.Vault size={20} />
           Secure New Item
@@ -171,7 +159,7 @@ export const VaultView: React.FC<VaultViewProps> = ({
               <Button
                 variant="custom"
                 onClick={handleAdd}
-                className={`flex-1 py-3 ${colors.bg} text-white font-black text-xs uppercase tracking-widest rounded-xl transition-all active:scale-95 shadow-lg shadow-black/5`}
+                className={`flex-1 py-3 ${colors.solidBg} text-white font-black text-xs uppercase tracking-widest rounded-xl transition-all active:scale-95 shadow-lg shadow-black/5`}
               >
                 Secure
               </Button>

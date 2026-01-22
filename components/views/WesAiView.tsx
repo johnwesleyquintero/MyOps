@@ -193,6 +193,16 @@ export const WesAiView: React.FC<WesAiViewProps> = ({
     setAttachments((prev) => prev.filter((_, i) => i !== index));
   };
 
+  const QUICK_ACTIONS = [
+    { label: "Status Update", prompt: "What's my current status and XP?" },
+    { label: "Focus Plan", prompt: "What should I focus on right now?" },
+    {
+      label: "Today's Summary",
+      prompt: "Give me a summary of my plate for today.",
+    },
+    { label: "Check Overdue", prompt: "Any high priority tasks I've missed?" },
+  ];
+
   return (
     <div
       className={`flex flex-col h-[calc(100vh-180px)] transition-all duration-300 ${isDragging ? "scale-[0.99] opacity-70" : ""}`}
@@ -360,6 +370,20 @@ export const WesAiView: React.FC<WesAiViewProps> = ({
       </div>
 
       <div className="bg-notion-light-sidebar dark:bg-notion-dark-sidebar border border-notion-light-border dark:border-notion-dark-border rounded-2xl p-4 shadow-lg">
+        {messages.length < 5 && (
+          <div className="flex flex-wrap gap-2 mb-4">
+            {QUICK_ACTIONS.map((action, idx) => (
+              <button
+                key={idx}
+                onClick={() => sendMessage(action.prompt)}
+                disabled={isThinking || !config.geminiApiKey}
+                className={`text-[10px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full border transition-all active:scale-95 ${colors.bg} ${colors.text} ${colors.border} hover:opacity-80 disabled:opacity-50`}
+              >
+                {action.label}
+              </button>
+            ))}
+          </div>
+        )}
         {attachments.length > 0 && (
           <div className="flex flex-wrap gap-2 mb-4">
             {attachments.map((img, idx) => (
@@ -420,9 +444,13 @@ export const WesAiView: React.FC<WesAiViewProps> = ({
               isThinking ||
               !config.geminiApiKey
             }
-            className={`p-3 ${colors.text.replace("text-", "bg-").split(" ")[0]} text-white rounded-xl hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg active:scale-95 flex-shrink-0`}
+            className={`p-3 ${colors.text.replace("text-", "bg-").split(" ")[0]} text-white rounded-xl hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg active:scale-95 flex-shrink-0 ${isThinking ? "animate-pulse" : ""}`}
           >
-            <Icon.Send {...iconProps(20)} />
+            {isThinking ? (
+              <Icon.Settings {...iconProps(20, "animate-spin")} />
+            ) : (
+              <Icon.Send {...iconProps(20)} />
+            )}
           </Button>
         </div>
         <div className="mt-2 text-[10px] opacity-40 text-center font-medium hidden sm:block">

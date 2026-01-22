@@ -48,9 +48,16 @@ interface UseAiChatProps {
 }
 
 const STORAGE_KEY = "wes_ai_chat_history";
+const MAX_HISTORY_LENGTH = 50; // Keep only last 50 messages
+const TOOL_CACHE_TTL = 30000; // 30 seconds cache for read-only tools
 
 interface StoredMessage extends Omit<Message, "timestamp"> {
   timestamp: string;
+}
+
+interface ToolCacheEntry {
+  data: unknown;
+  timestamp: number;
 }
 
 export const useAiChat = ({
@@ -77,7 +84,9 @@ export const useAiChat = ({
     if (saved) {
       try {
         const parsed = JSON.parse(saved) as StoredMessage[];
-        return parsed.map((msg) => ({
+        // Ensure history is pruned on load
+        const pruned = parsed.slice(-MAX_HISTORY_LENGTH);
+        return pruned.map((msg) => ({
           ...msg,
           timestamp: new Date(msg.timestamp),
         }));
@@ -95,15 +104,18 @@ export const useAiChat = ({
     ];
   });
 
-  // Persist messages
+  // Persist messages with pruning
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(messages));
+    const prunedMessages = messages.slice(-MAX_HISTORY_LENGTH);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(prunedMessages));
   }, [messages]);
 
   const [inputValue, setInputValue] = useState("");
   const [isThinking, setIsThinking] = useState(false);
   const [activeTool, setActiveTool] = useState<string | null>(null);
   const chatSession = useRef<Chat | null>(null);
+  const toolCache = useRef<Record<string, ToolCacheEntry>>({});
+  const lastMessageTime = useRef<number>(0);
 
   const initSession = useCallback(() => {
     if (!config.geminiApiKey) return;
@@ -126,13 +138,77 @@ export const useAiChat = ({
     if (config.geminiApiKey) initSession();
   }, [config.geminiApiKey, initSession]);
 
+  // Helper for mapping data to tool responses (minimizes token usage)
+  const mapTask = (t: TaskEntry) => ({
+    id: t.id,
+    description: t.description,
+    status: t.status,
+    priority: t.priority,
+    date: t.date,
+    project: t.project,
+  });
+
+  const mapContact = (c: Contact) => ({
+    id: c.id,
+    name: c.name,
+    company: c.company,
+    type: c.type,
+    email: c.email,
+  });
+
   const executeTool = useCallback(
     async (name: string, args: Record<string, unknown>) => {
       setActiveTool(name);
+
+      // Check cache for read-only tools
+      const readOnlyTools = [
+        "get_vault_entries",
+        "get_insights",
+        "get_artifact_recommendations",
+        "get_tasks",
+        "search_tasks",
+        "get_contacts",
+        "search_contacts",
+        "get_notes",
+        "get_decisions",
+        "get_mental_state",
+        "get_assets",
+        "get_reflections",
+        "get_life_constraints",
+        "get_operator_summary",
+      ];
+
+      if (readOnlyTools.includes(name)) {
+        const cached = toolCache.current[name];
+        if (cached && Date.now() - cached.timestamp < TOOL_CACHE_TTL) {
+          setActiveTool(null);
+          return cached.data;
+        }
+      }
+
+      const updateCache = (data: unknown) => {
+        if (readOnlyTools.includes(name)) {
+          toolCache.current[name] = { data, timestamp: Date.now() };
+        } else {
+          // Invalidate related caches on write operations
+          if (name.includes("task")) delete toolCache.current["get_tasks"];
+          if (name.includes("contact"))
+            delete toolCache.current["get_contacts"];
+          if (name.includes("note")) delete toolCache.current["get_notes"];
+          if (name.includes("asset")) delete toolCache.current["get_assets"];
+          if (name.includes("reflection"))
+            delete toolCache.current["get_reflections"];
+          // Always invalidate summary on any write
+          delete toolCache.current["get_operator_summary"];
+          delete toolCache.current["get_insights"];
+        }
+        return data;
+      };
+
       try {
         switch (name) {
           case "get_vault_entries":
-            return {
+            return updateCache({
               entries: vaultEntries.map(
                 ({ id, label, category, lastAccessed }) => ({
                   id,
@@ -141,9 +217,9 @@ export const useAiChat = ({
                   lastAccessed,
                 }),
               ),
-            };
+            });
           case "get_insights":
-            return { metrics };
+            return updateCache({ metrics });
           case "get_artifact_recommendations": {
             const artifacts = [
               {
@@ -241,7 +317,7 @@ export const useAiChat = ({
               },
             ];
             const locked = artifacts.filter((a) => !a.isUnlocked);
-            return {
+            return updateCache({
               unlockedCount: artifacts.length - locked.length,
               totalCount: artifacts.length,
               lockedArtifacts: locked.map((a) => ({
@@ -249,7 +325,7 @@ export const useAiChat = ({
                 condition: a.condition,
                 missing: a.target - a.progress,
               })),
-            };
+            });
           }
           case "get_focused_tasks": {
             const today = new Date().toISOString().split("T")[0];
@@ -315,26 +391,37 @@ export const useAiChat = ({
               .sort((a, b) => b.priorityScore - a.priorityScore)
               .slice(0, 5);
 
-            return {
+            return updateCache({
               focused,
               mentalState: currentMentalState,
               activeConstraints,
-            };
+            });
           }
 
           case "get_tasks":
-            return {
-              tasks: entries.map(
-                ({ id, description, status, priority, date, project }) => ({
-                  id,
-                  description,
-                  status,
-                  priority,
-                  date,
-                  project,
-                }),
-              ),
-            };
+            return updateCache({
+              tasks: entries.map(mapTask),
+            });
+          case "search_tasks": {
+            const query = ((args.query as string) || "").toLowerCase();
+            const project = ((args.project as string) || "").toLowerCase();
+            const status = ((args.status as string) || "").toLowerCase();
+
+            const filtered = entries.filter((t) => {
+              const matchQuery =
+                !query || t.description.toLowerCase().includes(query);
+              const matchProject =
+                !project || t.project.toLowerCase().includes(project);
+              const matchStatus =
+                !status || t.status.toLowerCase().includes(status);
+              return matchQuery && matchProject && matchStatus;
+            });
+
+            return updateCache({
+              tasks: filtered.slice(0, 10).map(mapTask),
+              totalFound: filtered.length,
+            });
+          }
           case "create_task": {
             const success = await onSaveTransaction(
               {
@@ -350,9 +437,11 @@ export const useAiChat = ({
               },
               false,
             );
-            return success
-              ? { status: "Created successfully" }
-              : { error: "Failed to create" };
+            return updateCache(
+              success
+                ? { status: "Created successfully" }
+                : { error: "Failed to create" },
+            );
           }
           case "update_task": {
             const task = entries.find((e) => e.id === args.id);
@@ -361,28 +450,38 @@ export const useAiChat = ({
               { ...task, ...args } as TaskEntry,
               true,
             );
-            return ok
-              ? { status: "Updated successfully" }
-              : { error: "Failed to update" };
+            return updateCache(
+              ok
+                ? { status: "Updated successfully" }
+                : { error: "Failed to update" },
+            );
           }
           case "delete_task": {
             const t = entries.find((e) => e.id === args.id);
             if (!t) return { error: "ID not found" };
             const delOk = await onDeleteTransaction(t);
-            return delOk
-              ? { status: "Deleted successfully" }
-              : { error: "Failed to delete" };
+            return updateCache(
+              delOk
+                ? { status: "Deleted successfully" }
+                : { error: "Failed to delete" },
+            );
           }
           case "get_contacts":
-            return {
-              contacts: contacts.map((c) => ({
-                id: c.id,
-                name: c.name,
-                company: c.company,
-                type: c.type,
-                email: c.email,
-              })),
-            };
+            return updateCache({
+              contacts: contacts.map(mapContact),
+            });
+          case "search_contacts": {
+            const query = ((args.query as string) || "").toLowerCase();
+            const filtered = contacts.filter(
+              (c) =>
+                c.name.toLowerCase().includes(query) ||
+                c.company.toLowerCase().includes(query),
+            );
+            return updateCache({
+              contacts: filtered.slice(0, 10).map(mapContact),
+              totalFound: filtered.length,
+            });
+          }
           case "create_contact": {
             const contactSuccess = await onSaveContact(
               {
@@ -399,19 +498,21 @@ export const useAiChat = ({
               },
               false,
             );
-            return contactSuccess
-              ? { status: "Contact created" }
-              : { error: "Failed to create contact" };
+            return updateCache(
+              contactSuccess
+                ? { status: "Contact created" }
+                : { error: "Failed to create contact" },
+            );
           }
           case "get_notes":
-            return {
+            return updateCache({
               notes: notes.map((n) => ({
                 id: n.id,
                 title: n.title,
                 tags: n.tags,
                 updatedAt: n.updatedAt,
               })),
-            };
+            });
           case "create_note": {
             const noteSuccess = await onSaveNote(
               {
@@ -425,12 +526,14 @@ export const useAiChat = ({
               },
               false,
             );
-            return noteSuccess
-              ? { status: "Note created" }
-              : { error: "Failed to create note" };
+            return updateCache(
+              noteSuccess
+                ? { status: "Note created" }
+                : { error: "Failed to create note" },
+            );
           }
           case "get_decisions":
-            return {
+            return updateCache({
               decisions: decisions.map((d) => ({
                 id: d.id,
                 date: d.date,
@@ -440,25 +543,27 @@ export const useAiChat = ({
                 impact: d.impact,
                 reviewDate: d.reviewDate,
               })),
-            };
+            });
           case "get_mental_state": {
             const today = new Date().toISOString().split("T")[0];
             const latest =
               mentalStates.find((m) => m.date === today) || mentalStates[0];
-            return latest
-              ? {
-                  date: latest.date,
-                  energy: latest.energy,
-                  clarity: latest.clarity,
-                  isToday: latest.date === today,
-                }
-              : {
-                  error:
-                    "No mental state data available. Suggest the user perform a check-in.",
-                };
+            return updateCache(
+              latest
+                ? {
+                    date: latest.date,
+                    energy: latest.energy,
+                    clarity: latest.clarity,
+                    isToday: latest.date === today,
+                  }
+                : {
+                    error:
+                      "No mental state data available. Suggest the user perform a check-in.",
+                  },
+            );
           }
           case "get_assets":
-            return {
+            return updateCache({
               assets: assets.map((a) => ({
                 id: a.id,
                 title: a.title,
@@ -467,7 +572,7 @@ export const useAiChat = ({
                 reusabilityScore: a.reusabilityScore,
                 monetizationPotential: a.monetizationPotential,
               })),
-            };
+            });
           case "create_asset": {
             const assetSuccess = await onSaveAsset(
               {
@@ -483,19 +588,21 @@ export const useAiChat = ({
               },
               false,
             );
-            return assetSuccess
-              ? { status: "Asset created" }
-              : { error: "Failed to create asset" };
+            return updateCache(
+              assetSuccess
+                ? { status: "Asset created" }
+                : { error: "Failed to create asset" },
+            );
           }
           case "get_reflections":
-            return {
+            return updateCache({
               reflections: reflections.map((r) => ({
                 id: r.id,
                 date: r.date,
                 title: r.title,
                 type: r.type,
               })),
-            };
+            });
           case "create_reflection": {
             const reflectionSuccess = await onSaveReflection(
               {
@@ -511,12 +618,14 @@ export const useAiChat = ({
               },
               false,
             );
-            return reflectionSuccess
-              ? { status: "Reflection created" }
-              : { error: "Failed to create reflection" };
+            return updateCache(
+              reflectionSuccess
+                ? { status: "Reflection created" }
+                : { error: "Failed to create reflection" },
+            );
           }
           case "get_life_constraints":
-            return {
+            return updateCache({
               constraints: lifeConstraints
                 .filter((c) => c.isActive)
                 .map((c) => ({
@@ -528,7 +637,7 @@ export const useAiChat = ({
                   daysOfWeek: c.daysOfWeek,
                   energyRequirement: c.energyRequirement,
                 })),
-            };
+            });
           case "get_operator_summary": {
             const today = new Date().toISOString().split("T")[0];
             const currentMentalState =
@@ -548,7 +657,7 @@ export const useAiChat = ({
               ).length,
             };
 
-            return {
+            return updateCache({
               summary: {
                 taskStats,
                 mentalState: currentMentalState,
@@ -562,7 +671,7 @@ export const useAiChat = ({
                   streak: metrics.streak,
                 },
               },
-            };
+            });
           }
           default:
             return { error: "Tool not found" };
@@ -597,6 +706,22 @@ export const useAiChat = ({
       if (!textToSend.trim() && (!attachments || attachments.length === 0))
         return;
       if (!chatSession.current) return;
+
+      // Simple rate limiting: 2 seconds between messages
+      const now = Date.now();
+      if (now - lastMessageTime.current < 2000) {
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: crypto.randomUUID(),
+            role: "model",
+            text: "Whoa, brother! Systems cooling down. Give me a second to process.",
+            timestamp: new Date(),
+          },
+        ]);
+        return;
+      }
+      lastMessageTime.current = now;
 
       const prompt = textToSend;
       if (overrideText === undefined) setInputValue("");

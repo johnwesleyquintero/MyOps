@@ -138,6 +138,12 @@ export const AiChatSidebar: React.FC = React.memo(() => {
     }
   };
 
+  const QUICK_ACTIONS = [
+    { label: "Status", prompt: "What's my current status and XP?" },
+    { label: "Focus", prompt: "What should I focus on right now?" },
+    { label: "Today", prompt: "Summary of today's missions." },
+  ];
+
   const removeAttachment = (index: number) => {
     setAttachments((prev) => prev.filter((_, i) => i !== index));
   };
@@ -343,6 +349,20 @@ export const AiChatSidebar: React.FC = React.memo(() => {
 
         {/* Input Area */}
         <div className="p-6 bg-notion-light-bg dark:bg-notion-dark-bg border-t border-notion-light-border dark:border-notion-dark-border">
+          {messages.length < 5 && (
+            <div className="flex flex-wrap gap-1.5 mb-3">
+              {QUICK_ACTIONS.map((action, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => sendMessage(action.prompt)}
+                  disabled={isThinking || !config.geminiApiKey}
+                  className="text-[9px] font-bold uppercase tracking-widest px-2 py-1 rounded-full border border-violet-500/20 bg-violet-500/5 text-violet-600 dark:text-violet-400 hover:bg-violet-500/10 transition-all active:scale-95 disabled:opacity-50"
+                >
+                  {action.label}
+                </button>
+              ))}
+            </div>
+          )}
           {attachments.length > 0 && (
             <div className="flex flex-wrap gap-2 mb-3">
               {attachments.map((img, idx) => (
@@ -406,9 +426,13 @@ export const AiChatSidebar: React.FC = React.memo(() => {
                   isThinking ||
                   !config.geminiApiKey
                 }
-                className="absolute right-2 bottom-2 p-2 bg-notion-light-text dark:bg-notion-dark-text text-white dark:text-notion-dark-bg rounded-lg hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg active:scale-95 h-8 w-8"
+                className={`absolute right-2 bottom-2 p-2 bg-notion-light-text dark:bg-notion-dark-text text-white dark:text-notion-dark-bg rounded-lg hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg active:scale-95 h-8 w-8 ${isThinking ? "animate-pulse" : ""}`}
               >
-                <Icon.Send {...iconProps(16)} />
+                {isThinking ? (
+                  <Icon.Settings {...iconProps(16, "animate-spin")} />
+                ) : (
+                  <Icon.Send {...iconProps(16)} />
+                )}
               </Button>
             </div>
           </div>

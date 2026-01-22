@@ -25,14 +25,15 @@ You have direct access to the "MyOps" mission board, CRM, and Knowledge Base via
 - **Life Ops:** \`get_life_constraints\` to see personal and health commitments.
 
 **Rules & Agency:**
-1. **Be Proactive:** If the user seems overwhelmed, call \`get_operator_summary\` and suggest a focus plan.
+1. **Be Proactive & Efficient:** If the user seems overwhelmed, call \`get_operator_summary\`. Use \`search_tasks\` or \`search_contacts\` instead of \`get_tasks\`/\`get_contacts\` when looking for something specific.
 2. **Contextual Awareness:** When a task is completed, suggest creating a reflection if it was "High" priority.
 3. **Smart Scheduling:** Use \`get_mental_state\` and \`get_life_constraints\` before suggesting a "High" priority mission. If energy is < 3, suggest lower-impact tasks.
-4. **Data Integrity:** If a task description mentions a person or a tool, check \`get_contacts\` or \`get_assets\` to provide context.
+4. **Data Integrity:** If a task description mentions a person or a tool, check \`search_contacts\` or \`get_assets\` to provide context.
 5. **Conciseness:** Never use "I think" or "I believe". Use "Operator, here's the play" or "Brother, the board looks like this".
-6. If the user asks "What's on my plate?", call \`get_operator_summary\` first to see the full picture, then \`get_focused_tasks\`.
-7. Strategic decisions should be reviewed if their review date is in the past. Use \`get_decisions\` to check.
-8. Encourage post-mortems using \`create_reflection\` after a major task is completed.
+6. **Minimize Token Usage:** Be concise. Don't fetch full lists unless absolutely necessary.
+7. If the user asks "What's on my plate?", call \`get_operator_summary\` first to see the full picture, then \`get_focused_tasks\`.
+8. Strategic decisions should be reviewed if their review date is in the past. Use \`get_decisions\` to check.
+9. Encourage post-mortems using \`create_reflection\` after a major task is completed.
 9. Today's date is ${new Date().toISOString().split("T")[0]}.
 `;
 
@@ -68,10 +69,24 @@ const getVaultEntriesTool: FunctionDeclaration = {
 
 const getTasksTool: FunctionDeclaration = {
   name: "get_tasks",
-  description: "Get the full list of current tasks on the mission board.",
+  description:
+    "Get the full list of current tasks on the mission board. Use sparingly.",
   parameters: {
     type: Type.OBJECT,
     properties: {},
+  },
+};
+
+const searchTasksTool: FunctionDeclaration = {
+  name: "search_tasks",
+  description: "Search for specific tasks by keyword, project, or status.",
+  parameters: {
+    type: Type.OBJECT,
+    properties: {
+      query: { type: Type.STRING, description: "Keyword to search for" },
+      project: { type: Type.STRING, description: "Filter by project" },
+      status: { type: Type.STRING, description: "Filter by status" },
+    },
   },
 };
 
@@ -139,10 +154,21 @@ const deleteTaskTool: FunctionDeclaration = {
 
 const getContactsTool: FunctionDeclaration = {
   name: "get_contacts",
-  description: "Get the list of contacts, clients, and vendors from the CRM.",
+  description: "Get the full list of contacts. Use sparingly.",
   parameters: {
     type: Type.OBJECT,
     properties: {},
+  },
+};
+
+const searchContactsTool: FunctionDeclaration = {
+  name: "search_contacts",
+  description: "Search for specific contacts by name or company.",
+  parameters: {
+    type: Type.OBJECT,
+    properties: {
+      query: { type: Type.STRING, description: "Keyword to search for" },
+    },
   },
 };
 
@@ -307,10 +333,12 @@ export const WES_TOOLS: Tool[] = [
       getArtifactRecommendationsTool,
       getVaultEntriesTool,
       getTasksTool,
+      searchTasksTool,
       createTaskTool,
       updateTaskTool,
       deleteTaskTool,
       getContactsTool,
+      searchContactsTool,
       createContactTool,
       getNotesTool,
       createNoteTool,

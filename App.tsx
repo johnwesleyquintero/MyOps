@@ -149,7 +149,12 @@ const App: React.FC = () => {
 
   const { entries, isLoading, saveTransaction, removeTransaction } = tasks;
 
-  const taskActions = useTaskActions({ saveTransaction, showToast });
+  const taskActions = useTaskActions({
+    saveTransaction,
+    showToast,
+    mentalStates: awareness.mentalStates,
+    setActivePage: ui.setActivePage,
+  });
   const missionControl = useMissionControl(entries);
 
   const { filteredEntries, globalMetrics } = useTaskAnalytics({

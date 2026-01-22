@@ -162,6 +162,18 @@ export const StrategyView: React.FC<StrategyViewProps> = ({ config }) => {
                 <ReactMarkdown>{decision.context}</ReactMarkdown>
               </div>
 
+              {decision.predictedImpact && (
+                <div className="mb-4 flex items-start gap-2">
+                  <Icon.Zap
+                    size={14}
+                    className={`${colors.text} mt-0.5 opacity-70`}
+                  />
+                  <p className="text-[11px] font-medium text-notion-light-text dark:text-notion-dark-text italic">
+                    {decision.predictedImpact}
+                  </p>
+                </div>
+              )}
+
               {decision.assumptions && decision.assumptions.length > 0 && (
                 <div className="mb-4">
                   <span className="text-[10px] font-bold uppercase tracking-widest opacity-40 block mb-1">
@@ -209,6 +221,15 @@ export const StrategyView: React.FC<StrategyViewProps> = ({ config }) => {
                         ></div>
                       ))}
                     </div>
+                  </div>
+
+                  <div className="flex flex-col">
+                    <span className="text-[10px] uppercase tracking-wider opacity-50">
+                      Confidence
+                    </span>
+                    <span className="text-[10px] font-mono font-bold">
+                      {decision.confidenceScore || 70}%
+                    </span>
                   </div>
                 </div>
                 <div
@@ -260,6 +281,8 @@ const DecisionModal: React.FC<DecisionModalProps> = ({
       reviewDate: "",
       status: "PENDING",
       impact: 3,
+      confidenceScore: 70,
+      predictedImpact: "",
       tags: [],
     },
   );
@@ -410,22 +433,27 @@ const DecisionModal: React.FC<DecisionModalProps> = ({
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1.5">
               <label className="text-[10px] font-bold uppercase tracking-widest opacity-60">
-                Status
+                Confidence Score (1-100%)
               </label>
-              <select
-                value={formData.status}
-                onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    status: e.target.value as DecisionEntry["status"],
-                  })
-                }
-                className="notion-input w-full"
-              >
-                <option value="PENDING">Pending</option>
-                <option value="COMPLETED">Completed</option>
-                <option value="ABORTED">Aborted</option>
-              </select>
+              <div className="flex items-center gap-3">
+                <input
+                  type="range"
+                  min="0"
+                  max="100"
+                  step="5"
+                  value={formData.confidenceScore || 70}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      confidenceScore: parseInt(e.target.value),
+                    })
+                  }
+                  className="flex-1 accent-indigo-500"
+                />
+                <span className="text-xs font-mono w-8 text-right">
+                  {formData.confidenceScore}%
+                </span>
+              </div>
             </div>
             <div className="space-y-1.5">
               <label className="text-[10px] font-bold uppercase tracking-widest opacity-60">
@@ -445,6 +473,42 @@ const DecisionModal: React.FC<DecisionModalProps> = ({
                 }
                 className="notion-input w-full"
               />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-bold uppercase tracking-widest opacity-60">
+                Predicted Impact (Brief description)
+              </label>
+              <input
+                type="text"
+                placeholder="e.g. Will save 2 hours daily, Might break X feature..."
+                value={formData.predictedImpact || ""}
+                onChange={(e) =>
+                  setFormData({ ...formData, predictedImpact: e.target.value })
+                }
+                className="notion-input w-full"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-bold uppercase tracking-widest opacity-60">
+                Status
+              </label>
+              <select
+                value={formData.status}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    status: e.target.value as DecisionEntry["status"],
+                  })
+                }
+                className="notion-input w-full"
+              >
+                <option value="PENDING">Pending</option>
+                <option value="REVIEWED">Reviewed</option>
+                <option value="ARCHIVED">Archived</option>
+              </select>
             </div>
           </div>
         </div>

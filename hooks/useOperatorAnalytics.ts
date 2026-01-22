@@ -6,8 +6,11 @@ export const useOperatorAnalytics = (entries: TaskEntry[]) => {
     const doneTasks = entries.filter((e) => e.status === "Done");
     const totalTasksCompleted = doneTasks.length;
 
-    // XP: 100 per task
-    const xp = totalTasksCompleted * 100;
+    // XP: Use xpAwarded if present, otherwise default to 100 per task
+    const xp = doneTasks.reduce(
+      (acc, task) => acc + (task.xpAwarded ?? 100),
+      0,
+    );
 
     // Level: 1000 XP per level
     const level = Math.floor(xp / 1000) + 1;

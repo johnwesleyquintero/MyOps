@@ -31,6 +31,7 @@ export interface TaskEntry {
   status: StatusLevel;
   createdAt?: string; // ISO Timestamp
   dependencies?: string[]; // Array of IDs blocking this task
+  xpAwarded?: number; // XP earned for this task
 }
 
 export interface TaskTemplate {
@@ -161,6 +162,8 @@ export interface DecisionEntry {
   reviewDate: string;
   status: "PENDING" | "REVIEWED" | "ARCHIVED";
   impact: 1 | 2 | 3 | 4 | 5;
+  confidenceScore?: number; // 1-100
+  predictedImpact?: string;
   tags?: string[];
 }
 

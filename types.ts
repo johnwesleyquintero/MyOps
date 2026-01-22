@@ -166,6 +166,11 @@ export interface DecisionEntry {
   confidenceScore?: number; // 1-100
   predictedImpact?: string;
   tags?: string[];
+  biometricContext?: {
+    energy: "low" | "medium" | "high";
+    clarity: "foggy" | "neutral" | "sharp";
+    focusScore?: number;
+  };
 }
 
 export interface MentalStateEntry {

@@ -58,6 +58,7 @@ export const DashboardView: React.FC<DashboardViewProps> = React.memo(
       xpProgress,
       predictiveMetrics,
       calibrationMetrics,
+      biometricCalibration,
       columns,
       toggleColumn,
     } = useDashboardLogic({ entries, operatorMetrics, decisions });
@@ -226,6 +227,42 @@ export const DashboardView: React.FC<DashboardViewProps> = React.memo(
                     </span>
                   </div>
                 </div>
+
+                {/* Biometric Calibration Correlation */}
+                {biometricCalibration && biometricCalibration.length > 0 && (
+                  <div className="flex flex-col gap-2 border-t border-white/5 pt-2 mt-1">
+                    <span className="text-[9px] text-white/40 uppercase">
+                      State Accuracy
+                    </span>
+                    <div className="space-y-1.5">
+                      {biometricCalibration.map((s) => (
+                        <div
+                          key={s.state}
+                          className="flex justify-between items-center"
+                        >
+                          <div className="flex items-center gap-1.5">
+                            <div
+                              className={`w-1 h-1 rounded-full ${s.state === "peak" ? "bg-emerald-500 shadow-[0_0_5px_rgba(16,185,129,0.5)]" : s.state === "low" ? "bg-amber-500" : "bg-indigo-500"}`}
+                            />
+                            <span className="text-[10px] text-white/60 capitalize">
+                              {s.state}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span
+                              className={`text-[10px] font-bold ${s.accuracy >= 80 ? "text-emerald-400" : s.accuracy >= 50 ? "text-indigo-400" : "text-amber-400"}`}
+                            >
+                              {s.accuracy}%
+                            </span>
+                            <span className="text-[8px] text-white/20 uppercase font-mono">
+                              {s.bias}
+                            </span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 

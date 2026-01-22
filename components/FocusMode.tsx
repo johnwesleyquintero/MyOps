@@ -4,7 +4,6 @@ import { TaskEntry, MentalStateEntry } from "../types";
 import { PRIORITY_DOTS } from "@/constants";
 import { Icon } from "./Icons";
 import { Button } from "./ui/Button";
-import { useUi } from "@/hooks/useUi";
 import { useRewards } from "@/contexts/RewardContext";
 
 interface FocusModeProps {

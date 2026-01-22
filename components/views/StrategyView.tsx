@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { Icon } from "../Icons";
 import { DecisionEntry, AppConfig } from "@/types";
 import {
@@ -12,6 +12,7 @@ import { ViewHeader } from "../ViewHeader";
 import { Button, Spinner } from "../ui";
 import { toast } from "sonner";
 import { MODULE_COLORS } from "@/constants";
+import { useAwareness } from "@/hooks/useAwareness";
 
 interface StrategyViewProps {
   config: AppConfig;
@@ -249,6 +250,7 @@ export const StrategyView: React.FC<StrategyViewProps> = ({ config }) => {
           onClose={() => setIsModalOpen(false)}
           onSave={handleSave}
           initialData={editingDecision}
+          config={config}
         />
       )}
     </div>
@@ -259,13 +261,28 @@ interface DecisionModalProps {
   onClose: () => void;
   onSave: (entry: DecisionEntry) => void;
   initialData: DecisionEntry | null;
+  config: AppConfig;
 }
 
 const DecisionModal: React.FC<DecisionModalProps> = ({
   onClose,
   onSave,
   initialData,
+  config,
 }) => {
+  const { mentalStates } = useAwareness(config);
+
+  const currentBiometrics = useMemo(() => {
+    const today = new Date().toISOString().split("T")[0];
+    const todaysState = mentalStates.find((m) => m.date === today);
+    return todaysState
+      ? {
+          energy: todaysState.energy,
+          clarity: todaysState.clarity,
+        }
+      : undefined;
+  }, [mentalStates]);
+
   const [formData, setFormData] = useState<DecisionEntry>(
     initialData || {
       id: "",
@@ -286,6 +303,16 @@ const DecisionModal: React.FC<DecisionModalProps> = ({
       tags: [],
     },
   );
+
+  const displayBiometrics = formData.biometricContext || currentBiometrics;
+
+  const handleLocalSave = () => {
+    const finalData = {
+      ...formData,
+      biometricContext: formData.biometricContext || currentBiometrics,
+    };
+    onSave(finalData);
+  };
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
@@ -350,6 +377,42 @@ const DecisionModal: React.FC<DecisionModalProps> = ({
               />
             </div>
           </div>
+
+          {displayBiometrics && (
+            <div className="bg-indigo-500/5 border border-indigo-500/20 p-3 rounded-xl flex items-center justify-between animate-in slide-in-from-top-2 duration-300">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-indigo-500/10 rounded-lg text-indigo-500">
+                  <Icon.Activity size={16} />
+                </div>
+                <div>
+                  <span className="text-[10px] font-black uppercase tracking-widest text-indigo-500/60 block">
+                    Biometric Snapshot
+                  </span>
+                  <div className="flex items-center gap-2 mt-0.5">
+                    <span
+                      className={`text-xs font-bold capitalize ${displayBiometrics.energy === "high" ? "text-emerald-500" : displayBiometrics.energy === "low" ? "text-amber-500" : "text-indigo-400"}`}
+                    >
+                      {displayBiometrics.energy} Energy
+                    </span>
+                    <span className="w-1 h-1 rounded-full bg-indigo-500/30"></span>
+                    <span
+                      className={`text-xs font-bold capitalize ${displayBiometrics.clarity === "sharp" ? "text-emerald-500" : displayBiometrics.clarity === "foggy" ? "text-amber-500" : "text-indigo-400"}`}
+                    >
+                      {displayBiometrics.clarity} Clarity
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <div className="text-right">
+                <span className="text-[9px] text-indigo-500/40 uppercase block">
+                  Captured At
+                </span>
+                <span className="text-[10px] font-mono text-indigo-500/60">
+                  Logging Moment
+                </span>
+              </div>
+            </div>
+          )}
 
           <div className="space-y-1.5">
             <label className="text-[10px] font-bold uppercase tracking-widest opacity-60">
@@ -519,7 +582,7 @@ const DecisionModal: React.FC<DecisionModalProps> = ({
           </Button>
           <Button
             variant="primary"
-            onClick={() => onSave(formData)}
+            onClick={handleLocalSave}
             disabled={!formData.title}
           >
             {initialData ? "Update Log" : "Save Decision"}

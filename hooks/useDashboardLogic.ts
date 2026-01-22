@@ -121,6 +121,51 @@ export const useDashboardLogic = ({
     return { calibrationScore, bias };
   }, [decisions]);
 
+  const biometricCalibration = useMemo(() => {
+    const reviewedDecisions = decisions.filter(
+      (d) => d.status === "REVIEWED" && d.biometricContext,
+    );
+    if (!reviewedDecisions.length) return null;
+
+    const states = {
+      peak: { score: 0, count: 0, bias: 0 }, // high energy, sharp clarity
+      low: { score: 0, count: 0, bias: 0 }, // low energy or foggy clarity
+      neutral: { score: 0, count: 0, bias: 0 },
+    };
+
+    reviewedDecisions.forEach((d) => {
+      const ctx = d.biometricContext!;
+      const normalizedImpact = (d.impact / 5) * 100;
+      const confidence = d.confidenceScore || 50;
+      const diff = Math.abs(normalizedImpact - confidence);
+      const biasVal = confidence - normalizedImpact;
+
+      let stateKey: keyof typeof states = "neutral";
+      if (ctx.energy === "high" && ctx.clarity === "sharp") stateKey = "peak";
+      else if (ctx.energy === "low" || ctx.clarity === "foggy")
+        stateKey = "low";
+
+      states[stateKey].score += 100 - diff;
+      states[stateKey].bias += biasVal;
+      states[stateKey].count += 1;
+    });
+
+    return Object.entries(states)
+      .map(([key, data]) => ({
+        state: key,
+        accuracy: data.count ? Math.round(data.score / data.count) : 0,
+        bias: data.count
+          ? data.bias / data.count > 10
+            ? "over"
+            : data.bias / data.count < -10
+              ? "under"
+              : "calibrated"
+          : "neutral",
+        count: data.count,
+      }))
+      .filter((s) => s.count > 0);
+  }, [decisions]);
+
   const { columns, toggleColumn } = useTableColumns(
     DASHBOARD_COLUMNS as ColumnConfig[],
     COLUMN_CONFIG_KEY,
@@ -132,6 +177,7 @@ export const useDashboardLogic = ({
       xpProgress,
       predictiveMetrics,
       calibrationMetrics,
+      biometricCalibration,
       columns,
       toggleColumn,
     }),
@@ -140,6 +186,7 @@ export const useDashboardLogic = ({
       xpProgress,
       predictiveMetrics,
       calibrationMetrics,
+      biometricCalibration,
       columns,
       toggleColumn,
     ],

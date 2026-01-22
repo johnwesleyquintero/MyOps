@@ -1,10 +1,11 @@
 import { Icon } from "../components/Icons";
+import { LucideIcon } from "lucide-react";
 
 export interface Badge {
   id: string;
   name: string;
   description: string;
-  icon: any;
+  icon: LucideIcon;
   requirement: string;
   threshold: number;
   type: "streak" | "tasks" | "xp" | "peak_state";

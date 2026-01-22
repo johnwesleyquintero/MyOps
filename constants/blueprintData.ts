@@ -11,6 +11,7 @@ export interface BlueprintModule {
   iconKey: string;
   features: string[];
   colorKey: keyof typeof MODULE_COLORS;
+  links?: { label: string; url: string; icon?: string }[];
 }
 
 export const BLUEPRINT_MODULES: BlueprintModule[] = [
@@ -27,6 +28,10 @@ export const BLUEPRINT_MODULES: BlueprintModule[] = [
       "High-velocity output tracking",
     ],
     colorKey: "tasks",
+    links: [
+      { label: "Missions Sheet", url: "#", icon: "Database" },
+      { label: "Execution SOP", url: "#", icon: "Docs" },
+    ],
   },
   {
     id: "focus",
@@ -41,6 +46,9 @@ export const BLUEPRINT_MODULES: BlueprintModule[] = [
       "Focus session analytics",
     ],
     colorKey: "tasks",
+    links: [
+      { label: "Focus Protocol", url: "#", icon: "Target" },
+    ],
   },
   {
     id: "crm",
@@ -55,6 +63,10 @@ export const BLUEPRINT_MODULES: BlueprintModule[] = [
       "Task-linked networking",
     ],
     colorKey: "crm",
+    links: [
+      { label: "Contact Registry", url: "#", icon: "Users" },
+      { label: "Networking SOP", url: "#", icon: "Docs" },
+    ],
   },
   {
     id: "docs",
@@ -69,6 +81,10 @@ export const BLUEPRINT_MODULES: BlueprintModule[] = [
       "Tag-based organization",
     ],
     colorKey: "docs",
+    links: [
+      { label: "Intel Repository", url: "#", icon: "Folder" },
+      { label: "Markdown Guide", url: "#", icon: "Edit" },
+    ],
   },
   {
     id: "analytics",
@@ -83,6 +99,9 @@ export const BLUEPRINT_MODULES: BlueprintModule[] = [
       "Recharts: bars & radar",
     ],
     colorKey: "analytics",
+    links: [
+      { label: "Velocity Report", url: "#", icon: "TrendUp" },
+    ],
   },
   {
     id: "automation",
@@ -97,6 +116,10 @@ export const BLUEPRINT_MODULES: BlueprintModule[] = [
       "GAS background syncing",
     ],
     colorKey: "automation",
+    links: [
+      { label: "GAS Console", url: "#", icon: "Terminal" },
+      { label: "Webhook Setup", url: "#", icon: "Link" },
+    ],
   },
   {
     id: "vault",
@@ -111,6 +134,9 @@ export const BLUEPRINT_MODULES: BlueprintModule[] = [
       "Local data sovereignty",
     ],
     colorKey: "vault",
+    links: [
+      { label: "Security Policy", url: "#", icon: "Lock" },
+    ],
   },
   {
     id: "ai",
@@ -125,6 +151,10 @@ export const BLUEPRINT_MODULES: BlueprintModule[] = [
       "Conversational strategy",
     ],
     colorKey: "ai",
+    links: [
+      { label: "Gemini AI Docs", url: "https://ai.google.dev/", icon: "Bot" },
+      { label: "Prompt Library", url: "#", icon: "Chat" },
+    ],
   },
   {
     id: "sovereign",
@@ -139,6 +169,9 @@ export const BLUEPRINT_MODULES: BlueprintModule[] = [
       "Full Data Sovereignty",
     ],
     colorKey: "sovereign",
+    links: [
+      { label: "Operator Manual", url: "#", icon: "Book" },
+    ],
   },
   {
     id: "strategy",
@@ -153,6 +186,10 @@ export const BLUEPRINT_MODULES: BlueprintModule[] = [
       "Outcome/Impact correlation",
     ],
     colorKey: "strategy",
+    links: [
+      { label: "Decision Journal", url: "#", icon: "Edit" },
+      { label: "Strategic Framework", url: "#", icon: "Target" },
+    ],
   },
   {
     id: "awareness",
@@ -167,6 +204,9 @@ export const BLUEPRINT_MODULES: BlueprintModule[] = [
       "WesAI state coaching",
     ],
     colorKey: "awareness",
+    links: [
+      { label: "State Tracking", url: "#", icon: "Activity" },
+    ],
   },
   {
     id: "assets",
@@ -181,6 +221,10 @@ export const BLUEPRINT_MODULES: BlueprintModule[] = [
       "External resource links",
     ],
     colorKey: "assets",
+    links: [
+      { label: "IP Inventory", url: "#", icon: "Database" },
+      { label: "Asset SOP", url: "#", icon: "Docs" },
+    ],
   },
   {
     id: "reflection",
@@ -195,6 +239,9 @@ export const BLUEPRINT_MODULES: BlueprintModule[] = [
       "Systemization triggers",
     ],
     colorKey: "reflection",
+    links: [
+      { label: "Reflection Logs", url: "#", icon: "History" },
+    ],
   },
   {
     id: "life",
@@ -209,6 +256,9 @@ export const BLUEPRINT_MODULES: BlueprintModule[] = [
       "Energy-based scheduling",
     ],
     colorKey: "life",
+    links: [
+      { label: "Life Protocol", url: "#", icon: "Heart" },
+    ],
   },
   {
     id: "integrations",
@@ -223,6 +273,9 @@ export const BLUEPRINT_MODULES: BlueprintModule[] = [
       "Automatic client sync",
     ],
     colorKey: "integrations",
+    links: [
+      { label: "Hook Registry", url: "#", icon: "Link" },
+    ],
   },
   {
     id: "report",
@@ -237,6 +290,9 @@ export const BLUEPRINT_MODULES: BlueprintModule[] = [
       "Intelligence insights",
     ],
     colorKey: "report",
+    links: [
+      { label: "Report History", url: "#", icon: "Report" },
+    ],
   },
   {
     id: "blueprint",
@@ -251,6 +307,9 @@ export const BLUEPRINT_MODULES: BlueprintModule[] = [
       "Markdown blueprint export",
     ],
     colorKey: "strategy",
+    links: [
+      { label: "Product Roadmap", url: "#", icon: "Map" },
+    ],
   },
   {
     id: "story",
@@ -265,6 +324,9 @@ export const BLUEPRINT_MODULES: BlueprintModule[] = [
       "Sync hub visualization",
     ],
     colorKey: "integrations",
+    links: [
+      { label: "Workflow Story", url: "#", icon: "History" },
+    ],
   },
   {
     id: "settings",
@@ -279,5 +341,8 @@ export const BLUEPRINT_MODULES: BlueprintModule[] = [
       "Access & security control",
     ],
     colorKey: "vault",
+    links: [
+      { label: "System Config", url: "#", icon: "Settings" },
+    ],
   },
 ];

@@ -123,7 +123,7 @@ export const BlueprintView: React.FC<BlueprintViewProps> = ({ onNavigate }) => {
                 {mod.title}
               </h3>
 
-              <ul className="space-y-3 relative flex-grow">
+              <ul className="space-y-3 relative flex-grow mb-6">
                 {mod.features.map((f, i) => (
                   <li
                     key={i}
@@ -136,6 +136,32 @@ export const BlueprintView: React.FC<BlueprintViewProps> = ({ onNavigate }) => {
                   </li>
                 ))}
               </ul>
+
+              {mod.links && mod.links.length > 0 && (
+                <div className="relative mb-6 pt-4 border-t border-notion-light-border/50 dark:border-notion-dark-border/30">
+                  <div className="flex flex-wrap gap-2">
+                    {mod.links.map((link, i) => (
+                      <a
+                        key={i}
+                        href={link.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-notion-light-bg dark:bg-notion-dark-bg border border-notion-light-border dark:border-notion-dark-border text-[10px] font-bold ${colors.text} uppercase tracking-wider hover:shadow-sm transition-all active:scale-95`}
+                      >
+                        {link.icon && Icon[link.icon as keyof typeof Icon] ? (
+                          React.createElement(
+                            Icon[link.icon as keyof typeof Icon],
+                            { size: 12 },
+                          )
+                        ) : (
+                          <Icon.Link size={12} />
+                        )}
+                        {link.label}
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               <div className="mt-8 pt-5 border-t border-notion-light-border dark:border-notion-dark-border flex items-center justify-between group-hover:border-notion-light-text/10 dark:group-hover:border-notion-dark-text/10 transition-colors">
                 <Button

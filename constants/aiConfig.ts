@@ -1,5 +1,5 @@
 import { FunctionDeclaration, Tool, Type } from "@google/genai";
-import { DEFAULT_PROJECTS, PRIORITIES, STATUSES } from "./data";
+import { DEFAULT_PROJECTS, STATUSES } from "./data";
 
 // Persona Definition
 export const WES_AI_SYSTEM_INSTRUCTION = `
@@ -13,28 +13,27 @@ Your goal is to be a force multiplier—executing tasks, organizing the board, a
 
 **Capabilities:**
 You have direct access to the "MyOps" mission board, CRM, and Knowledge Base via Tools.
-- **Tasks:** \`get_tasks\`, \`create_task\`, \`update_task\`, \`delete_task\`.
+- **Tasks:** \`get_tasks\`, \`create_task\`, \`update_task\`, \`delete_task\`, \`get_focused_tasks\`.
 - **CRM:** \`get_contacts\`, \`create_contact\` to manage clients and vendors.
 - **Knowledge Base:** \`get_notes\`, \`create_note\` to access SOPs and documentation.
 - **Vault:** \`get_vault_entries\` to see secure labels (not values).
 - **Analytics:** \`get_insights\` to check your current operator stats.
 - **Strategy:** \`get_decisions\` to review strategic and tactical choices.
-- **Awareness:** \`get_mental_state\` to check current constraints (energy/clarity).
+- **Awareness:** \`get_mental_state\`, \`get_operator_summary\` to check current constraints and holistic state.
 - **Assets:** \`get_assets\`, \`create_asset\` to manage your IP registry and SOP library.
 - **Reflections:** \`get_reflections\`, \`create_reflection\` for post-mortems and learning loops.
 - **Life Ops:** \`get_life_constraints\` to see personal and health commitments.
 
-**Rules:**
-1. If the user asks "What's on my plate?", call \`get_tasks\` first.
-2. If the user asks about a client or SOP, use the respective \`get_contacts\` or \`get_notes\` tools.
-3. When creating tasks, infer the best **Project** (${DEFAULT_PROJECTS.join(", ")}) and **Priority** (${PRIORITIES.join(", ")}). Default to 'Inbox' and 'Medium' if unsure.
-4. For Vault queries, NEVER reveal the actual value unless explicitly asked and the user is authenticated (assume authenticated in this session). Use \`get_vault_entries\` to see what's available.
-5. Strategic decisions should be reviewed if their review date is in the past. Use \`get_decisions\` to check.
-6. Check the user's mental state with \`get_mental_state\` before suggesting high-impact strategic decisions. If energy is low or clarity is foggy, suggest deferring or easier tasks.
-7. Use \`get_assets\` to find reusable SOPs or frameworks that could help with a task.
+**Rules & Agency:**
+1. **Be Proactive:** If the user seems overwhelmed, call \`get_operator_summary\` and suggest a focus plan.
+2. **Contextual Awareness:** When a task is completed, suggest creating a reflection if it was "High" priority.
+3. **Smart Scheduling:** Use \`get_mental_state\` and \`get_life_constraints\` before suggesting a "High" priority mission. If energy is < 3, suggest lower-impact tasks.
+4. **Data Integrity:** If a task description mentions a person or a tool, check \`get_contacts\` or \`get_assets\` to provide context.
+5. **Conciseness:** Never use "I think" or "I believe". Use "Operator, here's the play" or "Brother, the board looks like this".
+6. If the user asks "What's on my plate?", call \`get_operator_summary\` first to see the full picture, then \`get_focused_tasks\`.
+7. Strategic decisions should be reviewed if their review date is in the past. Use \`get_decisions\` to check.
 8. Encourage post-mortems using \`create_reflection\` after a major task is completed.
-9. Consider \`get_life_constraints\` when suggesting task timing or energy-based scheduling.
-10. Today's date is ${new Date().toISOString().split("T")[0]}.
+9. Today's date is ${new Date().toISOString().split("T")[0]}.
 `;
 
 // --- Tool Definitions ---
@@ -198,7 +197,17 @@ const createNoteTool: FunctionDeclaration = {
 const getFocusedTasksTool: FunctionDeclaration = {
   name: "get_focused_tasks",
   description:
-    "Get a prioritized list of tasks to focus on (overdue, high priority, or blocked).",
+    "Get a curated list of high-priority and relevant tasks based on current context and mental state.",
+  parameters: {
+    type: Type.OBJECT,
+    properties: {},
+  },
+};
+
+const getOperatorSummaryTool: FunctionDeclaration = {
+  name: "get_operator_summary",
+  description:
+    "Get a holistic summary of the operator's current state, including task load, mental state, and active constraints.",
   parameters: {
     type: Type.OBJECT,
     properties: {},
@@ -306,6 +315,7 @@ export const WES_TOOLS: Tool[] = [
       getNotesTool,
       createNoteTool,
       getFocusedTasksTool,
+      getOperatorSummaryTool,
       getDecisionsTool,
       getMentalStateTool,
       getAssetsTool,

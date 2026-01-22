@@ -70,6 +70,7 @@ export const WesAiView: React.FC<WesAiViewProps> = ({
     inputValue,
     setInputValue,
     isThinking,
+    activeTool,
     sendMessage,
     resetChat,
   } = useAiChat({
@@ -341,7 +342,15 @@ export const WesAiView: React.FC<WesAiViewProps> = ({
                   <div className="w-1.5 h-1.5 bg-notion-light-text/40 dark:bg-notion-dark-text/40 rounded-full animate-bounce"></div>
                 </div>
                 <span className="text-[10px] font-bold uppercase tracking-widest text-notion-light-text/60 dark:text-notion-dark-text/60">
-                  WesAI is thinking...
+                  {activeTool ? (
+                    <span className="flex items-center gap-1.5">
+                      <span className="animate-pulse">
+                        Using {activeTool}...
+                      </span>
+                    </span>
+                  ) : (
+                    "WesAI is thinking..."
+                  )}
                 </span>
               </div>
             </div>

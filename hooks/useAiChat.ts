@@ -253,6 +253,10 @@ export const useAiChat = ({
           }
           case "get_focused_tasks": {
             const today = new Date().toISOString().split("T")[0];
+            const currentMentalState =
+              mentalStates.find((m) => m.date === today) || mentalStates[0];
+            const activeConstraints = lifeConstraints.filter((c) => c.isActive);
+
             const focused = entries
               .filter((t) => t.status !== "Done")
               .map((t) => {
@@ -266,17 +270,42 @@ export const useAiChat = ({
                 if (t.date < today) {
                   priorityScore += 5;
                   reason = reason ? `${reason} & Overdue` : "Overdue";
+                } else if (t.date === today) {
+                  priorityScore += 2;
+                  reason = reason ? `${reason} & Due Today` : "Due Today";
                 }
+
+                // Adjust based on mental state
+                if (currentMentalState) {
+                  const energyMap = { low: 1, medium: 3, high: 5 };
+                  const energyValue = energyMap[currentMentalState.energy] || 3;
+
+                  if (
+                    energyValue < 3 &&
+                    (t.priority === "High" || t.project === "Strategy")
+                  ) {
+                    priorityScore -= 2; // Suggest deferring high-energy tasks
+                    reason = reason
+                      ? `${reason} (High Energy Required)`
+                      : "High Energy Required";
+                  } else if (energyValue >= 4 && t.priority === "High") {
+                    priorityScore += 2; // Prioritize high-impact tasks when energy is high
+                    reason = reason
+                      ? `${reason} (Optimal Energy for Task)`
+                      : "Optimal Energy";
+                  }
+                }
+
                 if (t.dependencies && t.dependencies.length > 0) {
                   const blocked = t.dependencies.some((depId) => {
                     const dep = entries.find((e) => e.id === depId);
                     return dep && dep.status !== "Done";
                   });
                   if (blocked) {
-                    priorityScore -= 2; // Lower priority if blocked
+                    priorityScore -= 4; // Significantly lower if blocked
                     reason = reason ? `${reason} (Blocked)` : "Blocked";
                   } else {
-                    priorityScore += 2; // Higher priority if deps are done
+                    priorityScore += 2;
                     reason = reason ? `${reason} (Ready)` : "Ready";
                   }
                 }
@@ -286,7 +315,39 @@ export const useAiChat = ({
               .sort((a, b) => b.priorityScore - a.priorityScore)
               .slice(0, 5);
 
-            return { focused };
+            return {
+              focused,
+              mentalState: currentMentalState,
+              activeConstraints,
+            };
+          }
+          case "get_operator_summary": {
+            const today = new Date().toISOString().split("T")[0];
+            const activeTasks = entries.filter((t) => t.status !== "Done");
+            const overdueTasks = activeTasks.filter((t) => t.date < today);
+            const highPriorityTasks = activeTasks.filter(
+              (t) => t.priority === "High",
+            );
+            const currentMentalState =
+              mentalStates.find((m) => m.date === today) || mentalStates[0];
+            const activeConstraints = lifeConstraints.filter((c) => c.isActive);
+
+            return {
+              summary: {
+                taskLoad: {
+                  totalActive: activeTasks.length,
+                  overdue: overdueTasks.length,
+                  highPriority: highPriorityTasks.length,
+                },
+                mentalState: currentMentalState,
+                constraints: activeConstraints,
+                metrics: {
+                  xp: metrics.xp,
+                  level: metrics.level,
+                  streak: metrics.streak,
+                },
+              },
+            };
           }
           case "get_tasks":
             return {

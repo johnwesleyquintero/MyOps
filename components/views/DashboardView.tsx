@@ -5,6 +5,7 @@ import {
   Page,
   OperatorMetrics,
   MentalStateEntry,
+  DecisionEntry,
 } from "@/types";
 import { SummaryCards } from "../SummaryCards";
 import { MissionTrendChart } from "../analytics/MissionTrendChart";
@@ -23,6 +24,7 @@ interface DashboardViewProps {
   metrics: MetricSummary;
   operatorMetrics: OperatorMetrics;
   mentalStates: MentalStateEntry[];
+  decisions: DecisionEntry[];
   isLoading: boolean;
   onEdit: (entry: TaskEntry) => void;
   onDelete: (entry: TaskEntry) => void;
@@ -39,6 +41,7 @@ export const DashboardView: React.FC<DashboardViewProps> = React.memo(
     metrics,
     operatorMetrics,
     mentalStates,
+    decisions,
     isLoading,
     onEdit,
     onDelete,
@@ -48,8 +51,8 @@ export const DashboardView: React.FC<DashboardViewProps> = React.memo(
     onDuplicate,
     onNavigate,
   }) => {
-    const { tacticalFocus, xpProgress, columns, toggleColumn } =
-      useDashboardLogic({ entries, operatorMetrics });
+    const { tacticalFocus, xpProgress, predictiveMetrics, calibrationMetrics, columns, toggleColumn } =
+      useDashboardLogic({ entries, operatorMetrics, decisions });
     const { isHudMode, toggleHudMode } = useUi();
 
     // Calculate Confidence Score
@@ -106,8 +109,81 @@ export const DashboardView: React.FC<DashboardViewProps> = React.memo(
         {/* HUD Elements Overlay (Conditional) */}
         {isHudMode && (
           <div className="fixed bottom-8 right-8 z-50 flex flex-col items-end gap-4 pointer-events-none">
+            {/* Predictive Analytics Panel */}
+            <div className="pointer-events-auto bg-black/80 backdrop-blur-xl border border-white/10 p-4 rounded-2xl shadow-2xl flex flex-col gap-3 min-w-[240px] animate-slide-up">
+              <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest text-white/60 border-b border-white/10 pb-2 mb-1">
+                <span>TACTICAL FORECAST</span>
+                <Icon.Activity size={12} className="text-indigo-400" />
+              </div>
+              
+              <div className="space-y-3">
+                {/* Predicted XP */}
+                <div className="flex justify-between items-center">
+                   <div className="flex flex-col">
+                      <span className="text-[9px] text-white/40 uppercase">Est. Session XP</span>
+                      <span className="text-sm font-bold text-white">+{predictiveMetrics.predictedXP} XP</span>
+                   </div>
+                   <div className="text-right">
+                      <span className="text-[9px] text-white/40 uppercase">Next Lvl</span>
+                      <div className="text-[10px] font-mono text-indigo-300">
+                        {predictiveMetrics.potentialLevel > operatorMetrics.level ? (
+                           <span className="animate-pulse text-emerald-400">LVL UP IMMINENT</span>
+                        ) : (
+                           <span>{(operatorMetrics.xp + predictiveMetrics.predictedXP) % 1000} / 1000</span>
+                        )}
+                      </div>
+                   </div>
+                </div>
+
+                {/* Momentum Tracking */}
+                <div className="flex justify-between items-center">
+                   <div className="flex flex-col">
+                      <span className="text-[9px] text-white/40 uppercase">Momentum</span>
+                      <div className="flex items-center gap-1.5">
+                        <span className={`text-sm font-bold ${predictiveMetrics.isStreakAtRisk ? "text-amber-400" : "text-emerald-400"}`}>
+                           {operatorMetrics.streak} Days
+                        </span>
+                        {predictiveMetrics.isStreakAtRisk && (
+                           <span className="px-1 py-0.5 bg-amber-500/20 text-amber-400 text-[8px] rounded uppercase font-black tracking-wider animate-pulse">At Risk</span>
+                        )}
+                      </div>
+                   </div>
+                   <div className="text-right">
+                      <span className="text-[9px] text-white/40 uppercase">Forecast</span>
+                      <span className="text-[10px] font-mono text-white/80 block">
+                        Day {predictiveMetrics.streakForecast} Locked
+                      </span>
+                   </div>
+                </div>
+
+                {/* Decision Calibration */}
+                <div className="flex justify-between items-center border-t border-white/5 pt-2 mt-1">
+                   <div className="flex flex-col">
+                      <span className="text-[9px] text-white/40 uppercase">Calibration</span>
+                      <div className="flex items-center gap-1.5">
+                        <span className={`text-sm font-bold ${
+                          calibrationMetrics.calibrationScore >= 80 ? "text-emerald-400" : 
+                          calibrationMetrics.calibrationScore >= 50 ? "text-indigo-400" : "text-amber-400"
+                        }`}>
+                           {calibrationMetrics.calibrationScore}%
+                        </span>
+                        <span className={`text-[8px] uppercase font-black tracking-widest ${
+                          calibrationMetrics.bias === "calibrated" ? "text-emerald-500/60" : "text-amber-500/60"
+                        }`}>
+                          {calibrationMetrics.bias}
+                        </span>
+                      </div>
+                   </div>
+                   <div className="text-right">
+                      <Icon.Strategy size={14} className="text-white/20 inline-block mb-1" />
+                      <span className="text-[8px] text-white/40 block uppercase tracking-tighter">Impact Accuracy</span>
+                   </div>
+                </div>
+              </div>
+            </div>
+
             {/* XP HUD Snippet */}
-            <div className="pointer-events-auto bg-black/80 backdrop-blur-xl border border-white/10 p-4 rounded-2xl shadow-2xl flex flex-col gap-2 min-w-[200px] animate-slide-up">
+            <div className="pointer-events-auto bg-black/80 backdrop-blur-xl border border-white/10 p-4 rounded-2xl shadow-2xl flex flex-col gap-2 min-w-[200px] animate-slide-up [animation-delay:100ms]">
               <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest text-white/60">
                 <span>XP PROGRESS</span>
                 <span className="text-indigo-400">
@@ -123,21 +199,6 @@ export const DashboardView: React.FC<DashboardViewProps> = React.memo(
               <div className="flex justify-between text-[9px] font-mono text-white/40">
                 <span>{operatorMetrics.xp % 1000}</span>
                 <span>1000</span>
-              </div>
-            </div>
-
-            {/* Streak HUD Snippet */}
-            <div className="pointer-events-auto bg-black/80 backdrop-blur-xl border border-white/10 p-4 rounded-2xl shadow-2xl flex items-center gap-4 animate-slide-up [animation-delay:100ms]">
-              <div className="p-3 bg-violet-500/20 rounded-xl text-violet-400 border border-violet-500/20">
-                <Icon.Streak size={20} className="animate-pulse" />
-              </div>
-              <div>
-                <span className="text-[10px] font-black uppercase tracking-widest text-white/60 block mb-0.5">
-                  OPERATOR STREAK
-                </span>
-                <span className="text-xl font-black text-white">
-                  {operatorMetrics.streak} DAYS
-                </span>
               </div>
             </div>
 

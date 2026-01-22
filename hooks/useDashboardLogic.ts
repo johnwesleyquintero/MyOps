@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { TaskEntry, OperatorMetrics } from "../types";
+import { TaskEntry, OperatorMetrics, DecisionEntry } from "../types";
 import { useTableColumns, ColumnConfig } from "./useTableColumns";
 import { COLUMN_CONFIG_KEY } from "../constants/storage";
 
@@ -19,11 +19,13 @@ export const DASHBOARD_COLUMNS = [
 interface UseDashboardLogicProps {
   entries: TaskEntry[];
   operatorMetrics: OperatorMetrics;
+  decisions?: DecisionEntry[];
 }
 
 export const useDashboardLogic = ({
   entries,
   operatorMetrics,
+  decisions = [],
 }: UseDashboardLogicProps) => {
   const tacticalFocus = useMemo(() => {
     const today = new Date().toISOString().split("T")[0];
@@ -58,6 +60,64 @@ export const useDashboardLogic = ({
 
   const xpProgress = (operatorMetrics.xp % 1000) / 10; // Simple XP bar logic
 
+  const predictiveMetrics = useMemo(() => {
+    const today = new Date().toISOString().split("T")[0];
+    const pendingTasks = entries.filter((e) => e.status !== "Done");
+
+    // Calculate base XP for pending tasks
+    const basePendingXP = pendingTasks.reduce((acc, t) => {
+      const base = t.priority === "High" ? 150 : t.priority === "Medium" ? 120 : 100;
+      return acc + base;
+    }, 0);
+
+    // Calculate multiplier based on current mental state (simplified for prediction)
+    // In a real app, this would be more complex
+    const estimatedMultiplier = 1.1; // Assume slight positive bias for prediction
+
+    const predictedXP = Math.round(basePendingXP * estimatedMultiplier);
+    
+    // Streak Forecast
+    const streakForecast = operatorMetrics.streak + 1;
+    const isStreakAtRisk = !operatorMetrics.lastActiveDate || operatorMetrics.lastActiveDate < today;
+
+    return {
+       predictedXP,
+       streakForecast,
+       isStreakAtRisk,
+       potentialLevel: Math.floor((operatorMetrics.xp + predictedXP) / 1000) + 1,
+     };
+   }, [entries, operatorMetrics]);
+
+  const calibrationMetrics = useMemo(() => {
+    if (!decisions.length) return { calibrationScore: 0, bias: "neutral" };
+
+    const reviewedDecisions = decisions.filter((d) => d.status === "REVIEWED");
+    if (!reviewedDecisions.length) return { calibrationScore: 50, bias: "neutral" };
+
+    // Simple calibration: How close was confidence to impact?
+    // impact is 1-5, confidence is 1-100
+    const totalDiff = reviewedDecisions.reduce((acc, d) => {
+      const normalizedImpact = (d.impact / 5) * 100;
+      const confidence = d.confidenceScore || 50;
+      return acc + Math.abs(normalizedImpact - confidence);
+    }, 0);
+
+    const avgDiff = totalDiff / reviewedDecisions.length;
+    const calibrationScore = Math.max(0, Math.round(100 - avgDiff));
+
+    // Determine bias (overconfident vs underconfident)
+    const totalBias = reviewedDecisions.reduce((acc, d) => {
+      const normalizedImpact = (d.impact / 5) * 100;
+      const confidence = d.confidenceScore || 50;
+      return acc + (confidence - normalizedImpact);
+    }, 0);
+
+    const avgBias = totalBias / reviewedDecisions.length;
+    const bias = avgBias > 10 ? "over" : avgBias < -10 ? "under" : "calibrated";
+
+    return { calibrationScore, bias };
+  }, [decisions]);
+
   const { columns, toggleColumn } = useTableColumns(
     DASHBOARD_COLUMNS as ColumnConfig[],
     COLUMN_CONFIG_KEY,
@@ -67,9 +127,11 @@ export const useDashboardLogic = ({
     () => ({
       tacticalFocus,
       xpProgress,
+      predictiveMetrics,
+      calibrationMetrics,
       columns,
       toggleColumn,
     }),
-    [tacticalFocus, xpProgress, columns, toggleColumn],
+    [tacticalFocus, xpProgress, predictiveMetrics, calibrationMetrics, columns, toggleColumn],
   );
 };

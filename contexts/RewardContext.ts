@@ -7,6 +7,8 @@ interface RewardContextType {
   triggerXpPop: (amount: number) => void;
   triggerLevelUp: (level: number) => void;
   triggerBadgeUnlock: (badge: Badge) => void;
+  areRewardsEnabled: boolean;
+  toggleRewardsEnabled: () => void;
 }
 
 export const RewardContext = createContext<RewardContextType | undefined>(

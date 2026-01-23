@@ -30,8 +30,19 @@ export const RewardProvider: React.FC<{
     amount: number;
     id: string;
   } | null>(null);
+  const [areRewardsEnabled, setAreRewardsEnabled] = useState<boolean>(() => {
+    return storage.get<boolean>("myops_rewards_enabled", true);
+  });
 
   const prevMetrics = useRef<OperatorMetrics | null>(null);
+
+  const toggleRewardsEnabled = useCallback(() => {
+    setAreRewardsEnabled((prev) => {
+      const next = !prev;
+      storage.set("myops_rewards_enabled", next);
+      return next;
+    });
+  }, []);
 
   const triggerXpPop = useCallback((amount: number) => {
     setLastXpPop({ amount, id: Math.random().toString(36).substr(2, 9) });
@@ -85,8 +96,7 @@ export const RewardProvider: React.FC<{
       showToast(`MILESTONE REACHED: ${reward.name}`, "success", {
         label: "Enjoy Now",
         onClick: () => {
-          // You could add logic here to "claim" the reward or just let it be a reminder
-          console.log(`User claimed reward: ${reward.name}`);
+          // Tactical acknowledgement - could trigger further UI or logging protocol here
         },
       });
 
@@ -145,7 +155,7 @@ export const RewardProvider: React.FC<{
     });
 
     // Personal Rewards Check
-    if (rewards) {
+    if (rewards && areRewardsEnabled) {
       rewards.rewards.forEach((reward) => {
         if (!reward.isEnabled) return;
 
@@ -189,6 +199,7 @@ export const RewardProvider: React.FC<{
     triggerXpPop,
     triggerBadgeUnlock,
     triggerPersonalReward,
+    areRewardsEnabled,
   ]);
 
   return (
@@ -199,6 +210,8 @@ export const RewardProvider: React.FC<{
         triggerXpPop,
         triggerLevelUp,
         triggerBadgeUnlock,
+        areRewardsEnabled,
+        toggleRewardsEnabled,
       }}
     >
       {children}

@@ -3,6 +3,7 @@ import { PersonalReward, MilestoneType } from "../../types";
 import { Icon } from "../Icons";
 import { Button } from "../ui";
 import { DataContext } from "../../contexts/DataContext";
+import { RewardContext } from "../../contexts/RewardContext";
 import { toast } from "sonner";
 
 const RewardNameInput: React.FC<{
@@ -82,6 +83,9 @@ const RewardThresholdInput: React.FC<{
 
 export const RewardSettings: React.FC = () => {
   const data = useContext(DataContext);
+  const { areRewardsEnabled, toggleRewardsEnabled } = useContext(
+    RewardContext,
+  ) || { areRewardsEnabled: true, toggleRewardsEnabled: () => {} };
   const rewardsContext = data?.rewards;
   const rewards = rewardsContext?.rewards || [];
 
@@ -152,17 +156,36 @@ export const RewardSettings: React.FC = () => {
             incentives upon achievement.
           </p>
         </div>
-        <Button
-          variant="custom"
-          onClick={handleAddReward}
-          className="text-[10px] font-black uppercase tracking-widest px-6 py-2.5 bg-indigo-600 text-white border border-indigo-500 rounded-xl shadow-lg shadow-indigo-500/20 hover:bg-indigo-700 transition-all active:scale-95 flex items-center gap-2"
-        >
-          <Icon.Plus size={14} />
-          Add Incentive
-        </Button>
+        <div className="flex items-center gap-4">
+          <button
+            onClick={toggleRewardsEnabled}
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl border transition-all duration-300 ${
+              areRewardsEnabled
+                ? "bg-green-500/10 border-green-500/30 text-green-600 dark:text-green-400"
+                : "bg-notion-light-sidebar dark:bg-notion-dark-sidebar border-notion-light-border dark:border-notion-dark-border text-notion-light-muted dark:text-notion-dark-muted"
+            }`}
+          >
+            <div
+              className={`w-2 h-2 rounded-full ${areRewardsEnabled ? "bg-green-500 animate-pulse" : "bg-notion-light-muted dark:bg-notion-dark-muted"}`}
+            />
+            <span className="text-[10px] font-black uppercase tracking-widest">
+              {areRewardsEnabled ? "Protocol Active" : "Protocol Offline"}
+            </span>
+          </button>
+          <Button
+            variant="custom"
+            onClick={handleAddReward}
+            className="text-[10px] font-black uppercase tracking-widest px-6 py-2.5 bg-indigo-600 text-white border border-indigo-500 rounded-xl shadow-lg shadow-indigo-500/20 hover:bg-indigo-700 transition-all active:scale-95 flex items-center gap-2"
+          >
+            <Icon.Plus size={14} />
+            Add Incentive
+          </Button>
+        </div>
       </div>
 
-      <div className="space-y-4">
+      <div
+        className={`space-y-4 transition-all duration-300 ${!areRewardsEnabled ? "opacity-50 pointer-events-none grayscale" : ""}`}
+      >
         {rewards.length === 0 ? (
           <div className="text-center py-16 bg-notion-light-sidebar/30 dark:bg-notion-dark-sidebar/30 border-2 border-dashed border-notion-light-border dark:border-notion-dark-border rounded-3xl">
             <p className="text-[11px] font-black text-notion-light-muted dark:text-notion-dark-muted uppercase tracking-widest">

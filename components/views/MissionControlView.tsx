@@ -140,48 +140,46 @@ export const MissionControlView: React.FC<MissionControlViewProps> = React.memo(
           title="Mission Control"
           subTitle="Manage and track your active missions and tasks"
         >
-          <div className="flex flex-wrap items-center gap-2 mt-2 md:mt-0">
-            {viewMode === "TABLE" && filteredEntries.length > 0 && (
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setIsDeleteModalOpen(true)}
-                className={`${MODULE_COLORS.error.text} ${prefixToHover(MODULE_COLORS.error.bg)} transition-colors`}
-                title="Clear View"
-              >
-                <Icon.Delete {...iconProps(16)} />
-              </Button>
-            )}
+          {viewMode === "TABLE" && filteredEntries.length > 0 && (
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => generateAndDownloadCSV(filteredEntries)}
-              className={`${prefixToHover(MODULE_COLORS.tasks.text)} ${prefixToHover(MODULE_COLORS.tasks.bg)} transition-colors`}
-              title="Export CSV"
+              onClick={() => setIsDeleteModalOpen(true)}
+              className={`${MODULE_COLORS.error.text} ${prefixToHover(MODULE_COLORS.error.bg)} transition-colors`}
+              title="Clear View"
             >
-              <Icon.Download {...iconProps(16)} />
+              <Icon.Delete {...iconProps(16)} />
             </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleCopyMarkdown}
-              className={`${prefixToHover(MODULE_COLORS.tasks.text)} ${prefixToHover(MODULE_COLORS.tasks.bg)} transition-colors`}
-              title="Copy as Markdown Table"
-            >
-              {copiedMd ? (
-                <Icon.Check {...iconProps(16, MODULE_COLORS.crm.text)} />
-              ) : (
-                <Icon.Copy {...iconProps(16)} />
-              )}
-            </Button>
-            {viewMode === "TABLE" && (
-              <ColumnConfigDropdown
-                columns={columns}
-                toggleColumn={toggleColumn}
-                className={`${prefixToHover(MODULE_COLORS.tasks.text)} ${prefixToHover(MODULE_COLORS.tasks.bg)} transition-colors`}
-              />
+          )}
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => generateAndDownloadCSV(filteredEntries)}
+            className={`${prefixToHover(MODULE_COLORS.tasks.text)} ${prefixToHover(MODULE_COLORS.tasks.bg)} transition-colors`}
+            title="Export CSV"
+          >
+            <Icon.Download {...iconProps(16)} />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={handleCopyMarkdown}
+            className={`${prefixToHover(MODULE_COLORS.tasks.text)} ${prefixToHover(MODULE_COLORS.tasks.bg)} transition-colors`}
+            title="Copy as Markdown Table"
+          >
+            {copiedMd ? (
+              <Icon.Check {...iconProps(16, MODULE_COLORS.crm.text)} />
+            ) : (
+              <Icon.Copy {...iconProps(16)} />
             )}
-          </div>
+          </Button>
+          {viewMode === "TABLE" && (
+            <ColumnConfigDropdown
+              columns={columns}
+              toggleColumn={toggleColumn}
+              className={`${prefixToHover(MODULE_COLORS.tasks.text)} ${prefixToHover(MODULE_COLORS.tasks.bg)} transition-colors`}
+            />
+          )}
         </ViewHeader>
 
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">

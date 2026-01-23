@@ -73,36 +73,34 @@ export const CrmView: React.FC<CrmViewProps> = React.memo(
           title="CRM & Contacts"
           subTitle="Manage your network and interaction logs"
         >
-          <div className="flex flex-wrap items-center gap-2 mt-2 md:mt-0">
-            {filteredContacts.length > 0 && (
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={handleCopyMarkdown}
-                className={`${prefixToHover(crmColors.text)} ${prefixToHover(crmColors.bg)} transition-colors`}
-                title="Copy as Markdown Table"
-              >
-                {copiedMd ? (
-                  <Icon.Check {...iconProps(16, "text-green-500")} />
-                ) : (
-                  <Icon.Copy {...iconProps(16)} />
-                )}
-              </Button>
-            )}
+          {filteredContacts.length > 0 && (
             <Button
-              variant="custom"
-              onClick={handleAdd}
-              className={`w-full md:w-auto px-6 py-3 ${crmColors.solidBg} text-white border ${crmColors.border} rounded-2xl font-black text-sm uppercase tracking-widest shadow-sm hover:opacity-90 group transition-all active:scale-95`}
-              leftIcon={
-                <Icon.Add
-                  size={16}
-                  className="group-hover:rotate-90 transition-transform duration-300"
-                />
-              }
+              variant="ghost"
+              size="icon"
+              onClick={handleCopyMarkdown}
+              className={`${prefixToHover(crmColors.text)} ${prefixToHover(crmColors.bg)} transition-colors`}
+              title="Copy as Markdown Table"
             >
-              New Contact
+              {copiedMd ? (
+                <Icon.Check {...iconProps(16, "text-green-500")} />
+              ) : (
+                <Icon.Copy {...iconProps(16)} />
+              )}
             </Button>
-          </div>
+          )}
+          <Button
+            variant="custom"
+            onClick={handleAdd}
+            className={`px-4 md:px-6 py-2 md:py-3 ${crmColors.solidBg} text-white border ${crmColors.border} rounded-2xl font-black text-[10px] md:text-sm uppercase tracking-widest shadow-sm hover:opacity-90 group transition-all active:scale-95 flex items-center gap-2`}
+            leftIcon={
+              <Icon.Add
+                size={16}
+                className="group-hover:rotate-90 transition-transform duration-300"
+              />
+            }
+          >
+            <span>New Contact</span>
+          </Button>
         </ViewHeader>
 
         <div className="flex items-center gap-1 bg-notion-light-sidebar/50 dark:bg-notion-dark-sidebar/30 p-1 rounded-lg w-fit">

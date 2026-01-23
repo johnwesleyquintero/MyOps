@@ -87,6 +87,21 @@ export interface OperatorMetrics {
   peakStateCompletions: number;
 }
 
+export type MilestoneType = "streak" | "tasks" | "xp" | "peak_state" | "level";
+
+export interface RewardMilestone {
+  type: MilestoneType;
+  threshold: number;
+  lastAwardedValue?: number; // To track if we already gave this reward for this specific milestone
+}
+
+export interface PersonalReward {
+  id: string;
+  name: string;
+  milestone: RewardMilestone;
+  isEnabled: boolean;
+}
+
 export interface VaultEntry {
   id: string;
   label: string;

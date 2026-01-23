@@ -10,6 +10,7 @@ import { useAssets } from "../hooks/useAssets";
 import { useReflection } from "../hooks/useReflection";
 import { useIntegrations } from "../hooks/useIntegrations";
 import { useLifeOps } from "../hooks/useLifeOps";
+import { useRewardsData } from "../hooks/useRewardsData";
 import { useOperatorAnalytics } from "../hooks/useOperatorAnalytics";
 
 export interface DataContextType {
@@ -24,6 +25,7 @@ export interface DataContextType {
   reflections: ReturnType<typeof useReflection>;
   integrations: ReturnType<typeof useIntegrations>;
   lifeOps: ReturnType<typeof useLifeOps>;
+  rewards: ReturnType<typeof useRewardsData>;
   operatorMetrics: ReturnType<typeof useOperatorAnalytics>;
 }
 

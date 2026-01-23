@@ -13,6 +13,7 @@ import { useAssets } from "../hooks/useAssets";
 import { useReflection } from "../hooks/useReflection";
 import { useIntegrations } from "../hooks/useIntegrations";
 import { useLifeOps } from "../hooks/useLifeOps";
+import { useRewardsData } from "../hooks/useRewardsData";
 import { useOperatorAnalytics } from "../hooks/useOperatorAnalytics";
 import { RewardProvider } from "./RewardProvider";
 
@@ -32,6 +33,7 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({
   const reflections = useReflection(config, showToast);
   const integrations = useIntegrations(config, showToast);
   const lifeOps = useLifeOps(config, showToast);
+  const rewards = useRewardsData(config);
   const tasks = useTasks(config, showToast);
   const operatorMetrics = useOperatorAnalytics(
     tasks.entries,
@@ -51,6 +53,7 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({
       reflections,
       integrations,
       lifeOps,
+      rewards,
       operatorMetrics,
     }),
     [
@@ -65,6 +68,7 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({
       reflections,
       integrations,
       lifeOps,
+      rewards,
       operatorMetrics,
     ],
   );

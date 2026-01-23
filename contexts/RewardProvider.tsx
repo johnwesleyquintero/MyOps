@@ -1,15 +1,25 @@
-import React, { useState, useCallback, useEffect, useRef } from "react";
+import React, {
+  useState,
+  useCallback,
+  useEffect,
+  useRef,
+  useContext,
+} from "react";
 import confetti from "canvas-confetti";
 import { RewardContext } from "./RewardContext";
+import { DataContext } from "./DataContext";
 import { BADGES, Badge } from "../constants/rewards";
 import { useNotification } from "../hooks/useNotification";
-import { OperatorMetrics } from "../types";
+import { OperatorMetrics, PersonalReward } from "../types";
 
 export const RewardProvider: React.FC<{
   children: React.ReactNode;
   metrics: OperatorMetrics;
 }> = ({ children, metrics }) => {
   const { showToast } = useNotification();
+  const data = useContext(DataContext);
+  const rewards = data?.rewards;
+
   const [unlockedBadges, setUnlockedBadges] = useState<string[]>(() => {
     const saved = localStorage.getItem("myops_unlocked_badges");
     return saved ? JSON.parse(saved) : [];
@@ -61,6 +71,34 @@ export const RewardProvider: React.FC<{
     [showToast],
   );
 
+  const triggerPersonalReward = useCallback(
+    (reward: PersonalReward, value: number) => {
+      confetti({
+        particleCount: 100,
+        spread: 60,
+        origin: { y: 0.5 },
+        colors: ["#34d399", "#10b981", "#059669"],
+      });
+
+      showToast(`MILESTONE REACHED: ${reward.name}`, "success", {
+        label: "Enjoy Now",
+        onClick: () => {
+          // You could add logic here to "claim" the reward or just let it be a reminder
+          console.log(`User claimed reward: ${reward.name}`);
+        },
+      });
+
+      // Update the reward state via the rewards service
+      if (rewards) {
+        rewards.updateReward({
+          ...reward,
+          milestone: { ...reward.milestone, lastAwardedValue: value },
+        });
+      }
+    },
+    [showToast, rewards],
+  );
+
   // Monitor metrics for changes
   useEffect(() => {
     if (!prevMetrics.current) {
@@ -104,13 +142,51 @@ export const RewardProvider: React.FC<{
       }
     });
 
+    // Personal Rewards Check
+    if (rewards) {
+      rewards.rewards.forEach((reward) => {
+        if (!reward.isEnabled) return;
+
+        const { type, threshold, lastAwardedValue } = reward.milestone;
+        let currentValue = 0;
+
+        switch (type) {
+          case "streak":
+            currentValue = metrics.streak;
+            break;
+          case "tasks":
+            currentValue = metrics.totalTasksCompleted;
+            break;
+          case "xp":
+            currentValue = metrics.xp;
+            break;
+          case "level":
+            currentValue = metrics.level;
+            break;
+          case "peak_state":
+            currentValue = metrics.peakStateCompletions;
+            break;
+        }
+
+        // Trigger if we hit or passed the threshold, AND we haven't awarded it for this value yet
+        if (
+          currentValue >= threshold &&
+          (!lastAwardedValue || currentValue > lastAwardedValue)
+        ) {
+          triggerPersonalReward(reward, currentValue);
+        }
+      });
+    }
+
     prevMetrics.current = metrics;
   }, [
     metrics,
     unlockedBadges,
+    rewards,
     triggerLevelUp,
     triggerXpPop,
     triggerBadgeUnlock,
+    triggerPersonalReward,
   ]);
 
   return (

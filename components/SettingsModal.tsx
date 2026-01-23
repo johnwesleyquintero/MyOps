@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { AppConfig } from "../types";
 import { ConnectionSettings } from "./settings/ConnectionSettings";
+import { RewardSettings } from "./settings/RewardSettings";
 import { BackendCodeView } from "./settings/BackendCodeView";
 import { MaintenanceSettings } from "./settings/MaintenanceSettings";
 import { Button } from "./ui/Button";
@@ -37,9 +38,9 @@ export const SettingsModal: React.FC = () => {
   const onClose = () => setShowSettings(false);
 
   const [localConfig, setLocalConfig] = useState<AppConfig>(config);
-  const [activeTab, setActiveTab] = useState<"CONFIG" | "CODE" | "MAINTENANCE">(
-    "CONFIG",
-  );
+  const [activeTab, setActiveTab] = useState<
+    "CONFIG" | "REWARDS" | "CODE" | "MAINTENANCE"
+  >("CONFIG");
 
   useEffect(() => {
     setLocalConfig(config);
@@ -65,6 +66,13 @@ export const SettingsModal: React.FC = () => {
             </Button>
             <Button
               variant="custom"
+              onClick={() => setActiveTab("REWARDS")}
+              className={`px-3 py-1 text-[10px] font-bold rounded transition-all ${activeTab === "REWARDS" ? "bg-notion-light-bg dark:bg-notion-dark-bg text-notion-light-text dark:text-notion-dark-text shadow-sm" : "text-notion-light-muted dark:text-notion-dark-muted hover:text-notion-light-text dark:hover:text-notion-dark-text"}`}
+            >
+              REWARDS
+            </Button>
+            <Button
+              variant="custom"
               onClick={() => setActiveTab("CODE")}
               className={`px-3 py-1 text-[10px] font-bold rounded transition-all ${activeTab === "CODE" ? "bg-notion-light-bg dark:bg-notion-dark-bg text-notion-light-text dark:text-notion-dark-text shadow-sm" : "text-notion-light-muted dark:text-notion-dark-muted hover:text-notion-light-text dark:hover:text-notion-dark-text"}`}
             >
@@ -87,6 +95,8 @@ export const SettingsModal: React.FC = () => {
               config={localConfig}
               onChange={setLocalConfig}
             />
+          ) : activeTab === "REWARDS" ? (
+            <RewardSettings />
           ) : activeTab === "CODE" ? (
             <BackendCodeView />
           ) : (

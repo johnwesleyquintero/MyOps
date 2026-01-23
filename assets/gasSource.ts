@@ -15,7 +15,7 @@ const SLACK_WEBHOOK_URL = ""; // <--- PASTE YOUR WEBHOOK URL HERE
 
 function setupSystem() {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
-  const modules = ['tasks', 'contacts', 'interactions', 'notes', 'vault', 'automations', 'strategy', 'awareness', 'assets', 'reflections', 'life_ops', 'integrations'];
+  const modules = ['tasks', 'contacts', 'interactions', 'notes', 'vault', 'automations', 'strategy', 'awareness', 'assets', 'reflections', 'life_ops', 'integrations', 'personal_rewards'];
   
   modules.forEach(m => {
     let sheet = ss.getSheetByName(m);
@@ -35,6 +35,7 @@ function setupSystem() {
       if (m === 'reflections') headers = ['ID', 'Date', 'Title', 'Type', 'Content', 'Learnings', 'ActionItems', 'LinkedTaskId', 'LinkedProjectId', 'CreatedAt', 'UpdatedAt'];
       if (m === 'life_ops') headers = ['ID', 'Title', 'Category', 'StartTime', 'EndTime', 'DaysOfWeek', 'EnergyRequirement', 'Notes', 'IsActive', 'CreatedAt', 'UpdatedAt'];
       if (m === 'integrations') headers = ['ID', 'Name', 'Type', 'URL', 'IsEnabled', 'Events', 'LastTested'];
+      if (m === 'personal_rewards') headers = ['ID', 'Name', 'MilestoneType', 'Threshold', 'IsEnabled', 'LastAwardedValue'];
       
       if (headers.length > 0) {
         sheet.getRange(1, 1, 1, headers.length).setValues([headers]).setFontWeight('bold');
@@ -328,6 +329,19 @@ function mapRowToEntry(row, module) {
         events: events, lastTested: row[6]
       };
     }
+    
+    if (module === 'personal_rewards') {
+      return {
+        id: row[0],
+        name: row[1],
+        milestone: {
+          type: row[2],
+          threshold: Number(row[3]),
+          lastAwardedValue: row[5] ? Number(row[5]) : undefined
+        },
+        isEnabled: row[4] === true || row[4] === "true"
+      };
+    }
   } catch (e) {
     return null;
   }
@@ -401,6 +415,16 @@ function mapEntryToRow(entry, module) {
     return [
       entry.id, entry.name, entry.type, entry.url, entry.isEnabled,
       JSON.stringify(entry.events || []), entry.lastTested || ""
+    ];
+  }
+  if (module === 'personal_rewards') {
+    return [
+      entry.id,
+      entry.name,
+      entry.milestone.type,
+      entry.milestone.threshold,
+      entry.isEnabled,
+      entry.milestone.lastAwardedValue || ""
     ];
   }
   return [];

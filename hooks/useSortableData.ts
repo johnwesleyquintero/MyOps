@@ -1,22 +1,7 @@
 import { useState, useMemo, useCallback } from "react";
+import { PRIORITY_RANKS, STATUS_RANKS } from "@/constants";
 
 export type SortDirection = "asc" | "desc";
-
-const PRIORITY_RANKS: Record<string, number> = {
-  High: 0,
-  Medium: 1,
-  Low: 2,
-};
-
-const STATUS_RANKS: Record<string, number> = {
-  Backlog: 0,
-  "In Progress": 1,
-  Done: 2,
-  Active: 0,
-  Lead: 1,
-  Idle: 2,
-  Completed: 3,
-};
 
 const getTimestamp = (val: unknown): number => {
   if (!val) return 0;

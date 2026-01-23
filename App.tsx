@@ -5,8 +5,9 @@ import { Toaster } from "sonner";
 import { Spinner } from "./components/ui/Spinner";
 import { useConfig } from "./hooks/useConfig";
 import { useNotification } from "./hooks/useNotification";
+import { useTasksContext } from "./hooks/useTasksContext";
+import { useAwarenessContext } from "./hooks/useAwarenessContext";
 import { useUi } from "./hooks/useUi";
-import { useData } from "./hooks/useData";
 import { ViewRenderer } from "./components/ViewRenderer";
 import { useTaskActions } from "./hooks/useTaskActions";
 
@@ -46,7 +47,8 @@ const App: React.FC = () => {
   const { config } = useConfig();
   const { showToast } = useNotification();
   const ui = useUi();
-  const { tasks, awareness } = useData();
+  const tasks = useTasksContext();
+  const awareness = useAwarenessContext();
 
   useTheme(config.theme);
 

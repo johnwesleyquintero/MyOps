@@ -1,10 +1,10 @@
 import { createContext } from "react";
-import { useTasks } from "../hooks/useTasks";
-import { useCrm } from "../hooks/useCrm";
+import { TasksContextType } from "./TasksContext";
+import { CrmContextType } from "./CrmContext";
+import { AwarenessContextType } from "./AwarenessContext";
 import { useNotes } from "../hooks/useNotes";
 import { useVault } from "../hooks/useVault";
 import { useAutomation } from "../hooks/useAutomation";
-import { useAwareness } from "../hooks/useAwareness";
 import { useDecisions } from "../hooks/useDecisions";
 import { useAssets } from "../hooks/useAssets";
 import { useReflection } from "../hooks/useReflection";
@@ -14,12 +14,12 @@ import { useRewardsData } from "../hooks/useRewardsData";
 import { useOperatorAnalytics } from "../hooks/useOperatorAnalytics";
 
 export interface DataContextType {
-  tasks: ReturnType<typeof useTasks>;
-  crm: ReturnType<typeof useCrm>;
+  tasks: TasksContextType;
+  crm: CrmContextType;
+  awareness: AwarenessContextType;
   notes: ReturnType<typeof useNotes>;
   vault: ReturnType<typeof useVault>;
   automation: ReturnType<typeof useAutomation>;
-  awareness: ReturnType<typeof useAwareness>;
   strategy: ReturnType<typeof useDecisions>;
   assets: ReturnType<typeof useAssets>;
   reflections: ReturnType<typeof useReflection>;

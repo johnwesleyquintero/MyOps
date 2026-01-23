@@ -55,10 +55,12 @@ export const useTasks = (
     setEntries(sorted);
   }, []);
 
+  const { mode, gasDeploymentUrl, apiToken } = config;
+
   const loadData = useCallback(
     async (isInitial = false) => {
       if (isInitial) {
-        if (config.mode === "LIVE") {
+        if (mode === "LIVE") {
           const cached = storage.get<TaskEntry[] | null>(LIVE_CACHE_KEY, null);
           if (cached) {
             setEntries(cached);
@@ -69,7 +71,11 @@ export const useTasks = (
       }
 
       try {
-        const data = await fetchTasks(config);
+        const data = await fetchTasks({
+          mode,
+          gasDeploymentUrl,
+          apiToken,
+        } as AppConfig);
         const visibleData = data.filter(
           (item) => !pendingDeletions.current.has(item.id),
         );
@@ -86,7 +92,7 @@ export const useTasks = (
         setIsLoading(false);
       }
     },
-    [config, showToast, syncState],
+    [mode, gasDeploymentUrl, apiToken, showToast, syncState],
   );
 
   useEffect(() => {
@@ -114,23 +120,35 @@ export const useTasks = (
         });
 
         if (isUpdate) {
-          await updateTask(optimisticEntry, config);
+          await updateTask(optimisticEntry, {
+            mode,
+            gasDeploymentUrl,
+            apiToken,
+          } as AppConfig);
           showToast("Mission updated", "success");
 
           if (optimisticEntry.status === "Done") {
-            integrationService.sendUpdate(
-              "task_completed",
-              optimisticEntry,
-              config,
-            );
+            integrationService.sendUpdate("task_completed", optimisticEntry, {
+              mode,
+              gasDeploymentUrl,
+              apiToken,
+            } as AppConfig);
           }
         } else {
-          const confirmedEntry = await addTask(optimisticEntry, config);
+          const confirmedEntry = await addTask(optimisticEntry, {
+            mode,
+            gasDeploymentUrl,
+            apiToken,
+          } as AppConfig);
           setEntries((prev) =>
             prev.map((e) => (e.id === optimisticEntry.id ? confirmedEntry : e)),
           );
           showToast("Mission initialized", "success");
-          integrationService.sendUpdate("task_created", confirmedEntry, config);
+          integrationService.sendUpdate("task_created", confirmedEntry, {
+            mode,
+            gasDeploymentUrl,
+            apiToken,
+          } as AppConfig);
         }
         return true;
       } catch (err: unknown) {
@@ -144,7 +162,7 @@ export const useTasks = (
         setIsSubmitting(false);
       }
     },
-    [config, showToast],
+    [mode, gasDeploymentUrl, apiToken, showToast],
   );
 
   const removeTransaction = useCallback(
@@ -160,7 +178,11 @@ export const useTasks = (
 
       const performDelete = async () => {
         try {
-          await deleteTask(entry.id!, config);
+          await deleteTask(entry.id!, {
+            mode,
+            gasDeploymentUrl,
+            apiToken,
+          } as AppConfig);
           pendingDeletions.current.delete(entry.id!);
         } catch (err: unknown) {
           setEntries(originalState);
@@ -188,7 +210,7 @@ export const useTasks = (
 
       return true;
     },
-    [config, showToast],
+    [mode, gasDeploymentUrl, apiToken, showToast],
   );
 
   const bulkRemoveTransactions = useCallback(
@@ -203,7 +225,12 @@ export const useTasks = (
         });
 
         for (const entry of entriesToDelete) {
-          if (entry.id) await deleteTask(entry.id, config);
+          if (entry.id)
+            await deleteTask(entry.id, {
+              mode,
+              gasDeploymentUrl,
+              apiToken,
+            } as AppConfig);
         }
         showToast(`Purged ${entriesToDelete.length} missions`, "success");
       } catch (err: unknown) {
@@ -216,7 +243,7 @@ export const useTasks = (
         setIsLoading(false);
       }
     },
-    [config, showToast, loadData],
+    [mode, gasDeploymentUrl, apiToken, showToast, loadData],
   );
 
   return useMemo(

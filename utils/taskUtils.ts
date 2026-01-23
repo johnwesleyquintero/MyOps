@@ -1,16 +1,8 @@
 import { TaskEntry } from "../types";
-
-const PRIORITY_ORDER: Record<string, number> = {
-  High: 0,
-  Medium: 1,
-  Low: 2,
-};
-
-const STATUS_ORDER: Record<string, number> = {
-  "In Progress": 0,
-  Backlog: 1,
-  Done: 2,
-};
+import {
+  PRIORITY_RANKS as PRIORITY_ORDER,
+  STATUS_RANKS as STATUS_ORDER,
+} from "@/constants";
 
 export const sortTasks = (tasks: TaskEntry[]): TaskEntry[] => {
   // Pre-calculate sort values to avoid repeated parsing inside the sort loop

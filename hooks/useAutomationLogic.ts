@@ -65,6 +65,7 @@ export const useAutomationLogic = ({
         const isUpdate = !!editingAutomation.id;
         const success = await onSave(editingAutomation as Automation, isUpdate);
         if (success) {
+          toast.success(isUpdate ? "Automation updated" : "Automation created");
           setIsModalOpen(false);
           setEditingAutomation(null);
         }

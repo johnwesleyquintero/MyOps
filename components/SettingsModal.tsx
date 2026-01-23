@@ -8,10 +8,12 @@ import { Button } from "./ui/Button";
 import { useConfig } from "../hooks/useConfig";
 import { useUi } from "../hooks/useUi";
 import { useData } from "../hooks/useData";
+import { useNotification } from "../hooks/useNotification";
 
 export const SettingsModal: React.FC = () => {
   const { config, setConfig: onSave } = useConfig();
   const ui = useUi();
+  const { showToast } = useNotification();
   const {
     tasks,
     crm,
@@ -125,7 +127,11 @@ export const SettingsModal: React.FC = () => {
           </Button>
           <Button
             variant="custom"
-            onClick={() => onSave(localConfig)}
+            onClick={() => {
+              onSave(localConfig);
+              showToast("Settings updated successfully", "success");
+              onClose();
+            }}
             className="px-4 py-1.5 text-xs font-semibold bg-notion-light-text dark:bg-notion-dark-text text-white dark:text-notion-dark-bg rounded hover:opacity-90 transition-opacity"
           >
             Save Changes

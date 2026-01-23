@@ -5,6 +5,7 @@ import { ViewHeader } from "../ViewHeader";
 import { formatTimeAgo } from "../../utils/formatUtils";
 import { MODULE_COLORS } from "@/constants";
 import { Button, Spinner } from "../ui";
+import { toast } from "sonner";
 
 interface IntegrationViewProps {
   integrations: Integration[];
@@ -90,6 +91,9 @@ export const IntegrationView: React.FC<IntegrationViewProps> = React.memo(
           isUpdate,
         );
         if (success) {
+          toast.success(
+            isUpdate ? "Integration updated" : "Integration created",
+          );
           setIsModalOpen(false);
           setEditingIntegration(null);
         }

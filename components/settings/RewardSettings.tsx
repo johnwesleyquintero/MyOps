@@ -3,6 +3,7 @@ import { PersonalReward, MilestoneType } from "../../types";
 import { Icon } from "../Icons";
 import { Button } from "../ui";
 import { DataContext } from "../../contexts/DataContext";
+import { toast } from "sonner";
 
 export const RewardSettings: React.FC = () => {
   const data = useContext(DataContext);
@@ -23,7 +24,13 @@ export const RewardSettings: React.FC = () => {
   ) => {
     const reward = rewards.find((r) => r.id === id);
     if (reward && rewardsContext) {
-      await rewardsContext.updateReward({ ...reward, ...updates });
+      const success = await rewardsContext.updateReward({
+        ...reward,
+        ...updates,
+      });
+      if (success) {
+        toast.success("Reward updated");
+      }
     }
   };
 
@@ -35,13 +42,19 @@ export const RewardSettings: React.FC = () => {
         isEnabled: true,
         milestone: { type: "tasks", threshold: 5 },
       };
-      await rewardsContext.addReward(newReward);
+      const success = await rewardsContext.addReward(newReward);
+      if (success) {
+        toast.success("Reward added");
+      }
     }
   };
 
   const handleDeleteReward = async (id: string) => {
     if (rewardsContext) {
-      await rewardsContext.deleteReward(id);
+      const success = await rewardsContext.deleteReward(id);
+      if (success) {
+        toast.success("Reward deleted");
+      }
     }
   };
 

@@ -58,7 +58,7 @@ export const InteractionModal: React.FC<InteractionModalProps> = ({
     setIsSubmitting(true);
     try {
       const interactionToSave: Interaction = {
-        id: initialData?.id || Math.random().toString(36).substr(2, 9),
+        id: initialData?.id || "",
         contactId,
         type: (formData.type as Interaction["type"]) || "Call",
         notes: formData.notes || "",

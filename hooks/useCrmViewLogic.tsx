@@ -58,6 +58,7 @@ export const useCrmViewLogic = ({
 
   useEffect(() => {
     if (selectedContact) {
+      setInteractions([]); // Clear existing interactions before loading new ones
       loadInteractions(selectedContact.id);
     } else {
       setInteractions([]);

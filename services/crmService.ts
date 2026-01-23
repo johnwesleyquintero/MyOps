@@ -117,17 +117,24 @@ export const crmService = {
     contactId: string,
     config: AppConfig,
   ): Promise<Interaction[]> => {
-    return executeServiceAction({
+    const allInteractions = await executeServiceAction<Interaction[]>({
       module: "interactions",
       config,
       actionName: "fetch",
       demoLogic: () => {
-        const interactions = storage.get<Interaction[]>(
-          INTERACTIONS_CACHE_KEY,
-          [],
-        );
-        return interactions.filter((i) => i.contactId === contactId);
+        return storage.get<Interaction[]>(INTERACTIONS_CACHE_KEY, []);
       },
+    });
+
+    // Ensure we only return interactions for the requested contact
+    return (allInteractions || []).filter((i) => {
+      const id1 = String(i.contactId || "")
+        .trim()
+        .toLowerCase();
+      const id2 = String(contactId || "")
+        .trim()
+        .toLowerCase();
+      return id1 === id2 && id1 !== "";
     });
   },
 

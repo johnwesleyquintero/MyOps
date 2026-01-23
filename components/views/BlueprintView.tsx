@@ -142,25 +142,38 @@ export const BlueprintView: React.FC<BlueprintViewProps> = React.memo(
                 {mod.links && mod.links.length > 0 && (
                   <div className="relative mb-6 pt-4 border-t border-notion-light-border/50 dark:border-notion-dark-border/30">
                     <div className="flex flex-wrap gap-2">
-                      {mod.links.map((link, i) => (
-                        <a
-                          key={i}
-                          href={link.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-notion-light-bg dark:bg-notion-dark-bg border border-notion-light-border dark:border-notion-dark-border text-[10px] font-bold ${colors.text} uppercase tracking-wider hover:shadow-sm transition-all active:scale-95`}
-                        >
-                          {link.icon && Icon[link.icon as keyof typeof Icon] ? (
-                            React.createElement(
-                              Icon[link.icon as keyof typeof Icon],
-                              { size: 12 },
-                            )
-                          ) : (
-                            <Icon.Link size={12} />
-                          )}
-                          {link.label}
-                        </a>
-                      ))}
+                      {mod.links.map((link, i) => {
+                        const isPlaceholder = link.url === "#";
+                        const LinkIcon =
+                          link.icon && Icon[link.icon as keyof typeof Icon]
+                            ? Icon[link.icon as keyof typeof Icon]
+                            : Icon.Link;
+
+                        if (isPlaceholder) {
+                          return (
+                            <span
+                              key={i}
+                              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-notion-light-bg dark:bg-notion-dark-bg border border-notion-light-border dark:border-notion-dark-border text-[10px] font-bold text-notion-light-muted dark:text-notion-dark-muted uppercase tracking-wider cursor-not-allowed opacity-60"
+                            >
+                              <LinkIcon size={12} />
+                              {link.label}
+                            </span>
+                          );
+                        }
+
+                        return (
+                          <a
+                            key={i}
+                            href={link.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-notion-light-bg dark:bg-notion-dark-bg border border-notion-light-border dark:border-notion-dark-border text-[10px] font-bold ${colors.text} uppercase tracking-wider hover:shadow-sm transition-all active:scale-95`}
+                          >
+                            <LinkIcon size={12} />
+                            {link.label}
+                          </a>
+                        );
+                      })}
                     </div>
                   </div>
                 )}

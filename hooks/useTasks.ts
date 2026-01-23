@@ -34,6 +34,15 @@ export const useTasks = (
     new Map(),
   );
 
+  // Clean up timeouts on unmount
+  useEffect(() => {
+    const deletions = pendingDeletions.current;
+    return () => {
+      deletions.forEach((timeoutId) => clearTimeout(timeoutId));
+      deletions.clear();
+    };
+  }, []);
+
   // Sync entries to localStorage
   useEffect(() => {
     if (config.mode === "LIVE" && !isLoading) {

@@ -11,6 +11,8 @@ const DATE_FORMATTER = new Intl.DateTimeFormat("en-US", {
   day: "numeric",
 });
 
+const NUMBER_FORMATTER = new Intl.NumberFormat("en-US");
+
 const CURRENCY_FORMATTERS = new Map<string, Intl.NumberFormat>();
 
 export const getProjectStyle = (project: string): string => {
@@ -109,4 +111,8 @@ export const formatCurrency = (
   } catch {
     return `${currency} ${amount}`;
   }
+};
+
+export const formatNumber = (num: number): string => {
+  return NUMBER_FORMATTER.format(num);
 };

@@ -59,7 +59,6 @@ export const DebouncedInput: React.FC<DebouncedInputProps> = ({
           variant="custom"
           onClick={() => {
             setValue("");
-            onChange("");
           }}
           className="absolute inset-y-0 right-0 pr-2 flex items-center text-notion-light-muted hover:text-notion-light-text dark:hover:text-notion-dark-text bg-transparent"
         >

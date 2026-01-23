@@ -40,6 +40,12 @@ interface DashboardViewProps {
   onNavigate: (page: Page) => void;
 }
 
+const getConfidenceColor = (score: number) => {
+  if (score >= 80) return "text-emerald-400";
+  if (score >= 50) return "text-indigo-400";
+  return "text-amber-400";
+};
+
 export const DashboardView: React.FC<DashboardViewProps> = React.memo(
   ({
     entries,
@@ -96,12 +102,6 @@ export const DashboardView: React.FC<DashboardViewProps> = React.memo(
 
       return Math.min(Math.max(score, 0), 100);
     }, [operatorMetrics.streak, mentalStates]);
-
-    const getConfidenceColor = (score: number) => {
-      if (score >= 80) return "text-emerald-400";
-      if (score >= 50) return "text-indigo-400";
-      return "text-amber-400";
-    };
 
     return (
       <div

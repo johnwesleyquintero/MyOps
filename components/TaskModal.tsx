@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { TaskEntry, PriorityLevel, StatusLevel } from "../types";
@@ -50,6 +50,15 @@ export const TaskModal: React.FC = React.memo(() => {
     toggleDependency,
   } = useTaskForm(initialData, entries, decisionEntries);
 
+  const [depSearch, setDepSearch] = useState("");
+  const filteredPotentialDeps = useMemo(() => {
+    return potentialDeps.filter(
+      (dep) =>
+        dep.description.toLowerCase().includes(depSearch.toLowerCase()) ||
+        dep.project.toLowerCase().includes(depSearch.toLowerCase()),
+    );
+  }, [potentialDeps, depSearch]);
+
   const [copiedMd, setCopiedMd] = useState(false);
 
   const handleCopyMarkdown = async () => {
@@ -68,14 +77,21 @@ export const TaskModal: React.FC = React.memo(() => {
     setFormData({ ...formData, description: newText }),
   );
 
-  const handleSubmit = async (e?: React.FormEvent) => {
-    if (e) e.preventDefault();
+  const handleSubmit = async (e?: React.FormEvent | React.MouseEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
     if (!formData.description || !formData.project) return;
     await onSubmit(formData);
     onClose();
   };
 
-  const handleDelete = async () => {
+  const handleDelete = async (e?: React.MouseEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
     if (
       initialData &&
       window.confirm("Are you sure you want to delete this task?")
@@ -370,94 +386,144 @@ export const TaskModal: React.FC = React.memo(() => {
 
             {/* Dependencies Section */}
             <div className="mt-8 pt-8 border-t border-notion-light-border/30 dark:border-notion-dark-border/30">
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-2 ml-1">
-                  <Icon.Link size={12} className="opacity-40" />
-                  <span className="text-[10px] font-black uppercase tracking-widest opacity-40">
-                    Mission Dependencies
-                  </span>
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-2.5 ml-1">
+                  <div className="p-1.5 bg-indigo-500/10 rounded-lg">
+                    <Icon.Link size={14} className="text-indigo-600 dark:text-indigo-400" />
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-[10px] font-black uppercase tracking-widest text-notion-light-text dark:text-notion-dark-text">
+                      Mission Dependencies
+                    </span>
+                    <span className="text-[8px] font-medium opacity-40 uppercase tracking-tighter">
+                      Link prerequisite tactical operations
+                    </span>
+                  </div>
                   {formData.dependencies && formData.dependencies.length > 0 && (
                     <Badge
                       variant="custom"
-                      className="bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-none text-[9px] px-1.5 py-0.5"
+                      className="bg-indigo-500 text-white border-none text-[8px] px-1.5 py-0.5 rounded-full ml-1"
                     >
-                      {formData.dependencies.length} Active
+                      {formData.dependencies.length}
                     </Badge>
                   )}
                 </div>
                 <Button
                   variant="ghost"
                   size="xs"
-                  onClick={() => setShowDeps(!showDeps)}
-                  className="text-[9px] font-black uppercase tracking-tighter opacity-60 hover:opacity-100"
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setShowDeps(!showDeps);
+                  }}
+                  className="text-[9px] font-black uppercase tracking-widest opacity-60 hover:opacity-100 bg-notion-light-sidebar/40 dark:bg-notion-dark-sidebar/40 px-3 py-1.5 rounded-lg border border-notion-light-border/50 dark:border-notion-dark-border/50 transition-all"
                 >
-                  {showDeps ? "Hide Intelligence" : "Link Dependencies"}
+                  {showDeps ? "Minimize Intel" : "Configure Dependencies"}
                 </Button>
               </div>
 
               {showDeps && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 animate-in slide-in-from-top-2 duration-300">
-                  {potentialDeps.length > 0 ? (
-                    potentialDeps.map((dep) => {
-                      const isSelected = formData.dependencies?.includes(dep.id);
-                      return (
-                        <button
-                          key={dep.id}
-                          type="button"
-                          onClick={() => toggleDependency(dep.id)}
-                          className={`flex items-start gap-3 p-3 rounded-xl border transition-all text-left group ${
-                            isSelected
-                              ? "bg-indigo-500/5 border-indigo-500/30 ring-1 ring-indigo-500/20"
-                              : "bg-notion-light-bg dark:bg-notion-dark-bg border-notion-light-border dark:border-notion-dark-border hover:border-notion-light-border/80 dark:hover:border-notion-dark-border/80"
-                          }`}
-                        >
-                          <div
-                            className={`mt-0.5 w-4 h-4 rounded border flex items-center justify-center transition-colors ${
+                <div className="space-y-4 animate-in slide-in-from-top-2 duration-300">
+                  {/* Dep Search & Filter */}
+                  <div className="relative group">
+                    <Icon.Search
+                      size={12}
+                      className="absolute left-3 top-1/2 -translate-y-1/2 opacity-30 group-focus-within:opacity-100 transition-opacity"
+                    />
+                    <input
+                      type="text"
+                      placeholder="Search active missions..."
+                      value={depSearch}
+                      onChange={(e) => setDepSearch(e.target.value)}
+                      className="w-full bg-notion-light-sidebar/30 dark:bg-notion-dark-sidebar/30 border border-notion-light-border/50 dark:border-notion-dark-border/50 rounded-xl pl-9 pr-4 py-2 text-[10px] font-bold focus:outline-none focus:ring-1 focus:ring-indigo-500/30 transition-all placeholder:opacity-30"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+                    {filteredPotentialDeps.length > 0 ? (
+                      filteredPotentialDeps.map((dep) => {
+                        const isSelected = formData.dependencies?.includes(dep.id);
+                        return (
+                          <button
+                            key={dep.id}
+                            type="button"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              toggleDependency(dep.id);
+                            }}
+                            className={`flex items-start gap-3 p-3 rounded-xl border transition-all text-left group relative overflow-hidden ${
                               isSelected
-                                ? "bg-indigo-500 border-indigo-500 text-white"
-                                : "border-notion-light-border dark:border-notion-dark-border group-hover:border-notion-light-text/30"
+                                ? "bg-indigo-500/5 border-indigo-500/40 ring-1 ring-indigo-500/20"
+                                : "bg-notion-light-bg dark:bg-notion-dark-bg border-notion-light-border/40 dark:border-notion-dark-border/40 hover:border-indigo-500/30 hover:bg-indigo-500/[0.02]"
                             }`}
                           >
-                            {isSelected && <Icon.Check size={10} strokeWidth={4} />}
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p
-                              className={`text-[11px] font-bold truncate ${
+                            <div
+                              className={`mt-0.5 w-4 h-4 rounded-md border flex items-center justify-center transition-all ${
                                 isSelected
-                                  ? "text-notion-light-text dark:text-notion-dark-text"
-                                  : "text-notion-light-text/70 dark:text-notion-dark-text/70"
+                                  ? "bg-indigo-500 border-indigo-500 text-white shadow-sm shadow-indigo-500/40"
+                                  : "border-notion-light-border dark:border-notion-dark-border group-hover:border-indigo-500/50"
                               }`}
                             >
-                              {dep.description}
-                            </p>
-                            <div className="flex items-center gap-2 mt-1">
-                              <span className="text-[9px] font-black uppercase tracking-widest opacity-30">
-                                {dep.project}
-                              </span>
-                              <span
-                                className={`text-[8px] font-black uppercase px-1 rounded-sm ${
-                                  dep.priority === "High"
-                                    ? "bg-red-500/10 text-red-500"
-                                    : dep.priority === "Medium"
-                                      ? "bg-amber-500/10 text-amber-500"
-                                      : "bg-blue-500/10 text-blue-500"
+                              {isSelected && <Icon.Check size={10} strokeWidth={4} />}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center justify-between gap-2 mb-1">
+                                <span className="text-[8px] font-black uppercase tracking-widest opacity-40 truncate">
+                                  {dep.project}
+                                </span>
+                                <Badge
+                                  variant="custom"
+                                  className={`text-[7px] px-1 rounded-sm font-black ${
+                                    dep.status === "Done"
+                                      ? "bg-green-500/10 text-green-500"
+                                      : dep.status === "In Progress"
+                                        ? "bg-blue-500/10 text-blue-500"
+                                        : "bg-notion-light-muted/10 text-notion-light-muted opacity-60"
+                                  }`}
+                                >
+                                  {dep.status}
+                                </Badge>
+                              </div>
+                              <p
+                                className={`text-[11px] font-bold leading-tight ${
+                                  isSelected
+                                    ? "text-notion-light-text dark:text-notion-dark-text"
+                                    : "text-notion-light-text/70 dark:text-notion-dark-text/70"
                                 }`}
                               >
-                                {dep.priority}
-                              </span>
+                                {dep.description}
+                              </p>
+                              <div className="flex items-center gap-2 mt-2">
+                                <span
+                                  className={`text-[8px] font-black uppercase px-1.5 py-0.5 rounded-md ${
+                                    dep.priority === "High"
+                                      ? "bg-red-500/10 text-red-500"
+                                      : dep.priority === "Medium"
+                                        ? "bg-amber-500/10 text-amber-500"
+                                        : "bg-blue-500/10 text-blue-500"
+                                  }`}
+                                >
+                                  {dep.priority}
+                                </span>
+                              </div>
                             </div>
-                          </div>
-                        </button>
-                      );
-                    })
-                  ) : (
-                    <div className="col-span-full py-6 flex flex-col items-center justify-center bg-notion-light-sidebar/10 dark:bg-notion-dark-sidebar/10 rounded-2xl border border-dashed border-notion-light-border/30 dark:border-notion-dark-border/30">
-                      <Icon.Link size={20} className="opacity-10 mb-2" />
-                      <p className="text-[10px] font-bold opacity-30 uppercase tracking-widest">
-                        No active missions available to link
-                      </p>
-                    </div>
-                  )}
+                            {isSelected && (
+                              <div className="absolute top-0 right-0 w-1 h-full bg-indigo-500" />
+                            )}
+                          </button>
+                        );
+                      })
+                    ) : (
+                      <div className="col-span-full py-10 flex flex-col items-center justify-center bg-notion-light-sidebar/10 dark:bg-notion-dark-sidebar/10 rounded-2xl border border-dashed border-notion-light-border/30 dark:border-notion-dark-border/30">
+                        <Icon.Search size={24} className="opacity-10 mb-3" />
+                        <p className="text-[10px] font-black opacity-30 uppercase tracking-[0.2em]">
+                          {depSearch ? "No matches found" : "No available missions"}
+                        </p>
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
             </div>
@@ -469,7 +535,7 @@ export const TaskModal: React.FC = React.memo(() => {
               {initialData && (
                 <Button
                   variant="ghost"
-                  onClick={handleDelete}
+                  onClick={(e) => handleDelete(e)}
                   className="text-[10px] font-black uppercase tracking-widest text-red-500 hover:bg-red-500/10 px-4 py-2"
                 >
                   Terminate Mission

@@ -1,12 +1,13 @@
 import { Contact, Interaction, AppConfig } from "../types";
 import { CRM_CACHE_KEY, INTERACTIONS_CACHE_KEY } from "@/constants";
 import { fetchFromGas, postToGas } from "../utils/gasUtils";
+import { storage } from "../utils/storageUtils";
 
 export const crmService = {
   getContacts: async (config: AppConfig): Promise<Contact[]> => {
     if (config.mode === "DEMO") {
-      const cached = localStorage.getItem(CRM_CACHE_KEY);
-      if (cached) return JSON.parse(cached);
+      const cached = storage.get<Contact[] | null>(CRM_CACHE_KEY, null);
+      if (cached) return cached;
 
       const mockContacts: Contact[] = [
         {
@@ -35,7 +36,7 @@ export const crmService = {
           interactions: [],
         },
       ];
-      localStorage.setItem(CRM_CACHE_KEY, JSON.stringify(mockContacts));
+      storage.set(CRM_CACHE_KEY, mockContacts);
       return mockContacts;
     }
 
@@ -61,7 +62,7 @@ export const crmService = {
           },
         ];
       }
-      localStorage.setItem(CRM_CACHE_KEY, JSON.stringify(updated));
+      storage.set(CRM_CACHE_KEY, updated);
       return true;
     }
 
@@ -79,19 +80,18 @@ export const crmService = {
     if (config.mode === "DEMO") {
       const contacts = await crmService.getContacts(config);
       const updated = contacts.filter((c) => c.id !== id);
-      localStorage.setItem(CRM_CACHE_KEY, JSON.stringify(updated));
+      storage.set(CRM_CACHE_KEY, updated);
 
       // Also cleanup interactions
-      const cachedInteractions = localStorage.getItem(INTERACTIONS_CACHE_KEY);
-      if (cachedInteractions) {
-        const interactions: Interaction[] = JSON.parse(cachedInteractions);
+      const interactions = storage.get<Interaction[]>(
+        INTERACTIONS_CACHE_KEY,
+        [],
+      );
+      if (interactions.length > 0) {
         const filteredInteractions = interactions.filter(
           (i) => i.contactId !== id,
         );
-        localStorage.setItem(
-          INTERACTIONS_CACHE_KEY,
-          JSON.stringify(filteredInteractions),
-        );
+        storage.set(INTERACTIONS_CACHE_KEY, filteredInteractions);
       }
       return true;
     }
@@ -111,8 +111,7 @@ export const crmService = {
     config: AppConfig,
   ): Promise<Interaction[]> => {
     if (config.mode === "DEMO") {
-      const cached = localStorage.getItem(INTERACTIONS_CACHE_KEY);
-      const all: Interaction[] = cached ? JSON.parse(cached) : [];
+      const all = storage.get<Interaction[]>(INTERACTIONS_CACHE_KEY, []);
       return all.filter((i) => i.contactId === contactId);
     }
 
@@ -125,8 +124,7 @@ export const crmService = {
     config: AppConfig,
   ): Promise<boolean> => {
     if (config.mode === "DEMO") {
-      const cached = localStorage.getItem(INTERACTIONS_CACHE_KEY);
-      const all: Interaction[] = cached ? JSON.parse(cached) : [];
+      const all = storage.get<Interaction[]>(INTERACTIONS_CACHE_KEY, []);
       let updated;
 
       if (interaction.id) {
@@ -141,7 +139,7 @@ export const crmService = {
         ];
       }
 
-      localStorage.setItem(INTERACTIONS_CACHE_KEY, JSON.stringify(updated));
+      storage.set(INTERACTIONS_CACHE_KEY, updated);
       return true;
     }
 

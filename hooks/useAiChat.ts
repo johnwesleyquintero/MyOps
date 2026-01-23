@@ -15,6 +15,7 @@ import {
   LifeConstraintEntry,
 } from "../types";
 import { WES_AI_SYSTEM_INSTRUCTION, WES_TOOLS } from "../constants/aiConfig";
+import { storage } from "../utils/storageUtils";
 
 export interface Message {
   id: string;
@@ -80,19 +81,14 @@ export const useAiChat = ({
   onSaveReflection,
 }: UseAiChatProps) => {
   const [messages, setMessages] = useState<Message[]>(() => {
-    const saved = localStorage.getItem(STORAGE_KEY);
+    const saved = storage.get<StoredMessage[] | null>(STORAGE_KEY, null);
     if (saved) {
-      try {
-        const parsed = JSON.parse(saved) as StoredMessage[];
-        // Ensure history is pruned on load
-        const pruned = parsed.slice(-MAX_HISTORY_LENGTH);
-        return pruned.map((msg) => ({
-          ...msg,
-          timestamp: new Date(msg.timestamp),
-        }));
-      } catch (e) {
-        console.error("Failed to load chat history", e);
-      }
+      // Ensure history is pruned on load
+      const pruned = saved.slice(-MAX_HISTORY_LENGTH);
+      return pruned.map((msg) => ({
+        ...msg,
+        timestamp: new Date(msg.timestamp),
+      }));
     }
     return [
       {
@@ -107,7 +103,7 @@ export const useAiChat = ({
   // Persist messages with pruning
   useEffect(() => {
     const prunedMessages = messages.slice(-MAX_HISTORY_LENGTH);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(prunedMessages));
+    storage.set(STORAGE_KEY, prunedMessages);
   }, [messages]);
 
   const [inputValue, setInputValue] = useState("");

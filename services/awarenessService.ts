@@ -1,5 +1,6 @@
 import { MentalStateEntry, AppConfig } from "../types";
 import { fetchFromGas, postToGas } from "../utils/gasUtils";
+import { storage } from "../utils/storageUtils";
 
 const LOCAL_STORAGE_KEY = "myops_mental_state";
 
@@ -8,8 +9,7 @@ export const fetchMentalStates = async (
 ): Promise<MentalStateEntry[]> => {
   if (config.mode === "DEMO") {
     await new Promise((resolve) => setTimeout(resolve, 50));
-    const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
-    return stored ? JSON.parse(stored) : [];
+    return storage.get<MentalStateEntry[]>(LOCAL_STORAGE_KEY, []);
   } else {
     return fetchFromGas<MentalStateEntry>(config, "awareness");
   }
@@ -23,8 +23,7 @@ export const saveMentalState = async (
 
   if (config.mode === "DEMO") {
     await new Promise((resolve) => setTimeout(resolve, 50));
-    const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
-    const current: MentalStateEntry[] = stored ? JSON.parse(stored) : [];
+    const current = storage.get<MentalStateEntry[]>(LOCAL_STORAGE_KEY, []);
 
     // 1 per day constraint
     const existingIndex = current.findIndex((e) => e.date === entry.date);
@@ -36,7 +35,7 @@ export const saveMentalState = async (
       updated = [entryWithId, ...current];
     }
 
-    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(updated));
+    storage.set(LOCAL_STORAGE_KEY, updated);
   } else {
     if (!config.gasDeploymentUrl) throw new Error("GAS URL not configured");
     await postToGas(config.gasDeploymentUrl, {

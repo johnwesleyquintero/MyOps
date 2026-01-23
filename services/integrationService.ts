@@ -7,12 +7,16 @@ import {
 } from "../types";
 import { INTEGRATION_CACHE_KEY } from "@/constants";
 import { fetchFromGas, postToGas } from "../utils/gasUtils";
+import { storage } from "../utils/storageUtils";
 
 export const integrationService = {
   getIntegrations: async (config: AppConfig): Promise<Integration[]> => {
     if (config.mode === "DEMO") {
-      const cached = localStorage.getItem(INTEGRATION_CACHE_KEY);
-      if (cached) return JSON.parse(cached);
+      const cached = storage.get<Integration[] | null>(
+        INTEGRATION_CACHE_KEY,
+        null,
+      );
+      if (cached) return cached;
 
       const defaultIntegrations: Integration[] = [
         {
@@ -41,10 +45,7 @@ export const integrationService = {
           events: ["reflection_logged"],
         },
       ];
-      localStorage.setItem(
-        INTEGRATION_CACHE_KEY,
-        JSON.stringify(defaultIntegrations),
-      );
+      storage.set(INTEGRATION_CACHE_KEY, defaultIntegrations);
       return defaultIntegrations;
     }
 
@@ -74,7 +75,7 @@ export const integrationService = {
           },
         ];
       }
-      localStorage.setItem(INTEGRATION_CACHE_KEY, JSON.stringify(updated));
+      storage.set(INTEGRATION_CACHE_KEY, updated);
       return true;
     }
 
@@ -95,7 +96,7 @@ export const integrationService = {
     if (config.mode === "DEMO") {
       const integrations = await integrationService.getIntegrations(config);
       const updated = integrations.filter((i) => i.id !== id);
-      localStorage.setItem(INTEGRATION_CACHE_KEY, JSON.stringify(updated));
+      storage.set(INTEGRATION_CACHE_KEY, updated);
       return true;
     }
 

@@ -2,15 +2,16 @@ import { VaultEntry, AppConfig } from "../types";
 import { VAULT_CACHE_KEY } from "@/constants";
 import { encrypt, decrypt } from "../utils/cryptoUtils";
 import { fetchFromGas, postToGas } from "../utils/gasUtils";
+import { storage } from "../utils/storageUtils";
 
 export const vaultService = {
   getEntries: async (config: AppConfig): Promise<VaultEntry[]> => {
     let entries: VaultEntry[] = [];
 
     if (config.mode === "DEMO") {
-      const cached = localStorage.getItem(VAULT_CACHE_KEY);
+      const cached = storage.get<VaultEntry[] | null>(VAULT_CACHE_KEY, null);
       if (cached) {
-        entries = JSON.parse(cached);
+        entries = cached;
       } else {
         entries = [
           {
@@ -34,7 +35,7 @@ export const vaultService = {
             createdAt: new Date().toISOString(),
           },
         ];
-        localStorage.setItem(VAULT_CACHE_KEY, JSON.stringify(entries));
+        storage.set(VAULT_CACHE_KEY, entries);
       }
     } else {
       entries = await fetchFromGas<VaultEntry>(config, "vault");
@@ -62,16 +63,13 @@ export const vaultService = {
 
     if (config.mode === "DEMO") {
       let updated;
+      const rawEntries = storage.get<VaultEntry[]>(VAULT_CACHE_KEY, []);
       if (isUpdate) {
         // Need to read the raw storage to update correctly without double-decrypting/encrypting
-        const rawCached = localStorage.getItem(VAULT_CACHE_KEY);
-        const rawEntries: VaultEntry[] = rawCached ? JSON.parse(rawCached) : [];
         updated = rawEntries.map((e) =>
           e.id === entryToStore.id ? entryToStore : e,
         );
       } else {
-        const rawCached = localStorage.getItem(VAULT_CACHE_KEY);
-        const rawEntries: VaultEntry[] = rawCached ? JSON.parse(rawCached) : [];
         updated = [
           ...rawEntries,
           {
@@ -81,7 +79,7 @@ export const vaultService = {
           },
         ];
       }
-      localStorage.setItem(VAULT_CACHE_KEY, JSON.stringify(updated));
+      storage.set(VAULT_CACHE_KEY, updated);
       return true;
     }
 
@@ -97,10 +95,9 @@ export const vaultService = {
 
   deleteEntry: async (id: string, config: AppConfig): Promise<boolean> => {
     if (config.mode === "DEMO") {
-      const rawCached = localStorage.getItem(VAULT_CACHE_KEY);
-      const rawEntries: VaultEntry[] = rawCached ? JSON.parse(rawCached) : [];
+      const rawEntries = storage.get<VaultEntry[]>(VAULT_CACHE_KEY, []);
       const updated = rawEntries.filter((e) => e.id !== id);
-      localStorage.setItem(VAULT_CACHE_KEY, JSON.stringify(updated));
+      storage.set(VAULT_CACHE_KEY, updated);
       return true;
     }
 

@@ -2,18 +2,19 @@ import { TaskEntry, AppConfig } from "../types";
 import { LOCAL_STORAGE_KEY } from "@/constants";
 import { getMockData } from "./mockFactory";
 import { fetchFromGas, postToGas } from "../utils/gasUtils";
+import { storage } from "../utils/storageUtils";
 
 export const fetchTasks = async (config: AppConfig): Promise<TaskEntry[]> => {
   if (config.mode === "DEMO") {
     // Minimal delay for responsiveness check
     await new Promise((resolve) => setTimeout(resolve, 50));
-    const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
+    const stored = storage.get<TaskEntry[] | null>(LOCAL_STORAGE_KEY, null);
     if (!stored) {
       const initialData = getMockData();
-      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(initialData));
+      storage.set(LOCAL_STORAGE_KEY, initialData);
       return initialData;
     }
-    return JSON.parse(stored);
+    return stored;
   } else {
     return fetchFromGas<TaskEntry>(config, "tasks");
   }
@@ -27,12 +28,8 @@ export const addTask = async (
 
   if (config.mode === "DEMO") {
     await new Promise((resolve) => setTimeout(resolve, 50));
-    const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
-    const current = stored ? JSON.parse(stored) : [];
-    localStorage.setItem(
-      LOCAL_STORAGE_KEY,
-      JSON.stringify([entryWithId, ...current]),
-    );
+    const current = storage.get<TaskEntry[]>(LOCAL_STORAGE_KEY, []);
+    storage.set(LOCAL_STORAGE_KEY, [entryWithId, ...current]);
   } else {
     if (!config.gasDeploymentUrl) throw new Error("GAS URL not configured");
     await postToGas(config.gasDeploymentUrl, {
@@ -52,10 +49,9 @@ export const updateTask = async (
 ): Promise<void> => {
   if (config.mode === "DEMO") {
     await new Promise((resolve) => setTimeout(resolve, 50));
-    const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
-    let current: TaskEntry[] = stored ? JSON.parse(stored) : [];
+    let current = storage.get<TaskEntry[]>(LOCAL_STORAGE_KEY, []);
     current = current.map((e) => (e.id === entry.id ? entry : e));
-    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(current));
+    storage.set(LOCAL_STORAGE_KEY, current);
   } else {
     if (!config.gasDeploymentUrl) throw new Error("GAS URL not configured");
     await postToGas(config.gasDeploymentUrl, {
@@ -77,10 +73,9 @@ export const deleteTask = async (
 
   if (config.mode === "DEMO") {
     await new Promise((resolve) => setTimeout(resolve, 50));
-    const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
-    let current: TaskEntry[] = stored ? JSON.parse(stored) : [];
+    let current = storage.get<TaskEntry[]>(LOCAL_STORAGE_KEY, []);
     current = current.filter((e) => e.id !== id);
-    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(current));
+    storage.set(LOCAL_STORAGE_KEY, current);
   } else {
     if (!config.gasDeploymentUrl) throw new Error("GAS URL not configured");
     await postToGas(config.gasDeploymentUrl, {

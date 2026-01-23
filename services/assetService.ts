@@ -1,12 +1,12 @@
 import { AssetEntry, AppConfig } from "../types";
 import { ASSET_STORAGE_KEY } from "../constants/storage";
 import { fetchFromGas, postToGas } from "../utils/gasUtils";
+import { storage } from "../utils/storageUtils";
 
 export const fetchAssets = async (config: AppConfig): Promise<AssetEntry[]> => {
   if (config.mode === "DEMO") {
     await new Promise((resolve) => setTimeout(resolve, 50));
-    const stored = localStorage.getItem(ASSET_STORAGE_KEY);
-    return stored ? JSON.parse(stored) : [];
+    return storage.get<AssetEntry[]>(ASSET_STORAGE_KEY, []);
   } else {
     return fetchFromGas<AssetEntry>(config, "assets");
   }
@@ -30,8 +30,7 @@ export const saveAsset = async (
 
   if (config.mode === "DEMO") {
     await new Promise((resolve) => setTimeout(resolve, 50));
-    const stored = localStorage.getItem(ASSET_STORAGE_KEY);
-    let current: AssetEntry[] = stored ? JSON.parse(stored) : [];
+    let current = storage.get<AssetEntry[]>(ASSET_STORAGE_KEY, []);
 
     if (isUpdate) {
       current = current.map((e) => (e.id === entryWithId.id ? entryWithId : e));
@@ -39,7 +38,7 @@ export const saveAsset = async (
       current = [entryWithId, ...current];
     }
 
-    localStorage.setItem(ASSET_STORAGE_KEY, JSON.stringify(current));
+    storage.set(ASSET_STORAGE_KEY, current);
   } else {
     if (!config.gasDeploymentUrl) throw new Error("GAS URL not configured");
     await postToGas(config.gasDeploymentUrl, {
@@ -59,10 +58,9 @@ export const deleteAsset = async (
 ): Promise<void> => {
   if (config.mode === "DEMO") {
     await new Promise((resolve) => setTimeout(resolve, 50));
-    const stored = localStorage.getItem(ASSET_STORAGE_KEY);
-    let current: AssetEntry[] = stored ? JSON.parse(stored) : [];
-    current = current.filter((e) => e.id !== id);
-    localStorage.setItem(ASSET_STORAGE_KEY, JSON.stringify(current));
+    const current = storage.get<AssetEntry[]>(ASSET_STORAGE_KEY, []);
+    const updated = current.filter((e) => e.id !== id);
+    storage.set(ASSET_STORAGE_KEY, updated);
   } else {
     if (!config.gasDeploymentUrl) throw new Error("GAS URL not configured");
     await postToGas(config.gasDeploymentUrl, {

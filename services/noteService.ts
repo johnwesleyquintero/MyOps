@@ -1,12 +1,13 @@
 import { Note, AppConfig } from "../types";
 import { NOTES_CACHE_KEY } from "@/constants";
 import { fetchFromGas, postToGas } from "../utils/gasUtils";
+import { storage } from "../utils/storageUtils";
 
 export const noteService = {
   getNotes: async (config: AppConfig): Promise<Note[]> => {
     if (config.mode === "DEMO") {
-      const cached = localStorage.getItem(NOTES_CACHE_KEY);
-      if (cached) return JSON.parse(cached);
+      const cached = storage.get<Note[] | null>(NOTES_CACHE_KEY, null);
+      if (cached) return cached;
 
       const mockNotes: Note[] = [
         {
@@ -31,7 +32,7 @@ export const noteService = {
           updatedAt: new Date().toISOString(),
         },
       ];
-      localStorage.setItem(NOTES_CACHE_KEY, JSON.stringify(mockNotes));
+      storage.set(NOTES_CACHE_KEY, mockNotes);
       return mockNotes;
     }
 
@@ -68,7 +69,7 @@ export const noteService = {
           },
         ];
       }
-      localStorage.setItem(NOTES_CACHE_KEY, JSON.stringify(updated));
+      storage.set(NOTES_CACHE_KEY, updated);
       return true;
     }
 
@@ -86,7 +87,7 @@ export const noteService = {
     if (config.mode === "DEMO") {
       const notes = await noteService.getNotes(config);
       const updated = notes.filter((n) => n.id !== id);
-      localStorage.setItem(NOTES_CACHE_KEY, JSON.stringify(updated));
+      storage.set(NOTES_CACHE_KEY, updated);
       return true;
     }
 

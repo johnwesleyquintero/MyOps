@@ -1,5 +1,6 @@
 import { DecisionEntry, AppConfig } from "../types";
 import { fetchFromGas, postToGas } from "../utils/gasUtils";
+import { storage } from "../utils/storageUtils";
 
 const LOCAL_STORAGE_KEY = "myops_strategy_decisions";
 
@@ -8,8 +9,7 @@ export const fetchDecisions = async (
 ): Promise<DecisionEntry[]> => {
   if (config.mode === "DEMO") {
     await new Promise((resolve) => setTimeout(resolve, 50));
-    const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
-    return stored ? JSON.parse(stored) : [];
+    return storage.get<DecisionEntry[]>(LOCAL_STORAGE_KEY, []);
   } else {
     return fetchFromGas<DecisionEntry>(config, "strategy");
   }
@@ -23,12 +23,8 @@ export const addDecision = async (
 
   if (config.mode === "DEMO") {
     await new Promise((resolve) => setTimeout(resolve, 50));
-    const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
-    const current = stored ? JSON.parse(stored) : [];
-    localStorage.setItem(
-      LOCAL_STORAGE_KEY,
-      JSON.stringify([entryWithId, ...current]),
-    );
+    const current = storage.get<DecisionEntry[]>(LOCAL_STORAGE_KEY, []);
+    storage.set(LOCAL_STORAGE_KEY, [entryWithId, ...current]);
   } else {
     if (!config.gasDeploymentUrl) throw new Error("GAS URL not configured");
     await postToGas(config.gasDeploymentUrl, {
@@ -48,10 +44,9 @@ export const updateDecision = async (
 ): Promise<DecisionEntry> => {
   if (config.mode === "DEMO") {
     await new Promise((resolve) => setTimeout(resolve, 50));
-    const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
-    let current: DecisionEntry[] = stored ? JSON.parse(stored) : [];
+    let current = storage.get<DecisionEntry[]>(LOCAL_STORAGE_KEY, []);
     current = current.map((e) => (e.id === entry.id ? entry : e));
-    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(current));
+    storage.set(LOCAL_STORAGE_KEY, current);
   } else {
     if (!config.gasDeploymentUrl) throw new Error("GAS URL not configured");
     await postToGas(config.gasDeploymentUrl, {
@@ -70,10 +65,9 @@ export const deleteDecision = async (
 ): Promise<void> => {
   if (config.mode === "DEMO") {
     await new Promise((resolve) => setTimeout(resolve, 50));
-    const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
-    let current: DecisionEntry[] = stored ? JSON.parse(stored) : [];
+    let current = storage.get<DecisionEntry[]>(LOCAL_STORAGE_KEY, []);
     current = current.filter((e) => e.id !== id);
-    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(current));
+    storage.set(LOCAL_STORAGE_KEY, current);
   } else {
     if (!config.gasDeploymentUrl) throw new Error("GAS URL not configured");
     await postToGas(config.gasDeploymentUrl, {

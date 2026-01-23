@@ -1,14 +1,14 @@
 import { LifeConstraintEntry, AppConfig } from "../types";
 import { LIFE_OPS_STORAGE_KEY } from "../constants/storage";
 import { fetchFromGas, postToGas } from "../utils/gasUtils";
+import { storage } from "../utils/storageUtils";
 
 export const fetchLifeConstraints = async (
   config: AppConfig,
 ): Promise<LifeConstraintEntry[]> => {
   if (config.mode === "DEMO") {
     await new Promise((resolve) => setTimeout(resolve, 50));
-    const stored = localStorage.getItem(LIFE_OPS_STORAGE_KEY);
-    return stored ? JSON.parse(stored) : [];
+    return storage.get<LifeConstraintEntry[]>(LIFE_OPS_STORAGE_KEY, []);
   } else {
     return fetchFromGas<LifeConstraintEntry>(config, "life_ops");
   }
@@ -32,8 +32,7 @@ export const saveLifeConstraint = async (
 
   if (config.mode === "DEMO") {
     await new Promise((resolve) => setTimeout(resolve, 50));
-    const stored = localStorage.getItem(LIFE_OPS_STORAGE_KEY);
-    let current: LifeConstraintEntry[] = stored ? JSON.parse(stored) : [];
+    let current = storage.get<LifeConstraintEntry[]>(LIFE_OPS_STORAGE_KEY, []);
 
     if (isUpdate) {
       current = current.map((e) => (e.id === entryWithId.id ? entryWithId : e));
@@ -41,7 +40,7 @@ export const saveLifeConstraint = async (
       current = [entryWithId, ...current];
     }
 
-    localStorage.setItem(LIFE_OPS_STORAGE_KEY, JSON.stringify(current));
+    storage.set(LIFE_OPS_STORAGE_KEY, current);
   } else {
     if (!config.gasDeploymentUrl) throw new Error("GAS URL not configured");
     await postToGas(config.gasDeploymentUrl, {
@@ -61,10 +60,12 @@ export const deleteLifeConstraint = async (
 ): Promise<void> => {
   if (config.mode === "DEMO") {
     await new Promise((resolve) => setTimeout(resolve, 50));
-    const stored = localStorage.getItem(LIFE_OPS_STORAGE_KEY);
-    let current: LifeConstraintEntry[] = stored ? JSON.parse(stored) : [];
-    current = current.filter((e) => e.id !== id);
-    localStorage.setItem(LIFE_OPS_STORAGE_KEY, JSON.stringify(current));
+    const current = storage.get<LifeConstraintEntry[]>(
+      LIFE_OPS_STORAGE_KEY,
+      [],
+    );
+    const updated = current.filter((e) => e.id !== id);
+    storage.set(LIFE_OPS_STORAGE_KEY, updated);
   } else {
     if (!config.gasDeploymentUrl) throw new Error("GAS URL not configured");
     await postToGas(config.gasDeploymentUrl, {

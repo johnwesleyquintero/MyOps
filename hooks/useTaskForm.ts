@@ -5,6 +5,7 @@ import {
   RECURRENCE_OPTIONS,
   TEMPLATE_STORAGE_KEY,
 } from "@/constants";
+import { storage } from "../utils/storageUtils";
 
 const getLocalDate = (offsetDays: number = 0) => {
   const d = new Date();
@@ -59,8 +60,7 @@ export const useTaskForm = (
 
   // Template State
   const [templates, setTemplates] = useState<TaskTemplate[]>(() => {
-    const stored = localStorage.getItem(TEMPLATE_STORAGE_KEY);
-    return stored ? JSON.parse(stored) : [];
+    return storage.get<TaskTemplate[]>(TEMPLATE_STORAGE_KEY, []);
   });
   const [showTemplates, setShowTemplates] = useState<boolean>(false);
 
@@ -178,7 +178,7 @@ export const useTaskForm = (
 
     setTemplates((prev) => {
       const updated = [...prev, newTemplate];
-      localStorage.setItem(TEMPLATE_STORAGE_KEY, JSON.stringify(updated));
+      storage.set(TEMPLATE_STORAGE_KEY, updated);
       return updated;
     });
     alert("Template Saved!");
@@ -198,7 +198,7 @@ export const useTaskForm = (
     if (!window.confirm("Delete this template?")) return;
     setTemplates((prev) => {
       const updated = prev.filter((t) => t.id !== id);
-      localStorage.setItem(TEMPLATE_STORAGE_KEY, JSON.stringify(updated));
+      storage.set(TEMPLATE_STORAGE_KEY, updated);
       return updated;
     });
   }, []);

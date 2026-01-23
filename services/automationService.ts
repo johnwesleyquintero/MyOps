@@ -1,12 +1,16 @@
 import { Automation, AppConfig } from "../types";
 import { AUTOMATION_CACHE_KEY } from "@/constants";
 import { fetchFromGas, postToGas } from "../utils/gasUtils";
+import { storage } from "../utils/storageUtils";
 
 export const automationService = {
   getAutomations: async (config: AppConfig): Promise<Automation[]> => {
     if (config.mode === "DEMO") {
-      const cached = localStorage.getItem(AUTOMATION_CACHE_KEY);
-      if (cached) return JSON.parse(cached);
+      const cached = storage.get<Automation[] | null>(
+        AUTOMATION_CACHE_KEY,
+        null,
+      );
+      if (cached) return cached;
 
       const defaultAutomations: Automation[] = [
         {
@@ -31,10 +35,7 @@ export const automationService = {
           status: "Active",
         },
       ];
-      localStorage.setItem(
-        AUTOMATION_CACHE_KEY,
-        JSON.stringify(defaultAutomations),
-      );
+      storage.set(AUTOMATION_CACHE_KEY, defaultAutomations);
       return defaultAutomations;
     }
 
@@ -62,7 +63,7 @@ export const automationService = {
           },
         ];
       }
-      localStorage.setItem(AUTOMATION_CACHE_KEY, JSON.stringify(updated));
+      storage.set(AUTOMATION_CACHE_KEY, updated);
       return true;
     }
 
@@ -80,7 +81,7 @@ export const automationService = {
     if (config.mode === "DEMO") {
       const automations = await automationService.getAutomations(config);
       const updated = automations.filter((a) => a.id !== id);
-      localStorage.setItem(AUTOMATION_CACHE_KEY, JSON.stringify(updated));
+      storage.set(AUTOMATION_CACHE_KEY, updated);
       return true;
     }
 

@@ -43,7 +43,7 @@ export const useTasks = (
     };
   }, []);
 
-  // Sync entries to localStorage
+  // Sync entries to storageUtils
   useEffect(() => {
     if (config.mode === "LIVE" && !isLoading) {
       storage.set(LIVE_CACHE_KEY, entries);

@@ -11,6 +11,9 @@ import { DataContext } from "./DataContext";
 import { BADGES, Badge } from "../constants/rewards";
 import { useNotification } from "../hooks/useNotification";
 import { OperatorMetrics, PersonalReward } from "../types";
+import { storage } from "../utils/storageUtils";
+
+const UNLOCKED_BADGES_KEY = "myops_unlocked_badges";
 
 export const RewardProvider: React.FC<{
   children: React.ReactNode;
@@ -21,8 +24,7 @@ export const RewardProvider: React.FC<{
   const rewards = data?.rewards;
 
   const [unlockedBadges, setUnlockedBadges] = useState<string[]>(() => {
-    const saved = localStorage.getItem("myops_unlocked_badges");
-    return saved ? JSON.parse(saved) : [];
+    return storage.get<string[]>(UNLOCKED_BADGES_KEY, []);
   });
   const [lastXpPop, setLastXpPop] = useState<{
     amount: number;
@@ -55,7 +57,7 @@ export const RewardProvider: React.FC<{
       setUnlockedBadges((prev) => {
         if (prev.includes(badge.id)) return prev;
         const next = [...prev, badge.id];
-        localStorage.setItem("myops_unlocked_badges", JSON.stringify(next));
+        storage.set(UNLOCKED_BADGES_KEY, next);
         return next;
       });
 

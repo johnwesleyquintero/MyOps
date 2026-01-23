@@ -1,5 +1,6 @@
 import { PersonalReward, AppConfig } from "../types";
 import { fetchFromGas, postToGas } from "../utils/gasUtils";
+import { storage } from "../utils/storageUtils";
 
 const STORAGE_KEY = "myops_personal_rewards";
 
@@ -27,12 +28,11 @@ const DEFAULT_REWARDS: PersonalReward[] = [
 export const rewardService = {
   getRewards: async (config: AppConfig): Promise<PersonalReward[]> => {
     if (config.mode === "DEMO") {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      if (!stored) {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(DEFAULT_REWARDS));
-        return DEFAULT_REWARDS;
-      }
-      return JSON.parse(stored);
+      const stored = storage.get<PersonalReward[]>(
+        STORAGE_KEY,
+        DEFAULT_REWARDS,
+      );
+      return stored;
     }
 
     if (!config.gasDeploymentUrl) return DEFAULT_REWARDS;
@@ -61,7 +61,7 @@ export const rewardService = {
       } else {
         updated = [...rewards, reward];
       }
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+      storage.set(STORAGE_KEY, updated);
       return true;
     }
 
@@ -79,7 +79,7 @@ export const rewardService = {
     if (config.mode === "DEMO") {
       const rewards = await rewardService.getRewards(config);
       const updated = rewards.filter((r) => r.id !== id);
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+      storage.set(STORAGE_KEY, updated);
       return true;
     }
 

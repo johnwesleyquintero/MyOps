@@ -1,14 +1,14 @@
 import { ReflectionEntry, AppConfig } from "../types";
 import { REFLECTION_STORAGE_KEY } from "../constants/storage";
 import { fetchFromGas, postToGas } from "../utils/gasUtils";
+import { storage } from "../utils/storageUtils";
 
 export const fetchReflections = async (
   config: AppConfig,
 ): Promise<ReflectionEntry[]> => {
   if (config.mode === "DEMO") {
     await new Promise((resolve) => setTimeout(resolve, 50));
-    const stored = localStorage.getItem(REFLECTION_STORAGE_KEY);
-    return stored ? JSON.parse(stored) : [];
+    return storage.get<ReflectionEntry[]>(REFLECTION_STORAGE_KEY, []);
   } else {
     return fetchFromGas<ReflectionEntry>(config, "reflections");
   }
@@ -32,16 +32,16 @@ export const saveReflection = async (
 
   if (config.mode === "DEMO") {
     await new Promise((resolve) => setTimeout(resolve, 50));
-    const stored = localStorage.getItem(REFLECTION_STORAGE_KEY);
-    let current: ReflectionEntry[] = stored ? JSON.parse(stored) : [];
+    const current = storage.get<ReflectionEntry[]>(REFLECTION_STORAGE_KEY, []);
+    let updated;
 
     if (isUpdate) {
-      current = current.map((e) => (e.id === entryWithId.id ? entryWithId : e));
+      updated = current.map((e) => (e.id === entryWithId.id ? entryWithId : e));
     } else {
-      current = [entryWithId, ...current];
+      updated = [entryWithId, ...current];
     }
 
-    localStorage.setItem(REFLECTION_STORAGE_KEY, JSON.stringify(current));
+    storage.set(REFLECTION_STORAGE_KEY, updated);
   } else {
     if (!config.gasDeploymentUrl) throw new Error("GAS URL not configured");
     await postToGas(config.gasDeploymentUrl, {
@@ -61,10 +61,9 @@ export const deleteReflection = async (
 ): Promise<void> => {
   if (config.mode === "DEMO") {
     await new Promise((resolve) => setTimeout(resolve, 50));
-    const stored = localStorage.getItem(REFLECTION_STORAGE_KEY);
-    let current: ReflectionEntry[] = stored ? JSON.parse(stored) : [];
-    current = current.filter((e) => e.id !== id);
-    localStorage.setItem(REFLECTION_STORAGE_KEY, JSON.stringify(current));
+    const current = storage.get<ReflectionEntry[]>(REFLECTION_STORAGE_KEY, []);
+    const updated = current.filter((e) => e.id !== id);
+    storage.set(REFLECTION_STORAGE_KEY, updated);
   } else {
     if (!config.gasDeploymentUrl) throw new Error("GAS URL not configured");
     await postToGas(config.gasDeploymentUrl, {

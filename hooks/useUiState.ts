@@ -1,15 +1,13 @@
 import { useState, useCallback, useMemo } from "react";
 import { Page, TaskEntry, Contact, Note } from "../types";
 import { SIDEBAR_COLLAPSED_KEY } from "@/constants";
+import { storage } from "../utils/storageUtils";
 
 export const useUiState = () => {
   const [activePage, setActivePage] = useState<Page>("DASHBOARD");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => {
-    if (typeof window !== "undefined") {
-      return localStorage.getItem(SIDEBAR_COLLAPSED_KEY) === "true";
-    }
-    return false;
+    return storage.get<boolean>(SIDEBAR_COLLAPSED_KEY, false);
   });
 
   const [showSettings, setShowSettings] = useState(false);
@@ -18,10 +16,7 @@ export const useUiState = () => {
   const [isCmdPaletteOpen, setIsCmdPaletteOpen] = useState(false);
   const [isAiChatOpen, setIsAiChatOpen] = useState(false);
   const [isHudMode, setIsHudMode] = useState(() => {
-    if (typeof window !== "undefined") {
-      return localStorage.getItem("myops_hud_mode") === "true";
-    }
-    return false;
+    return storage.get<boolean>("myops_hud_mode", false);
   });
 
   const [editingEntry, setEditingEntry] = useState<TaskEntry | null>(null);
@@ -33,7 +28,7 @@ export const useUiState = () => {
   const toggleSidebarCollapse = useCallback(() => {
     setIsSidebarCollapsed((prev) => {
       const newState = !prev;
-      localStorage.setItem(SIDEBAR_COLLAPSED_KEY, String(newState));
+      storage.set(SIDEBAR_COLLAPSED_KEY, newState);
       return newState;
     });
   }, []);
@@ -78,7 +73,7 @@ export const useUiState = () => {
   const toggleHudMode = useCallback(() => {
     setIsHudMode((prev) => {
       const newState = !prev;
-      localStorage.setItem("myops_hud_mode", String(newState));
+      storage.set("myops_hud_mode", newState);
       return newState;
     });
   }, []);

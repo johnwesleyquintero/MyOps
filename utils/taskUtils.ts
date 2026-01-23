@@ -1,5 +1,17 @@
 import { TaskEntry } from "../types";
 
+const PRIORITY_ORDER: Record<string, number> = {
+  High: 0,
+  Medium: 1,
+  Low: 2,
+};
+
+const STATUS_ORDER: Record<string, number> = {
+  "In Progress": 0,
+  Backlog: 1,
+  Done: 2,
+};
+
 export const sortTasks = (tasks: TaskEntry[]): TaskEntry[] => {
   // Pre-calculate sort values to avoid repeated parsing inside the sort loop
   const prepared = tasks.map((t) => ({
@@ -25,26 +37,16 @@ export const sortTasks = (tasks: TaskEntry[]): TaskEntry[] => {
     }
 
     // 2. Sort by Priority (High -> Medium -> Low)
-    const priorityOrder: Record<string, number> = {
-      High: 0,
-      Medium: 1,
-      Low: 2,
-    };
-    const prioA = priorityOrder[a.task.priority as string] ?? 3;
-    const prioB = priorityOrder[b.task.priority as string] ?? 3;
+    const prioA = PRIORITY_ORDER[a.task.priority as string] ?? 3;
+    const prioB = PRIORITY_ORDER[b.task.priority as string] ?? 3;
 
     if (prioA !== prioB) {
       return prioA - prioB;
     }
 
     // 3. Sort by Status (In Progress -> Backlog -> Done)
-    const statusOrder: Record<string, number> = {
-      "In Progress": 0,
-      Backlog: 1,
-      Done: 2,
-    };
-    const statA = statusOrder[a.task.status as string] ?? 3;
-    const statB = statusOrder[b.task.status as string] ?? 3;
+    const statA = STATUS_ORDER[a.task.status as string] ?? 3;
+    const statB = STATUS_ORDER[b.task.status as string] ?? 3;
     return statA - statB;
   });
 

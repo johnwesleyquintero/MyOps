@@ -1,24 +1,29 @@
+const PROJECT_COLORS = [
+  "bg-notion-light-sidebar text-notion-light-muted border-notion-light-border dark:bg-notion-dark-sidebar/30 dark:text-notion-dark-muted dark:border-notion-dark-border/30",
+  "bg-violet-500/10 text-violet-600 border-violet-500/20 dark:bg-violet-500/20 dark:text-violet-400 dark:border-violet-500/30",
+  "bg-purple-500/10 text-purple-600 border-purple-500/20 dark:bg-purple-500/20 dark:text-purple-400 dark:border-purple-500/30",
+  "bg-indigo-500/10 text-indigo-600 border-indigo-500/20 dark:bg-indigo-500/20 dark:text-indigo-400 dark:border-indigo-500/30",
+];
+
+const DATE_FORMATTER = new Intl.DateTimeFormat("en-US", {
+  year: "numeric",
+  month: "short",
+  day: "numeric",
+});
+
+const CURRENCY_FORMATTERS = new Map<string, Intl.NumberFormat>();
+
 export const getProjectStyle = (project: string): string => {
   const hash = project
     .split("")
     .reduce((acc, char) => char.charCodeAt(0) + acc, 0);
-  const colors = [
-    "bg-notion-light-sidebar text-notion-light-muted border-notion-light-border dark:bg-notion-dark-sidebar/30 dark:text-notion-dark-muted dark:border-notion-dark-border/30",
-    "bg-violet-500/10 text-violet-600 border-violet-500/20 dark:bg-violet-500/20 dark:text-violet-400 dark:border-violet-500/30",
-    "bg-purple-500/10 text-purple-600 border-purple-500/20 dark:bg-purple-500/20 dark:text-purple-400 dark:border-purple-500/30",
-    "bg-indigo-500/10 text-indigo-600 border-indigo-500/20 dark:bg-indigo-500/20 dark:text-indigo-400 dark:border-indigo-500/30",
-  ];
-  return colors[hash % colors.length];
+  return PROJECT_COLORS[hash % PROJECT_COLORS.length];
 };
 
 export const formatDate = (dateString: string): string => {
   if (!dateString) return "";
   const date = new Date(dateString);
-  return date.toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  });
+  return DATE_FORMATTER.format(date);
 };
 
 export const formatRelativeDate = (
@@ -91,10 +96,16 @@ export const formatCurrency = (
   locale: string = "en-US",
 ): string => {
   try {
-    return new Intl.NumberFormat(locale, {
-      style: "currency",
-      currency: currency,
-    }).format(amount);
+    const key = `${locale}-${currency}`;
+    let formatter = CURRENCY_FORMATTERS.get(key);
+    if (!formatter) {
+      formatter = new Intl.NumberFormat(locale, {
+        style: "currency",
+        currency: currency,
+      });
+      CURRENCY_FORMATTERS.set(key, formatter);
+    }
+    return formatter.format(amount);
   } catch {
     return `${currency} ${amount}`;
   }

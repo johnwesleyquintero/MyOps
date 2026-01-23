@@ -2,6 +2,28 @@ import { useState, useMemo, useCallback } from "react";
 
 export type SortDirection = "asc" | "desc";
 
+const PRIORITY_RANKS: Record<string, number> = {
+  High: 0,
+  Medium: 1,
+  Low: 2,
+};
+
+const STATUS_RANKS: Record<string, number> = {
+  Backlog: 0,
+  "In Progress": 1,
+  Done: 2,
+  Active: 0,
+  Lead: 1,
+  Idle: 2,
+  Completed: 3,
+};
+
+const getTimestamp = (val: unknown): number => {
+  if (!val) return 0;
+  const ts = new Date(val as string | number | Date).getTime();
+  return isNaN(ts) ? 0 : ts;
+};
+
 export const useSortableData = <T>(
   items: T[],
   config: { key: keyof T; direction: SortDirection } = {
@@ -18,84 +40,49 @@ export const useSortableData = <T>(
         let comparison = 0;
         const key = sortConfig.key;
 
-        // Specialized sorting for specific fields if they exist
         if (key === "date" || key === "createdAt") {
-          const rawA = a[key];
-          const rawB = b[key];
-          const valA = rawA
-            ? new Date(rawA as string | number | Date).getTime()
-            : 0;
-          const valB = rawB
-            ? new Date(rawB as string | number | Date).getTime()
-            : 0;
+          const valA = getTimestamp(a[key]);
+          const valB = getTimestamp(b[key]);
 
-          const isInvalidA = isNaN(valA) || valA === 0;
-          const isInvalidB = isNaN(valB) || valB === 0;
-
-          if (isInvalidA && isInvalidB) {
+          if (valA === 0 && valB === 0) {
             comparison = 0;
-          } else if (isInvalidA) {
+          } else if (valA === 0) {
             comparison = -1;
-          } else if (isInvalidB) {
+          } else if (valB === 0) {
             comparison = 1;
           } else {
             comparison = valA - valB;
           }
 
-          // Secondary sort for tasks
-          if (
-            comparison === 0 &&
-            a &&
-            typeof a === "object" &&
-            "priority" in a &&
-            "status" in a
-          ) {
-            const itemA = a as { priority: string; status: string };
-            const itemB = b as { priority: string; status: string };
-            const pRanks: Record<string, number> = {
-              High: 0,
-              Medium: 1,
-              Low: 2,
-            };
-            const pA = pRanks[itemA.priority] ?? 99;
-            const pB = pRanks[itemB.priority] ?? 99;
-            if (pA !== pB) {
-              comparison = pB - pA;
-            } else {
-              const sRanks: Record<string, number> = {
-                "In Progress": 0,
-                Backlog: 1,
-                Done: 2,
-              };
-              const sA = sRanks[itemA.status] ?? 99;
-              const sB = sRanks[itemB.status] ?? 99;
-              comparison = sB - sA;
+          // Secondary sort for tasks/entries with priority and status
+          if (comparison === 0 && a && typeof a === "object") {
+            const itemA = a as Record<string, unknown>;
+            const itemB = b as Record<string, unknown>;
+
+            if ("priority" in itemA && "status" in itemB) {
+              const pA = PRIORITY_RANKS[itemA.priority as string] ?? 99;
+              const pB = PRIORITY_RANKS[itemB.priority as string] ?? 99;
+              if (pA !== pB) {
+                comparison = pB - pA;
+              } else {
+                const sA = STATUS_RANKS[itemA.status as string] ?? 99;
+                const sB = STATUS_RANKS[itemB.status as string] ?? 99;
+                comparison = sB - sA;
+              }
             }
           }
         } else if (key === "priority") {
-          const itemA = a as unknown as { priority: string };
-          const itemB = b as unknown as { priority: string };
-          const pRanks: Record<string, number> = {
-            High: 0,
-            Medium: 1,
-            Low: 2,
-          };
+          const itemA = a as Record<string, unknown>;
+          const itemB = b as Record<string, unknown>;
           comparison =
-            (pRanks[itemA.priority] ?? 99) - (pRanks[itemB.priority] ?? 99);
+            (PRIORITY_RANKS[itemA.priority as string] ?? 99) -
+            (PRIORITY_RANKS[itemB.priority as string] ?? 99);
         } else if (key === "status") {
-          const itemA = a as unknown as { status: string };
-          const itemB = b as unknown as { status: string };
-          const sRanks: Record<string, number> = {
-            Backlog: 0,
-            "In Progress": 1,
-            Done: 2,
-            Active: 0,
-            Lead: 1,
-            Idle: 2,
-            Completed: 3,
-          };
+          const itemA = a as Record<string, unknown>;
+          const itemB = b as Record<string, unknown>;
           comparison =
-            (sRanks[itemA.status] ?? 99) - (sRanks[itemB.status] ?? 99);
+            (STATUS_RANKS[itemA.status as string] ?? 99) -
+            (STATUS_RANKS[itemB.status as string] ?? 99);
         } else {
           const valA = String(a[key] || "").toLowerCase();
           const valB = String(b[key] || "").toLowerCase();

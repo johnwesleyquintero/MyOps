@@ -44,6 +44,10 @@ export const TaskModal: React.FC = React.memo(() => {
     isCustomProject,
     setIsCustomProject,
     availableProjects,
+    showDeps,
+    setShowDeps,
+    potentialDeps,
+    toggleDependency,
   } = useTaskForm(initialData, entries, decisionEntries);
 
   const [copiedMd, setCopiedMd] = useState(false);
@@ -185,9 +189,9 @@ export const TaskModal: React.FC = React.memo(() => {
                 </div>
                 <div className="flex-1 relative group bg-notion-light-sidebar/20 dark:bg-notion-dark-sidebar/20 rounded-2xl p-6 border border-notion-light-border/50 dark:border-notion-dark-border/50 focus-within:border-notion-light-border dark:focus-within:border-notion-dark-border transition-all flex flex-col min-h-[250px] shadow-inner">
                   <textarea
-                    ref={textareaRef}
-                    className="w-full flex-1 bg-transparent text-sm text-notion-light-text dark:text-notion-dark-text placeholder:opacity-30 border-none focus:ring-0 p-0 resize-none font-mono leading-relaxed"
-                    placeholder="Describe the mission objective... Support Markdown."
+                      ref={textareaRef}
+                      className="w-full flex-1 bg-transparent text-sm text-notion-light-text dark:text-notion-dark-text placeholder:text-notion-light-text/50 dark:placeholder:text-white/40 border-none focus:ring-0 p-0 resize-none font-mono leading-relaxed"
+                      placeholder="Describe the mission objective... Support Markdown."
                     value={formData.description}
                     onChange={(e) =>
                       setFormData({ ...formData, description: e.target.value })
@@ -223,7 +227,7 @@ export const TaskModal: React.FC = React.memo(() => {
                     </div>
                   ) : (
                     <div className="h-full flex items-center justify-center">
-                      <span className="text-notion-light-muted/30 dark:text-notion-dark-muted/30 italic text-xs font-medium">
+                      <span className="text-notion-light-text/50 dark:text-white/40 italic text-xs font-medium">
                         Waiting for mission details...
                       </span>
                     </div>
@@ -362,6 +366,100 @@ export const TaskModal: React.FC = React.memo(() => {
                   }
                 />
               </div>
+            </div>
+
+            {/* Dependencies Section */}
+            <div className="mt-8 pt-8 border-t border-notion-light-border/30 dark:border-notion-dark-border/30">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2 ml-1">
+                  <Icon.Link size={12} className="opacity-40" />
+                  <span className="text-[10px] font-black uppercase tracking-widest opacity-40">
+                    Mission Dependencies
+                  </span>
+                  {formData.dependencies && formData.dependencies.length > 0 && (
+                    <Badge
+                      variant="custom"
+                      className="bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-none text-[9px] px-1.5 py-0.5"
+                    >
+                      {formData.dependencies.length} Active
+                    </Badge>
+                  )}
+                </div>
+                <Button
+                  variant="ghost"
+                  size="xs"
+                  onClick={() => setShowDeps(!showDeps)}
+                  className="text-[9px] font-black uppercase tracking-tighter opacity-60 hover:opacity-100"
+                >
+                  {showDeps ? "Hide Intelligence" : "Link Dependencies"}
+                </Button>
+              </div>
+
+              {showDeps && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 animate-in slide-in-from-top-2 duration-300">
+                  {potentialDeps.length > 0 ? (
+                    potentialDeps.map((dep) => {
+                      const isSelected = formData.dependencies?.includes(dep.id);
+                      return (
+                        <button
+                          key={dep.id}
+                          type="button"
+                          onClick={() => toggleDependency(dep.id)}
+                          className={`flex items-start gap-3 p-3 rounded-xl border transition-all text-left group ${
+                            isSelected
+                              ? "bg-indigo-500/5 border-indigo-500/30 ring-1 ring-indigo-500/20"
+                              : "bg-notion-light-bg dark:bg-notion-dark-bg border-notion-light-border dark:border-notion-dark-border hover:border-notion-light-border/80 dark:hover:border-notion-dark-border/80"
+                          }`}
+                        >
+                          <div
+                            className={`mt-0.5 w-4 h-4 rounded border flex items-center justify-center transition-colors ${
+                              isSelected
+                                ? "bg-indigo-500 border-indigo-500 text-white"
+                                : "border-notion-light-border dark:border-notion-dark-border group-hover:border-notion-light-text/30"
+                            }`}
+                          >
+                            {isSelected && <Icon.Check size={10} strokeWidth={4} />}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p
+                              className={`text-[11px] font-bold truncate ${
+                                isSelected
+                                  ? "text-notion-light-text dark:text-notion-dark-text"
+                                  : "text-notion-light-text/70 dark:text-notion-dark-text/70"
+                              }`}
+                            >
+                              {dep.description}
+                            </p>
+                            <div className="flex items-center gap-2 mt-1">
+                              <span className="text-[9px] font-black uppercase tracking-widest opacity-30">
+                                {dep.project}
+                              </span>
+                              <span
+                                className={`text-[8px] font-black uppercase px-1 rounded-sm ${
+                                  dep.priority === "High"
+                                    ? "bg-red-500/10 text-red-500"
+                                    : dep.priority === "Medium"
+                                      ? "bg-amber-500/10 text-amber-500"
+                                      : "bg-blue-500/10 text-blue-500"
+                                }`}
+                              >
+                                {dep.priority}
+                              </span>
+                            </div>
+                          </div>
+                        </button>
+                      );
+                    })
+                  ) : (
+                    <div className="col-span-full py-6 flex flex-col items-center justify-center bg-notion-light-sidebar/10 dark:bg-notion-dark-sidebar/10 rounded-2xl border border-dashed border-notion-light-border/30 dark:border-notion-dark-border/30">
+                      <Icon.Link size={20} className="opacity-10 mb-2" />
+                      <p className="text-[10px] font-bold opacity-30 uppercase tracking-widest">
+                        No active missions available to link
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
 

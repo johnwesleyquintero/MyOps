@@ -33,16 +33,16 @@ interface TaskTableProps {
 }
 
 const DEFAULT_COLUMNS: ColumnConfig[] = [
-  { key: "date", label: "Due", visible: true, width: "w-32" },
+  { key: "date", label: "Due", visible: true, width: "w-24 md:w-32" },
   {
     key: "description",
     label: "Mission",
     visible: true,
-    width: "min-w-[300px]",
+    width: "min-w-[200px] md:min-w-[300px]",
   },
-  { key: "project", label: "Project", visible: true, width: "w-32" },
-  { key: "priority", label: "Priority", visible: true, width: "w-28" },
-  { key: "status", label: "Status", visible: true, width: "w-32" },
+  { key: "project", label: "Project", visible: true, width: "w-24 md:w-32" },
+  { key: "priority", label: "Priority", visible: true, width: "w-20 md:w-28" },
+  { key: "status", label: "Status", visible: true, width: "w-24 md:w-32" },
 ];
 
 const TableSkeleton = ({ colSpan }: { colSpan: number }) => (
@@ -99,10 +99,10 @@ export const TaskTable: React.FC<TaskTableProps> = React.memo(
                   .map((col) => (
                     <th
                       key={col.key}
-                      className={`${col.width} px-3 py-2 text-[10px] font-bold text-notion-light-muted dark:text-notion-dark-muted uppercase tracking-widest cursor-pointer ${colors.hoverBg} transition-colors group ${["project", "priority"].includes(col.key) ? "hidden md:table-cell" : ""}`}
+                      className={`${col.width} px-2 md:px-3 py-2 text-[9px] md:text-[10px] font-bold text-notion-light-muted dark:text-notion-dark-muted uppercase tracking-widest cursor-pointer ${colors.hoverBg} transition-colors group ${["project", "priority"].includes(col.key) ? "hidden md:table-cell" : ""}`}
                       onClick={() => requestSort(col.key as keyof TaskEntry)}
                     >
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-1 md:gap-2">
                         {col.label}
                         {sortConfig?.key === col.key && (
                           <span className="text-notion-light-text dark:text-notion-dark-text">
@@ -112,9 +112,9 @@ export const TaskTable: React.FC<TaskTableProps> = React.memo(
                       </div>
                     </th>
                   ))}
-                <th className="w-28 px-3 py-2 bg-notion-light-sidebar dark:bg-notion-dark-sidebar border-b border-notion-light-border dark:border-notion-dark-border">
+                <th className="w-20 md:w-28 px-2 md:px-3 py-2 bg-notion-light-sidebar dark:bg-notion-dark-sidebar border-b border-notion-light-border dark:border-notion-dark-border">
                   <div className="flex items-center justify-end gap-2">
-                    <span className="text-[10px] font-bold text-notion-light-muted dark:text-notion-dark-muted uppercase tracking-widest">
+                    <span className="hidden md:inline text-[10px] font-bold text-notion-light-muted dark:text-notion-dark-muted uppercase tracking-widest">
                       Actions
                     </span>
                     {showConfigGear && (
@@ -143,7 +143,7 @@ export const TaskTable: React.FC<TaskTableProps> = React.memo(
                       .map((col) => (
                         <td
                           key={col.key}
-                          className={`px-3 py-2 align-top text-sm ${["project", "priority"].includes(col.key) ? "hidden md:table-cell" : ""}`}
+                          className={`px-2 md:px-3 py-2 align-top text-[13px] md:text-sm ${["project", "priority"].includes(col.key) ? "hidden md:table-cell" : ""}`}
                           onClick={() => {
                             if (col.key !== "description") onEdit(task);
                           }}
@@ -211,13 +211,13 @@ export const TaskTable: React.FC<TaskTableProps> = React.memo(
                           )}
                         </td>
                       ))}
-                    <td className="px-3 py-2 align-top">
+                    <td className="px-2 md:px-3 py-2 align-top">
                       <div className="flex items-center justify-end gap-0.5 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
                         <Button
                           onClick={() => onEdit(task)}
                           variant="custom"
                           size="icon"
-                          className={`text-notion-light-muted hover:${colors.text} ${colors.lightBg} rounded-lg`}
+                          className={`h-8 w-8 md:h-9 md:w-9 text-notion-light-muted hover:${colors.text} ${colors.lightBg} rounded-lg`}
                           title="Edit Mission"
                         >
                           <Icon.Edit {...iconProps(14)} />
@@ -226,7 +226,7 @@ export const TaskTable: React.FC<TaskTableProps> = React.memo(
                           onClick={() => onDuplicate(task)}
                           variant="custom"
                           size="icon"
-                          className={`text-notion-light-muted hover:${colors.text} ${colors.lightBg} rounded-lg`}
+                          className={`hidden xs:flex h-8 w-8 md:h-9 md:w-9 text-notion-light-muted hover:${colors.text} ${colors.lightBg} rounded-lg`}
                           title="Duplicate Mission"
                         >
                           <Icon.Copy {...iconProps(14)} />
@@ -235,17 +235,17 @@ export const TaskTable: React.FC<TaskTableProps> = React.memo(
                           onClick={() => onFocus(task)}
                           variant="custom"
                           size="icon"
-                          className={`text-notion-light-muted hover:${colors.text} ${colors.lightBg} rounded-lg`}
+                          className={`hidden sm:flex h-8 w-8 md:h-9 md:w-9 text-notion-light-muted hover:${colors.text} ${colors.lightBg} rounded-lg`}
                           title="Focus Mode"
                         >
                           <Icon.Focus {...iconProps(14)} />
                         </Button>
-                        <div className="w-px h-3 bg-notion-light-border dark:bg-notion-dark-border mx-0.5" />
+                        <div className="hidden xs:block w-px h-3 bg-notion-light-border dark:bg-notion-dark-border mx-0.5" />
                         <Button
                           onClick={() => onDelete(task)}
                           variant="custom"
                           size="icon"
-                          className="text-notion-light-muted hover:text-purple-500 hover:bg-purple-500/10 rounded-lg"
+                          className="h-8 w-8 md:h-9 md:w-9 text-notion-light-muted hover:text-purple-500 hover:bg-purple-500/10 rounded-lg"
                           title="Terminate Mission"
                         >
                           <Icon.Delete {...iconProps(14)} />

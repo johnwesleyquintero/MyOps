@@ -55,11 +55,11 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = React.memo(
     );
 
     return (
-      <div className="flex flex-col md:flex-row gap-6 overflow-x-auto pb-4 h-[calc(100vh-250px)] custom-scrollbar snap-x snap-mandatory">
+      <div className="flex flex-col md:flex-row gap-4 md:gap-6 overflow-x-auto pb-4 h-[calc(100vh-250px)] md:h-[calc(100vh-300px)] lg:h-[calc(100vh-250px)] custom-scrollbar snap-x snap-mandatory">
         {(["Backlog", "In Progress", "Done"] as StatusLevel[]).map((status) => (
           <div
             key={status}
-            className="flex-1 min-w-[85vw] md:min-w-[320px] flex flex-col rounded-xl bg-notion-light-sidebar/30 dark:bg-notion-dark-sidebar/20 border border-notion-light-border dark:border-notion-dark-border/40 snap-center shadow-sm"
+            className="flex-1 min-w-[85vw] md:min-w-[300px] lg:min-w-[320px] flex flex-col rounded-xl bg-notion-light-sidebar/30 dark:bg-notion-dark-sidebar/20 border border-notion-light-border dark:border-notion-dark-border/40 snap-center shadow-sm"
           >
             <div className="p-4 flex justify-between items-center border-b border-notion-light-border/50 dark:border-notion-dark-border/20">
               <div className="flex items-center gap-2">

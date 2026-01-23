@@ -125,38 +125,38 @@ export const TaskModal: React.FC = React.memo(() => {
         className="w-full max-w-4xl shadow-2xl flex flex-col h-full md:h-auto md:max-h-[90vh] overflow-hidden animate-in zoom-in-95 duration-300 rounded-2xl border-none"
       >
         {/* Modal Header */}
-        <div className="px-6 py-4 border-b border-notion-light-border dark:border-notion-dark-border flex items-center justify-between bg-notion-light-sidebar/50 dark:bg-notion-dark-sidebar/50 backdrop-blur-md">
-          <div className="flex items-center gap-4">
-            <div className="p-2 bg-notion-light-bg dark:bg-notion-dark-bg rounded-lg shadow-sm border border-notion-light-border dark:border-notion-dark-border">
+        <div className="px-4 md:px-6 py-3 md:py-4 border-b border-notion-light-border dark:border-notion-dark-border flex items-center justify-between bg-notion-light-sidebar/50 dark:bg-notion-dark-sidebar/50 backdrop-blur-md shrink-0">
+          <div className="flex items-center gap-3 md:gap-4 min-w-0">
+            <div className="p-2 bg-notion-light-bg dark:bg-notion-dark-bg rounded-lg shadow-sm border border-notion-light-border dark:border-notion-dark-border shrink-0">
               <Icon.Add
                 size={16}
                 className="text-notion-light-text dark:text-notion-dark-text"
               />
             </div>
-            <div>
-              <h2 className="text-sm font-bold text-notion-light-text dark:text-notion-dark-text uppercase tracking-widest">
+            <div className="min-w-0">
+              <h2 className="text-[12px] md:text-sm font-bold text-notion-light-text dark:text-notion-dark-text uppercase tracking-widest truncate">
                 {initialData ? "Mission intelligence" : "New Tactical Mission"}
               </h2>
               {initialData && (
-                <div className="flex items-center gap-2 mt-1">
-                  <span className="text-[10px] font-black uppercase tracking-widest opacity-40">
+                <div className="flex items-center gap-2 mt-0.5 md:mt-1">
+                  <span className="text-[9px] md:text-[10px] font-black uppercase tracking-widest opacity-40">
                     UID:
                   </span>
                   <CopyIdButton
                     id={initialData.id}
-                    className="text-[10px] font-mono opacity-40 hover:opacity-100 transition-opacity"
+                    className="text-[9px] md:text-[10px] font-mono opacity-40 hover:opacity-100 transition-opacity"
                   />
                 </div>
               )}
             </div>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 md:gap-3 shrink-0">
             {initialData && (
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={handleCopyMarkdown}
-                className="w-9 h-9 text-notion-light-muted hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover transition-all rounded-lg"
+                className="w-8 h-8 md:w-9 md:h-9 text-notion-light-muted hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover transition-all rounded-lg"
                 title="Copy Task as Markdown"
               >
                 {copiedMd ? (
@@ -170,7 +170,7 @@ export const TaskModal: React.FC = React.memo(() => {
               variant="ghost"
               size="icon"
               onClick={onClose}
-              className="w-9 h-9 text-notion-light-muted hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover transition-all rounded-lg"
+              className="w-8 h-8 md:w-9 md:h-9 text-notion-light-muted hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover transition-all rounded-lg"
             >
               <Icon.Close size={18} />
             </Button>
@@ -183,11 +183,11 @@ export const TaskModal: React.FC = React.memo(() => {
           className="flex-1 flex flex-col min-h-0 overflow-hidden"
         >
           {/* Scrollable Content Area */}
-          <div className="flex-1 overflow-y-auto p-8 custom-scrollbar">
+          <div className="flex-1 overflow-y-auto p-4 md:p-8 custom-scrollbar">
             {/* Main Content Area: Editor & Preview */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-10 min-h-[350px]">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10 min-h-[350px]">
               {/* Left: Editor */}
-              <div className="flex flex-col space-y-4">
+              <div className="flex flex-col space-y-3 md:space-y-4">
                 <div className="flex items-center justify-between px-1">
                   <div className="flex items-center gap-2 opacity-40">
                     <Icon.Edit size={12} />
@@ -203,11 +203,11 @@ export const TaskModal: React.FC = React.memo(() => {
                     MARKDOWN
                   </Badge>
                 </div>
-                <div className="flex-1 relative group bg-notion-light-sidebar/20 dark:bg-notion-dark-sidebar/20 rounded-2xl p-6 border border-notion-light-border/50 dark:border-notion-dark-border/50 focus-within:border-notion-light-border dark:focus-within:border-notion-dark-border transition-all flex flex-col min-h-[250px] shadow-inner">
+                <div className="flex-1 relative group bg-notion-light-sidebar/20 dark:bg-notion-dark-sidebar/20 rounded-2xl p-4 md:p-6 border border-notion-light-border/50 dark:border-notion-dark-border/50 focus-within:border-notion-light-border dark:focus-within:border-notion-dark-border transition-all flex flex-col min-h-[200px] md:min-h-[250px] shadow-inner">
                   <textarea
-                      ref={textareaRef}
-                      className="w-full flex-1 bg-transparent text-sm text-notion-light-text dark:text-notion-dark-text placeholder:text-notion-light-text/50 dark:placeholder:text-white/40 border-none focus:ring-0 p-0 resize-none font-mono leading-relaxed"
-                      placeholder="Describe the mission objective... Support Markdown."
+                    ref={textareaRef}
+                    className="w-full flex-1 bg-transparent text-sm text-notion-light-text dark:text-notion-dark-text placeholder:text-notion-light-text/50 dark:placeholder:text-white/40 border-none focus:ring-0 p-0 resize-none font-mono leading-relaxed"
+                    placeholder="Describe the mission objective... Support Markdown."
                     value={formData.description}
                     onChange={(e) =>
                       setFormData({ ...formData, description: e.target.value })
@@ -218,7 +218,7 @@ export const TaskModal: React.FC = React.memo(() => {
               </div>
 
               {/* Right: Preview */}
-              <div className="flex flex-col space-y-4">
+              <div className="flex flex-col space-y-3 md:space-y-4">
                 <div className="flex items-center justify-between px-1">
                   <div className="flex items-center gap-2 opacity-40">
                     <Icon.View size={12} />
@@ -234,7 +234,7 @@ export const TaskModal: React.FC = React.memo(() => {
                     LIVE
                   </Badge>
                 </div>
-                <div className="flex-1 markdown-preview bg-notion-light-bg dark:bg-notion-dark-bg rounded-2xl p-6 border border-dashed border-notion-light-border/30 dark:border-notion-dark-border/30 min-h-[250px] shadow-sm">
+                <div className="flex-1 markdown-preview bg-notion-light-bg dark:bg-notion-dark-bg rounded-2xl p-4 md:p-6 border border-dashed border-notion-light-border/30 dark:border-notion-dark-border/30 min-h-[200px] md:min-h-[250px] shadow-sm">
                   {formData.description ? (
                     <div className="prose prose-sm dark:prose-invert max-w-none">
                       <ReactMarkdown remarkPlugins={[remarkGfm]}>
@@ -254,19 +254,19 @@ export const TaskModal: React.FC = React.memo(() => {
           </div>
 
           {/* Fixed Metadata Area */}
-          <div className="shrink-0 p-8 border-t border-notion-light-border/50 dark:border-notion-dark-border/50 bg-notion-light-sidebar/20 dark:bg-notion-dark-sidebar/20 backdrop-blur-sm">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+          <div className="shrink-0 p-4 md:p-8 border-t border-notion-light-border/50 dark:border-notion-dark-border/50 bg-notion-light-sidebar/20 dark:bg-notion-dark-sidebar/20 backdrop-blur-sm">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
               {/* Project Selection */}
-              <div className="space-y-3">
-                <div className="flex items-center gap-2 mb-1.5 ml-1">
+              <div className="space-y-2 md:space-y-3 col-span-2 md:col-span-1">
+                <div className="flex items-center gap-2 mb-1 md:mb-1.5 ml-1">
                   <Icon.Folder size={12} className="opacity-40" />
-                  <span className="text-[10px] font-black uppercase tracking-widest opacity-40">
+                  <span className="text-[9px] md:text-[10px] font-black uppercase tracking-widest opacity-40">
                     Project / Sector
                   </span>
                 </div>
                 <div className="relative">
                   <select
-                    className="w-full border border-notion-light-border dark:border-notion-dark-border rounded-xl pl-4 pr-10 py-2.5 appearance-none text-xs font-bold focus:outline-none focus:ring-1 focus:ring-blue-500/30 bg-notion-light-bg dark:bg-notion-dark-bg text-notion-light-text dark:text-notion-dark-text transition-all cursor-pointer shadow-sm"
+                    className="w-full border border-notion-light-border dark:border-notion-dark-border rounded-xl pl-3 md:pl-4 pr-10 py-2 md:py-2.5 appearance-none text-[11px] md:text-xs font-bold focus:outline-none focus:ring-1 focus:ring-blue-500/30 bg-notion-light-bg dark:bg-notion-dark-bg text-notion-light-text dark:text-notion-dark-text transition-all cursor-pointer shadow-sm"
                     value={isCustomProject ? "custom" : formData.project}
                     onChange={(e) => {
                       if (e.target.value === "custom") {
@@ -291,7 +291,7 @@ export const TaskModal: React.FC = React.memo(() => {
                   {isCustomProject && (
                     <input
                       type="text"
-                      className="mt-3 w-full border border-notion-light-border dark:border-notion-dark-border rounded-xl px-4 py-2.5 text-xs font-bold focus:outline-none focus:ring-1 focus:ring-blue-500/30 bg-notion-light-bg dark:bg-notion-dark-bg text-notion-light-text dark:text-notion-dark-text transition-all shadow-sm"
+                      className="mt-2 md:mt-3 w-full border border-notion-light-border dark:border-notion-dark-border rounded-xl px-3 md:px-4 py-2 md:py-2.5 text-[11px] md:text-xs font-bold focus:outline-none focus:ring-1 focus:ring-blue-500/30 bg-notion-light-bg dark:bg-notion-dark-bg text-notion-light-text dark:text-notion-dark-text transition-all shadow-sm"
                       placeholder="Project name..."
                       value={formData.project}
                       onChange={(e) =>
@@ -304,16 +304,16 @@ export const TaskModal: React.FC = React.memo(() => {
               </div>
 
               {/* Status Selection */}
-              <div className="space-y-3">
-                <div className="flex items-center gap-2 mb-1.5 ml-1">
+              <div className="space-y-2 md:space-y-3">
+                <div className="flex items-center gap-2 mb-1 md:mb-1.5 ml-1">
                   <Icon.Activity size={12} className="opacity-40" />
-                  <span className="text-[10px] font-black uppercase tracking-widest opacity-40">
-                    Mission Status
+                  <span className="text-[9px] md:text-[10px] font-black uppercase tracking-widest opacity-40">
+                    Status
                   </span>
                 </div>
                 <div className="relative">
                   <select
-                    className="w-full border border-notion-light-border dark:border-notion-dark-border rounded-xl pl-4 pr-10 py-2.5 appearance-none text-xs font-bold focus:outline-none focus:ring-1 focus:ring-blue-500/30 bg-notion-light-bg dark:bg-notion-dark-bg text-notion-light-text dark:text-notion-dark-text transition-all cursor-pointer shadow-sm"
+                    className="w-full border border-notion-light-border dark:border-notion-dark-border rounded-xl pl-3 md:pl-4 pr-10 py-2 md:py-2.5 appearance-none text-[11px] md:text-xs font-bold focus:outline-none focus:ring-1 focus:ring-blue-500/30 bg-notion-light-bg dark:bg-notion-dark-bg text-notion-light-text dark:text-notion-dark-text transition-all cursor-pointer shadow-sm"
                     value={formData.status}
                     onChange={(e) =>
                       setFormData({
@@ -335,16 +335,16 @@ export const TaskModal: React.FC = React.memo(() => {
               </div>
 
               {/* Priority Selection */}
-              <div className="space-y-3">
-                <div className="flex items-center gap-2 mb-1.5 ml-1">
+              <div className="space-y-2 md:space-y-3">
+                <div className="flex items-center gap-2 mb-1 md:mb-1.5 ml-1">
                   <Icon.Alert size={12} className="opacity-40" />
-                  <span className="text-[10px] font-black uppercase tracking-widest opacity-40">
-                    Threat Level
+                  <span className="text-[9px] md:text-[10px] font-black uppercase tracking-widest opacity-40">
+                    Threat
                   </span>
                 </div>
                 <div className="relative">
                   <select
-                    className="w-full border border-notion-light-border dark:border-notion-dark-border rounded-xl pl-4 pr-10 py-2.5 appearance-none text-xs font-bold focus:outline-none focus:ring-1 focus:ring-blue-500/30 bg-notion-light-bg dark:bg-notion-dark-bg text-notion-light-text dark:text-notion-dark-text transition-all cursor-pointer shadow-sm"
+                    className="w-full border border-notion-light-border dark:border-notion-dark-border rounded-xl pl-3 md:pl-4 pr-10 py-2 md:py-2.5 appearance-none text-[11px] md:text-xs font-bold focus:outline-none focus:ring-1 focus:ring-blue-500/30 bg-notion-light-bg dark:bg-notion-dark-bg text-notion-light-text dark:text-notion-dark-text transition-all cursor-pointer shadow-sm"
                     value={formData.priority}
                     onChange={(e) =>
                       setFormData({
@@ -366,16 +366,16 @@ export const TaskModal: React.FC = React.memo(() => {
               </div>
 
               {/* Date Input */}
-              <div className="space-y-3">
-                <div className="flex items-center gap-2 mb-1.5 ml-1">
+              <div className="space-y-2 md:space-y-3 col-span-2 md:col-span-1">
+                <div className="flex items-center gap-2 mb-1 md:mb-1.5 ml-1">
                   <Icon.Date size={12} className="opacity-40" />
-                  <span className="text-[10px] font-black uppercase tracking-widest opacity-40">
+                  <span className="text-[9px] md:text-[10px] font-black uppercase tracking-widest opacity-40">
                     Deadline
                   </span>
                 </div>
                 <input
                   type="date"
-                  className="w-full border border-notion-light-border dark:border-notion-dark-border rounded-xl px-4 py-2 text-xs font-bold focus:outline-none focus:ring-1 focus:ring-blue-500/30 bg-notion-light-bg dark:bg-notion-dark-bg text-notion-light-text dark:text-notion-dark-text transition-all cursor-pointer shadow-sm"
+                  className="w-full border border-notion-light-border dark:border-notion-dark-border rounded-xl px-3 md:px-4 py-2 md:py-2 appearance-none text-[11px] md:text-xs font-bold focus:outline-none focus:ring-1 focus:ring-blue-500/30 bg-notion-light-bg dark:bg-notion-dark-bg text-notion-light-text dark:text-notion-dark-text transition-all cursor-pointer shadow-sm min-h-[38px] md:min-h-0"
                   value={formData.date}
                   onChange={(e) =>
                     setFormData({ ...formData, date: e.target.value })
@@ -389,7 +389,10 @@ export const TaskModal: React.FC = React.memo(() => {
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-2.5 ml-1">
                   <div className="p-1.5 bg-indigo-500/10 rounded-lg">
-                    <Icon.Link size={14} className="text-indigo-600 dark:text-indigo-400" />
+                    <Icon.Link
+                      size={14}
+                      className="text-indigo-600 dark:text-indigo-400"
+                    />
                   </div>
                   <div className="flex flex-col">
                     <span className="text-[10px] font-black uppercase tracking-widest text-notion-light-text dark:text-notion-dark-text">
@@ -399,14 +402,15 @@ export const TaskModal: React.FC = React.memo(() => {
                       Link prerequisite tactical operations
                     </span>
                   </div>
-                  {formData.dependencies && formData.dependencies.length > 0 && (
-                    <Badge
-                      variant="custom"
-                      className="bg-indigo-500 text-white border-none text-[8px] px-1.5 py-0.5 rounded-full ml-1"
-                    >
-                      {formData.dependencies.length}
-                    </Badge>
-                  )}
+                  {formData.dependencies &&
+                    formData.dependencies.length > 0 && (
+                      <Badge
+                        variant="custom"
+                        className="bg-indigo-500 text-white border-none text-[8px] px-1.5 py-0.5 rounded-full ml-1"
+                      >
+                        {formData.dependencies.length}
+                      </Badge>
+                    )}
                 </div>
                 <Button
                   variant="ghost"
@@ -443,7 +447,9 @@ export const TaskModal: React.FC = React.memo(() => {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
                     {filteredPotentialDeps.length > 0 ? (
                       filteredPotentialDeps.map((dep) => {
-                        const isSelected = formData.dependencies?.includes(dep.id);
+                        const isSelected = formData.dependencies?.includes(
+                          dep.id,
+                        );
                         return (
                           <button
                             key={dep.id}
@@ -466,7 +472,9 @@ export const TaskModal: React.FC = React.memo(() => {
                                   : "border-notion-light-border dark:border-notion-dark-border group-hover:border-indigo-500/50"
                               }`}
                             >
-                              {isSelected && <Icon.Check size={10} strokeWidth={4} />}
+                              {isSelected && (
+                                <Icon.Check size={10} strokeWidth={4} />
+                              )}
                             </div>
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center justify-between gap-2 mb-1">
@@ -519,7 +527,9 @@ export const TaskModal: React.FC = React.memo(() => {
                       <div className="col-span-full py-10 flex flex-col items-center justify-center bg-notion-light-sidebar/10 dark:bg-notion-dark-sidebar/10 rounded-2xl border border-dashed border-notion-light-border/30 dark:border-notion-dark-border/30">
                         <Icon.Search size={24} className="opacity-10 mb-3" />
                         <p className="text-[10px] font-black opacity-30 uppercase tracking-[0.2em]">
-                          {depSearch ? "No matches found" : "No available missions"}
+                          {depSearch
+                            ? "No matches found"
+                            : "No available missions"}
                         </p>
                       </div>
                     )}
@@ -530,23 +540,23 @@ export const TaskModal: React.FC = React.memo(() => {
           </div>
 
           {/* Modal Footer */}
-          <div className="px-8 py-4 border-t border-notion-light-border dark:border-notion-dark-border flex items-center justify-between bg-notion-light-sidebar/50 dark:bg-notion-dark-sidebar/50 backdrop-blur-md">
+          <div className="px-4 md:px-8 py-4 border-t border-notion-light-border dark:border-notion-dark-border flex items-center justify-between bg-notion-light-sidebar/50 dark:bg-notion-dark-sidebar/50 backdrop-blur-md">
             <div className="flex items-center gap-3">
               {initialData && (
                 <Button
                   variant="ghost"
                   onClick={(e) => handleDelete(e)}
-                  className="text-[10px] font-black uppercase tracking-widest text-red-500 hover:bg-red-500/10 px-4 py-2"
+                  className="text-[10px] font-black uppercase tracking-widest text-red-500 hover:bg-red-500/10 px-3 md:px-4 py-2"
                 >
-                  Terminate Mission
+                  Terminate
                 </Button>
               )}
             </div>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 md:gap-4">
               <Button
                 variant="ghost"
                 onClick={onClose}
-                className="text-[10px] font-black uppercase tracking-widest text-notion-light-muted dark:text-notion-dark-muted px-6 py-2"
+                className="text-[10px] font-black uppercase tracking-widest text-notion-light-muted dark:text-notion-dark-muted px-4 md:px-6 py-2"
               >
                 Stand Down
               </Button>
@@ -555,9 +565,9 @@ export const TaskModal: React.FC = React.memo(() => {
                 onClick={() => handleSubmit()}
                 isLoading={isSubmitting}
                 disabled={!formData.description}
-                className={`px-8 py-2 bg-indigo-600 text-white border border-indigo-500 rounded-xl font-black text-[10px] uppercase tracking-widest shadow-lg shadow-indigo-500/20 hover:bg-indigo-700 transition-all active:scale-95 disabled:opacity-50`}
+                className={`px-6 md:px-8 py-2 bg-indigo-600 text-white border border-indigo-500 rounded-xl font-black text-[10px] uppercase tracking-widest shadow-lg shadow-indigo-500/20 hover:bg-indigo-700 transition-all active:scale-95 disabled:opacity-50`}
               >
-                {initialData ? "Sync Intelligence" : "Execute Deployment"}
+                {initialData ? "Sync" : "Deploy"}
               </Button>
             </div>
           </div>

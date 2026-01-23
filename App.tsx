@@ -104,7 +104,7 @@ const App: React.FC = () => {
       <Sidebar />
 
       <div
-        className={`transition-all duration-300 ease-in-out ${ui.isSidebarCollapsed ? "lg:pl-16" : "lg:pl-60"}`}
+        className={`transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] ${ui.isSidebarCollapsed ? "lg:pl-16" : "lg:pl-60"}`}
       >
         <Header />
 

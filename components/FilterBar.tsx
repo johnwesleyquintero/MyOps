@@ -1,6 +1,6 @@
 import React from "react";
 import { STATUSES } from "@/constants";
-import { Icon, iconProps } from "./Icons";
+import { Icon } from "./Icons";
 import { Button, DebouncedInput, Badge } from "./ui";
 
 interface FilterBarProps {
@@ -46,12 +46,12 @@ export const FilterBar: React.FC<FilterBarProps> = React.memo(
       selectedMonth !== new Date().toISOString().slice(0, 7);
 
     return (
-      <div className="flex flex-col lg:flex-row gap-4 mb-6 bg-notion-light-bg dark:bg-notion-dark-bg p-3 border border-notion-light-border dark:border-notion-dark-border rounded-xl items-center shadow-sm transition-all">
+      <div className="flex flex-col md:flex-row gap-2.5 md:gap-4 mb-6 bg-notion-light-bg dark:bg-notion-dark-bg p-2.5 md:p-3 border border-notion-light-border dark:border-notion-dark-border rounded-xl items-center shadow-sm transition-all">
         {/* Search Input */}
         <div className="flex-[2] w-full">
           <DebouncedInput
             id="global-search"
-            className="w-full rounded-lg"
+            className="w-full rounded-lg text-sm md:text-base h-9 md:h-10"
             placeholder="Search missions..."
             value={searchQuery}
             onChange={setSearchQuery}
@@ -59,28 +59,28 @@ export const FilterBar: React.FC<FilterBarProps> = React.memo(
         </div>
 
         {/* Month Navigator Group */}
-        <div className="flex items-center w-full lg:w-auto gap-0 bg-notion-light-sidebar dark:bg-notion-dark-sidebar border border-notion-light-border dark:border-notion-dark-border rounded-lg overflow-hidden">
+        <div className="flex items-center w-full md:w-auto gap-0 bg-notion-light-sidebar dark:bg-notion-dark-sidebar border border-notion-light-border dark:border-notion-dark-border rounded-lg overflow-hidden h-9 md:h-10">
           <Button
             variant="ghost"
             onClick={() => handleMonthChange("prev")}
-            className="p-2 border-r border-notion-light-border dark:border-notion-dark-border rounded-none hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover text-notion-light-muted dark:text-notion-dark-muted transition-colors"
+            className="px-2 md:px-3 h-full border-r border-notion-light-border dark:border-notion-dark-border rounded-none hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover text-notion-light-muted dark:text-notion-dark-muted transition-colors"
             title="Previous Month"
           >
-            <Icon.ChevronLeft {...iconProps(16)} />
+            <Icon.ChevronLeft size={14} className="md:w-4 md:h-4" />
           </Button>
           <input
             type="month"
-            className="block w-full lg:w-32 py-1.5 border-none rounded-none text-center font-mono text-sm bg-transparent focus:outline-none focus:ring-0 text-notion-light-text dark:text-notion-dark-text"
+            className="block w-full md:w-32 py-1.5 border-none rounded-none text-center font-mono text-[11px] md:text-sm bg-transparent focus:outline-none focus:ring-0 text-notion-light-text dark:text-notion-dark-text h-full"
             value={selectedMonth}
             onChange={(e) => setSelectedMonth(e.target.value)}
           />
           <Button
             variant="ghost"
             onClick={() => handleMonthChange("next")}
-            className="p-2 border-l border-notion-light-border dark:border-notion-dark-border rounded-none hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover text-notion-light-muted dark:text-notion-dark-muted transition-colors"
+            className="px-2 md:px-3 h-full border-l border-notion-light-border dark:border-notion-dark-border rounded-none hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover text-notion-light-muted dark:text-notion-dark-muted transition-colors"
             title="Next Month"
           >
-            <Icon.Next {...iconProps(16)} />
+            <Icon.Next size={14} className="md:w-4 md:h-4" />
           </Button>
         </div>
 
@@ -89,7 +89,7 @@ export const FilterBar: React.FC<FilterBarProps> = React.memo(
           <Button
             variant="ghost"
             onClick={() => setIsAiSortEnabled(!isAiSortEnabled)}
-            className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border transition-all w-full lg:w-auto justify-center ${
+            className={`flex items-center gap-2 px-3 h-9 md:h-10 rounded-lg border transition-all w-full md:w-auto justify-center ${
               isAiSortEnabled
                 ? "bg-violet-50 dark:bg-violet-900/20 border-violet-200 dark:border-violet-800 text-violet-600 dark:text-violet-400"
                 : "bg-notion-light-sidebar dark:bg-notion-dark-sidebar border-notion-light-border dark:border-notion-dark-border text-notion-light-muted dark:text-notion-dark-muted hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover"
@@ -97,23 +97,24 @@ export const FilterBar: React.FC<FilterBarProps> = React.memo(
             title={isAiSortEnabled ? "Disable AI Sort" : "Enable AI Sort"}
           >
             <Icon.Brain
-              {...iconProps(14, isAiSortEnabled ? "animate-pulse" : "")}
+              size={12}
+              className={`md:w-3.5 md:h-3.5 ${isAiSortEnabled ? "animate-pulse" : ""}`}
             />
             <Badge
               variant="ghost"
               size="md"
-              className="!p-0 bg-transparent text-inherit border-none"
+              className="!p-0 bg-transparent text-inherit border-none text-[10px] md:text-xs"
             >
               AI Sort
             </Badge>
           </Button>
         )}
 
-        <div className="flex gap-2 w-full lg:w-auto">
+        <div className="flex gap-2 w-full md:w-auto h-9 md:h-10">
           {/* Status Dropdown */}
-          <div className="flex-1 lg:w-32 relative">
+          <div className="flex-1 md:w-32 relative h-full">
             <select
-              className="w-full border border-notion-light-border dark:border-notion-dark-border rounded-lg pl-2 pr-7 py-1.5 appearance-none text-xs focus:outline-none focus:ring-1 focus:ring-blue-500/30 bg-notion-light-bg dark:bg-notion-dark-bg text-notion-light-text dark:text-notion-dark-text transition-all"
+              className="w-full h-full border border-notion-light-border dark:border-notion-dark-border rounded-lg pl-2 pr-7 py-0 appearance-none text-[11px] md:text-xs focus:outline-none focus:ring-1 focus:ring-blue-500/30 bg-notion-light-bg dark:bg-notion-dark-bg text-notion-light-text dark:text-notion-dark-text transition-all"
               value={selectedStatus}
               onChange={(e) => setSelectedStatus(e.target.value)}
             >
@@ -125,14 +126,14 @@ export const FilterBar: React.FC<FilterBarProps> = React.memo(
               ))}
             </select>
             <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-1.5 text-notion-light-muted">
-              <Icon.Down {...iconProps(12)} />
+              <Icon.Down size={10} className="md:w-3 md:h-3" />
             </div>
           </div>
 
           {/* Category Dropdown */}
-          <div className="flex-1 lg:w-40 relative">
+          <div className="flex-1 md:w-40 relative h-full">
             <select
-              className="w-full border border-notion-light-border dark:border-notion-dark-border rounded-lg pl-2 pr-7 py-1.5 appearance-none text-xs focus:outline-none focus:ring-1 focus:ring-blue-500/30 bg-notion-light-bg dark:bg-notion-dark-bg text-notion-light-text dark:text-notion-dark-text transition-all"
+              className="w-full h-full border border-notion-light-border dark:border-notion-dark-border rounded-lg pl-2 pr-7 py-0 appearance-none text-[11px] md:text-xs focus:outline-none focus:ring-1 focus:ring-blue-500/30 bg-notion-light-bg dark:bg-notion-dark-bg text-notion-light-text dark:text-notion-dark-text transition-all"
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
             >
@@ -144,7 +145,7 @@ export const FilterBar: React.FC<FilterBarProps> = React.memo(
               ))}
             </select>
             <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-1.5 text-notion-light-muted">
-              <Icon.Down {...iconProps(12)} />
+              <Icon.Down size={10} className="md:w-3 md:h-3" />
             </div>
           </div>
         </div>
@@ -159,7 +160,7 @@ export const FilterBar: React.FC<FilterBarProps> = React.memo(
               setSelectedStatus("");
               setSelectedMonth(new Date().toISOString().slice(0, 7));
             }}
-            className="w-full lg:w-auto px-4 py-2 hover:text-purple-600 dark:hover:text-purple-400 border border-transparent hover:border-purple-200 dark:hover:border-purple-900 hover:bg-purple-50 dark:hover:bg-purple-900/20 rounded-lg transition-all whitespace-nowrap text-center text-xs font-medium"
+            className="w-full md:w-auto h-9 md:h-10 px-4 hover:text-purple-600 dark:hover:text-purple-400 border border-transparent hover:border-purple-200 dark:hover:border-purple-900 hover:bg-purple-50 dark:hover:bg-purple-900/20 rounded-lg transition-all whitespace-nowrap text-center text-[11px] md:text-xs font-medium"
           >
             Reset Filters
           </Button>

@@ -51,31 +51,32 @@ export const Header: React.FC = React.memo(() => {
         />
 
         <div className="flex items-center gap-3">
-          <div className="hidden sm:block h-6 w-px bg-notion-light-border dark:bg-notion-dark-border/40 mx-1 opacity-50" />
-          <h2 className="text-[11px] font-black text-notion-light-text dark:text-notion-dark-text tracking-[0.25em] uppercase opacity-80">
+          <div className="hidden xs:block h-6 w-px bg-notion-light-border dark:bg-notion-dark-border/40 mx-1 opacity-50" />
+          <h2 className="text-[10px] sm:text-[11px] font-black text-notion-light-text dark:text-notion-dark-text tracking-[0.15em] sm:tracking-[0.25em] uppercase opacity-80 truncate max-w-[120px] xs:max-w-none">
             {title}
           </h2>
         </div>
       </div>
 
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1.5 sm:gap-2">
         {/* AI Chat Button */}
         <Button
           variant="ghost"
           size="sm"
           onClick={() => ui.setIsAiChatOpen(true)}
-          className="hidden md:flex text-notion-light-muted dark:text-notion-dark-muted font-black uppercase tracking-[0.2em] text-[9px] hover:text-indigo-600 dark:hover:text-indigo-400 rounded-xl hover:bg-indigo-600/5 transition-all py-1.5 px-4 border border-transparent hover:border-indigo-600/10"
-          leftIcon={
+          className="text-notion-light-muted dark:text-notion-dark-muted font-black uppercase tracking-[0.2em] text-[9px] hover:text-indigo-600 dark:hover:text-indigo-400 rounded-xl hover:bg-indigo-600/5 transition-all py-1.5 px-3 sm:px-4 border border-transparent hover:border-indigo-600/10"
+          title="Wes Interface"
+        >
+          <div className="flex items-center gap-2">
             <Icon.Chat
               size={14}
               className="text-indigo-600 dark:text-indigo-400"
             />
-          }
-        >
-          Wes Interface
+            <span className="hidden sm:inline">Wes Interface</span>
+          </div>
         </Button>
 
-        <div className="h-5 w-px bg-notion-light-border dark:bg-notion-dark-border/40 mx-2 opacity-30" />
+        <div className="h-5 w-px bg-notion-light-border dark:bg-notion-dark-border/40 mx-1 sm:mx-2 opacity-30" />
 
         {/* Theme Toggle */}
         <Button

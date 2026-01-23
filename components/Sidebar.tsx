@@ -74,7 +74,11 @@ export const Sidebar: React.FC = React.memo(() => {
     toggleSidebarCollapse: toggleCollapse,
   } = ui;
 
-  const widthClass = isOpen ? "w-60" : isCollapsed ? "w-16" : "w-60";
+  const widthClass = isOpen
+    ? "w-[85vw] sm:w-60 max-w-[300px]"
+    : isCollapsed
+      ? "w-16"
+      : "w-60";
 
   return (
     <>
@@ -86,7 +90,11 @@ export const Sidebar: React.FC = React.memo(() => {
       )}
 
       <aside
-        className={`fixed top-0 left-0 z-50 h-screen bg-notion-light-sidebar dark:bg-notion-dark-sidebar border-r border-notion-light-border dark:border-notion-dark-border transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] lg:translate-x-0 ${isOpen ? "translate-x-0 shadow-2xl shadow-black/40" : "-translate-x-full"} ${widthClass}`}
+        className={`fixed top-0 left-0 z-50 h-screen bg-notion-light-sidebar dark:bg-notion-dark-sidebar border-r border-notion-light-border dark:border-notion-dark-border transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] lg:translate-x-0 ${
+          isOpen
+            ? "translate-x-0 shadow-2xl shadow-black/40"
+            : "-translate-x-full"
+        } ${widthClass}`}
       >
         <div
           className={`h-16 flex items-center transition-all duration-500 ${isCollapsed ? "px-0 justify-center" : "px-5 justify-between"}`}

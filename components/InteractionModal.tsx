@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Interaction } from "../types";
 import { Icon as Icons } from "./Icons";
 import { MODULE_COLORS } from "../constants/ui";
-import { Button } from "./ui";
+import { Button, Card } from "./ui";
 
 interface InteractionModalProps {
   isOpen: boolean;
@@ -74,33 +74,39 @@ export const InteractionModal: React.FC<InteractionModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-[80] flex items-center justify-center p-4 bg-black/20 dark:bg-black/40 backdrop-blur-sm animate-in fade-in duration-300">
-      <div
-        className="bg-notion-light-bg dark:bg-notion-dark-bg rounded-2xl shadow-2xl w-full max-w-md overflow-hidden border border-notion-light-border dark:border-notion-dark-border animate-in zoom-in-95 duration-300"
+    <div className="fixed inset-0 z-[80] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-300">
+      <Card
+        padding="none"
+        className="shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-300 rounded-2xl border-none"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="px-6 py-4 border-b border-notion-light-border dark:border-notion-dark-border flex justify-between items-center bg-notion-light-sidebar/50 dark:bg-notion-dark-sidebar/50">
-          <h2 className="text-lg font-bold text-notion-light-text dark:text-notion-dark-text">
-            {initialData ? "Edit Interaction" : "Log Interaction"}
+        <div
+          className={`px-6 py-4 border-b border-notion-light-border dark:border-notion-dark-border flex justify-between items-center bg-notion-light-sidebar/50 dark:bg-notion-dark-sidebar/50 backdrop-blur-md`}
+        >
+          <h2 className="text-sm font-bold text-notion-light-text dark:text-notion-dark-text uppercase tracking-widest">
+            {initialData ? "Interaction Intelligence" : "New Interaction Log"}
           </h2>
           <Button
             variant="ghost"
             size="icon"
             onClick={onClose}
-            className="hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover"
+            className="hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover transition-colors"
           >
-            <Icons.Close size={20} />
+            <Icons.Close size={18} />
           </Button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-5">
+        <form onSubmit={handleSubmit} className="p-6 space-y-6">
           <div className="space-y-4">
             <div>
-              <label className="notion-label mb-1.5 block">
-                Interaction Type
-              </label>
+              <div className="flex items-center gap-2 mb-1.5 ml-1">
+                <Icons.Activity size={12} className="opacity-40" />
+                <span className="text-[10px] font-black uppercase tracking-widest opacity-40">
+                  Interaction Type
+                </span>
+              </div>
               <select
-                className="notion-input w-full"
+                className="w-full border border-notion-light-border dark:border-notion-dark-border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500/30 bg-notion-light-bg dark:bg-notion-dark-bg text-notion-light-text dark:text-notion-dark-text appearance-none cursor-pointer transition-all shadow-sm"
                 value={formData.type}
                 onChange={(e) =>
                   setFormData({
@@ -109,20 +115,25 @@ export const InteractionModal: React.FC<InteractionModalProps> = ({
                   })
                 }
               >
-                <option value="Call">Call</option>
-                <option value="Email">Email</option>
-                <option value="Message">Message</option>
-                <option value="Meeting">Meeting</option>
-                <option value="Other">Other</option>
+                <option value="Call">Voice Comms</option>
+                <option value="Email">Digital Correspondence</option>
+                <option value="Message">Direct Message</option>
+                <option value="Meeting">Strategic Session</option>
+                <option value="Other">Miscellaneous</option>
               </select>
             </div>
 
             <div>
-              <label className="notion-label mb-1.5 block">Date</label>
+              <div className="flex items-center gap-2 mb-1.5 ml-1">
+                <Icons.Calendar size={12} className="opacity-40" />
+                <span className="text-[10px] font-black uppercase tracking-widest opacity-40">
+                  Deployment Date
+                </span>
+              </div>
               <input
                 type="date"
                 required
-                className="notion-input w-full"
+                className="w-full border border-notion-light-border dark:border-notion-dark-border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500/30 bg-notion-light-bg dark:bg-notion-dark-bg text-notion-light-text dark:text-notion-dark-text transition-all shadow-sm"
                 value={formData.date}
                 onChange={(e) =>
                   setFormData({ ...formData, date: e.target.value })
@@ -131,11 +142,16 @@ export const InteractionModal: React.FC<InteractionModalProps> = ({
             </div>
 
             <div>
-              <label className="notion-label mb-1.5 block">Notes</label>
+              <div className="flex items-center gap-2 mb-1.5 ml-1">
+                <Icons.Notes size={12} className="opacity-40" />
+                <span className="text-[10px] font-black uppercase tracking-widest opacity-40">
+                  Intelligence Notes
+                </span>
+              </div>
               <textarea
                 required
-                className="notion-input w-full min-h-[120px] py-3 resize-none"
-                placeholder="What was discussed?"
+                className="w-full border border-notion-light-border dark:border-notion-dark-border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500/30 bg-notion-light-bg dark:bg-notion-dark-bg text-notion-light-text dark:text-notion-dark-text min-h-[140px] resize-none transition-all shadow-sm"
+                placeholder="What strategic intelligence was gathered?"
                 value={formData.notes}
                 onChange={(e) =>
                   setFormData({ ...formData, notes: e.target.value })
@@ -144,27 +160,27 @@ export const InteractionModal: React.FC<InteractionModalProps> = ({
             </div>
           </div>
 
-          <div className="flex justify-end gap-3 pt-4">
+          <div className="flex justify-end gap-3 pt-6 border-t border-notion-light-border dark:border-notion-dark-border">
             <Button
               variant="ghost"
               type="button"
               onClick={onClose}
-              className={`px-4 py-2 text-xs font-black uppercase tracking-widest text-notion-light-muted hover:${colors.text} transition-colors`}
+              className="px-6 py-2 text-[10px] font-black uppercase tracking-widest text-notion-light-muted dark:text-notion-dark-muted hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover rounded-xl"
             >
-              Cancel
+              Abort
             </Button>
             <Button
               variant="custom"
               type="submit"
               isLoading={isSubmitting}
               disabled={!formData.notes}
-              className={`px-6 py-2 ${colors.bg} ${colors.text} ${colors.border} border rounded-xl font-black text-xs uppercase tracking-widest shadow-sm ${colors.hoverBg} transition-all active:scale-95 disabled:opacity-50`}
+              className={`px-8 py-2 ${colors.bg} ${colors.text} ${colors.border} border rounded-xl font-black text-[10px] uppercase tracking-widest shadow-lg shadow-blue-500/10 ${colors.hoverBg} transition-all active:scale-95 disabled:opacity-50`}
             >
-              {initialData ? "Update Log" : "Save Log"}
+              {initialData ? "Sync Intelligence" : "Log Deployment"}
             </Button>
           </div>
         </form>
-      </div>
+      </Card>
     </div>
   );
 };

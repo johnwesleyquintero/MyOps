@@ -2,6 +2,7 @@ import React, { useMemo } from "react";
 import { TaskEntry } from "../types";
 import { PRIORITY_DOTS } from "@/constants";
 import { getProjectStyle } from "../utils/formatUtils";
+import { Card, Badge } from "./ui";
 
 interface GanttChartProps {
   entries: TaskEntry[];
@@ -59,11 +60,16 @@ export const GanttChart: React.FC<GanttChartProps> = React.memo(
     };
 
     return (
-      <div className="notion-card flex flex-col h-[calc(100vh-250px)] transition-colors overflow-hidden">
+      <Card
+        padding="none"
+        className="flex flex-col h-[calc(100vh-250px)] transition-colors overflow-hidden"
+      >
         {/* Timeline Header */}
         <div className="flex border-b border-notion-light-border dark:border-notion-dark-border bg-notion-light-sidebar/50 dark:bg-notion-dark-sidebar/30 overflow-x-auto custom-scrollbar">
-          <div className="w-24 md:w-40 flex-shrink-0 p-3 border-r border-notion-light-border dark:border-notion-dark-border notion-label sticky left-0 z-20 bg-notion-light-sidebar dark:bg-notion-dark-sidebar shadow-[4px_0_8px_-4px_rgba(0,0,0,0.1)]">
-            Project
+          <div className="w-24 md:w-40 flex-shrink-0 p-3 border-r border-notion-light-border dark:border-notion-dark-border sticky left-0 z-20 bg-notion-light-sidebar dark:bg-notion-dark-sidebar shadow-[4px_0_8px_-4px_rgba(0,0,0,0.1)] flex items-center">
+            <Badge variant="ghost" size="xs" className="opacity-60">
+              Project
+            </Badge>
           </div>
           <div className="flex-1 flex">
             {dates.map((d, i) => {
@@ -156,7 +162,7 @@ export const GanttChart: React.FC<GanttChartProps> = React.memo(
             ))
           )}
         </div>
-      </div>
+      </Card>
     );
   },
 );

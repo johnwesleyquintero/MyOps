@@ -1,5 +1,6 @@
 import React from "react";
 import { Icon, iconProps } from "../Icons";
+import { Card, Badge } from "../ui";
 
 export interface ProjectDebrief {
   name: string;
@@ -25,17 +26,21 @@ export const ProjectDebriefPanel: React.FC<ProjectDebriefPanelProps> =
     return (
       <div className={`grid grid-cols-1 md:grid-cols-3 gap-4 ${className}`}>
         {projects.map((project, idx) => (
-          <div
+          <Card
             key={project.name}
-            className="bg-white dark:bg-black/40 backdrop-blur-xl border border-slate-200/60 dark:border-white/5 p-5 rounded-2xl flex flex-col gap-4 group hover:shadow-2xl transition-all duration-500 animate-in slide-in-from-bottom-4"
+            className="p-5 flex flex-col gap-4 group hover:shadow-2xl transition-all duration-500 animate-in slide-in-from-bottom-4"
             style={{ animationDelay: `${idx * 100}ms` }}
           >
             {/* Header */}
             <div className="flex justify-between items-start">
               <div className="space-y-1">
-                <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500">
+                <Badge
+                  variant="ghost"
+                  size="xs"
+                  className="!p-0 font-black uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500"
+                >
                   Mission Debrief
-                </h4>
+                </Badge>
                 <h3 className="text-lg font-bold text-slate-800 dark:text-white truncate max-w-[140px]">
                   {project.name}
                 </h3>
@@ -54,9 +59,13 @@ export const ProjectDebriefPanel: React.FC<ProjectDebriefPanelProps> =
             {/* Core Metrics */}
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1">
-                <span className="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
+                <Badge
+                  variant="ghost"
+                  size="xs"
+                  className="!p-0 font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest"
+                >
                   Momentum
-                </span>
+                </Badge>
                 <div className="flex items-center gap-2">
                   <span className="text-xl font-black text-slate-800 dark:text-white">
                     {project.momentum}
@@ -70,9 +79,13 @@ export const ProjectDebriefPanel: React.FC<ProjectDebriefPanelProps> =
                 </div>
               </div>
               <div className="space-y-1">
-                <span className="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
+                <Badge
+                  variant="ghost"
+                  size="xs"
+                  className="!p-0 font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest"
+                >
                   Multiplier
-                </span>
+                </Badge>
                 <div className="flex items-center gap-1">
                   <span className="text-xl font-black text-indigo-500">
                     {project.peakStateMultiplier}
@@ -87,9 +100,13 @@ export const ProjectDebriefPanel: React.FC<ProjectDebriefPanelProps> =
             {/* Progress Bar (Completion) */}
             <div className="space-y-2">
               <div className="flex justify-between items-center">
-                <span className="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
+                <Badge
+                  variant="ghost"
+                  size="xs"
+                  className="!p-0 font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest"
+                >
                   Efficiency
-                </span>
+                </Badge>
                 <span className="text-[10px] font-black text-slate-600 dark:text-slate-300">
                   {project.completionRate}%
                 </span>
@@ -106,26 +123,38 @@ export const ProjectDebriefPanel: React.FC<ProjectDebriefPanelProps> =
             <div className="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-white/5">
               <div className="flex items-center gap-3">
                 <div className="flex flex-col">
-                  <span className="text-[8px] font-bold text-slate-400 uppercase">
+                  <Badge
+                    variant="ghost"
+                    size="xs"
+                    className="!p-0 font-bold text-slate-400 uppercase"
+                  >
                     Accuracy
-                  </span>
+                  </Badge>
                   <span className="text-[11px] font-black text-slate-700 dark:text-slate-200">
                     {project.accuracy}%
                   </span>
                 </div>
                 <div className="flex flex-col">
-                  <span className="text-[8px] font-bold text-slate-400 uppercase">
+                  <Badge
+                    variant="ghost"
+                    size="xs"
+                    className="!p-0 font-bold text-slate-400 uppercase"
+                  >
                     Reflections
-                  </span>
+                  </Badge>
                   <span className="text-[11px] font-black text-slate-700 dark:text-slate-200">
                     {project.reflections}
                   </span>
                 </div>
               </div>
               <div className="flex flex-col items-end">
-                <span className="text-[8px] font-bold text-slate-400 uppercase">
+                <Badge
+                  variant="ghost"
+                  size="xs"
+                  className="!p-0 font-bold text-slate-400 uppercase"
+                >
                   Risk Level
-                </span>
+                </Badge>
                 <span
                   className={`text-[10px] font-black uppercase tracking-tighter ${
                     project.riskFactor === "High"
@@ -151,7 +180,7 @@ export const ProjectDebriefPanel: React.FC<ProjectDebriefPanelProps> =
                 />
               ))}
             </div>
-          </div>
+          </Card>
         ))}
       </div>
     );

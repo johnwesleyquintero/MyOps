@@ -30,7 +30,7 @@ const DebouncedSettingInput: React.FC<{
     <input
       type={type}
       placeholder={placeholder}
-      className={`w-full border border-notion-light-border dark:border-notion-dark-border rounded px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500/30 bg-notion-light-bg dark:bg-notion-dark-bg text-notion-light-text dark:text-notion-dark-text ${className}`}
+      className={`w-full border border-notion-light-border dark:border-notion-dark-border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500/30 bg-notion-light-bg dark:bg-notion-dark-bg text-notion-light-text dark:text-notion-dark-text transition-all shadow-sm ${className}`}
       value={localValue}
       onChange={(e) => setLocalValue(e.target.value)}
     />
@@ -47,81 +47,94 @@ export const ConnectionSettings: React.FC<ConnectionSettingsProps> = ({
   onChange,
 }) => {
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* Theme Setting */}
       <div>
-        <label className="block text-[11px] font-bold text-notion-light-muted dark:text-notion-dark-muted uppercase tracking-wider mb-2">
-          Interface Theme
-        </label>
-        <div className="flex gap-4">
+        <div className="flex items-center gap-2 mb-3 ml-1">
+          <Icon.Sun size={12} className="opacity-40" />
+          <span className="text-[10px] font-black uppercase tracking-widest opacity-40">
+            Visual Interface Theme
+          </span>
+        </div>
+        <div className="grid grid-cols-2 gap-4">
           <Button
             onClick={() => onChange({ ...config, theme: "LIGHT" })}
             variant="custom"
-            className={`flex-1 py-3 px-4 rounded-xl text-sm font-medium border transition-all ${
+            className={`py-3 px-4 rounded-xl text-[10px] font-black uppercase tracking-widest border transition-all ${
               config.theme === "LIGHT"
-                ? "bg-notion-light-hover dark:bg-notion-dark-hover text-notion-light-text dark:text-notion-dark-text border-notion-light-border dark:border-notion-dark-border ring-1 ring-notion-light-border dark:ring-notion-dark-border shadow-sm"
-                : "bg-notion-light-bg dark:bg-notion-dark-bg text-notion-light-muted dark:text-notion-dark-muted border-notion-light-border dark:border-notion-dark-border hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover"
+                ? "bg-notion-light-bg dark:bg-notion-dark-bg text-notion-light-text dark:text-notion-dark-text border-notion-light-border dark:border-notion-dark-border shadow-lg shadow-black/5"
+                : "bg-transparent text-notion-light-muted dark:text-notion-dark-muted border-notion-light-border dark:border-notion-dark-border hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover"
             }`}
-            leftIcon={<Icon.Sun className="w-4 h-4" />}
           >
-            Light
+            <div className="flex items-center justify-center gap-2">
+              <Icon.Sun size={14} />
+              <span>Solar Mode</span>
+            </div>
           </Button>
           <Button
             onClick={() => onChange({ ...config, theme: "DARK" })}
             variant="custom"
-            className={`flex-1 py-3 px-4 rounded-xl text-sm font-medium border transition-all ${
+            className={`py-3 px-4 rounded-xl text-[10px] font-black uppercase tracking-widest border transition-all ${
               config.theme === "DARK"
-                ? "bg-notion-light-hover dark:bg-notion-dark-hover text-notion-light-text dark:text-notion-dark-text border-notion-light-border dark:border-notion-dark-border ring-1 ring-notion-light-border dark:ring-notion-dark-border shadow-sm"
-                : "bg-notion-light-bg dark:bg-notion-dark-bg text-notion-light-muted dark:text-notion-dark-muted border-notion-light-border dark:border-notion-dark-border hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover"
+                ? "bg-notion-light-bg dark:bg-notion-dark-bg text-notion-light-text dark:text-notion-dark-text border-notion-light-border dark:border-notion-dark-border shadow-lg shadow-black/5"
+                : "bg-transparent text-notion-light-muted dark:text-notion-dark-muted border-notion-light-border dark:border-notion-dark-border hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover"
             }`}
-            leftIcon={<Icon.Moon className="w-4 h-4" />}
           >
-            Dark
+            <div className="flex items-center justify-center gap-2">
+              <Icon.Moon size={14} />
+              <span>Lunar Mode</span>
+            </div>
           </Button>
         </div>
       </div>
 
-      <div className="border-t border-notion-light-border dark:border-notion-dark-border pt-6">
-        <label className="block text-[11px] font-bold text-notion-light-muted dark:text-notion-dark-muted uppercase tracking-wider mb-2">
-          Operation Mode
-        </label>
-        <div className="flex gap-4">
+      <div className="border-t border-notion-light-border dark:border-notion-dark-border pt-8">
+        <div className="flex items-center gap-2 mb-3 ml-1">
+          <Icon.Activity size={12} className="opacity-40" />
+          <span className="text-[10px] font-black uppercase tracking-widest opacity-40">
+            Operational Protocol
+          </span>
+        </div>
+        <div className="grid grid-cols-2 gap-4">
           <Button
             onClick={() => onChange({ ...config, mode: "DEMO" })}
             variant="custom"
-            className={`flex-1 py-3 px-4 rounded-xl text-sm font-medium border transition-all ${
+            className={`py-3 px-4 rounded-xl text-[10px] font-black uppercase tracking-widest border transition-all ${
               config.mode === "DEMO"
-                ? "bg-notion-light-text text-white border-notion-light-text dark:bg-notion-dark-text dark:text-black shadow-md"
-                : "bg-notion-light-bg dark:bg-notion-dark-bg text-notion-light-muted dark:text-notion-dark-muted border-notion-light-border dark:border-notion-dark-border hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover"
+                ? "bg-indigo-600 text-white border-indigo-500 shadow-lg shadow-indigo-500/20"
+                : "bg-transparent text-notion-light-muted dark:text-notion-dark-muted border-notion-light-border dark:border-notion-dark-border hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover"
             }`}
           >
-            Demo (Local)
+            Demo Protocol
           </Button>
           <Button
             onClick={() => onChange({ ...config, mode: "LIVE" })}
             variant="custom"
-            className={`flex-1 py-3 px-4 rounded-xl text-sm font-medium border transition-all ${
+            className={`py-3 px-4 rounded-xl text-[10px] font-black uppercase tracking-widest border transition-all ${
               config.mode === "LIVE"
-                ? "bg-blue-600 text-white border-blue-600 shadow-md"
-                : "bg-notion-light-bg dark:bg-notion-dark-bg text-notion-light-muted dark:text-notion-dark-muted border-notion-light-border dark:border-notion-dark-border hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover"
+                ? "bg-red-600 text-white border-red-500 shadow-lg shadow-red-500/20"
+                : "bg-transparent text-notion-light-muted dark:text-notion-dark-muted border-notion-light-border dark:border-notion-dark-border hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover"
             }`}
           >
-            Live (Google Sheets)
+            Live Deployment
           </Button>
         </div>
-        <p className="text-xs text-notion-light-muted dark:text-notion-dark-muted mt-2">
+        <p className="text-[10px] text-notion-light-muted dark:text-notion-dark-muted mt-3 italic ml-1">
           {config.mode === "DEMO"
-            ? "Data is stored in your browser's LocalStorage. Good for testing."
-            : "Data is synced with your sovereign Google Sheet."}
+            ? "Simulated environment: Data is strictly local to this device."
+            : "Production environment: Real-time synchronization with primary intelligence ledger."}
         </p>
       </div>
 
       {config.mode === "LIVE" && (
-        <div className="space-y-4 p-4 bg-notion-light-sidebar dark:bg-notion-dark-sidebar rounded border border-notion-light-border dark:border-notion-dark-border">
+        <div className="space-y-6 p-6 bg-notion-light-sidebar/50 dark:bg-notion-dark-sidebar/50 rounded-2xl border border-notion-light-border dark:border-notion-dark-border backdrop-blur-sm">
           <div>
-            <label className="block text-xs font-semibold text-notion-light-text dark:text-notion-dark-text mb-1">
-              GAS Web App URL
-            </label>
+            <div className="flex items-center gap-2 mb-2 ml-1">
+              <Icon.External size={12} className="opacity-40" />
+              <span className="text-[10px] font-black uppercase tracking-widest opacity-40">
+                Intelligence Endpoint (GAS URL)
+              </span>
+            </div>
             <DebouncedSettingInput
               placeholder="https://script.google.com/macros/s/..."
               value={config.gasDeploymentUrl}
@@ -130,37 +143,39 @@ export const ConnectionSettings: React.FC<ConnectionSettingsProps> = ({
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-notion-light-text dark:text-notion-dark-text mb-1">
-              API Secret Token
-            </label>
+            <div className="flex items-center gap-2 mb-2 ml-1">
+              <Icon.Lock size={12} className="opacity-40" />
+              <span className="text-[10px] font-black uppercase tracking-widest opacity-40">
+                Operational Clearance (API Token)
+              </span>
+            </div>
             <DebouncedSettingInput
               type="password"
-              placeholder="e.g. secret-key-123"
+              placeholder="Enter secure clearance token..."
               className="font-mono"
               value={config.apiToken || ""}
               onChange={(val) => onChange({ ...config, apiToken: val })}
             />
-            <p className="text-[10px] text-notion-light-muted dark:text-notion-dark-muted mt-1 italic">
-              Must match the{" "}
-              <code className="bg-notion-light-hover dark:bg-notion-dark-hover px-1 rounded">
-                API_SECRET
-              </code>{" "}
-              variable in your Google Apps Script.
-            </p>
           </div>
         </div>
       )}
 
       {/* AI Configuration */}
-      <div className="border-t border-notion-light-border dark:border-notion-dark-border pt-6">
-        <label className="block text-[11px] font-bold text-notion-light-muted dark:text-notion-dark-muted uppercase tracking-wider mb-4">
-          Neural Link (AI)
-        </label>
-        <div className="p-4 bg-notion-light-sidebar dark:bg-notion-dark-sidebar rounded border border-notion-light-border dark:border-notion-dark-border">
+      <div className="border-t border-notion-light-border dark:border-notion-dark-border pt-8">
+        <div className="flex items-center gap-2 mb-3 ml-1">
+          <Icon.Brain size={12} className="opacity-40" />
+          <span className="text-[10px] font-black uppercase tracking-widest opacity-40">
+            Neural Network Configuration
+          </span>
+        </div>
+        <div className="p-6 bg-notion-light-sidebar/50 dark:bg-notion-dark-sidebar/50 rounded-2xl border border-notion-light-border dark:border-notion-dark-border backdrop-blur-sm">
           <div>
-            <label className="block text-xs font-semibold text-notion-light-text dark:text-notion-dark-text mb-1">
-              Gemini API Key
-            </label>
+            <div className="flex items-center gap-2 mb-2 ml-1">
+              <Icon.Key size={12} className="opacity-40" />
+              <span className="text-[10px] font-black uppercase tracking-widest opacity-40">
+                Neural Link Key (Gemini)
+              </span>
+            </div>
             <DebouncedSettingInput
               type="password"
               placeholder="AIzaSy..."
@@ -168,17 +183,17 @@ export const ConnectionSettings: React.FC<ConnectionSettingsProps> = ({
               value={config.geminiApiKey || ""}
               onChange={(val) => onChange({ ...config, geminiApiKey: val })}
             />
-            <p className="text-xs text-notion-light-muted dark:text-notion-dark-muted mt-2">
-              Required for WesAI functionality. Your key is stored locally in
-              your browser.
+            <p className="text-[10px] text-notion-light-muted dark:text-notion-dark-muted mt-3 italic">
+              Required for autonomous intelligence processing. Keys are
+              encrypted locally.
               <br />
               <a
                 href="https://aistudio.google.com/app/apikey"
                 target="_blank"
                 rel="noreferrer"
-                className="text-blue-600 dark:text-blue-400 hover:underline inline-flex items-center gap-1 mt-1"
+                className="text-indigo-600 dark:text-indigo-400 hover:underline inline-flex items-center gap-1 mt-2 font-bold"
               >
-                Get a free key from Google AI Studio
+                Secure key from Google AI Studio
                 <Icon.External className="w-3 h-3" />
               </a>
             </p>

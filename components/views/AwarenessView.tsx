@@ -169,14 +169,14 @@ export const AwarenessView: React.FC<AwarenessViewProps> = React.memo(
               <div
                 className={`absolute top-0 right-0 p-8 opacity-10 ${colors.text} group-hover:scale-110 transition-transform duration-500`}
               >
-                <Icon.Ai size={100} />
+                <Icon.Brain size={100} />
               </div>
               <div className="relative z-10">
                 <div className="flex items-center gap-2 mb-6">
                   <div
                     className={`p-2 ${colors.bg} rounded-lg border ${colors.border}`}
                   >
-                    <Icon.Ai size={18} className={colors.text} />
+                    <Icon.Brain size={18} className={colors.text} />
                   </div>
                   <div>
                     <h3

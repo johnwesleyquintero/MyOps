@@ -9,7 +9,7 @@ import {
 import { Icon, iconProps } from "./Icons";
 import { getProjectBadgeStyle } from "../utils/styleUtils";
 import { formatRelativeDate } from "../utils/formatUtils";
-import { Button } from "./ui";
+import { Button, Badge } from "./ui";
 import {
   useTableColumns,
   ColumnConfig,
@@ -150,11 +150,13 @@ export const TaskTable: React.FC<TaskTableProps> = React.memo(
                         >
                           {col.key === "date" && (
                             <div className="flex flex-col">
-                              <span
-                                className={`text-[10px] font-medium ${formatRelativeDate(task.date).colorClass}`}
+                              <Badge
+                                variant="custom"
+                                size="xs"
+                                className={`font-bold ${formatRelativeDate(task.date).colorClass}`}
                               >
                                 {formatRelativeDate(task.date).text}
-                              </span>
+                              </Badge>
                             </div>
                           )}
                           {col.key === "description" && (
@@ -170,20 +172,24 @@ export const TaskTable: React.FC<TaskTableProps> = React.memo(
                             </div>
                           )}
                           {col.key === "project" && (
-                            <span
-                              className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium border ${getProjectBadgeStyle(task.project)}`}
+                            <Badge
+                              variant="custom"
+                              size="xs"
+                              className={`border ${getProjectBadgeStyle(task.project)}`}
                             >
                               {task.project}
-                            </span>
+                            </Badge>
                           )}
                           {col.key === "priority" && (
                             <div className="flex items-center gap-1.5">
-                              <div
-                                className={`w-1.5 h-1.5 rounded-full ${PRIORITY_DOTS[task.priority]}`}
-                              />
-                              <span className="text-xs text-notion-light-text dark:text-notion-dark-text">
+                              <Badge
+                                variant="dot"
+                                size="xs"
+                                dotColor={PRIORITY_DOTS[task.priority]}
+                                className="border-none bg-transparent dark:bg-transparent text-notion-light-text dark:text-notion-dark-text"
+                              >
                                 {task.priority}
-                              </span>
+                              </Badge>
                             </div>
                           )}
                           {col.key === "status" && (
@@ -193,14 +199,14 @@ export const TaskTable: React.FC<TaskTableProps> = React.memo(
                                 onStatusUpdate && onStatusUpdate(task)
                               }
                             >
-                              <div
-                                className={`w-1.5 h-1.5 rounded-full ${STATUS_INDICATORS[task.status]} group-hover/status:ring-2 group-hover/status:ring-offset-1 group-hover/status:ring-current transition-all`}
-                              />
-                              <span
-                                className={`text-xs text-notion-light-text dark:text-notion-dark-text group-hover/status:underline group-hover/status:${colors.text}`}
+                              <Badge
+                                variant="dot"
+                                size="xs"
+                                dotColor={STATUS_INDICATORS[task.status]}
+                                className="border-none bg-transparent dark:bg-transparent text-notion-light-text dark:text-notion-dark-text group-hover/status:underline"
                               >
                                 {task.status}
-                              </span>
+                              </Badge>
                             </div>
                           )}
                         </td>

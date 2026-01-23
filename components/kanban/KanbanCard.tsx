@@ -4,7 +4,7 @@ import { PRIORITY_DOTS } from "@/constants";
 import { formatRelativeDate, getProjectStyle } from "../../utils/formatUtils";
 import { CopyIdButton } from "../CopyIdButton";
 import { Icon, iconProps } from "../Icons";
-import { Button } from "../ui";
+import { Button, Card, Badge } from "../ui";
 
 interface KanbanCardProps {
   task: TaskEntry;
@@ -35,25 +35,33 @@ export const KanbanCard: React.FC<KanbanCardProps> = ({
   const tags = getTags(task.description);
 
   return (
-    <div
+    <Card
+      hoverEffect
+      padding="sm"
+      className={`${isDone ? "opacity-60" : ""}`}
       onClick={() => onEdit(task)}
-      className={`notion-card-interactive p-3 ${isDone ? "opacity-60" : ""}`}
     >
       <div className="flex justify-between items-start mb-2">
-        <span className={`notion-badge ${getProjectStyle(task.project)}`}>
+        <Badge
+          variant="custom"
+          size="sm"
+          className={`${getProjectStyle(task.project)}`}
+        >
           {task.project}
-        </span>
+        </Badge>
         <div className="flex gap-1.5 items-center">
           {dependencyStatus && (
-            <div
-              className={`flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-bold border transition-colors ${dependencyStatus.blocked ? "bg-purple-500/10 dark:bg-purple-500/20 text-purple-600 dark:text-purple-400 border-purple-500/20 dark:border-purple-500/30" : "bg-notion-light-sidebar dark:bg-notion-dark-sidebar text-notion-light-muted dark:text-notion-dark-muted border-notion-light-border dark:border-notion-dark-border"}`}
+            <Badge
+              variant="custom"
+              size="xs"
+              className={`transition-colors ${dependencyStatus.blocked ? "bg-purple-500/10 dark:bg-purple-500/20 text-purple-600 dark:text-purple-400 border-purple-500/20 dark:border-purple-500/30" : "bg-notion-light-sidebar dark:bg-notion-dark-sidebar text-notion-light-muted dark:text-notion-dark-muted border-notion-light-border dark:border-notion-dark-border"}`}
               title={dependencyStatus.blocked ? "Blocked" : "Dependencies"}
             >
-              <Icon.Link className="w-2.5 h-2.5" strokeWidth={3} />
+              <Icon.Link className="w-2 h-2" strokeWidth={3} />
               {dependencyStatus.blocked && (
                 <span>{dependencyStatus.blockerCount}</span>
               )}
-            </div>
+            </Badge>
           )}
           <div
             className={`w-1.5 h-1.5 rounded-full ${PRIORITY_DOTS[task.priority]}`}
@@ -70,22 +78,21 @@ export const KanbanCard: React.FC<KanbanCardProps> = ({
       {tags.length > 0 && (
         <div className="flex flex-wrap gap-1 mb-3">
           {tags.map((tag, i) => (
-            <span
-              key={i}
-              className="px-1.5 py-0.5 bg-notion-light-hover dark:bg-notion-dark-hover text-notion-light-muted dark:text-notion-dark-muted text-[9px] font-bold rounded border border-notion-light-border dark:border-notion-dark-border"
-            >
+            <Badge key={i} variant="outline" size="xs">
               {tag}
-            </span>
+            </Badge>
           ))}
         </div>
       )}
 
       <div className="flex items-center justify-between pt-2 border-t border-notion-light-border/50 dark:border-notion-dark-border/30">
-        <span
-          className={`notion-label ${formatRelativeDate(task.date).colorClass}`}
+        <Badge
+          variant="custom"
+          size="xs"
+          className={`${formatRelativeDate(task.date).colorClass}`}
         >
           {formatRelativeDate(task.date).text}
-        </span>
+        </Badge>
         <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
           <CopyIdButton
             id={task.id}
@@ -117,6 +124,6 @@ export const KanbanCard: React.FC<KanbanCardProps> = ({
           )}
         </div>
       </div>
-    </div>
+    </Card>
   );
 };

@@ -11,11 +11,11 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 
 const variants = {
   primary:
-    "bg-indigo-600 text-white hover:bg-indigo-700 shadow-sm shadow-indigo-500/20",
+    "bg-notion-light-text dark:bg-notion-dark-text text-white dark:text-notion-dark-bg hover:opacity-90 shadow-sm shadow-black/10 dark:shadow-white/5",
   secondary:
     "bg-white dark:bg-notion-dark-sidebar border border-notion-light-border dark:border-notion-dark-border text-notion-light-text dark:text-notion-dark-text hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover shadow-sm",
   ghost:
-    "bg-transparent hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover text-notion-light-text dark:text-notion-dark-text",
+    "bg-transparent hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover text-notion-light-muted dark:text-notion-dark-muted hover:text-notion-light-text dark:hover:text-notion-dark-text",
   outline:
     "bg-transparent border border-notion-light-border dark:border-notion-dark-border text-notion-light-text dark:text-notion-dark-text hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover",
   danger:
@@ -28,7 +28,7 @@ const sizes = {
   sm: "px-3 py-1.5 text-xs gap-2",
   md: "px-4 py-2 text-sm gap-2",
   lg: "px-6 py-3 text-base gap-3",
-  icon: "p-1.5",
+  icon: "p-2",
 };
 
 export const Button: React.FC<ButtonProps> = React.memo(
@@ -44,9 +44,10 @@ export const Button: React.FC<ButtonProps> = React.memo(
     ...props
   }) => {
     const baseStyles =
-      "transition-all active:scale-95 disabled:opacity-50 disabled:pointer-events-none rounded-xl";
+      "transition-all active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none rounded-lg";
 
-    const layoutStyles = "inline-flex items-center justify-center font-medium";
+    const layoutStyles =
+      "inline-flex items-center justify-center font-medium whitespace-nowrap";
 
     const sizeStyles = variant === "custom" ? "gap-2" : sizes[size];
 
@@ -57,7 +58,7 @@ export const Button: React.FC<ButtonProps> = React.memo(
         {...props}
       >
         {isLoading ? (
-          <Icon.Ai className="animate-spin" size={size === "xs" ? 12 : 16} />
+          <Icon.Brain className="animate-spin" size={size === "xs" ? 12 : 16} />
         ) : (
           leftIcon
         )}

@@ -60,7 +60,7 @@ export const NAVIGATION_CONFIG: NavCategory[] = [
       {
         page: "WESAI",
         label: "WesAI Co-Pilot",
-        icon: <Icon.Ai {...iconProps(18)} />,
+        icon: <Icon.Brain {...iconProps(18)} />,
       },
       {
         page: "ASSETS",

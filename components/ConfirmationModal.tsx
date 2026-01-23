@@ -1,6 +1,6 @@
 import React from "react";
 import { Icon, iconProps } from "./Icons";
-import { Button } from "./ui";
+import { Button, Card } from "./ui";
 
 interface ConfirmationModalProps {
   isOpen: boolean;
@@ -27,8 +27,9 @@ export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-[2px] transition-opacity animate-in fade-in duration-200">
-      <div
-        className="notion-card max-w-md w-full overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200"
+      <Card
+        padding="none"
+        className="max-w-md w-full overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200"
         role="dialog"
         aria-modal="true"
       >
@@ -70,7 +71,7 @@ export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
             {isLoading ? "Processing..." : confirmText}
           </Button>
         </div>
-      </div>
+      </Card>
     </div>
   );
 };

@@ -34,24 +34,27 @@ const NavItem: React.FC<NavItemProps> = React.memo(
           setIsOpen(false);
         }}
         title={isCollapsed ? label : ""}
-        className={`w-full justify-start ${isCollapsed ? "justify-center px-0" : "px-3"} py-1.5 text-sm rounded transition-all duration-150 group ${
+        className={`w-full justify-start ${isCollapsed ? "justify-center px-0" : "px-3"} py-2 text-sm rounded-xl transition-all duration-300 group relative ${
           isActive
-            ? "bg-notion-hover text-notion-text font-medium shadow-sm"
-            : "text-notion-muted hover:text-notion-text"
+            ? "bg-indigo-600/10 dark:bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 font-bold shadow-[inset_0_0_0_1px_rgba(79,70,229,0.2)]"
+            : "text-notion-light-muted dark:text-notion-dark-muted hover:text-notion-light-text dark:hover:text-notion-dark-text hover:bg-notion-light-hover/50 dark:hover:bg-notion-dark-hover/50"
         }`}
         leftIcon={
           <span
-            className={`${isActive ? "text-notion-text" : "text-notion-muted group-hover:text-notion-text"} flex-shrink-0 transition-colors duration-150`}
+            className={`${isActive ? "text-indigo-600 dark:text-indigo-400 scale-110 drop-shadow-[0_0_8px_rgba(79,70,229,0.4)]" : "text-notion-light-muted dark:text-notion-dark-muted group-hover:text-notion-light-text dark:group-hover:text-notion-dark-text"} flex-shrink-0 transition-all duration-300`}
           >
             {icon}
           </span>
         }
       >
         <span
-          className={`ml-2.5 whitespace-nowrap overflow-hidden transition-all duration-300 ${isCollapsed ? "max-w-0 opacity-0" : "max-w-xs opacity-100"}`}
+          className={`ml-3 whitespace-nowrap overflow-hidden transition-all duration-500 ${isCollapsed ? "max-w-0 opacity-0" : "max-w-xs opacity-100"}`}
         >
           {label}
         </span>
+        {isActive && !isCollapsed && (
+          <div className="absolute left-0 top-2 bottom-2 w-1 bg-indigo-600 dark:bg-indigo-500 rounded-full shadow-[0_0_10px_rgba(79,70,229,0.8)]" />
+        )}
       </Button>
     );
   },
@@ -83,51 +86,48 @@ export const Sidebar: React.FC = React.memo(() => {
       )}
 
       <aside
-        className={`fixed top-0 left-0 z-50 h-screen bg-notion-sidebar border-r border-notion-border transition-all duration-300 ease-in-out lg:translate-x-0 ${isOpen ? "translate-x-0 shadow-xl" : "-translate-x-full"} ${widthClass}`}
+        className={`fixed top-0 left-0 z-50 h-screen bg-notion-light-sidebar dark:bg-notion-dark-sidebar border-r border-notion-light-border dark:border-notion-dark-border transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] lg:translate-x-0 ${isOpen ? "translate-x-0 shadow-2xl shadow-black/40" : "-translate-x-full"} ${widthClass}`}
       >
         <div
-          className={`h-14 flex items-center justify-between transition-all duration-300 ${isCollapsed ? "px-0" : "px-4"}`}
+          className={`h-16 flex items-center transition-all duration-500 ${isCollapsed ? "px-0 justify-center" : "px-5 justify-between"}`}
         >
           <div
-            className={`flex items-center gap-3 overflow-hidden ${isCollapsed ? "justify-center w-full" : ""}`}
+            className={`flex items-center gap-3 overflow-hidden ${isCollapsed ? "justify-center" : ""}`}
           >
-            <div className="w-8 h-8 rounded bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center text-white shadow-sm flex-shrink-0">
-              <Icon.Logo size={18} />
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-600 to-violet-700 flex items-center justify-center text-white shadow-lg shadow-indigo-500/30 flex-shrink-0 animate-pulse-slow">
+              <Icon.Logo size={20} className="drop-shadow-sm" />
             </div>
             {!isCollapsed && (
-              <span className="font-bold text-sm tracking-tight whitespace-nowrap text-notion-text">
-                MyOps <span className="text-[10px] opacity-40 ml-1">v0.8</span>
-              </span>
+              <div className="flex flex-col">
+                <span className="font-black text-sm tracking-tighter whitespace-nowrap text-notion-light-text dark:text-notion-dark-text uppercase leading-none">
+                  MyOps
+                </span>
+                <span className="text-[9px] font-black text-indigo-500 dark:text-indigo-400 tracking-[0.2em] uppercase mt-0.5 opacity-80">
+                  Command <span className="opacity-40">v0.9</span>
+                </span>
+              </div>
             )}
           </div>
-          {!isCollapsed && (
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={toggleCollapse}
-              className="hidden lg:flex text-notion-muted hover:bg-notion-hover"
-            >
-              <Icon.ChevronLeft size={16} />
-            </Button>
-          )}
-          {isCollapsed && (
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={toggleCollapse}
-              className="hidden lg:flex absolute -right-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-white dark:bg-notion-sidebar border border-notion-border shadow-sm items-center justify-center text-notion-muted z-50 hover:text-violet-500 transition-colors"
-            >
-              <Icon.ChevronRight size={12} />
-            </Button>
-          )}
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={toggleCollapse}
+            className={`hidden lg:flex h-8 w-8 text-notion-light-muted dark:text-notion-dark-muted hover:text-notion-light-text dark:hover:text-notion-dark-text hover:bg-notion-light-hover/80 dark:hover:bg-notion-dark-hover/80 rounded-lg transition-all duration-300 ${isCollapsed ? "absolute -right-4 top-4 bg-white dark:bg-notion-dark-sidebar border border-notion-light-border dark:border-notion-dark-border shadow-md z-[60]" : ""}`}
+            leftIcon={
+              <Icon.ChevronLeft
+                size={14}
+                className={`transition-transform duration-500 ${isCollapsed ? "rotate-180" : ""}`}
+              />
+            }
+          />
         </div>
 
-        <nav className="flex-1 px-2 py-4 space-y-0.5 overflow-y-auto custom-scrollbar">
+        <nav className="px-3 py-6 flex flex-col gap-1 overflow-y-auto h-[calc(100vh-140px)] scrollbar-hide">
           {NAVIGATION_CONFIG.map((group) => (
             <div key={group.title} className="mb-6 last:mb-0">
               {!isCollapsed && (
                 <div className="px-3 mb-2">
-                  <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-notion-muted">
+                  <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-notion-light-muted dark:text-notion-dark-muted">
                     {group.title}
                   </span>
                 </div>
@@ -151,13 +151,13 @@ export const Sidebar: React.FC = React.memo(() => {
         </nav>
 
         <div
-          className={`p-2 border-t border-notion-border space-y-0.5 flex flex-col ${isCollapsed ? "items-center" : ""}`}
+          className={`p-2 border-t border-notion-light-border dark:border-notion-dark-border space-y-0.5 flex flex-col ${isCollapsed ? "items-center" : ""}`}
         >
           <Button
             variant="ghost"
             onClick={() => setShowSettings(true)}
             title={isCollapsed ? "Settings" : ""}
-            className={`w-full justify-start ${isCollapsed ? "justify-center px-0" : "px-3"} py-1.5 text-sm text-notion-muted hover:text-notion-text rounded transition-all duration-150 group`}
+            className={`w-full justify-start ${isCollapsed ? "justify-center px-0" : "px-3"} py-1.5 text-sm text-notion-light-muted dark:text-notion-dark-muted hover:text-notion-light-text dark:hover:text-notion-dark-text rounded-lg transition-all duration-150 group`}
             leftIcon={
               <span className="flex-shrink-0">
                 <Icon.Settings size={18} />

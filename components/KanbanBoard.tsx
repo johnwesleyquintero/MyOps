@@ -2,7 +2,7 @@ import React, { useMemo, useCallback } from "react";
 import { TaskEntry, StatusLevel } from "../types";
 import { KanbanCard } from "./kanban/KanbanCard";
 import { Icon, iconProps } from "./Icons";
-import { Button } from "./ui/Button";
+import { Button, Badge } from "./ui";
 
 interface KanbanBoardProps {
   entries: TaskEntry[];
@@ -55,29 +55,39 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = React.memo(
     );
 
     return (
-      <div className="flex flex-col md:flex-row gap-4 overflow-x-auto pb-4 h-[calc(100vh-250px)] custom-scrollbar snap-x snap-mandatory">
+      <div className="flex flex-col md:flex-row gap-6 overflow-x-auto pb-4 h-[calc(100vh-250px)] custom-scrollbar snap-x snap-mandatory">
         {(["Backlog", "In Progress", "Done"] as StatusLevel[]).map((status) => (
           <div
             key={status}
-            className="flex-1 min-w-[85vw] md:min-w-[300px] flex flex-col rounded bg-notion-light-sidebar dark:bg-notion-dark-sidebar/50 border border-notion-light-border dark:border-notion-dark-border/50 snap-center"
+            className="flex-1 min-w-[85vw] md:min-w-[320px] flex flex-col rounded-xl bg-notion-light-sidebar/30 dark:bg-notion-dark-sidebar/20 border border-notion-light-border dark:border-notion-dark-border/40 snap-center shadow-sm"
           >
-            <div className="p-3 flex justify-between items-center border-b border-notion-light-border/50 dark:border-notion-dark-border/30">
+            <div className="p-4 flex justify-between items-center border-b border-notion-light-border/50 dark:border-notion-dark-border/20">
               <div className="flex items-center gap-2">
-                <h3 className="notion-label">{status}</h3>
-                <span className="px-1.5 py-0.5 rounded bg-notion-light-hover dark:bg-notion-dark-hover text-[10px] font-bold text-notion-light-muted dark:text-notion-dark-muted">
+                <Badge
+                  variant="ghost"
+                  size="xs"
+                  className="font-bold uppercase tracking-wider opacity-70"
+                >
+                  {status}
+                </Badge>
+                <Badge
+                  variant="ghost"
+                  size="xs"
+                  className="bg-notion-light-hover/50 dark:bg-notion-dark-hover/30 px-1.5 opacity-60"
+                >
                   {columns[status].length}
-                </span>
+                </Badge>
               </div>
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={onAdd}
-                className="text-notion-light-muted dark:text-notion-dark-muted hover:text-notion-light-text dark:hover:text-notion-dark-text transition-all"
+                className="h-7 w-7 text-notion-light-muted dark:text-notion-dark-muted hover:text-notion-light-text dark:hover:text-notion-dark-text transition-all"
               >
                 <Icon.Add {...iconProps(14)} />
               </Button>
             </div>
-            <div className="flex-1 p-2 overflow-y-auto space-y-2 custom-scrollbar">
+            <div className="flex-1 p-3 overflow-y-auto space-y-3 custom-scrollbar">
               {columns[status].map((task) => (
                 <KanbanCard
                   key={task.id}

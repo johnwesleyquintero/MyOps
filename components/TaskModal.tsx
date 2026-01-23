@@ -6,10 +6,9 @@ import { PRIORITIES, STATUSES } from "@/constants";
 import { CopyIdButton } from "./CopyIdButton";
 import { useTaskForm } from "../hooks/useTaskForm";
 import { useMarkdownEditor } from "../hooks/useMarkdownEditor";
-import { Icon, iconProps } from "./Icons";
-import { Button } from "./ui/Button";
+import { Icon } from "./Icons";
+import { Button, Card, Badge } from "./ui";
 import { toast } from "sonner";
-import { MODULE_COLORS } from "../constants/ui";
 import { useUi } from "../hooks/useUi";
 import { useData } from "../hooks/useData";
 
@@ -46,8 +45,6 @@ export const TaskModal: React.FC = React.memo(() => {
     setIsCustomProject,
     availableProjects,
   } = useTaskForm(initialData, entries, decisionEntries);
-
-  const successColors = MODULE_COLORS.success;
 
   const [copiedMd, setCopiedMd] = useState(false);
 
@@ -97,52 +94,65 @@ export const TaskModal: React.FC = React.memo(() => {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-[2px] animate-in fade-in duration-200"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-300"
       onKeyDown={handleKeyDown}
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
     >
-      <div className="notion-card w-full max-w-4xl shadow-2xl flex flex-col h-full md:h-auto md:max-h-[90vh] overflow-hidden animate-in zoom-in-95 duration-200 rounded-none md:rounded-2xl">
+      <Card
+        padding="none"
+        className="w-full max-w-4xl shadow-2xl flex flex-col h-full md:h-auto md:max-h-[90vh] overflow-hidden animate-in zoom-in-95 duration-300 rounded-2xl border-none"
+      >
         {/* Modal Header */}
-        <div className="px-4 py-3 border-b border-notion-light-border dark:border-notion-dark-border flex items-center justify-between bg-notion-light-sidebar dark:bg-notion-dark-sidebar">
-          <div className="flex items-center gap-3">
-            <span className="text-notion-light-muted dark:text-notion-dark-muted">
-              <Icon.Add {...iconProps(18)} />
-            </span>
-            <h2 className="text-sm font-semibold text-notion-light-text dark:text-notion-dark-text">
-              {initialData ? "Edit Task" : "New Task"}
-            </h2>
-            {initialData && (
-              <div className="flex items-center gap-1.5 ml-2 pl-3 border-l border-notion-light-border dark:border-notion-dark-border">
-                <CopyIdButton
-                  id={initialData.id}
-                  className="text-xs text-notion-light-muted hover:text-notion-light-text dark:hover:text-notion-dark-text"
-                />
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={handleCopyMarkdown}
-                  className="text-notion-light-muted hover:text-notion-light-text dark:hover:text-notion-dark-text transition-colors"
-                  title="Copy Task as Markdown"
-                >
-                  {copiedMd ? (
-                    <Icon.Check {...iconProps(14, successColors.text)} />
-                  ) : (
-                    <Icon.Copy {...iconProps(14)} />
-                  )}
-                </Button>
-              </div>
-            )}
+        <div className="px-6 py-4 border-b border-notion-light-border dark:border-notion-dark-border flex items-center justify-between bg-notion-light-sidebar/50 dark:bg-notion-dark-sidebar/50 backdrop-blur-md">
+          <div className="flex items-center gap-4">
+            <div className="p-2 bg-notion-light-bg dark:bg-notion-dark-bg rounded-lg shadow-sm border border-notion-light-border dark:border-notion-dark-border">
+              <Icon.Add
+                size={16}
+                className="text-notion-light-text dark:text-notion-dark-text"
+              />
+            </div>
+            <div>
+              <h2 className="text-sm font-bold text-notion-light-text dark:text-notion-dark-text uppercase tracking-widest">
+                {initialData ? "Mission intelligence" : "New Tactical Mission"}
+              </h2>
+              {initialData && (
+                <div className="flex items-center gap-2 mt-1">
+                  <span className="text-[10px] font-black uppercase tracking-widest opacity-40">
+                    UID:
+                  </span>
+                  <CopyIdButton
+                    id={initialData.id}
+                    className="text-[10px] font-mono opacity-40 hover:opacity-100 transition-opacity"
+                  />
+                </div>
+              )}
+            </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
+            {initialData && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleCopyMarkdown}
+                className="w-9 h-9 text-notion-light-muted hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover transition-all rounded-lg"
+                title="Copy Task as Markdown"
+              >
+                {copiedMd ? (
+                  <Icon.Check size={16} className="text-green-500" />
+                ) : (
+                  <Icon.Copy size={16} />
+                )}
+              </Button>
+            )}
             <Button
               variant="ghost"
               size="icon"
               onClick={onClose}
-              className="text-notion-light-muted transition-colors"
+              className="w-9 h-9 text-notion-light-muted hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover transition-all rounded-lg"
             >
-              <Icon.Close {...iconProps(18)} />
+              <Icon.Close size={18} />
             </Button>
           </div>
         </div>
@@ -153,22 +163,31 @@ export const TaskModal: React.FC = React.memo(() => {
           className="flex-1 flex flex-col min-h-0 overflow-hidden"
         >
           {/* Scrollable Content Area */}
-          <div className="flex-1 overflow-y-auto p-6 custom-scrollbar">
+          <div className="flex-1 overflow-y-auto p-8 custom-scrollbar">
             {/* Main Content Area: Editor & Preview */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 min-h-[300px]">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-10 min-h-[350px]">
               {/* Left: Editor */}
-              <div className="flex flex-col space-y-3">
-                <div className="flex items-center justify-between">
-                  <label className="notion-label">Description (Markdown)</label>
-                  <span className="text-[10px] text-notion-light-muted dark:text-notion-dark-muted font-mono">
-                    Editor
-                  </span>
+              <div className="flex flex-col space-y-4">
+                <div className="flex items-center justify-between px-1">
+                  <div className="flex items-center gap-2 opacity-40">
+                    <Icon.Edit size={12} />
+                    <span className="text-[10px] font-black uppercase tracking-widest">
+                      Mission Description
+                    </span>
+                  </div>
+                  <Badge
+                    variant="outline"
+                    size="xs"
+                    className="font-mono scale-90 opacity-40 border-none"
+                  >
+                    MARKDOWN
+                  </Badge>
                 </div>
-                <div className="flex-1 relative group bg-notion-light-sidebar/30 dark:bg-notion-dark-sidebar/30 rounded-lg p-3 border border-notion-light-border/50 dark:border-notion-dark-border/50 focus-within:border-notion-light-border dark:focus-within:border-notion-dark-border transition-colors flex flex-col min-h-[200px]">
+                <div className="flex-1 relative group bg-notion-light-sidebar/20 dark:bg-notion-dark-sidebar/20 rounded-2xl p-6 border border-notion-light-border/50 dark:border-notion-dark-border/50 focus-within:border-notion-light-border dark:focus-within:border-notion-dark-border transition-all flex flex-col min-h-[250px] shadow-inner">
                   <textarea
                     ref={textareaRef}
-                    className="w-full flex-1 bg-transparent text-sm text-notion-light-text dark:text-notion-dark-text placeholder-notion-light-muted dark:placeholder-notion-dark-muted border-none focus:ring-0 p-0 resize-none font-mono leading-relaxed"
-                    placeholder="What needs to be done? Support Markdown..."
+                    className="w-full flex-1 bg-transparent text-sm text-notion-light-text dark:text-notion-dark-text placeholder:opacity-30 border-none focus:ring-0 p-0 resize-none font-mono leading-relaxed"
+                    placeholder="Describe the mission objective... Support Markdown."
                     value={formData.description}
                     onChange={(e) =>
                       setFormData({ ...formData, description: e.target.value })
@@ -179,14 +198,23 @@ export const TaskModal: React.FC = React.memo(() => {
               </div>
 
               {/* Right: Preview */}
-              <div className="flex flex-col space-y-3">
-                <div className="flex items-center justify-between">
-                  <label className="notion-label">Preview</label>
-                  <span className="text-[10px] text-notion-light-muted dark:text-notion-dark-muted font-mono">
-                    Live View
-                  </span>
+              <div className="flex flex-col space-y-4">
+                <div className="flex items-center justify-between px-1">
+                  <div className="flex items-center gap-2 opacity-40">
+                    <Icon.View size={12} />
+                    <span className="text-[10px] font-black uppercase tracking-widest">
+                      Tactical Preview
+                    </span>
+                  </div>
+                  <Badge
+                    variant="outline"
+                    size="xs"
+                    className="font-mono scale-90 opacity-40 border-none"
+                  >
+                    LIVE
+                  </Badge>
                 </div>
-                <div className="flex-1 markdown-preview bg-notion-light-sidebar/10 dark:bg-notion-dark-sidebar/10 rounded-lg p-4 border border-notion-light-border/30 dark:border-notion-dark-border/30 min-h-[200px]">
+                <div className="flex-1 markdown-preview bg-notion-light-bg dark:bg-notion-dark-bg rounded-2xl p-6 border border-dashed border-notion-light-border/30 dark:border-notion-dark-border/30 min-h-[250px] shadow-sm">
                   {formData.description ? (
                     <div className="prose prose-sm dark:prose-invert max-w-none">
                       <ReactMarkdown remarkPlugins={[remarkGfm]}>
@@ -194,9 +222,11 @@ export const TaskModal: React.FC = React.memo(() => {
                       </ReactMarkdown>
                     </div>
                   ) : (
-                    <span className="text-notion-light-muted/50 dark:text-notion-dark-muted/50 italic text-xs">
-                      No content to preview...
-                    </span>
+                    <div className="h-full flex items-center justify-center">
+                      <span className="text-notion-light-muted/30 dark:text-notion-dark-muted/30 italic text-xs font-medium">
+                        Waiting for mission details...
+                      </span>
+                    </div>
                   )}
                 </div>
               </div>
@@ -204,16 +234,19 @@ export const TaskModal: React.FC = React.memo(() => {
           </div>
 
           {/* Fixed Metadata Area */}
-          <div className="shrink-0 p-6 border-t border-notion-light-border/50 dark:border-notion-dark-border/50 bg-notion-light-bg/50 dark:bg-notion-dark-bg/50 backdrop-blur-sm">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+          <div className="shrink-0 p-8 border-t border-notion-light-border/50 dark:border-notion-dark-border/50 bg-notion-light-sidebar/20 dark:bg-notion-dark-sidebar/20 backdrop-blur-sm">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
               {/* Project Selection */}
-              <div className="space-y-2">
-                <label className="notion-label flex items-center gap-1.5">
-                  <Icon.Folder {...iconProps(12)} /> Project
-                </label>
+              <div className="space-y-3">
+                <div className="flex items-center gap-2 mb-1.5 ml-1">
+                  <Icon.Folder size={12} className="opacity-40" />
+                  <span className="text-[10px] font-black uppercase tracking-widest opacity-40">
+                    Project / Sector
+                  </span>
+                </div>
                 <div className="relative">
                   <select
-                    className="notion-input w-full appearance-none pr-8 text-xs"
+                    className="w-full border border-notion-light-border dark:border-notion-dark-border rounded-xl pl-4 pr-10 py-2.5 appearance-none text-xs font-bold focus:outline-none focus:ring-1 focus:ring-blue-500/30 bg-notion-light-bg dark:bg-notion-dark-bg text-notion-light-text dark:text-notion-dark-text transition-all cursor-pointer shadow-sm"
                     value={isCustomProject ? "custom" : formData.project}
                     onChange={(e) => {
                       if (e.target.value === "custom") {
@@ -232,13 +265,13 @@ export const TaskModal: React.FC = React.memo(() => {
                     ))}
                     <option value="custom">+ New Project</option>
                   </select>
-                  <div className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-notion-light-muted">
-                    <Icon.ChevronDown {...iconProps(12)} />
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-notion-light-muted opacity-40">
+                    <Icon.ChevronDown size={14} />
                   </div>
                   {isCustomProject && (
                     <input
                       type="text"
-                      className="notion-input mt-2 w-full text-xs"
+                      className="mt-3 w-full border border-notion-light-border dark:border-notion-dark-border rounded-xl px-4 py-2.5 text-xs font-bold focus:outline-none focus:ring-1 focus:ring-blue-500/30 bg-notion-light-bg dark:bg-notion-dark-bg text-notion-light-text dark:text-notion-dark-text transition-all shadow-sm"
                       placeholder="Project name..."
                       value={formData.project}
                       onChange={(e) =>
@@ -251,13 +284,16 @@ export const TaskModal: React.FC = React.memo(() => {
               </div>
 
               {/* Status Selection */}
-              <div className="space-y-2">
-                <label className="notion-label flex items-center gap-1.5">
-                  <Icon.Clock {...iconProps(12)} /> Status
-                </label>
+              <div className="space-y-3">
+                <div className="flex items-center gap-2 mb-1.5 ml-1">
+                  <Icon.Activity size={12} className="opacity-40" />
+                  <span className="text-[10px] font-black uppercase tracking-widest opacity-40">
+                    Mission Status
+                  </span>
+                </div>
                 <div className="relative">
                   <select
-                    className="notion-input w-full appearance-none pr-8 text-xs"
+                    className="w-full border border-notion-light-border dark:border-notion-dark-border rounded-xl pl-4 pr-10 py-2.5 appearance-none text-xs font-bold focus:outline-none focus:ring-1 focus:ring-blue-500/30 bg-notion-light-bg dark:bg-notion-dark-bg text-notion-light-text dark:text-notion-dark-text transition-all cursor-pointer shadow-sm"
                     value={formData.status}
                     onChange={(e) =>
                       setFormData({
@@ -272,20 +308,23 @@ export const TaskModal: React.FC = React.memo(() => {
                       </option>
                     ))}
                   </select>
-                  <div className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-notion-light-muted">
-                    <Icon.ChevronDown {...iconProps(12)} />
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-notion-light-muted opacity-40">
+                    <Icon.ChevronDown size={14} />
                   </div>
                 </div>
               </div>
 
               {/* Priority Selection */}
-              <div className="space-y-2">
-                <label className="notion-label flex items-center gap-1.5">
-                  <Icon.Flag {...iconProps(12)} /> Priority
-                </label>
+              <div className="space-y-3">
+                <div className="flex items-center gap-2 mb-1.5 ml-1">
+                  <Icon.Alert size={12} className="opacity-40" />
+                  <span className="text-[10px] font-black uppercase tracking-widest opacity-40">
+                    Threat Level
+                  </span>
+                </div>
                 <div className="relative">
                   <select
-                    className="notion-input w-full appearance-none pr-8 text-xs"
+                    className="w-full border border-notion-light-border dark:border-notion-dark-border rounded-xl pl-4 pr-10 py-2.5 appearance-none text-xs font-bold focus:outline-none focus:ring-1 focus:ring-blue-500/30 bg-notion-light-bg dark:bg-notion-dark-bg text-notion-light-text dark:text-notion-dark-text transition-all cursor-pointer shadow-sm"
                     value={formData.priority}
                     onChange={(e) =>
                       setFormData({
@@ -300,20 +339,23 @@ export const TaskModal: React.FC = React.memo(() => {
                       </option>
                     ))}
                   </select>
-                  <div className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-notion-light-muted">
-                    <Icon.ChevronDown {...iconProps(12)} />
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-notion-light-muted opacity-40">
+                    <Icon.ChevronDown size={14} />
                   </div>
                 </div>
               </div>
 
               {/* Date Input */}
-              <div className="space-y-2">
-                <label className="notion-label flex items-center gap-1.5">
-                  <Icon.Calendar {...iconProps(12)} /> Due Date
-                </label>
+              <div className="space-y-3">
+                <div className="flex items-center gap-2 mb-1.5 ml-1">
+                  <Icon.Date size={12} className="opacity-40" />
+                  <span className="text-[10px] font-black uppercase tracking-widest opacity-40">
+                    Deadline
+                  </span>
+                </div>
                 <input
                   type="date"
-                  className="notion-input w-full text-xs"
+                  className="w-full border border-notion-light-border dark:border-notion-dark-border rounded-xl px-4 py-2 text-xs font-bold focus:outline-none focus:ring-1 focus:ring-blue-500/30 bg-notion-light-bg dark:bg-notion-dark-bg text-notion-light-text dark:text-notion-dark-text transition-all cursor-pointer shadow-sm"
                   value={formData.date}
                   onChange={(e) =>
                     setFormData({ ...formData, date: e.target.value })
@@ -322,33 +364,41 @@ export const TaskModal: React.FC = React.memo(() => {
               </div>
             </div>
           </div>
-        </form>
 
-        {/* Modal Footer */}
-        <div className="px-4 py-3 border-t border-notion-light-border dark:border-notion-dark-border flex items-center justify-between bg-notion-light-sidebar dark:bg-notion-dark-sidebar">
-          <div className="flex items-center gap-2">
-            {initialData && (
-              <Button variant="danger" size="sm" onClick={handleDelete}>
-                Delete
+          {/* Modal Footer */}
+          <div className="px-8 py-4 border-t border-notion-light-border dark:border-notion-dark-border flex items-center justify-between bg-notion-light-sidebar/50 dark:bg-notion-dark-sidebar/50 backdrop-blur-md">
+            <div className="flex items-center gap-3">
+              {initialData && (
+                <Button
+                  variant="ghost"
+                  onClick={handleDelete}
+                  className="text-[10px] font-black uppercase tracking-widest text-red-500 hover:bg-red-500/10 px-4 py-2"
+                >
+                  Terminate Mission
+                </Button>
+              )}
+            </div>
+            <div className="flex items-center gap-4">
+              <Button
+                variant="ghost"
+                onClick={onClose}
+                className="text-[10px] font-black uppercase tracking-widest text-notion-light-muted dark:text-notion-dark-muted px-6 py-2"
+              >
+                Stand Down
               </Button>
-            )}
+              <Button
+                variant="custom"
+                onClick={() => handleSubmit()}
+                isLoading={isSubmitting}
+                disabled={!formData.description}
+                className={`px-8 py-2 bg-indigo-600 text-white border border-indigo-500 rounded-xl font-black text-[10px] uppercase tracking-widest shadow-lg shadow-indigo-500/20 hover:bg-indigo-700 transition-all active:scale-95 disabled:opacity-50`}
+              >
+                {initialData ? "Sync Intelligence" : "Execute Deployment"}
+              </Button>
+            </div>
           </div>
-          <div className="flex items-center gap-3">
-            <Button variant="ghost" size="sm" onClick={onClose}>
-              Cancel
-            </Button>
-            <Button
-              variant="primary"
-              size="sm"
-              onClick={() => handleSubmit()}
-              isLoading={isSubmitting}
-              disabled={!formData.description}
-            >
-              {initialData ? "Update Task" : "Create Task"}
-            </Button>
-          </div>
-        </div>
-      </div>
+        </form>
+      </Card>
     </div>
   );
 });

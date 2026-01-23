@@ -67,7 +67,7 @@ export const DebouncedInput: React.FC<DebouncedInputProps> = ({
       </div>
       <input
         {...props}
-        className="notion-input block w-full pl-9 pr-8"
+        className="w-full border border-notion-light-border dark:border-notion-dark-border rounded-lg pl-9 pr-8 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500/30 bg-notion-light-bg dark:bg-notion-dark-bg text-notion-light-text dark:text-notion-dark-text transition-all"
         value={value}
         onChange={(e) => setValue(e.target.value)}
       />

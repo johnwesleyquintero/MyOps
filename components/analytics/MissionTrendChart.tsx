@@ -7,6 +7,8 @@ import {
   generateAreaPath,
 } from "../../utils/analyticsUtils";
 
+import { Card, Badge } from "../ui";
+
 interface MissionTrendChartProps {
   entries: TaskEntry[];
 }
@@ -32,17 +34,26 @@ export const MissionTrendChart: React.FC<MissionTrendChartProps> = ({
   );
 
   return (
-    <div className="notion-card p-6 flex flex-col justify-between hover:shadow-xl transition-all duration-300 h-full border-slate-200/60 dark:border-white/5 bg-white dark:bg-notion-dark-sidebar/30 relative overflow-hidden group">
+    <Card
+      hoverEffect
+      className="flex flex-col justify-between h-full border-slate-200/60 dark:border-white/5 relative overflow-hidden group"
+    >
       <div className="flex justify-between items-center mb-6 relative z-10">
-        <div>
-          <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500">
+        <div className="flex flex-col gap-1">
+          <Badge
+            variant="ghost"
+            size="xs"
+            className="!p-0 uppercase tracking-[0.2em] opacity-50 font-black"
+          >
             Mission Volume Trend
-          </h3>
-          <span
-            className={`text-[9px] font-black uppercase tracking-[0.1em] ${colors.text} opacity-70`}
+          </Badge>
+          <Badge
+            variant="ghost"
+            size="xs"
+            className={`w-fit !p-0 lowercase !tracking-normal ${colors.text} opacity-70`}
           >
             Operational Velocity
-          </span>
+          </Badge>
         </div>
       </div>
 
@@ -81,10 +92,10 @@ export const MissionTrendChart: React.FC<MissionTrendChartProps> = ({
           />
         </svg>
       </div>
-      <div className="flex justify-between mt-2 text-[10px] text-notion-light-muted dark:text-notion-dark-muted font-bold uppercase tracking-widest">
+      <div className="flex justify-between mt-2 text-[10px] text-notion-light-muted dark:text-notion-dark-muted font-bold uppercase tracking-widest leading-none">
         <span>{chartData[0]?.date || "-"}</span>
         <span>{chartData[chartData.length - 1]?.date || "-"}</span>
       </div>
-    </div>
+    </Card>
   );
 };

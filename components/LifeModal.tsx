@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import { LifeConstraintEntry } from "../types";
-import { Icon, iconProps } from "./Icons";
+import { Icon } from "./Icons";
 import { toast } from "sonner";
 import { MODULE_COLORS } from "../constants/ui";
-import { Button } from "./ui";
+import { Button, Badge, Card } from "./ui";
 
 interface LifeModalProps {
   isOpen: boolean;
@@ -97,199 +97,249 @@ export const LifeModal: React.FC<LifeModalProps> = ({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-[2px] animate-in fade-in duration-200"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-300"
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
     >
-      <div className="bg-notion-light-bg dark:bg-notion-dark-bg w-full max-w-xl shadow-2xl flex flex-col overflow-hidden animate-in zoom-in-95 duration-200 rounded-2xl border border-notion-light-border dark:border-notion-dark-border">
+      <Card
+        padding="none"
+        className="w-full max-w-xl shadow-2xl flex flex-col overflow-hidden animate-in zoom-in-95 duration-300 rounded-2xl border-none"
+      >
         {/* Modal Header */}
-        <div
-          className={`px-6 py-4 border-b ${colors.border} flex items-center justify-between ${colors.lightBg}`}
-        >
-          <div className="flex items-center gap-3">
-            <span className={colors.text}>
-              <Icon.Heart {...iconProps(18)} />
-            </span>
-            <h2 className={`text-sm font-semibold ${colors.text}`}>
-              {initialData ? "Edit Constraint" : "New Life Constraint"}
-            </h2>
+        <div className="px-6 py-4 border-b border-notion-light-border dark:border-notion-dark-border flex items-center justify-between bg-notion-light-sidebar/50 dark:bg-notion-dark-sidebar/50 backdrop-blur-md">
+          <div className="flex items-center gap-4">
+            <div
+              className={`p-2 ${colors.bg} ${colors.text} rounded-lg shadow-sm border ${colors.border}`}
+            >
+              <Icon.Heart size={16} />
+            </div>
+            <div>
+              <h2 className="text-sm font-bold text-notion-light-text dark:text-notion-dark-text uppercase tracking-widest">
+                {initialData ? "Vital Constraint" : "New Life Parameter"}
+              </h2>
+              {initialData && (
+                <div className="flex items-center gap-2 mt-1">
+                  <span className="text-[10px] font-black uppercase tracking-widest opacity-40">
+                    Category:
+                  </span>
+                  <Badge
+                    variant="custom"
+                    size="xs"
+                    className={`${colors.lightBg} ${colors.text} border ${colors.border} rounded-md px-1.5 py-0 text-[8px] font-black uppercase tracking-widest`}
+                  >
+                    {formData.category}
+                  </Badge>
+                </div>
+              )}
+            </div>
           </div>
           <Button
             variant="ghost"
             size="icon"
             onClick={onClose}
-            className={`hover:${colors.bg}`}
+            className="w-9 h-9 text-notion-light-muted hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover transition-all rounded-lg"
           >
-            <Icon.Close {...iconProps(16)} />
+            <Icon.Close size={18} />
           </Button>
         </div>
 
         {/* Modal Body */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-6">
-          <div className="space-y-4">
-            {/* Title */}
-            <div className="space-y-1.5">
-              <label className="text-xs font-medium text-notion-light-muted dark:text-notion-dark-muted px-1">
-                Title
-              </label>
-              <input
-                autoFocus
-                type="text"
-                placeholder="e.g., Morning Workout, Family Dinner"
-                className={`w-full px-3 py-2 bg-transparent border border-notion-light-border dark:border-notion-dark-border rounded-lg focus:outline-none focus:ring-2 focus:${colors.bg.replace("bg-", "ring-")}/20 focus:${colors.border} transition-all text-sm`}
-                value={formData.title}
-                onChange={(e) =>
-                  setFormData({ ...formData, title: e.target.value })
-                }
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              {/* Category */}
-              <div className="space-y-1.5">
-                <label className="text-xs font-medium text-notion-light-muted dark:text-notion-dark-muted px-1">
-                  Category
-                </label>
-                <select
-                  className={`w-full px-3 py-2 bg-transparent border border-notion-light-border dark:border-notion-dark-border rounded-lg focus:outline-none focus:ring-2 focus:${colors.bg.replace("bg-", "ring-")}/20 focus:${colors.border} transition-all text-sm`}
-                  value={formData.category}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      category: e.target
-                        .value as LifeConstraintEntry["category"],
-                    })
-                  }
-                >
-                  {CATEGORIES.map((c) => (
-                    <option key={c} value={c}>
-                      {c}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Energy */}
-              <div className="space-y-1.5">
-                <label className="text-xs font-medium text-notion-light-muted dark:text-notion-dark-muted px-1">
-                  Energy Requirement
-                </label>
-                <select
-                  className={`w-full px-3 py-2 bg-transparent border border-notion-light-border dark:border-notion-dark-border rounded-lg focus:outline-none focus:ring-2 focus:${colors.bg.replace("bg-", "ring-")}/20 focus:${colors.border} transition-all text-sm`}
-                  value={formData.energyRequirement}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      energyRequirement: e.target
-                        .value as LifeConstraintEntry["energyRequirement"],
-                    })
-                  }
-                >
-                  {ENERGY_LEVELS.map((l) => (
-                    <option key={l} value={l}>
-                      {l}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
-            {/* Time Range */}
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-1.5">
-                <label className="text-xs font-medium text-notion-light-muted dark:text-notion-dark-muted px-1">
-                  Start Time (Optional)
-                </label>
+        <form onSubmit={handleSubmit} className="flex flex-col min-h-0">
+          <div className="p-8 space-y-8 overflow-y-auto max-h-[70vh] custom-scrollbar">
+            <div className="space-y-6">
+              {/* Title */}
+              <div>
+                <div className="flex items-center gap-2 mb-1.5 ml-1">
+                  <Icon.Target size={12} className="opacity-40" />
+                  <span className="text-[10px] font-black uppercase tracking-widest opacity-40">
+                    Constraint Objective
+                  </span>
+                </div>
                 <input
-                  type="time"
-                  className={`w-full px-3 py-2 bg-transparent border border-notion-light-border dark:border-notion-dark-border rounded-lg focus:outline-none focus:ring-2 focus:${colors.bg.replace("bg-", "ring-")}/20 focus:${colors.border} transition-all text-sm`}
-                  value={formData.startTime || ""}
+                  autoFocus
+                  type="text"
+                  placeholder="e.g., Morning Workout, Family Dinner"
+                  className="w-full border border-notion-light-border dark:border-notion-dark-border rounded-xl px-4 py-2.5 text-sm font-bold focus:outline-none focus:ring-1 focus:ring-blue-500/30 bg-notion-light-bg dark:bg-notion-dark-bg text-notion-light-text dark:text-notion-dark-text transition-all shadow-sm"
+                  value={formData.title}
                   onChange={(e) =>
-                    setFormData({ ...formData, startTime: e.target.value })
+                    setFormData({ ...formData, title: e.target.value })
                   }
                 />
               </div>
-              <div className="space-y-1.5">
-                <label className="text-xs font-medium text-notion-light-muted dark:text-notion-dark-muted px-1">
-                  End Time (Optional)
-                </label>
-                <input
-                  type="time"
-                  className={`w-full px-3 py-2 bg-transparent border border-notion-light-border dark:border-notion-dark-border rounded-lg focus:outline-none focus:ring-2 focus:${colors.bg.replace("bg-", "ring-")}/20 focus:${colors.border} transition-all text-sm`}
-                  value={formData.endTime || ""}
-                  onChange={(e) =>
-                    setFormData({ ...formData, endTime: e.target.value })
-                  }
-                />
-              </div>
-            </div>
 
-            {/* Days of Week */}
-            <div className="space-y-2">
-              <label className="text-xs font-medium text-notion-light-muted dark:text-notion-dark-muted px-1">
-                Days of Week
-              </label>
-              <div className="flex justify-between">
-                {DAYS.map((day, index) => {
-                  const isSelected = formData.daysOfWeek?.includes(index);
-                  return (
-                    <Button
-                      key={day}
-                      type="button"
-                      variant="custom"
-                      onClick={() => toggleDay(index)}
-                      className={`w-9 h-9 rounded-full text-[10px] font-bold transition-all ${
-                        isSelected
-                          ? `${colors.bg} ${colors.text} shadow-lg ${colors.bg.replace("bg-", "shadow-")}/20`
-                          : "bg-notion-light-sidebar dark:bg-notion-dark-sidebar border border-notion-light-border dark:border-notion-dark-border text-notion-light-muted"
-                      }`}
+              <div className="grid grid-cols-2 gap-8">
+                {/* Category */}
+                <div>
+                  <div className="flex items-center gap-2 mb-1.5 ml-1">
+                    <Icon.Tag size={12} className="opacity-40" />
+                    <span className="text-[10px] font-black uppercase tracking-widest opacity-40">
+                      Sector
+                    </span>
+                  </div>
+                  <div className="relative">
+                    <select
+                      className="w-full border border-notion-light-border dark:border-notion-dark-border rounded-xl pl-4 pr-10 py-2.5 appearance-none text-xs font-bold focus:outline-none focus:ring-1 focus:ring-blue-500/30 bg-notion-light-bg dark:bg-notion-dark-bg text-notion-light-text dark:text-notion-dark-text transition-all cursor-pointer shadow-sm"
+                      value={formData.category}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          category: e.target
+                            .value as LifeConstraintEntry["category"],
+                        })
+                      }
                     >
-                      {day[0]}
-                    </Button>
-                  );
-                })}
-              </div>
-            </div>
+                      {CATEGORIES.map((c) => (
+                        <option key={c} value={c}>
+                          {c}
+                        </option>
+                      ))}
+                    </select>
+                    <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-notion-light-muted opacity-40">
+                      <Icon.ChevronDown size={14} />
+                    </div>
+                  </div>
+                </div>
 
-            {/* Notes */}
-            <div className="space-y-1.5">
-              <label className="text-xs font-medium text-notion-light-muted dark:text-notion-dark-muted px-1">
-                Notes
-              </label>
-              <textarea
-                placeholder="Additional details..."
-                rows={3}
-                className={`w-full px-3 py-2 bg-transparent border border-notion-light-border dark:border-notion-dark-border rounded-lg focus:outline-none focus:ring-2 focus:${colors.bg.replace("bg-", "ring-")}/20 focus:${colors.border} transition-all text-sm resize-none`}
-                value={formData.notes}
-                onChange={(e) =>
-                  setFormData({ ...formData, notes: e.target.value })
-                }
-              />
+                {/* Energy */}
+                <div>
+                  <div className="flex items-center gap-2 mb-1.5 ml-1">
+                    <Icon.Zap size={12} className="opacity-40" />
+                    <span className="text-[10px] font-black uppercase tracking-widest opacity-40">
+                      Energy Load
+                    </span>
+                  </div>
+                  <div className="relative">
+                    <select
+                      className="w-full border border-notion-light-border dark:border-notion-dark-border rounded-xl pl-4 pr-10 py-2.5 appearance-none text-xs font-bold focus:outline-none focus:ring-1 focus:ring-blue-500/30 bg-notion-light-bg dark:bg-notion-dark-bg text-notion-light-text dark:text-notion-dark-text transition-all cursor-pointer shadow-sm"
+                      value={formData.energyRequirement}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          energyRequirement: e.target
+                            .value as LifeConstraintEntry["energyRequirement"],
+                        })
+                      }
+                    >
+                      {ENERGY_LEVELS.map((l) => (
+                        <option key={l} value={l}>
+                          {l}
+                        </option>
+                      ))}
+                    </select>
+                    <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-notion-light-muted opacity-40">
+                      <Icon.ChevronDown size={14} />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Time Range */}
+              <div className="grid grid-cols-2 gap-8">
+                <div>
+                  <div className="flex items-center gap-2 mb-1.5 ml-1">
+                    <Icon.Clock size={12} className="opacity-40" />
+                    <span className="text-[10px] font-black uppercase tracking-widest opacity-40">
+                      Window Open
+                    </span>
+                  </div>
+                  <input
+                    type="time"
+                    className="w-full border border-notion-light-border dark:border-notion-dark-border rounded-xl px-4 py-2.5 text-xs font-bold focus:outline-none focus:ring-1 focus:ring-blue-500/30 bg-notion-light-bg dark:bg-notion-dark-bg text-notion-light-text dark:text-notion-dark-text transition-all cursor-pointer shadow-sm"
+                    value={formData.startTime || ""}
+                    onChange={(e) =>
+                      setFormData({ ...formData, startTime: e.target.value })
+                    }
+                  />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2 mb-1.5 ml-1">
+                    <Icon.Clock size={12} className="opacity-40" />
+                    <span className="text-[10px] font-black uppercase tracking-widest opacity-40">
+                      Window Close
+                    </span>
+                  </div>
+                  <input
+                    type="time"
+                    className="w-full border border-notion-light-border dark:border-notion-dark-border rounded-xl px-4 py-2.5 text-xs font-bold focus:outline-none focus:ring-1 focus:ring-blue-500/30 bg-notion-light-bg dark:bg-notion-dark-bg text-notion-light-text dark:text-notion-dark-text transition-all cursor-pointer shadow-sm"
+                    value={formData.endTime || ""}
+                    onChange={(e) =>
+                      setFormData({ ...formData, endTime: e.target.value })
+                    }
+                  />
+                </div>
+              </div>
+
+              {/* Days of Week */}
+              <div>
+                <div className="flex items-center gap-2 mb-3 ml-1">
+                  <Icon.Calendar size={12} className="opacity-40" />
+                  <span className="text-[10px] font-black uppercase tracking-widest opacity-40">
+                    Operational Schedule
+                  </span>
+                </div>
+                <div className="flex justify-between gap-2">
+                  {DAYS.map((day, index) => {
+                    const isSelected = formData.daysOfWeek?.includes(index);
+                    return (
+                      <Button
+                        key={day}
+                        type="button"
+                        variant="custom"
+                        onClick={() => toggleDay(index)}
+                        className={`flex-1 h-10 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
+                          isSelected
+                            ? `${colors.bg} ${colors.text} ${colors.border} border shadow-lg shadow-rose-500/10`
+                            : "bg-notion-light-bg dark:bg-notion-dark-bg border border-notion-light-border dark:border-notion-dark-border text-notion-light-muted opacity-40 hover:opacity-100"
+                        }`}
+                      >
+                        {day[0]}
+                      </Button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Notes */}
+              <div>
+                <div className="flex items-center gap-2 mb-1.5 ml-1">
+                  <Icon.Notes size={12} className="opacity-40" />
+                  <span className="text-[10px] font-black uppercase tracking-widest opacity-40">
+                    Strategic Notes
+                  </span>
+                </div>
+                <textarea
+                  placeholder="Additional operational details..."
+                  className="w-full border border-notion-light-border dark:border-notion-dark-border rounded-xl px-4 py-2.5 text-xs font-bold focus:outline-none focus:ring-1 focus:ring-blue-500/30 bg-notion-light-bg dark:bg-notion-dark-bg text-notion-light-text dark:text-notion-dark-text min-h-[100px] resize-none transition-all shadow-sm"
+                  value={formData.notes}
+                  onChange={(e) =>
+                    setFormData({ ...formData, notes: e.target.value })
+                  }
+                />
+              </div>
             </div>
           </div>
-        </form>
 
-        {/* Modal Footer */}
-        <div className="px-6 py-4 border-t border-notion-light-border dark:border-notion-dark-border bg-notion-light-sidebar dark:bg-notion-dark-sidebar flex items-center justify-end gap-3">
-          <Button
-            variant="ghost"
-            onClick={onClose}
-            className="px-4 py-2 text-sm font-medium text-notion-light-text dark:text-notion-dark-text hover:bg-notion-light-border dark:hover:bg-notion-dark-border"
-          >
-            Cancel
-          </Button>
-          <Button
-            onClick={handleSubmit}
-            variant="custom"
-            isLoading={isSubmitting}
-            leftIcon={!isSubmitting && <Icon.Add {...iconProps(16)} />}
-            className={`px-4 py-2 text-sm font-medium ${colors.bg} ${colors.text} ${colors.border} border rounded-lg shadow-sm hover:opacity-80 active:scale-95`}
-          >
-            {initialData ? "Update Constraint" : "Add Constraint"}
-          </Button>
-        </div>
-      </div>
+          {/* Modal Footer */}
+          <div className="px-8 py-4 border-t border-notion-light-border dark:border-notion-dark-border flex items-center justify-end gap-4 bg-notion-light-sidebar/50 dark:bg-notion-dark-sidebar/50 backdrop-blur-md">
+            <Button
+              variant="ghost"
+              onClick={onClose}
+              className="text-[10px] font-black uppercase tracking-widest text-notion-light-muted dark:text-notion-dark-muted px-6 py-2"
+            >
+              Stand Down
+            </Button>
+            <Button
+              type="submit"
+              variant="custom"
+              isLoading={isSubmitting}
+              className={`px-8 py-2 ${colors.bg} ${colors.text} ${colors.border} border rounded-xl font-black text-[10px] uppercase tracking-widest shadow-lg shadow-rose-500/10 ${colors.hoverBg} transition-all active:scale-95`}
+            >
+              {initialData ? "Sync Parameter" : "Initialize Constraint"}
+            </Button>
+          </div>
+        </form>
+      </Card>
     </div>
   );
 };

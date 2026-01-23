@@ -174,49 +174,6 @@ input[type="checkbox"] {
 }
 
 @layer components {
-  .notion-button {
-    @apply px-3 py-1.5 rounded text-sm transition-all duration-200 flex items-center gap-2 font-medium active:scale-[0.98];
-  }
-
-  .notion-button-primary {
-    @apply bg-notion-light-text dark:bg-notion-dark-text text-white dark:text-notion-dark-bg hover:opacity-90;
-  }
-
-  .notion-button-ghost {
-    @apply hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover text-notion-light-muted dark:text-notion-dark-muted hover:text-notion-light-text dark:hover:text-notion-dark-text;
-  }
-
-  .notion-button-danger {
-    @apply bg-red-600 hover:bg-red-700 text-white dark:bg-red-500/20 dark:text-red-400 dark:border-red-500/30 dark:hover:bg-red-500/30 border border-transparent;
-  }
-
-  .notion-sidebar-item {
-    @apply flex items-center gap-2 px-3 py-1 text-sm rounded cursor-pointer transition-colors duration-150;
-    @apply text-notion-light-muted dark:text-notion-dark-muted;
-    @apply hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover hover:text-notion-light-text dark:hover:text-notion-dark-text;
-  }
-
-  .notion-sidebar-item-active {
-    @apply bg-notion-light-hover dark:bg-notion-dark-hover text-notion-light-text dark:text-notion-dark-text font-medium;
-  }
-
-  .notion-card {
-    @apply bg-notion-light-bg dark:bg-notion-dark-bg border border-notion-light-border dark:border-notion-dark-border rounded-lg shadow-sm transition-all duration-200;
-  }
-
-  .notion-card-interactive {
-    @apply bg-notion-light-bg dark:bg-notion-dark-bg border border-notion-light-border dark:border-notion-dark-border rounded-lg shadow-sm transition-all duration-200;
-    @apply hover:shadow-md hover:border-notion-light-border/80 dark:hover:border-notion-dark-border/80 cursor-pointer;
-  }
-
-  .notion-input {
-    @apply bg-notion-light-bg dark:bg-notion-dark-bg border border-notion-light-border dark:border-notion-dark-border rounded px-3 py-1.5 text-sm outline-none focus:border-blue-500/50 transition-colors text-notion-light-text dark:text-notion-dark-text;
-  }
-
-  .notion-label {
-    @apply text-[10px] font-bold text-notion-light-muted dark:text-notion-dark-muted uppercase tracking-widest;
-  }
-
   .markdown-preview {
     @apply prose prose-sm dark:prose-invert max-w-none;
   }

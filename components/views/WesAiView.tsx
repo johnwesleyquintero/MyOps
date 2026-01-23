@@ -255,7 +255,7 @@ export const WesAiView: React.FC<WesAiViewProps> = ({
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2 opacity-60 text-[10px] font-bold uppercase tracking-widest">
                   {msg.role === "model" && (
-                    <Icon.Ai {...iconProps(12, colors.text)} />
+                    <Icon.Brain {...iconProps(12, colors.text)} />
                   )}
                   {msg.role === "model" ? "WesAI" : "Operator"} •{" "}
                   {msg.timestamp.toLocaleTimeString()}

@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Contact } from "../types";
 import { Icon as Icons } from "./Icons";
 import { MODULE_COLORS } from "../constants/ui";
-import { Button } from "./ui";
+import { Button, Card } from "./ui";
 
 interface ContactModalProps {
   isOpen: boolean;
@@ -81,36 +81,42 @@ export const ContactModal: React.FC<ContactModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-[70] flex items-center justify-center p-0 md:p-4 bg-black/20 dark:bg-black/40 backdrop-blur-sm animate-in fade-in duration-300">
-      <div
-        className="bg-notion-light-bg dark:bg-notion-dark-bg h-full md:h-auto md:rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden border border-notion-light-border dark:border-notion-dark-border animate-in zoom-in-95 duration-300"
+    <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-black/20 dark:bg-black/40 backdrop-blur-sm animate-in fade-in duration-300">
+      <Card
+        padding="none"
+        className="shadow-2xl w-full max-w-lg overflow-hidden animate-in zoom-in-95 duration-300 rounded-2xl border-none"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="px-6 py-4 border-b border-notion-light-border dark:border-notion-dark-border flex justify-between items-center bg-notion-light-sidebar/50 dark:bg-notion-dark-sidebar/50">
-          <h2 className="text-lg font-bold text-notion-light-text dark:text-notion-dark-text">
-            {initialData ? "Edit Intelligence Profile" : "New Network Addition"}
+        <div className="px-6 py-4 border-b border-notion-light-border dark:border-notion-dark-border flex justify-between items-center bg-notion-light-sidebar/50 dark:bg-notion-dark-sidebar/50 backdrop-blur-md">
+          <h2 className="text-sm font-bold text-notion-light-text dark:text-notion-dark-text uppercase tracking-widest">
+            {initialData ? "Intelligence Profile" : "New Network Entry"}
           </h2>
           <Button
             variant="ghost"
             size="icon"
             onClick={onClose}
-            className="hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover"
+            className="hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover transition-colors"
           >
-            <Icons.Close size={20} />
+            <Icons.Close size={18} />
           </Button>
         </div>
 
         <form
           onSubmit={handleSubmit}
-          className="p-6 space-y-5 overflow-y-auto max-h-[calc(100vh-120px)] md:max-h-none"
+          className="p-6 space-y-6 overflow-y-auto max-h-[calc(100vh-120px)] md:max-h-none"
         >
           <div className="space-y-4">
             <div>
-              <label className="notion-label mb-1.5 block">Full Name</label>
+              <div className="flex items-center gap-2 mb-1.5 ml-1">
+                <Icons.Users size={12} className="opacity-40" />
+                <span className="text-[10px] font-black uppercase tracking-widest opacity-40">
+                  Full Name
+                </span>
+              </div>
               <input
                 type="text"
                 required
-                className="notion-input w-full"
+                className="w-full border border-notion-light-border dark:border-notion-dark-border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500/30 bg-notion-light-bg dark:bg-notion-dark-bg text-notion-light-text dark:text-notion-dark-text transition-all shadow-sm"
                 placeholder="e.g. John Doe"
                 value={formData.name}
                 onChange={(e) =>
@@ -121,10 +127,15 @@ export const ContactModal: React.FC<ContactModalProps> = ({
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="notion-label mb-1.5 block">Email</label>
+                <div className="flex items-center gap-2 mb-1.5 ml-1">
+                  <Icons.Mail size={12} className="opacity-40" />
+                  <span className="text-[10px] font-black uppercase tracking-widest opacity-40">
+                    Email Address
+                  </span>
+                </div>
                 <input
                   type="email"
-                  className="notion-input w-full text-xs"
+                  className="w-full border border-notion-light-border dark:border-notion-dark-border rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:ring-1 focus:ring-blue-500/30 bg-notion-light-bg dark:bg-notion-dark-bg text-notion-light-text dark:text-notion-dark-text transition-all shadow-sm"
                   placeholder="john@example.com"
                   value={formData.email}
                   onChange={(e) =>
@@ -133,10 +144,15 @@ export const ContactModal: React.FC<ContactModalProps> = ({
                 />
               </div>
               <div>
-                <label className="notion-label mb-1.5 block">Phone</label>
+                <div className="flex items-center gap-2 mb-1.5 ml-1">
+                  <Icons.Phone size={12} className="opacity-40" />
+                  <span className="text-[10px] font-black uppercase tracking-widest opacity-40">
+                    Phone Line
+                  </span>
+                </div>
                 <input
                   type="text"
-                  className="notion-input w-full text-xs"
+                  className="w-full border border-notion-light-border dark:border-notion-dark-border rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:ring-1 focus:ring-blue-500/30 bg-notion-light-bg dark:bg-notion-dark-bg text-notion-light-text dark:text-notion-dark-text transition-all shadow-sm"
                   placeholder="+1 (555) 000-0000"
                   value={formData.phone}
                   onChange={(e) =>
@@ -147,12 +163,15 @@ export const ContactModal: React.FC<ContactModalProps> = ({
             </div>
 
             <div>
-              <label className="notion-label mb-1.5 block">
-                Company / Organization
-              </label>
+              <div className="flex items-center gap-2 mb-1.5 ml-1">
+                <Icons.Company size={12} className="opacity-40" />
+                <span className="text-[10px] font-black uppercase tracking-widest opacity-40">
+                  Operational Entity
+                </span>
+              </div>
               <input
                 type="text"
-                className="notion-input w-full text-xs"
+                className="w-full border border-notion-light-border dark:border-notion-dark-border rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:ring-1 focus:ring-blue-500/30 bg-notion-light-bg dark:bg-notion-dark-bg text-notion-light-text dark:text-notion-dark-text transition-all shadow-sm"
                 placeholder="e.g. Acme Corp"
                 value={formData.company}
                 onChange={(e) =>
@@ -163,11 +182,14 @@ export const ContactModal: React.FC<ContactModalProps> = ({
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="notion-label mb-1.5 block">
-                  Relationship Type
-                </label>
+                <div className="flex items-center gap-2 mb-1.5 ml-1">
+                  <Icons.Tag size={12} className="opacity-40" />
+                  <span className="text-[10px] font-black uppercase tracking-widest opacity-40">
+                    Classification
+                  </span>
+                </div>
                 <select
-                  className="notion-input w-full text-xs"
+                  className="w-full border border-notion-light-border dark:border-notion-dark-border rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:ring-1 focus:ring-blue-500/30 bg-notion-light-bg dark:bg-notion-dark-bg text-notion-light-text dark:text-notion-dark-text appearance-none cursor-pointer transition-all shadow-sm"
                   value={formData.type}
                   onChange={(e) =>
                     setFormData({
@@ -183,11 +205,14 @@ export const ContactModal: React.FC<ContactModalProps> = ({
                 </select>
               </div>
               <div>
-                <label className="notion-label mb-1.5 block">
-                  Current Status
-                </label>
+                <div className="flex items-center gap-2 mb-1.5 ml-1">
+                  <Icons.Activity size={12} className="opacity-40" />
+                  <span className="text-[10px] font-black uppercase tracking-widest opacity-40">
+                    Deployment Status
+                  </span>
+                </div>
                 <select
-                  className="notion-input w-full text-xs"
+                  className="w-full border border-notion-light-border dark:border-notion-dark-border rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:ring-1 focus:ring-blue-500/30 bg-notion-light-bg dark:bg-notion-dark-bg text-notion-light-text dark:text-notion-dark-text appearance-none cursor-pointer transition-all shadow-sm"
                   value={formData.status}
                   onChange={(e) =>
                     setFormData({
@@ -205,12 +230,15 @@ export const ContactModal: React.FC<ContactModalProps> = ({
             </div>
 
             <div>
-              <label className="notion-label mb-1.5 block">
-                Strategic Notes
-              </label>
+              <div className="flex items-center gap-2 mb-1.5 ml-1">
+                <Icons.Notes size={12} className="opacity-40" />
+                <span className="text-[10px] font-black uppercase tracking-widest opacity-40">
+                  Intelligence Briefing
+                </span>
+              </div>
               <textarea
-                className="notion-input w-full min-h-[80px] text-xs resize-none"
-                placeholder="Context, goals, or key details..."
+                className="w-full border border-notion-light-border dark:border-notion-dark-border rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:ring-1 focus:ring-blue-500/30 bg-notion-light-bg dark:bg-notion-dark-bg text-notion-light-text dark:text-notion-dark-text min-h-[120px] resize-none transition-all shadow-sm"
+                placeholder="Operational context, strategic goals, or key details..."
                 value={formData.notes}
                 onChange={(e) =>
                   setFormData({ ...formData, notes: e.target.value })
@@ -219,26 +247,26 @@ export const ContactModal: React.FC<ContactModalProps> = ({
             </div>
           </div>
 
-          <div className="pt-4 flex justify-end gap-3 border-t border-notion-light-border dark:border-notion-dark-border">
+          <div className="pt-6 flex justify-end gap-3 border-t border-notion-light-border dark:border-notion-dark-border">
             <Button
               variant="ghost"
               onClick={onClose}
-              className={`px-4 py-2 text-xs font-black uppercase tracking-widest text-notion-light-muted hover:${colors.text}`}
+              className="px-6 py-2 text-[10px] font-black uppercase tracking-widest text-notion-light-muted dark:text-notion-dark-muted hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover rounded-xl"
               disabled={isSubmitting || isLoading}
             >
-              Cancel
+              Abort
             </Button>
             <Button
               type="submit"
               variant="custom"
               isLoading={isSubmitting || isLoading}
-              className={`px-6 py-2 ${colors.bg} ${colors.text} ${colors.border} border rounded-xl font-black text-xs uppercase tracking-widest shadow-sm ${colors.hoverBg} transition-all active:scale-95`}
+              className={`px-8 py-2 ${colors.bg} ${colors.text} ${colors.border} border rounded-xl font-black text-[10px] uppercase tracking-widest shadow-lg shadow-blue-500/10 ${colors.hoverBg} transition-all active:scale-95`}
             >
-              {initialData ? "Update Profile" : "Lock In Contact"}
+              {initialData ? "Sync Intelligence" : "Execute Deployment"}
             </Button>
           </div>
         </form>
-      </div>
+      </Card>
     </div>
   );
 };

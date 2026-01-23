@@ -11,14 +11,10 @@ import {
 import { SummaryCards } from "../SummaryCards";
 import { MissionTrendChart } from "../analytics/MissionTrendChart";
 import { ProjectDistributionList } from "../analytics/ProjectDistributionList";
-import {
-  ProjectDebriefPanel,
-  ProjectDebrief,
-} from "../analytics/ProjectDebriefPanel";
 import { TaskTable } from "../TaskTable";
 import { Icon, iconProps } from "../Icons";
 import { ViewHeader } from "../ViewHeader";
-import { Button, Card } from "../ui";
+import { Button, Card, Badge } from "../ui";
 import { ColumnConfigDropdown } from "../ColumnConfigDropdown";
 import { MODULE_COLORS } from "@/constants";
 import { useDashboardLogic } from "../../hooks/useDashboardLogic";
@@ -81,6 +77,21 @@ export const DashboardView: React.FC<DashboardViewProps> = React.memo(
     const { isHudMode, toggleHudMode } = useUi();
     const [isDebriefMode, setIsDebriefMode] = React.useState(false);
 
+    // Use state and useEffect for activity correlation data to keep the render function pure
+    const [activityCorrelationData, setActivityCorrelationData] =
+      React.useState<
+        { focusHeight: number; outputHeight: number; focusValue: number }[]
+      >([]);
+
+    React.useEffect(() => {
+      const data = [...Array(48)].map(() => ({
+        focusHeight: Math.random() * 60 + 20,
+        outputHeight: Math.random() * 40 + 10,
+        focusValue: Math.floor(Math.random() * 40 + 60),
+      }));
+      setActivityCorrelationData(data);
+    }, []);
+
     // Calculate Confidence Score
     const confidenceScore = useMemo(() => {
       let score = 50; // Base score
@@ -111,50 +122,88 @@ export const DashboardView: React.FC<DashboardViewProps> = React.memo(
           title="Command Center"
           subTitle="Operational overview and tactical focus"
         >
-          <button
+          <Button
+            variant="ghost"
             onClick={toggleHudMode}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl border transition-all duration-300 ${
+            className={`flex items-center gap-2.5 px-4 py-2 rounded-xl border transition-all duration-500 ${
               isHudMode
-                ? "bg-indigo-600 text-white border-indigo-500 shadow-[0_0_15px_rgba(79,70,229,0.4)]"
-                : "bg-notion-light-sidebar dark:bg-notion-dark-sidebar border-notion-light-border dark:border-notion-dark-border text-notion-light-text/60 dark:text-notion-dark-text/60 hover:border-indigo-500"
+                ? "bg-indigo-600/20 text-indigo-600 dark:text-indigo-400 border-indigo-500/50 shadow-[0_0_20px_rgba(79,70,229,0.3)]"
+                : "bg-transparent border-notion-light-border dark:border-notion-dark-border text-notion-light-text/50 dark:text-notion-dark-text/50 hover:border-indigo-500/50 hover:bg-indigo-500/5"
             }`}
           >
-            <Icon.Rank size={16} className={isHudMode ? "animate-pulse" : ""} />
-            <span className="text-[10px] font-black uppercase tracking-widest">
-              {isHudMode ? "HUD Active" : "HUD Mode"}
-            </span>
-          </button>
+            <Icon.Rank
+              size={14}
+              className={
+                isHudMode
+                  ? "animate-pulse text-indigo-600 dark:text-indigo-400"
+                  : ""
+              }
+            />
+            <Badge
+              variant="ghost"
+              size="xs"
+              className="!p-0 font-black uppercase tracking-[0.2em] bg-transparent text-inherit border-none"
+            >
+              {isHudMode ? "HUD Active" : "Enable HUD"}
+            </Badge>
+          </Button>
         </ViewHeader>
 
         {/* HUD Elements Overlay (Conditional) */}
         {isHudMode && (
-          <div className="fixed bottom-8 right-8 z-50 flex flex-col items-end gap-4 pointer-events-none">
+          <div className="fixed bottom-10 right-10 z-50 flex flex-col items-end gap-6 pointer-events-none">
             {/* Predictive Analytics Panel */}
-            <div className="pointer-events-auto bg-black/80 backdrop-blur-xl border border-white/10 p-4 rounded-2xl shadow-2xl flex flex-col gap-3 min-w-[240px] animate-slide-up">
-              <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest text-white/60 border-b border-white/10 pb-2 mb-1">
-                <span>TACTICAL FORECAST</span>
-                <Icon.Activity size={12} className="text-indigo-400" />
+            <Card
+              padding="none"
+              className="pointer-events-auto bg-white/90 dark:bg-black/85 backdrop-blur-2xl border border-notion-light-border dark:border-white/10 p-5 rounded-[2rem] shadow-xl dark:shadow-[0_20px_50px_rgba(0,0,0,0.5)] flex flex-col gap-4 min-w-[280px] animate-slide-up ring-1 ring-notion-light-border/50 dark:ring-white/5 border-none"
+            >
+              <div className="flex justify-between items-center border-b border-notion-light-border dark:border-white/5 pb-3 mb-1">
+                <Badge
+                  variant="ghost"
+                  size="xs"
+                  className="!p-0 font-black uppercase tracking-[0.25em] text-notion-light-text/40 dark:text-white/40 border-none bg-transparent"
+                >
+                  <span className="flex items-center gap-2">
+                    <div className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse" />
+                    Tactical Forecast
+                  </span>
+                </Badge>
+                <Icon.Activity
+                  size={12}
+                  className="text-indigo-600 dark:text-indigo-400 opacity-60"
+                />
               </div>
 
-              <div className="space-y-3">
+              <div className="space-y-4 text-notion-light-text dark:text-white">
                 {/* Predicted XP */}
                 <div className="flex justify-between items-center">
-                  <div className="flex flex-col">
-                    <span className="text-[9px] text-white/40 uppercase">
+                  <div className="flex flex-col gap-0.5">
+                    <Badge
+                      variant="ghost"
+                      size="xs"
+                      className="!p-0 text-notion-light-text/30 dark:text-white/30 uppercase font-black tracking-wider border-none bg-transparent"
+                    >
                       Est. Session XP
-                    </span>
-                    <span className="text-sm font-bold text-white">
-                      +{predictiveMetrics.predictedXP} XP
+                    </Badge>
+                    <span className="text-lg font-black text-notion-light-text dark:text-white tracking-tight">
+                      +{predictiveMetrics.predictedXP}{" "}
+                      <span className="text-[10px] text-indigo-600 dark:text-indigo-400">
+                        XP
+                      </span>
                     </span>
                   </div>
-                  <div className="text-right">
-                    <span className="text-[9px] text-white/40 uppercase">
+                  <div className="text-right flex flex-col gap-0.5">
+                    <Badge
+                      variant="ghost"
+                      size="xs"
+                      className="!p-0 text-notion-light-text/30 dark:text-white/30 uppercase font-black tracking-wider border-none bg-transparent"
+                    >
                       Next Lvl
-                    </span>
-                    <div className="text-[10px] font-mono text-indigo-300">
+                    </Badge>
+                    <div className="text-[10px] font-black text-indigo-600 dark:text-indigo-300 tracking-tight">
                       {predictiveMetrics.potentialLevel >
                       operatorMetrics.level ? (
-                        <span className="animate-pulse text-emerald-400">
+                        <span className="animate-pulse text-emerald-600 dark:text-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.3)]">
                           LVL UP IMMINENT
                         </span>
                       ) : (
@@ -162,7 +211,10 @@ export const DashboardView: React.FC<DashboardViewProps> = React.memo(
                           {(operatorMetrics.xp +
                             predictiveMetrics.predictedXP) %
                             1000}{" "}
-                          / 1000
+                          /{" "}
+                          <span className="opacity-40 text-notion-light-text dark:text-white">
+                            1000
+                          </span>
                         </span>
                       )}
                     </div>
@@ -171,102 +223,134 @@ export const DashboardView: React.FC<DashboardViewProps> = React.memo(
 
                 {/* Momentum Tracking */}
                 <div className="flex justify-between items-center">
-                  <div className="flex flex-col">
-                    <span className="text-[9px] text-white/40 uppercase">
+                  <div className="flex flex-col gap-0.5">
+                    <Badge
+                      variant="ghost"
+                      size="xs"
+                      className="!p-0 text-notion-light-text/30 dark:text-white/30 uppercase font-black tracking-wider border-none bg-transparent"
+                    >
                       Momentum
-                    </span>
-                    <div className="flex items-center gap-1.5">
+                    </Badge>
+                    <div className="flex items-center gap-2">
                       <span
-                        className={`text-sm font-bold ${predictiveMetrics.isStreakAtRisk ? "text-amber-400" : "text-emerald-400"}`}
+                        className={`text-lg font-black tracking-tight ${predictiveMetrics.isStreakAtRisk ? "text-amber-600 dark:text-amber-400" : "text-emerald-600 dark:text-emerald-400"}`}
                       >
-                        {operatorMetrics.streak} Days
+                        {operatorMetrics.streak}{" "}
+                        <span className="text-[10px]">Days</span>
                       </span>
                       {predictiveMetrics.isStreakAtRisk && (
-                        <span className="px-1 py-0.5 bg-amber-500/20 text-amber-400 text-[8px] rounded uppercase font-black tracking-wider animate-pulse">
-                          At Risk
-                        </span>
+                        <Badge
+                          variant="warning"
+                          size="xs"
+                          className="animate-pulse py-0 px-1.5 text-[7px] font-black tracking-widest border-none"
+                        >
+                          AT RISK
+                        </Badge>
                       )}
                     </div>
                   </div>
-                  <div className="text-right">
-                    <span className="text-[9px] text-white/40 uppercase">
+                  <div className="text-right flex flex-col gap-0.5">
+                    <Badge
+                      variant="ghost"
+                      size="xs"
+                      className="!p-0 text-notion-light-text/30 dark:text-white/30 uppercase font-black tracking-wider border-none bg-transparent"
+                    >
                       Forecast
-                    </span>
-                    <span className="text-[10px] font-mono text-white/80 block">
-                      Day {predictiveMetrics.streakForecast} Locked
+                    </Badge>
+                    <span className="text-[10px] font-black text-notion-light-text/70 dark:text-white/70 block tracking-tight">
+                      Day {predictiveMetrics.streakForecast}{" "}
+                      <span className="opacity-40">Locked</span>
                     </span>
                   </div>
                 </div>
 
                 {/* Decision Calibration */}
-                <div className="flex justify-between items-center border-t border-white/5 pt-2 mt-1">
-                  <div className="flex flex-col">
-                    <span className="text-[9px] text-white/40 uppercase">
+                <div className="flex justify-between items-center border-t border-notion-light-border dark:border-white/5 pt-3 mt-1">
+                  <div className="flex flex-col gap-0.5">
+                    <Badge
+                      variant="ghost"
+                      size="xs"
+                      className="!p-0 text-notion-light-text/30 dark:text-white/30 uppercase font-black tracking-wider border-none bg-transparent"
+                    >
                       Calibration
-                    </span>
-                    <div className="flex items-center gap-1.5">
+                    </Badge>
+                    <div className="flex items-center gap-2">
                       <span
-                        className={`text-sm font-bold ${
+                        className={`text-lg font-black tracking-tight ${
                           calibrationMetrics.calibrationScore >= 80
-                            ? "text-emerald-400"
+                            ? "text-emerald-600 dark:text-emerald-400"
                             : calibrationMetrics.calibrationScore >= 50
-                              ? "text-indigo-400"
-                              : "text-amber-400"
+                              ? "text-indigo-600 dark:text-indigo-400"
+                              : "text-amber-600 dark:text-amber-400"
                         }`}
                       >
                         {calibrationMetrics.calibrationScore}%
                       </span>
-                      <span
-                        className={`text-[8px] uppercase font-black tracking-widest ${
+                      <Badge
+                        variant="ghost"
+                        size="xs"
+                        className={`py-0 px-1.5 text-[7px] font-black tracking-widest uppercase border-none ${
                           calibrationMetrics.bias === "calibrated"
-                            ? "text-emerald-500/60"
-                            : "text-amber-500/60"
+                            ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-500/60"
+                            : "bg-amber-500/10 text-amber-600 dark:text-amber-500/60"
                         }`}
                       >
                         {calibrationMetrics.bias}
-                      </span>
+                      </Badge>
                     </div>
                   </div>
-                  <div className="text-right">
+                  <div className="text-right flex flex-col items-end gap-1">
                     <Icon.Strategy
-                      size={14}
-                      className="text-white/20 inline-block mb-1"
+                      size={12}
+                      className="text-notion-light-text/20 dark:text-white/20"
                     />
-                    <span className="text-[8px] text-white/40 block uppercase tracking-tighter">
+                    <Badge
+                      variant="ghost"
+                      size="xs"
+                      className="!p-0 text-notion-light-text/30 dark:text-white/30 uppercase font-black tracking-widest leading-none border-none bg-transparent"
+                    >
                       Impact Accuracy
-                    </span>
+                    </Badge>
                   </div>
                 </div>
 
                 {/* Biometric Calibration Correlation */}
                 {biometricCalibration && biometricCalibration.length > 0 && (
-                  <div className="flex flex-col gap-2 border-t border-white/5 pt-2 mt-1">
-                    <span className="text-[9px] text-white/40 uppercase">
+                  <div className="flex flex-col gap-3 border-t border-notion-light-border dark:border-white/5 pt-3 mt-1">
+                    <Badge
+                      variant="ghost"
+                      size="xs"
+                      className="!p-0 text-notion-light-text/30 dark:text-white/30 uppercase font-black tracking-wider border-none bg-transparent"
+                    >
                       State Accuracy
-                    </span>
-                    <div className="space-y-1.5">
+                    </Badge>
+                    <div className="space-y-2">
                       {biometricCalibration.map((s) => (
                         <div
                           key={s.state}
                           className="flex justify-between items-center"
                         >
-                          <div className="flex items-center gap-1.5">
+                          <div className="flex items-center gap-2">
                             <div
-                              className={`w-1 h-1 rounded-full ${s.state === "peak" ? "bg-emerald-500 shadow-[0_0_5px_rgba(16,185,129,0.5)]" : s.state === "low" ? "bg-amber-500" : "bg-indigo-500"}`}
+                              className={`w-1.5 h-1.5 rounded-full ${s.state === "peak" ? "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.4)]" : s.state === "low" ? "bg-amber-500" : "bg-indigo-500"}`}
                             />
-                            <span className="text-[10px] text-white/60 capitalize">
+                            <span className="text-[10px] text-notion-light-text/60 dark:text-white/60 capitalize font-bold">
                               {s.state}
                             </span>
                           </div>
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-3">
                             <span
-                              className={`text-[10px] font-bold ${s.accuracy >= 80 ? "text-emerald-400" : s.accuracy >= 50 ? "text-indigo-400" : "text-amber-400"}`}
+                              className={`text-[10px] font-black tracking-tight ${s.accuracy >= 80 ? "text-emerald-600 dark:text-emerald-400" : s.accuracy >= 50 ? "text-indigo-600 dark:text-indigo-400" : "text-amber-600 dark:text-amber-400"}`}
                             >
                               {s.accuracy}%
                             </span>
-                            <span className="text-[8px] text-white/20 uppercase font-mono">
+                            <Badge
+                              variant="ghost"
+                              size="xs"
+                              className="!p-0 text-notion-light-text/20 dark:text-white/20 uppercase font-black tracking-widest border-none bg-transparent"
+                            >
                               {s.bias}
-                            </span>
+                            </Badge>
                           </div>
                         </div>
                       ))}
@@ -274,24 +358,35 @@ export const DashboardView: React.FC<DashboardViewProps> = React.memo(
                   </div>
                 )}
               </div>
-            </div>
+            </Card>
 
             {/* Confidence Dial HUD Snippet */}
-            <div className="pointer-events-auto bg-black/80 backdrop-blur-xl border border-white/10 p-4 rounded-2xl shadow-2xl flex flex-col gap-3 min-w-[200px] animate-slide-up [animation-delay:100ms]">
-              <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest text-white/60">
-                <span>CONFIDENCE DIAL</span>
-                <span className={getConfidenceColor(confidenceScore)}>
+            <Card
+              padding="none"
+              className="pointer-events-auto bg-white/90 dark:bg-black/85 backdrop-blur-2xl border border-notion-light-border dark:border-white/10 p-5 rounded-[2rem] shadow-xl dark:shadow-[0_20px_50px_rgba(0,0,0,0.5)] flex flex-col gap-4 min-w-[240px] animate-slide-up [animation-delay:100ms] ring-1 ring-notion-light-border/50 dark:ring-white/5 border-none"
+            >
+              <div className="flex justify-between items-center">
+                <Badge
+                  variant="ghost"
+                  size="xs"
+                  className="!p-0 font-black uppercase tracking-[0.25em] text-notion-light-text/40 dark:text-white/40 border-none bg-transparent"
+                >
+                  Confidence Dial
+                </Badge>
+                <span
+                  className={`${getConfidenceColor(confidenceScore).replace("text-", "text-").replace("dark:", "dark:")} font-black`}
+                >
                   {confidenceScore}%
                 </span>
               </div>
-              <div className="relative h-2 bg-white/10 rounded-full overflow-hidden">
+              <div className="relative h-2.5 bg-notion-light-sidebar dark:bg-white/5 rounded-full overflow-hidden p-[1px]">
                 <div
-                  className={`h-full transition-all duration-1000 ${
+                  className={`h-full rounded-full transition-all duration-1000 shadow-[0_0_15px_rgba(79,70,229,0.4)] ${
                     confidenceScore >= 80
-                      ? "bg-emerald-500"
+                      ? "bg-gradient-to-r from-emerald-600 to-emerald-400"
                       : confidenceScore >= 50
-                        ? "bg-indigo-500"
-                        : "bg-amber-500"
+                        ? "bg-gradient-to-r from-indigo-600 to-indigo-400"
+                        : "bg-gradient-to-r from-amber-600 to-amber-400"
                   }`}
                   style={{ width: `${confidenceScore}%` }}
                 />
@@ -308,32 +403,45 @@ export const DashboardView: React.FC<DashboardViewProps> = React.memo(
                             : confidenceScore >= 50
                               ? "bg-indigo-500"
                               : "bg-amber-500"
-                          : "bg-white/10"
+                          : "bg-notion-light-border dark:bg-white/10"
                       }`}
                     />
                   ))}
                 </div>
-                <span className="text-[9px] font-mono text-white/40 uppercase tracking-tighter">
+                <Badge
+                  variant="ghost"
+                  size="xs"
+                  className="!p-0 font-mono text-notion-light-text/40 dark:text-white/40 uppercase tracking-tighter border-none bg-transparent"
+                >
                   {confidenceScore >= 80
                     ? "OPTIMAL"
                     : confidenceScore >= 50
                       ? "STABLE"
                       : "CAUTION"}
-                </span>
+                </Badge>
               </div>
-            </div>
+            </Card>
 
             {/* Project Momentum HUD Snippet (Advanced) */}
             {projectMomentum && projectMomentum.length > 0 && (
-              <div className="pointer-events-auto bg-black/80 backdrop-blur-xl border border-white/10 p-4 rounded-2xl shadow-2xl flex flex-col gap-3 min-w-[200px] animate-slide-up [animation-delay:200ms]">
-                <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest text-white/60">
-                  <span>PROJECT MOMENTUM</span>
+              <Card
+                padding="none"
+                className="pointer-events-auto bg-white/90 dark:bg-black/80 backdrop-blur-xl border border-notion-light-border dark:border-white/10 p-4 rounded-2xl shadow-xl dark:shadow-2xl flex flex-col gap-3 min-w-[200px] animate-slide-up [animation-delay:200ms] border-none"
+              >
+                <div className="flex justify-between items-center">
+                  <Badge
+                    variant="ghost"
+                    size="xs"
+                    className="!p-0 font-black uppercase tracking-widest text-notion-light-text/60 dark:text-white/60 border-none bg-transparent"
+                  >
+                    PROJECT MOMENTUM
+                  </Badge>
                   <button
                     onClick={() => setIsDebriefMode(!isDebriefMode)}
                     className={`px-2 py-0.5 rounded text-[8px] font-black uppercase transition-all ${
                       isDebriefMode
-                        ? "bg-indigo-500 text-white shadow-[0_0_10px_rgba(99,102,241,0.5)]"
-                        : "bg-white/5 text-white/40 hover:bg-white/10"
+                        ? "bg-indigo-600 dark:bg-indigo-500 text-white shadow-[0_0_10px_rgba(99,102,241,0.5)]"
+                        : "bg-notion-light-sidebar dark:bg-white/5 text-notion-light-text/40 dark:text-white/40 hover:bg-notion-light-hover dark:hover:bg-white/10"
                     }`}
                   >
                     {isDebriefMode ? "Close Debrief" : "Debrief Layer"}
@@ -343,81 +451,216 @@ export const DashboardView: React.FC<DashboardViewProps> = React.memo(
                   {projectMomentum.map((p) => (
                     <div key={p.name} className="flex flex-col gap-1.5">
                       <div className="flex justify-between items-center">
-                        <span className="text-[11px] font-bold text-white/80 truncate max-w-[120px]">
+                        <span className="text-[11px] font-bold text-notion-light-text/80 dark:text-white/80 truncate max-w-[120px]">
                           {p.name}
                         </span>
                         <div className="flex items-center gap-1.5">
-                          <span
-                            className={`text-[10px] font-black ${p.trend === "up" ? "text-emerald-400" : p.trend === "down" ? "text-rose-400" : "text-white/40"}`}
+                          <Badge
+                            variant="ghost"
+                            size="xs"
+                            className={`!p-0 font-black border-none bg-transparent ${p.trend === "up" ? "text-emerald-600 dark:text-emerald-400" : p.trend === "down" ? "text-rose-600 dark:text-rose-400" : "text-notion-light-text/40 dark:text-white/40"}`}
                           >
                             {p.momentum}
-                          </span>
+                          </Badge>
                           {p.isAtRisk && (
                             <div className="w-1 h-1 rounded-full bg-rose-500 animate-pulse" />
                           )}
                         </div>
                       </div>
-                      <div className="h-1 w-full bg-white/5 rounded-full overflow-hidden">
+                      <div className="h-1 w-full bg-notion-light-sidebar dark:bg-white/5 rounded-full overflow-hidden">
                         <div
-                          className={`h-full rounded-full transition-all duration-1000 ${p.isAtRisk ? "bg-rose-500" : "bg-indigo-500"}`}
+                          className={`h-full rounded-full transition-all duration-1000 ${p.isAtRisk ? "bg-rose-500" : "bg-indigo-600 dark:bg-indigo-500"}`}
                           style={{ width: `${p.completionRate}%` }}
                         />
                       </div>
                     </div>
                   ))}
                 </div>
-              </div>
+              </Card>
             )}
 
             {/* Debrief Layer Overlay */}
             {isDebriefMode && (
-              <div className="fixed inset-0 z-[100] flex items-center justify-center p-8 pointer-events-none">
-                <div
-                  className="absolute inset-0 bg-black/60 backdrop-blur-md pointer-events-auto"
-                  onClick={() => setIsDebriefMode(false)}
-                />
-                <div className="relative w-full max-w-5xl pointer-events-auto animate-in zoom-in-95 duration-300">
-                  <div className="flex justify-between items-end mb-6">
+              <div className="fixed inset-0 z-[60] bg-white/40 dark:bg-black/40 backdrop-blur-md animate-in fade-in duration-500 flex items-center justify-center p-10 pointer-events-auto">
+                <Card
+                  padding="none"
+                  className="w-full max-w-4xl h-[80vh] bg-white/95 dark:bg-black/90 border border-notion-light-border dark:border-white/10 rounded-[3rem] shadow-2xl overflow-hidden flex flex-col animate-in zoom-in-95 duration-500"
+                >
+                  <div className="p-8 border-b border-notion-light-border dark:border-white/5 flex justify-between items-center">
                     <div>
-                      <h2 className="text-[12px] font-black uppercase tracking-[0.3em] text-indigo-400 mb-1">
-                        Strategic Command
+                      <h2 className="text-3xl font-black text-notion-light-text dark:text-white tracking-tighter uppercase">
+                        Mission Debrief
                       </h2>
-                      <h1 className="text-3xl font-black text-white">
-                        Mission Debrief <span className="text-white/20">/</span>{" "}
-                        Project Insights
-                      </h1>
+                      <p className="text-notion-light-text/40 dark:text-white/40 font-mono text-xs mt-1 uppercase tracking-widest">
+                        Strategic Analysis & Performance Correlation
+                      </p>
                     </div>
                     <button
                       onClick={() => setIsDebriefMode(false)}
-                      className="p-3 rounded-full bg-white/5 text-white/40 hover:bg-white/10 transition-all"
+                      className="p-3 rounded-full bg-notion-light-sidebar dark:bg-white/5 text-notion-light-text/40 dark:text-white/40 hover:text-notion-light-text dark:hover:text-white transition-colors"
                     >
                       <Icon.Close size={24} />
                     </button>
                   </div>
-                  <ProjectDebriefPanel
-                    projects={projectMomentum as ProjectDebrief[]}
-                  />
 
-                  <div className="mt-8 p-6 bg-indigo-500/5 border border-indigo-500/20 rounded-2xl flex items-center gap-4">
-                    <div className="p-3 bg-indigo-500/10 rounded-xl text-indigo-400">
-                      <Icon.Bot size={24} />
+                  <div className="flex-1 overflow-y-auto p-8 custom-scrollbar">
+                    <div className="grid grid-cols-3 gap-8">
+                      {/* Performance Metrics */}
+                      <div className="space-y-6">
+                        <Badge
+                          variant="ghost"
+                          size="xs"
+                          className="!p-0 text-indigo-600 dark:text-indigo-400 font-black tracking-[0.3em] border-none bg-transparent"
+                        >
+                          PERFORMANCE
+                        </Badge>
+                        <div className="space-y-4">
+                          {[
+                            {
+                              label: "Execution Precision",
+                              value: 94,
+                              trend: "+2%",
+                            },
+                            {
+                              label: "Cognitive Load",
+                              value: 68,
+                              trend: "Stable",
+                            },
+                            {
+                              label: "Flow Consistency",
+                              value: 87,
+                              trend: "+5%",
+                            },
+                          ].map((m) => (
+                            <div
+                              key={m.label}
+                              className="p-4 rounded-2xl bg-notion-light-sidebar dark:bg-white/5 border border-notion-light-border dark:border-white/5"
+                            >
+                              <div className="flex justify-between items-center mb-2">
+                                <span className="text-[10px] font-black text-notion-light-text/40 dark:text-white/40 uppercase tracking-wider">
+                                  {m.label}
+                                </span>
+                                <span className="text-[10px] font-black text-emerald-600 dark:text-emerald-400">
+                                  {m.trend}
+                                </span>
+                              </div>
+                              <div className="flex items-end gap-2">
+                                <span className="text-2xl font-black text-notion-light-text dark:text-white">
+                                  {m.value}%
+                                </span>
+                                <div className="flex-1 h-1 bg-notion-light-border dark:bg-white/10 rounded-full mb-2 overflow-hidden">
+                                  <div
+                                    className="h-full bg-indigo-600 dark:bg-indigo-500 rounded-full"
+                                    style={{ width: `${m.value}%` }}
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Strategic Insights */}
+                      <div className="col-span-2 space-y-6">
+                        <Badge
+                          variant="ghost"
+                          size="xs"
+                          className="!p-0 text-purple-600 dark:text-purple-400 font-black tracking-[0.3em] border-none bg-transparent"
+                        >
+                          STRATEGIC INSIGHTS
+                        </Badge>
+                        <div className="grid grid-cols-2 gap-4">
+                          {[
+                            {
+                              title: "Peak Performance Window",
+                              desc: "Your cognitive output peaks between 09:00 - 11:30. Schedule high-impact tasks accordingly.",
+                              icon: Icon.Activity,
+                            },
+                            {
+                              title: "Context Switching Cost",
+                              desc: "Detected 15% efficiency drop during rapid task transitions in Analytics module.",
+                              icon: Icon.Project,
+                            },
+                            {
+                              title: "Momentum Sustainability",
+                              desc: "Current trajectory suggests level 42 reach within 48 hours at present velocity.",
+                              icon: Icon.Missions,
+                            },
+                            {
+                              title: "Focus Calibration",
+                              desc: "Deep work sessions are 22% more effective when preceded by Biometric Sync.",
+                              icon: Icon.Strategy,
+                            },
+                          ].map((i) => (
+                            <div
+                              key={i.title}
+                              className="p-5 rounded-[2rem] bg-notion-light-sidebar dark:bg-white/5 border border-notion-light-border dark:border-white/5 hover:border-indigo-500/30 transition-colors group"
+                            >
+                              <i.icon
+                                size={20}
+                                className="text-indigo-600 dark:text-indigo-400 mb-3 opacity-60 group-hover:opacity-100 transition-opacity"
+                              />
+                              <h4 className="text-sm font-black text-notion-light-text dark:text-white mb-2 uppercase tracking-tight">
+                                {i.title}
+                              </h4>
+                              <p className="text-xs text-notion-light-text/60 dark:text-white/60 leading-relaxed font-medium">
+                                {i.desc}
+                              </p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
                     </div>
-                    <div>
-                      <h4 className="text-[11px] font-black uppercase tracking-widest text-indigo-300">
-                        Operational Intelligence
-                      </h4>
-                      <p className="text-sm text-indigo-100/60 max-w-2xl">
-                        Your peak state multiplier is currently at its highest
-                        in the <strong>{projectMomentum[0]?.name}</strong>{" "}
-                        theater. Strategic accuracy across all sectors is
-                        holding at{" "}
-                        <strong>{calibrationMetrics.calibrationScore}%</strong>.
-                        Maintain momentum to avoid streak degradation in
-                        high-risk zones.
-                      </p>
+
+                    {/* Timeline Correlation */}
+                    <div className="mt-12 p-8 rounded-[3rem] bg-indigo-600/5 dark:bg-indigo-500/5 border border-indigo-500/10">
+                      <div className="flex justify-between items-center mb-8">
+                        <Badge
+                          variant="ghost"
+                          size="xs"
+                          className="!p-0 text-indigo-600 dark:text-indigo-400 font-black tracking-[0.3em] border-none bg-transparent"
+                        >
+                          ACTIVITY CORRELATION
+                        </Badge>
+                        <div className="flex gap-4">
+                          <div className="flex items-center gap-2">
+                            <div className="w-2 h-2 rounded-full bg-indigo-600 dark:bg-indigo-500" />
+                            <span className="text-[10px] font-black text-notion-light-text/40 dark:text-white/40 uppercase">
+                              Output
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <div className="w-2 h-2 rounded-full bg-emerald-600 dark:bg-emerald-500" />
+                            <span className="text-[10px] font-black text-notion-light-text/40 dark:text-white/40 uppercase">
+                              Focus
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="h-32 flex items-end gap-1">
+                        {activityCorrelationData.map((data, i) => (
+                          <div
+                            key={i}
+                            className="flex-1 flex flex-col gap-1 group relative"
+                          >
+                            <div
+                              className="w-full bg-emerald-600/40 dark:bg-emerald-500/40 rounded-t-sm hover:bg-emerald-500 transition-colors cursor-help"
+                              style={{ height: `${data.focusHeight}%` }}
+                            >
+                              <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-white dark:bg-black border border-notion-light-border dark:border-white/10 px-2 py-1 rounded text-[8px] font-black opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10 text-notion-light-text dark:text-white">
+                                FOCUS: {data.focusValue}%
+                              </div>
+                            </div>
+                            <div
+                              className="w-full bg-indigo-600/40 dark:bg-indigo-500/40 rounded-t-sm hover:bg-indigo-500 transition-colors"
+                              style={{ height: `${data.outputHeight}%` }}
+                            />
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   </div>
-                </div>
+                </Card>
               </div>
             )}
           </div>
@@ -428,30 +671,50 @@ export const DashboardView: React.FC<DashboardViewProps> = React.memo(
           <div className="lg:col-span-2">
             <SummaryCards metrics={metrics} />
           </div>
-          <div className="notion-card p-6 bg-gradient-to-br from-violet-600 to-indigo-700 dark:from-violet-700 dark:to-indigo-900 text-white border-none shadow-lg relative overflow-hidden group flex flex-col justify-center min-h-[200px]">
+          <Card
+            variant="default"
+            padding="none"
+            className="bg-gradient-to-br from-indigo-600 to-violet-700 dark:from-indigo-700 dark:to-violet-900 text-white border-none shadow-lg relative overflow-hidden group flex flex-col justify-center min-h-[200px]"
+          >
             <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:scale-110 transition-transform duration-500">
               <Icon.Rank size={120} />
             </div>
-            <div className="relative z-10">
+            <div className="relative z-10 p-6">
               <div className="flex justify-between items-start mb-6">
                 <div>
-                  <span className="text-[10px] font-black uppercase tracking-[0.2em] opacity-70">
+                  <Badge
+                    variant="ghost"
+                    size="xs"
+                    className="!p-0 font-black uppercase tracking-[0.2em] opacity-70 border-none bg-transparent text-white"
+                  >
                     Operator Status
-                  </span>
+                  </Badge>
                   <h3 className="text-2xl font-bold tracking-tight mt-1">
                     Level {operatorMetrics.level}
                   </h3>
                 </div>
-                <div className="px-3 py-1 bg-white/20 rounded-full text-[10px] font-bold backdrop-blur-md border border-white/10 uppercase tracking-widest">
+                <Badge
+                  variant="custom"
+                  size="xs"
+                  className="px-3 py-1 bg-white/20 rounded-full text-[10px] font-bold backdrop-blur-md border border-white/10 uppercase tracking-widest text-white"
+                >
                   Specialist
-                </div>
+                </Badge>
               </div>
 
               <div className="space-y-4">
                 <div>
-                  <div className="flex justify-between text-[10px] font-bold uppercase tracking-widest mb-1.5 opacity-80">
-                    <span>XP Progress</span>
-                    <span>{operatorMetrics.xp % 1000} / 1000</span>
+                  <div className="flex justify-between items-center mb-1.5 opacity-80">
+                    <Badge
+                      variant="ghost"
+                      size="xs"
+                      className="!p-0 text-white font-bold uppercase tracking-widest border-none bg-transparent"
+                    >
+                      XP Progress
+                    </Badge>
+                    <span className="text-[10px] font-bold text-white">
+                      {operatorMetrics.xp % 1000} / 1000
+                    </span>
                   </div>
                   <div className="h-2 bg-black/20 rounded-full overflow-hidden border border-white/5">
                     <div
@@ -463,10 +726,14 @@ export const DashboardView: React.FC<DashboardViewProps> = React.memo(
 
                 <div className="grid grid-cols-2 gap-4 pt-2">
                   <div className="bg-white/10 p-3 rounded-xl backdrop-blur-sm border border-white/5 hover:bg-white/20 transition-colors">
-                    <span className="text-[10px] opacity-70 block uppercase font-bold tracking-tighter mb-1">
+                    <Badge
+                      variant="ghost"
+                      size="xs"
+                      className="!p-0 opacity-70 block uppercase font-bold tracking-tighter mb-1 border-none bg-transparent text-white"
+                    >
                       Streak
-                    </span>
-                    <div className="flex items-center gap-2">
+                    </Badge>
+                    <div className="flex items-center gap-2 text-white">
                       <Icon.Streak size={16} className="text-violet-400" />
                       <span className="text-lg font-bold">
                         {operatorMetrics.streak}d
@@ -474,10 +741,14 @@ export const DashboardView: React.FC<DashboardViewProps> = React.memo(
                     </div>
                   </div>
                   <div className="bg-white/10 p-3 rounded-xl backdrop-blur-sm border border-white/5 hover:bg-white/20 transition-colors">
-                    <span className="text-[10px] opacity-70 block uppercase font-bold tracking-tighter mb-1">
+                    <Badge
+                      variant="ghost"
+                      size="xs"
+                      className="!p-0 opacity-70 block uppercase font-bold tracking-tighter mb-1 border-none bg-transparent text-white"
+                    >
                       Artifacts
-                    </span>
-                    <div className="flex items-center gap-2">
+                    </Badge>
+                    <div className="flex items-center gap-2 text-white">
                       <Icon.Vault size={16} className="text-purple-400" />
                       <span className="text-lg font-bold">
                         {operatorMetrics.artifactsGained}
@@ -487,14 +758,16 @@ export const DashboardView: React.FC<DashboardViewProps> = React.memo(
                 </div>
               </div>
             </div>
-          </div>
+          </Card>
         </div>
 
         {/* Quick Actions Row */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <button
+          <Card
             onClick={() => onNavigate("MISSIONS")}
-            className="notion-card p-6 bg-white dark:bg-notion-dark-sidebar/30 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 text-left group border-slate-200/60 dark:border-white/5"
+            hoverEffect
+            variant="default"
+            className="cursor-pointer group border-slate-200/60 dark:border-white/5"
           >
             <div className="flex flex-col">
               <div className="flex justify-between items-start">
@@ -506,18 +779,20 @@ export const DashboardView: React.FC<DashboardViewProps> = React.memo(
                   className="opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all text-slate-400"
                 />
               </div>
-              <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-1">
+              <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-1 uppercase tracking-tight">
                 Active Missions
               </h3>
               <p className="text-sm text-slate-500 dark:text-slate-400">
                 Manage your tactical task list and project execution.
               </p>
             </div>
-          </button>
+          </Card>
 
-          <button
+          <Card
             onClick={() => onNavigate("KNOWLEDGE")}
-            className="notion-card p-6 bg-white dark:bg-notion-dark-sidebar/30 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 text-left group border-slate-200/60 dark:border-white/5"
+            hoverEffect
+            variant="default"
+            className="cursor-pointer group border-slate-200/60 dark:border-white/5"
           >
             <div className="flex flex-col">
               <div className="flex justify-between items-start">
@@ -529,18 +804,20 @@ export const DashboardView: React.FC<DashboardViewProps> = React.memo(
                   className="opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all text-slate-400"
                 />
               </div>
-              <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-1">
+              <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-1 uppercase tracking-tight">
                 Knowledge Base
               </h3>
               <p className="text-sm text-slate-500 dark:text-slate-400">
                 Access your SOPs, framework library, and intel.
               </p>
             </div>
-          </button>
+          </Card>
 
-          <button
+          <Card
             onClick={() => onNavigate("CRM")}
-            className="notion-card p-6 bg-white dark:bg-notion-dark-sidebar/30 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 text-left group border-slate-200/60 dark:border-white/5"
+            hoverEffect
+            variant="default"
+            className="cursor-pointer group border-slate-200/60 dark:border-white/5"
           >
             <div className="flex flex-col">
               <div className="flex justify-between items-start">
@@ -552,14 +829,14 @@ export const DashboardView: React.FC<DashboardViewProps> = React.memo(
                   className="opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all text-slate-400"
                 />
               </div>
-              <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-1">
+              <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-1 uppercase tracking-tight">
                 Contact Layer
               </h3>
               <p className="text-sm text-slate-500 dark:text-slate-400">
                 Track interactions with clients, leads, and vendors.
               </p>
             </div>
-          </button>
+          </Card>
         </div>
 
         {/* Analytics Grid */}
@@ -575,22 +852,21 @@ export const DashboardView: React.FC<DashboardViewProps> = React.memo(
         {/* Bottom Section: Tactical Focus */}
         <div>
           <div className="flex justify-between items-center mb-4 mt-4">
-            <div className="flex items-center gap-2">
-              <div className="p-1.5 rounded-lg bg-notion-light-sidebar dark:bg-notion-dark-sidebar border border-notion-light-border dark:border-notion-dark-border">
-                <Icon.Missions
-                  {...iconProps(
-                    16,
-                    "text-notion-light-text/60 dark:text-notion-dark-text/60",
-                  )}
-                />
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-600 dark:text-indigo-400">
+                <Icon.Missions size={20} />
               </div>
               <div>
-                <h3 className="text-[11px] font-black text-notion-light-text/40 dark:text-notion-dark-text/40 uppercase tracking-[0.2em]">
+                <Badge
+                  variant="ghost"
+                  size="xs"
+                  className="!p-0 font-black text-notion-light-text/40 dark:text-notion-dark-text/40 uppercase tracking-[0.2em]"
+                >
                   Tactical Focus
+                </Badge>
+                <h3 className="text-sm font-bold text-notion-light-text dark:text-notion-dark-text">
+                  Top Priorities
                 </h3>
-                <span className="text-[9px] font-bold text-notion-light-muted dark:text-notion-dark-muted">
-                  TOP 5 PRIORITIES
-                </span>
               </div>
             </div>
             <div className="flex items-center gap-2">
@@ -602,15 +878,14 @@ export const DashboardView: React.FC<DashboardViewProps> = React.memo(
               />
               <Button
                 onClick={() => onNavigate("MISSIONS")}
-                variant="secondary"
-                className="text-[10px] font-black uppercase tracking-widest hover:text-indigo-600 dark:hover:text-indigo-400"
+                variant="ghost"
+                size="sm"
+                className="text-[10px] font-black uppercase tracking-widest hover:text-indigo-600 dark:hover:text-indigo-400 border border-notion-light-border dark:border-notion-dark-border bg-notion-light-sidebar dark:bg-notion-dark-sidebar rounded-xl px-4"
               >
                 Full Board{" "}
                 <Icon.Layout
-                  {...iconProps(
-                    14,
-                    "group-hover:translate-x-0.5 transition-transform",
-                  )}
+                  size={14}
+                  className="ml-2 group-hover:translate-x-0.5 transition-transform"
                 />
               </Button>
             </div>

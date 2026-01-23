@@ -1,7 +1,7 @@
 import React from "react";
 import { Contact, Interaction } from "../../types";
 import { Icon } from "../Icons";
-import { Button, Spinner, DebouncedInput } from "../ui";
+import { Button, Spinner, DebouncedInput, Card, Badge } from "../ui";
 import { ContactModal } from "../ContactModal";
 import { InteractionModal } from "../InteractionModal";
 import { ViewHeader } from "../ViewHeader";
@@ -131,60 +131,65 @@ export const CrmView: React.FC<CrmViewProps> = React.memo(
                     ))
                 ) : filteredContacts.length > 0 ? (
                   filteredContacts.map((contact) => (
-                    <Button
-                      variant="custom"
+                    <Card
                       key={contact.id}
                       onClick={() => setSelectedContact(contact)}
-                      className={`w-full flex flex-col items-stretch text-left p-4 notion-card transition-all duration-300 group !justify-start !items-start ${
+                      padding="none"
+                      hoverEffect
+                      className={`w-full flex flex-col items-stretch text-left transition-all duration-300 group cursor-pointer ${
                         selectedContact?.id === contact.id
                           ? `${crmColors.bg} ${crmColors.border} shadow-md translate-x-1`
-                          : `hover:${crmColors.lightBg} hover:border-notion-light-text/10 dark:hover:border-notion-dark-text/10 hover:shadow-sm`
+                          : `hover:${crmColors.lightBg}`
                       }`}
                     >
-                      <div className="flex items-start justify-between w-full">
-                        <div className="flex items-center gap-3">
-                          <div
-                            className={`w-10 h-10 rounded flex items-center justify-center text-sm font-bold shadow-sm transition-colors ${
-                              selectedContact?.id === contact.id
-                                ? `${crmColors.dot} text-white`
-                                : `${crmColors.lightBg} ${crmColors.text} border ${crmColors.border}`
-                            }`}
-                          >
-                            {contact.name.charAt(0)}
-                          </div>
-                          <div className="min-w-0">
-                            <h3
-                              className={`text-sm font-bold truncate ${selectedContact?.id === contact.id ? crmColors.text : "text-notion-light-text dark:text-notion-dark-text"} group-hover:${crmColors.text} transition-colors`}
+                      <div className="p-4">
+                        <div className="flex items-start justify-between w-full">
+                          <div className="flex items-center gap-3">
+                            <div
+                              className={`w-10 h-10 rounded flex items-center justify-center text-sm font-bold shadow-sm transition-colors ${
+                                selectedContact?.id === contact.id
+                                  ? `${crmColors.dot} text-white`
+                                  : `${crmColors.lightBg} ${crmColors.text} border ${crmColors.border}`
+                              }`}
                             >
-                              {contact.name}
-                            </h3>
-                            <p className="notion-label truncate">
-                              {contact.company || "Individual"}
-                            </p>
+                              {contact.name.charAt(0)}
+                            </div>
+                            <div className="min-w-0">
+                              <h3
+                                className={`text-sm font-bold truncate ${selectedContact?.id === contact.id ? crmColors.text : "text-notion-light-text dark:text-notion-dark-text"} group-hover:${crmColors.text} transition-colors`}
+                              >
+                                {contact.name}
+                              </h3>
+                              <span className="text-[10px] font-bold opacity-40 lowercase">
+                                {contact.company || "Individual"}
+                              </span>
+                            </div>
                           </div>
-                        </div>
-                        <span
-                          className={`text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider shadow-sm border flex-shrink-0 ${CONTACT_TYPE_COLORS[contact.type as keyof typeof CONTACT_TYPE_COLORS]}`}
-                        >
-                          {contact.type}
-                        </span>
-                      </div>
-                      <div
-                        className={`mt-4 pt-3 border-t ${crmColors.border} opacity-50 flex items-center gap-4 text-[10px] text-notion-light-muted dark:text-notion-dark-muted`}
-                      >
-                        <div className="flex items-center gap-1.5">
-                          <Icon.Chat size={12} className="opacity-70" />
-                          {contact.status}
+                          <Badge
+                            variant="custom"
+                            size="xs"
+                            className={`rounded-full shadow-sm border flex-shrink-0 ${CONTACT_TYPE_COLORS[contact.type as keyof typeof CONTACT_TYPE_COLORS]}`}
+                          >
+                            {contact.type}
+                          </Badge>
                         </div>
                         <div
-                          className={`w-1 h-1 rounded-full ${crmColors.dot} opacity-30`}
-                        ></div>
-                        <div className="flex items-center gap-1.5">
-                          <Icon.Date size={12} className="opacity-70" />
-                          {new Date(contact.createdAt).toLocaleDateString()}
+                          className={`mt-4 pt-3 border-t ${crmColors.border} opacity-50 flex items-center gap-4 text-[10px] text-notion-light-muted dark:text-notion-dark-muted`}
+                        >
+                          <div className="flex items-center gap-1.5">
+                            <Icon.Chat size={12} className="opacity-70" />
+                            {contact.status}
+                          </div>
+                          <div
+                            className={`w-1 h-1 rounded-full ${crmColors.dot} opacity-30`}
+                          ></div>
+                          <div className="flex items-center gap-1.5">
+                            <Icon.Date size={12} className="opacity-70" />
+                            {new Date(contact.createdAt).toLocaleDateString()}
+                          </div>
                         </div>
                       </div>
-                    </Button>
+                    </Card>
                   ))
                 ) : (
                   <div
@@ -195,7 +200,9 @@ export const CrmView: React.FC<CrmViewProps> = React.memo(
                     >
                       <Icon.Users size={32} />
                     </div>
-                    <p className="notion-label">No contacts found</p>
+                    <div className="text-[10px] font-black uppercase tracking-widest opacity-30">
+                      No contacts found
+                    </div>
                   </div>
                 )}
               </div>
@@ -206,13 +213,16 @@ export const CrmView: React.FC<CrmViewProps> = React.memo(
               className={`lg:col-span-2 ${!selectedContact ? "hidden lg:block" : "block"}`}
             >
               {selectedContact ? (
-                <div className="notion-card overflow-hidden min-h-[70vh] flex flex-col shadow-xl animate-in zoom-in-95 duration-300">
+                <Card
+                  padding="none"
+                  className="overflow-hidden min-h-[70vh] flex flex-col shadow-xl animate-in zoom-in-95 duration-300"
+                >
                   {/* Back button for mobile */}
                   <Button
                     variant="ghost"
                     onClick={() => setSelectedContact(null)}
                     className={`lg:hidden justify-start gap-2 px-4 py-3 text-notion-light-muted dark:text-notion-dark-muted ${prefixToHover(crmColors.text)} border-b ${crmColors.border} ${crmColors.bg} active:opacity-70 transition-colors w-full text-left font-bold relative z-10`}
-                    leftIcon={<Icon.Prev size={16} />}
+                    leftIcon={<Icon.ChevronLeft size={16} />}
                   >
                     Back to Contacts
                   </Button>
@@ -238,20 +248,24 @@ export const CrmView: React.FC<CrmViewProps> = React.memo(
                             {selectedContact.name}
                           </h2>
                           <div className="flex flex-wrap items-center gap-2 md:gap-3 mt-1.5">
-                            <span
-                              className={`text-[12px] md:text-[13px] font-bold text-notion-light-muted dark:text-notion-dark-muted ${crmColors.bg} px-2 py-0.5 md:px-2.5 md:py-1 rounded border ${crmColors.border} shadow-sm truncate max-w-[150px] md:max-w-none`}
+                            <Badge
+                              variant="custom"
+                              size="sm"
+                              className={`font-bold text-notion-light-muted dark:text-notion-dark-muted ${crmColors.bg} px-2.5 py-1 rounded border ${crmColors.border} shadow-sm truncate max-w-[150px] md:max-w-none`}
                             >
                               {selectedContact.company ||
                                 "Independent Operator"}
-                            </span>
+                            </Badge>
                             <div
                               className={`hidden xs:block w-1.5 h-1.5 rounded-full ${crmColors.dot} opacity-30`}
                             ></div>
-                            <span
-                              className={`text-[9px] md:text-[10px] font-bold px-2 py-0.5 md:px-3 md:py-1 rounded-full uppercase tracking-wider shadow-sm border ${CONTACT_TYPE_COLORS[selectedContact.type as keyof typeof CONTACT_TYPE_COLORS]}`}
+                            <Badge
+                              variant="custom"
+                              size="sm"
+                              className={`rounded-full shadow-sm border ${CONTACT_TYPE_COLORS[selectedContact.type as keyof typeof CONTACT_TYPE_COLORS]}`}
                             >
                               {selectedContact.type}
-                            </span>
+                            </Badge>
                           </div>
                         </div>
                       </div>
@@ -301,7 +315,11 @@ export const CrmView: React.FC<CrmViewProps> = React.memo(
                           <Icon.Chat size={16} />
                         </div>
                         <div className="overflow-hidden">
-                          <p className="notion-label mb-0.5">Primary Email</p>
+                          <div className="flex items-center gap-1.5 mb-1 ml-0.5">
+                            <span className="text-[10px] font-black uppercase tracking-widest opacity-40">
+                              Primary Email
+                            </span>
+                          </div>
                           <p
                             className={`text-[13px] md:text-[14px] font-bold ${crmColors.text} truncate`}
                           >
@@ -318,7 +336,11 @@ export const CrmView: React.FC<CrmViewProps> = React.memo(
                           <Icon.Add size={16} />
                         </div>
                         <div className="overflow-hidden">
-                          <p className="notion-label mb-0.5">Phone Number</p>
+                          <div className="flex items-center gap-1.5 mb-1 ml-0.5">
+                            <span className="text-[10px] font-black uppercase tracking-widest opacity-40">
+                              Phone Number
+                            </span>
+                          </div>
                           <p
                             className={`text-[13px] md:text-[14px] font-bold ${crmColors.text} truncate`}
                           >
@@ -334,13 +356,20 @@ export const CrmView: React.FC<CrmViewProps> = React.memo(
                     className={`flex-1 p-6 md:p-10 ${crmColors.bg} border-t ${crmColors.border}`}
                   >
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
-                      <h3 className="notion-label uppercase tracking-[0.2em]">
-                        Interaction Log
-                      </h3>
+                      <div className="flex items-center gap-2.5">
+                        <div
+                          className={`p-1.5 ${crmColors.lightBg} rounded border ${crmColors.border}`}
+                        >
+                          <Icon.History size={14} className={crmColors.text} />
+                        </div>
+                        <span className="text-[10px] font-black uppercase tracking-[0.2em] opacity-40">
+                          Interaction Log
+                        </span>
+                      </div>
                       <Button
                         variant="ghost"
                         onClick={handleAddInteraction}
-                        className={`w-full sm:w-auto text-[11px] md:text-[12px] font-bold ${crmColors.text} ${crmColors.hoverBg} ${crmColors.bg} px-4 py-2.5 md:px-3 md:py-1.5 rounded border ${crmColors.border} shadow-sm group`}
+                        className={`w-full sm:w-auto text-[11px] md:text-[12px] font-bold ${crmColors.text} ${crmColors.hoverBg} ${crmColors.bg} px-4 py-2.5 md:px-3 md:py-1.5 rounded-xl border ${crmColors.border} shadow-sm group`}
                         leftIcon={
                           <Icon.Add
                             size={14}
@@ -393,13 +422,15 @@ export const CrmView: React.FC<CrmViewProps> = React.memo(
                                     <Icon.Edit size={12} />
                                   </Button>
                                 </div>
-                                <span
-                                  className={`notion-label ${crmColors.bg} px-2 py-0.5 rounded border ${crmColors.border}`}
+                                <Badge
+                                  variant="ghost"
+                                  size="xs"
+                                  className={`opacity-60 font-bold ${crmColors.bg} border ${crmColors.border}`}
                                 >
                                   {new Date(
                                     interaction.date,
                                   ).toLocaleDateString()}
-                                </span>
+                                </Badge>
                               </div>
                               <p
                                 className={`text-[14px] ${crmColors.text} opacity-80 leading-relaxed whitespace-pre-wrap`}
@@ -411,14 +442,18 @@ export const CrmView: React.FC<CrmViewProps> = React.memo(
                         ))
                       ) : (
                         <div className="relative pl-10 py-8 text-center">
-                          <p className="notion-label">
+                          <Badge
+                            variant="ghost"
+                            size="sm"
+                            className="opacity-60"
+                          >
                             No interactions logged yet
-                          </p>
+                          </Badge>
                         </div>
                       )}
                     </div>
                   </div>
-                </div>
+                </Card>
               ) : (
                 <div
                   className={`h-full flex flex-col items-center justify-center ${crmColors.lightBg} border-2 border-dashed ${crmColors.border} rounded p-16 text-center animate-in fade-in duration-700`}

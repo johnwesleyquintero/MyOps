@@ -1,7 +1,7 @@
 import React, { Component, ErrorInfo, ReactNode } from "react";
 import { Icon } from "./Icons";
 import { toast } from "sonner";
-import { Button } from "./ui/Button";
+import { Button, Card, Badge } from "./ui";
 
 interface Props {
   children: ReactNode;
@@ -93,11 +93,13 @@ ${errorInfo.componentStack}
                   <h1 className="text-2xl font-black uppercase tracking-tighter">
                     System Malfunction
                   </h1>
-                  <p className="notion-label">Developer Context Enabled</p>
+                  <Badge variant="error" size="xs">
+                    Developer Context Enabled
+                  </Badge>
                 </div>
               </div>
 
-              <div className="notion-card p-6 space-y-4 border-red-200 dark:border-red-900/50 bg-red-50/30 dark:bg-red-900/10">
+              <Card className="p-6 space-y-4 border-red-200 dark:border-red-900/50 bg-red-50/30 dark:bg-red-900/10">
                 <h2 className="text-lg font-bold text-red-600 dark:text-red-400">
                   Exception: {this.state.error?.name}
                 </h2>
@@ -106,7 +108,12 @@ ${errorInfo.componentStack}
                 </p>
 
                 <div className="space-y-2">
-                  <h3 className="notion-label">Stack Trace</h3>
+                  <div className="flex items-center gap-2 mb-1.5 ml-1">
+                    <Icon.Terminal size={12} className="opacity-40" />
+                    <span className="text-[10px] font-black uppercase tracking-widest opacity-40">
+                      Stack Trace
+                    </span>
+                  </div>
                   <pre className="text-[10px] leading-relaxed bg-notion-light-sidebar dark:bg-notion-dark-sidebar p-4 rounded-lg overflow-x-auto border border-notion-light-border dark:border-notion-dark-border whitespace-pre-wrap">
                     {this.state.error?.stack}
                   </pre>
@@ -114,13 +121,18 @@ ${errorInfo.componentStack}
 
                 {this.state.errorInfo && (
                   <div className="space-y-2">
-                    <h3 className="notion-label">Component Stack</h3>
+                    <div className="flex items-center gap-2 mb-1.5 ml-1">
+                      <Icon.Project size={12} className="opacity-40" />
+                      <span className="text-[10px] font-black uppercase tracking-widest opacity-40">
+                        Component Stack
+                      </span>
+                    </div>
                     <pre className="text-[10px] leading-relaxed bg-notion-light-sidebar dark:bg-notion-dark-sidebar p-4 rounded-lg overflow-x-auto border border-notion-light-border dark:border-notion-dark-border whitespace-pre-wrap">
                       {this.state.errorInfo.componentStack}
                     </pre>
                   </div>
                 )}
-              </div>
+              </Card>
 
               <div className="flex gap-4">
                 <Button
@@ -200,9 +212,9 @@ ${errorInfo.componentStack}
               </Button>
             </div>
 
-            <p className="notion-label">
+            <div className="text-[10px] font-black uppercase tracking-widest opacity-20">
               Error ID: {Math.random().toString(36).substr(2, 9).toUpperCase()}
-            </p>
+            </div>
           </div>
         </div>
       );

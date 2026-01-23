@@ -4,7 +4,7 @@ import { ConnectionSettings } from "./settings/ConnectionSettings";
 import { RewardSettings } from "./settings/RewardSettings";
 import { BackendCodeView } from "./settings/BackendCodeView";
 import { MaintenanceSettings } from "./settings/MaintenanceSettings";
-import { Button } from "./ui/Button";
+import { Button, Card } from "./ui";
 import { useConfig } from "../hooks/useConfig";
 import { useUi } from "../hooks/useUi";
 import { useData } from "../hooks/useData";
@@ -51,47 +51,50 @@ export const SettingsModal: React.FC = () => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-[2px] animate-in fade-in duration-200">
-      <div className="bg-notion-light-bg dark:bg-notion-dark-bg w-full max-w-2xl rounded-lg shadow-2xl m-4 flex flex-col max-h-[90vh] border border-notion-light-border dark:border-notion-dark-border animate-in zoom-in-95 duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm animate-in fade-in duration-300 p-4">
+      <Card
+        padding="none"
+        className="w-full max-w-2xl shadow-2xl flex flex-col max-h-[90vh] overflow-hidden animate-in zoom-in-95 duration-300 rounded-2xl border-none"
+      >
         {/* Header with Tabs */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-notion-light-border dark:border-notion-dark-border bg-notion-light-sidebar dark:bg-notion-dark-sidebar">
-          <h2 className="text-sm font-semibold text-notion-light-text dark:text-notion-dark-text">
-            Settings
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between px-6 py-4 border-b border-notion-light-border dark:border-notion-dark-border bg-notion-light-sidebar/50 dark:bg-notion-dark-sidebar/50 backdrop-blur-md gap-4">
+          <h2 className="text-sm font-black text-notion-light-text dark:text-notion-dark-text uppercase tracking-widest">
+            Command Center
           </h2>
-          <div className="flex bg-notion-light-hover dark:bg-notion-dark-hover rounded p-0.5">
+          <div className="flex bg-notion-light-hover dark:bg-notion-dark-hover rounded-xl p-1 overflow-x-auto">
             <Button
               variant="custom"
               onClick={() => setActiveTab("CONFIG")}
-              className={`px-3 py-1 text-[10px] font-bold rounded transition-all ${activeTab === "CONFIG" ? "bg-notion-light-bg dark:bg-notion-dark-bg text-notion-light-text dark:text-notion-dark-text shadow-sm" : "text-notion-light-muted dark:text-notion-dark-muted hover:text-notion-light-text dark:hover:text-notion-dark-text"}`}
+              className={`px-4 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all ${activeTab === "CONFIG" ? "bg-notion-light-bg dark:bg-notion-dark-bg text-notion-light-text dark:text-notion-dark-text shadow-sm" : "text-notion-light-muted dark:text-notion-dark-muted hover:text-notion-light-text dark:hover:text-notion-dark-text"}`}
             >
-              CONNECTION
+              Connectivity
             </Button>
             <Button
               variant="custom"
               onClick={() => setActiveTab("REWARDS")}
-              className={`px-3 py-1 text-[10px] font-bold rounded transition-all ${activeTab === "REWARDS" ? "bg-notion-light-bg dark:bg-notion-dark-bg text-notion-light-text dark:text-notion-dark-text shadow-sm" : "text-notion-light-muted dark:text-notion-dark-muted hover:text-notion-light-text dark:hover:text-notion-dark-text"}`}
+              className={`px-4 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all ${activeTab === "REWARDS" ? "bg-notion-light-bg dark:bg-notion-dark-bg text-notion-light-text dark:text-notion-dark-text shadow-sm" : "text-notion-light-muted dark:text-notion-dark-muted hover:text-notion-light-text dark:hover:text-notion-dark-text"}`}
             >
-              REWARDS
+              Incentives
             </Button>
             <Button
               variant="custom"
               onClick={() => setActiveTab("CODE")}
-              className={`px-3 py-1 text-[10px] font-bold rounded transition-all ${activeTab === "CODE" ? "bg-notion-light-bg dark:bg-notion-dark-bg text-notion-light-text dark:text-notion-dark-text shadow-sm" : "text-notion-light-muted dark:text-notion-dark-muted hover:text-notion-light-text dark:hover:text-notion-dark-text"}`}
+              className={`px-4 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all ${activeTab === "CODE" ? "bg-notion-light-bg dark:bg-notion-dark-bg text-notion-light-text dark:text-notion-dark-text shadow-sm" : "text-notion-light-muted dark:text-notion-dark-muted hover:text-notion-light-text dark:hover:text-notion-dark-text"}`}
             >
-              BACKEND CODE
+              Core Engine
             </Button>
             <Button
               variant="custom"
               onClick={() => setActiveTab("MAINTENANCE")}
-              className={`px-3 py-1 text-[10px] font-bold rounded transition-all ${activeTab === "MAINTENANCE" ? "bg-notion-light-bg dark:bg-notion-dark-bg text-notion-light-text dark:text-notion-dark-text shadow-sm" : "text-notion-light-muted dark:text-notion-dark-muted hover:text-notion-light-text dark:hover:text-notion-dark-text"}`}
+              className={`px-4 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all ${activeTab === "MAINTENANCE" ? "bg-notion-light-bg dark:bg-notion-dark-bg text-notion-light-text dark:text-notion-dark-text shadow-sm" : "text-notion-light-muted dark:text-notion-dark-muted hover:text-notion-light-text dark:hover:text-notion-dark-text"}`}
             >
-              MAINTENANCE
+              Operations
             </Button>
           </div>
         </div>
 
         {/* Content Area - Scrollable */}
-        <div className="p-6 overflow-y-auto custom-scrollbar">
+        <div className="p-6 overflow-y-auto custom-scrollbar flex-1">
           {activeTab === "CONFIG" ? (
             <ConnectionSettings
               config={localConfig}
@@ -117,27 +120,27 @@ export const SettingsModal: React.FC = () => {
         </div>
 
         {/* Footer */}
-        <div className="flex justify-end gap-3 px-6 py-4 border-t border-notion-light-border dark:border-notion-dark-border bg-notion-light-sidebar dark:bg-notion-dark-sidebar rounded-b-lg">
+        <div className="flex justify-end gap-3 px-6 py-4 border-t border-notion-light-border dark:border-notion-dark-border bg-notion-light-sidebar/30 dark:bg-notion-dark-sidebar/30 backdrop-blur-md">
           <Button
-            variant="custom"
+            variant="ghost"
             onClick={onClose}
-            className="px-4 py-1.5 text-xs font-medium text-notion-light-muted hover:text-notion-light-text dark:hover:text-notion-dark-text transition-colors"
+            className="px-6 py-2 text-[10px] font-black uppercase tracking-widest text-notion-light-muted dark:text-notion-dark-muted hover:bg-notion-light-hover dark:hover:bg-notion-dark-hover rounded-xl"
           >
-            Cancel
+            Abort
           </Button>
           <Button
             variant="custom"
             onClick={() => {
               onSave(localConfig);
-              showToast("Settings updated successfully", "success");
+              showToast("Intelligence updated successfully", "success");
               onClose();
             }}
-            className="px-4 py-1.5 text-xs font-semibold bg-notion-light-text dark:bg-notion-dark-text text-white dark:text-notion-dark-bg rounded hover:opacity-90 transition-opacity"
+            className="px-8 py-2 text-[10px] font-black uppercase tracking-widest bg-indigo-600 text-white border border-indigo-500 rounded-xl shadow-lg shadow-indigo-500/20 hover:bg-indigo-700 transition-all active:scale-95"
           >
-            Save Changes
+            Commit Changes
           </Button>
         </div>
-      </div>
+      </Card>
     </div>
   );
 };

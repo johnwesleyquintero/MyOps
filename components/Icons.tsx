@@ -66,12 +66,17 @@ import {
   Globe,
   ArrowLeft,
   ArrowRight,
+  Star,
+  Building,
+  Key,
+  Eye,
 } from "lucide-react";
 
 export const Icon = {
   Dashboard: LayoutDashboard,
   Missions: ClipboardList,
   Logo: Terminal,
+  Terminal: Terminal,
   Settings: Settings,
   Active: Zap,
   Completed: CheckCircle2,
@@ -120,11 +125,14 @@ export const Icon = {
   Notes: BookOpen,
   Contacts: Users,
   Vault: Lock,
+  Lock: Lock,
   Layout: Map,
   Ai: Bot,
+  Brain: Bot,
   Undo: Undo2,
   Down: ChevronDown,
   Preview: Monitor,
+  View: Eye,
   Users: Users,
   Docs: BookOpen,
   Analytics: BarChart3,
@@ -150,6 +158,10 @@ export const Icon = {
   Trash: Trash2,
   TrendUp: TrendingUp,
   TrendDown: TrendingDown,
+  Star: Star,
+  Company: Building,
+  Building: Building,
+  Key: Key,
 };
 
 // Standard props helper for consistent sizing

@@ -1,7 +1,7 @@
 import React from "react";
 import { Icon } from "../Icons";
 import { EmpirePulseData } from "../../hooks/useEmpirePulse";
-import { Card } from "../ui";
+import { Card, Badge } from "../ui";
 import { MODULE_COLORS } from "@/constants";
 
 interface EmpirePulseReportProps {
@@ -19,12 +19,20 @@ export const EmpirePulseReport: React.FC<EmpirePulseReportProps> = React.memo(
           </div>
           <div className="space-y-1">
             <div className="flex items-center gap-2">
-              <h4 className="text-[11px] font-black uppercase tracking-widest text-indigo-600 dark:text-indigo-300">
+              <Badge
+                variant="ghost"
+                size="xs"
+                className="!p-0 font-black uppercase tracking-widest text-indigo-600 dark:text-indigo-300"
+              >
                 Operational Intelligence Briefing
-              </h4>
-              <span className="px-1.5 py-0.5 rounded bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 text-[8px] font-black uppercase tracking-tighter">
+              </Badge>
+              <Badge
+                variant="custom"
+                size="xs"
+                className="bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 !text-[8px] font-black uppercase tracking-tighter"
+              >
                 Live Link Active
-              </span>
+              </Badge>
             </div>
             <p className="text-sm text-notion-light-text/80 dark:text-indigo-100/70 leading-relaxed max-w-3xl">
               {data.commanderBriefing}
@@ -84,21 +92,33 @@ export const EmpirePulseReport: React.FC<EmpirePulseReportProps> = React.memo(
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <Card className="lg:col-span-2 p-6 space-y-6">
             <div className="flex justify-between items-center">
-              <h3 className="text-sm font-black uppercase tracking-widest text-notion-light-muted dark:text-white/40">
+              <Badge
+                variant="ghost"
+                size="xs"
+                className="!p-0 font-black uppercase tracking-widest text-notion-light-muted dark:text-white/40"
+              >
                 Weekly Throughput Trend
-              </h3>
+              </Badge>
               <div className="flex gap-2">
                 <div className="flex items-center gap-1">
                   <div className="w-2 h-2 rounded-full bg-indigo-500/40" />
-                  <span className="text-[8px] font-bold text-notion-light-muted dark:text-white/20 uppercase">
+                  <Badge
+                    variant="ghost"
+                    size="xs"
+                    className="!p-0 font-bold text-notion-light-muted dark:text-white/20 uppercase border-none bg-transparent"
+                  >
                     Tasks
-                  </span>
+                  </Badge>
                 </div>
                 <div className="flex items-center gap-1">
                   <div className="w-2 h-2 rounded-full bg-violet-500/40" />
-                  <span className="text-[8px] font-bold text-notion-light-muted dark:text-white/20 uppercase">
+                  <Badge
+                    variant="ghost"
+                    size="xs"
+                    className="!p-0 font-bold text-notion-light-muted dark:text-white/20 uppercase border-none bg-transparent"
+                  >
                     Streak
-                  </span>
+                  </Badge>
                 </div>
               </div>
             </div>
@@ -137,43 +157,73 @@ export const EmpirePulseReport: React.FC<EmpirePulseReportProps> = React.memo(
                       }}
                     />
                   </div>
-                  <span className="text-[8px] font-bold text-notion-light-muted/40 dark:text-white/10 uppercase">
+                  <Badge
+                    variant="ghost"
+                    size="xs"
+                    className="!p-0 font-bold text-notion-light-muted/40 dark:text-white/10 uppercase border-none bg-transparent"
+                  >
                     {["M", "T", "W", "T", "F", "S", "S"][i]}
-                  </span>
+                  </Badge>
                 </div>
               ))}
             </div>
 
-            <div className="flex justify-between items-center text-[10px] font-bold text-notion-light-muted dark:text-white/20 uppercase tracking-widest">
-              <span>Operational Pulse Active</span>
+            <div className="flex justify-between items-center border-t border-notion-light-border dark:border-white/5 pt-4">
+              <Badge
+                variant="ghost"
+                size="xs"
+                className="!p-0 font-bold text-notion-light-muted dark:text-white/20 uppercase tracking-widest border-none bg-transparent"
+              >
+                Operational Pulse Active
+              </Badge>
               <div className="flex items-center gap-4">
                 <div className="flex items-center gap-1.5">
-                  <span className="text-indigo-600 dark:text-indigo-400">
+                  <span className="text-indigo-600 dark:text-indigo-400 text-[10px] font-bold">
                     {data.weeklyActivity.reduce((a, b) => a + b, 0)}
                   </span>
-                  <span>Total Actions</span>
+                  <Badge
+                    variant="ghost"
+                    size="xs"
+                    className="!p-0 font-bold text-notion-light-muted dark:text-white/20 uppercase border-none bg-transparent"
+                  >
+                    Total Actions
+                  </Badge>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <span className="text-violet-600 dark:text-violet-400">
+                  <span className="text-violet-600 dark:text-violet-400 text-[10px] font-bold">
                     {data.activeStreak}d
                   </span>
-                  <span>Max Streak</span>
+                  <Badge
+                    variant="ghost"
+                    size="xs"
+                    className="!p-0 font-bold text-notion-light-muted dark:text-white/20 uppercase border-none bg-transparent"
+                  >
+                    Max Streak
+                  </Badge>
                 </div>
               </div>
             </div>
           </Card>
 
           <Card className="p-6 space-y-6">
-            <h3 className="text-sm font-black uppercase tracking-widest text-notion-light-muted dark:text-white/40">
+            <Badge
+              variant="ghost"
+              size="xs"
+              className="!p-0 font-black uppercase tracking-widest text-notion-light-muted dark:text-white/40"
+            >
               Calibration Insights
-            </h3>
+            </Badge>
 
             <div className="space-y-4">
               <div className="p-4 bg-black/5 dark:bg-white/5 rounded-xl border border-notion-light-border dark:border-white/5 space-y-3">
                 <div className="flex justify-between items-center">
-                  <span className="text-[10px] font-bold text-notion-light-muted dark:text-white/40 uppercase">
+                  <Badge
+                    variant="ghost"
+                    size="xs"
+                    className="!p-0 font-bold text-notion-light-muted dark:text-white/40 uppercase"
+                  >
                     Intuition vs Outcome
-                  </span>
+                  </Badge>
                   <span
                     className={`text-[10px] font-black ${data.decisionInsights.calibrationGap < 15 ? "text-emerald-600 dark:text-emerald-400" : "text-amber-600 dark:text-amber-400"}`}
                   >
@@ -187,18 +237,26 @@ export const EmpirePulseReport: React.FC<EmpirePulseReportProps> = React.memo(
                     <p className="text-2xl font-black text-notion-light-text dark:text-white">
                       {data.decisionInsights.avgConfidence}%
                     </p>
-                    <p className="text-[8px] font-black text-notion-light-muted/40 dark:text-white/20 uppercase">
+                    <Badge
+                      variant="ghost"
+                      size="xs"
+                      className="!p-0 font-black text-notion-light-muted/40 dark:text-white/20 uppercase border-none bg-transparent"
+                    >
                       Avg Confidence
-                    </p>
+                    </Badge>
                   </div>
                   <div className="w-px h-8 bg-notion-light-border dark:bg-white/10" />
                   <div className="text-right">
                     <p className="text-2xl font-black text-notion-light-text dark:text-white">
                       {data.overallAccuracy}%
                     </p>
-                    <p className="text-[8px] font-black text-notion-light-muted/40 dark:text-white/20 uppercase">
+                    <Badge
+                      variant="ghost"
+                      size="xs"
+                      className="!p-0 font-black text-notion-light-muted/40 dark:text-white/20 uppercase border-none bg-transparent"
+                    >
                       Avg Accuracy
-                    </p>
+                    </Badge>
                   </div>
                 </div>
               </div>
@@ -208,17 +266,25 @@ export const EmpirePulseReport: React.FC<EmpirePulseReportProps> = React.memo(
                   <p className="text-lg font-black text-notion-light-text dark:text-white">
                     {data.decisionInsights.highImpact}
                   </p>
-                  <p className="text-[8px] font-black text-notion-light-muted/40 dark:text-white/20 uppercase">
+                  <Badge
+                    variant="ghost"
+                    size="xs"
+                    className="!p-0 font-black text-notion-light-muted/40 dark:text-white/20 uppercase border-none bg-transparent"
+                  >
                     High Impact
-                  </p>
+                  </Badge>
                 </div>
                 <div className="p-3 bg-black/5 dark:bg-white/5 rounded-xl border border-notion-light-border dark:border-white/5">
                   <p className="text-lg font-black text-notion-light-text dark:text-white">
                     {data.decisionInsights.total}
                   </p>
-                  <p className="text-[8px] font-black text-notion-light-muted/40 dark:text-white/20 uppercase">
+                  <Badge
+                    variant="ghost"
+                    size="xs"
+                    className="!p-0 font-black text-notion-light-muted/40 dark:text-white/20 uppercase border-none bg-transparent"
+                  >
                     Total Decisions
-                  </p>
+                  </Badge>
                 </div>
               </div>
 
@@ -236,9 +302,13 @@ export const EmpirePulseReport: React.FC<EmpirePulseReportProps> = React.memo(
         {/* Top Theater & Risk Row */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <Card className="p-6 space-y-4">
-            <h3 className="text-sm font-black uppercase tracking-widest text-notion-light-muted dark:text-white/40">
+            <Badge
+              variant="ghost"
+              size="xs"
+              className="!p-0 font-black uppercase tracking-widest text-notion-light-muted dark:text-white/40"
+            >
               Top Theater Focus
-            </h3>
+            </Badge>
             {data.topProject ? (
               <div className="space-y-4">
                 <div className="flex justify-between items-end">
@@ -246,24 +316,40 @@ export const EmpirePulseReport: React.FC<EmpirePulseReportProps> = React.memo(
                     <h2 className="text-xl font-black text-notion-light-text dark:text-white">
                       {data.topProject.name}
                     </h2>
-                    <p className="text-[10px] font-bold text-notion-light-muted/60 dark:text-white/40 uppercase tracking-widest">
+                    <Badge
+                      variant="ghost"
+                      size="xs"
+                      className="!p-0 font-bold text-notion-light-muted/60 dark:text-white/40 uppercase tracking-widest border-none bg-transparent"
+                    >
                       {data.topProject.xp} XP Earned •{" "}
                       {data.topProject.momentum} Momentum
-                    </p>
+                    </Badge>
                   </div>
                   <div className="text-right">
                     <span className="text-2xl font-black text-indigo-600 dark:text-indigo-400">
                       {data.topProject.accuracy}%
                     </span>
-                    <p className="text-[8px] font-black text-notion-light-muted/40 dark:text-white/20 uppercase">
+                    <Badge
+                      variant="ghost"
+                      size="xs"
+                      className="!p-0 font-black text-notion-light-muted/40 dark:text-white/20 uppercase border-none bg-transparent"
+                    >
                       Accuracy
-                    </p>
+                    </Badge>
                   </div>
                 </div>
                 <div className="space-y-1.5">
-                  <div className="flex justify-between text-[9px] font-bold text-notion-light-muted/60 dark:text-white/40 uppercase">
-                    <span>Efficiency Rate</span>
-                    <span>{data.topProject.completionRate}%</span>
+                  <div className="flex justify-between items-center">
+                    <Badge
+                      variant="ghost"
+                      size="xs"
+                      className="!p-0 font-bold text-notion-light-muted/60 dark:text-white/40 uppercase border-none bg-transparent"
+                    >
+                      Efficiency Rate
+                    </Badge>
+                    <span className="text-[10px] font-bold text-notion-light-muted/60 dark:text-white/40">
+                      {data.topProject.completionRate}%
+                    </span>
                   </div>
                   <div className="h-1.5 w-full bg-black/5 dark:bg-white/5 rounded-full overflow-hidden">
                     <div
@@ -276,22 +362,34 @@ export const EmpirePulseReport: React.FC<EmpirePulseReportProps> = React.memo(
             ) : (
               <div className="flex flex-col items-center justify-center h-full text-notion-light-muted/20 dark:text-white/20 py-8">
                 <Icon.Missions size={32} className="mb-2 opacity-20" />
-                <p className="text-[10px] font-bold uppercase tracking-widest">
+                <Badge
+                  variant="ghost"
+                  size="xs"
+                  className="!p-0 font-bold uppercase tracking-widest border-none bg-transparent opacity-40"
+                >
                   No Active Data
-                </p>
+                </Badge>
               </div>
             )}
           </Card>
 
           <Card className="p-6 space-y-4">
             <div className="flex justify-between items-center">
-              <h3 className="text-sm font-black uppercase tracking-widest text-notion-light-muted dark:text-white/40">
+              <Badge
+                variant="ghost"
+                size="xs"
+                className="!p-0 font-black uppercase tracking-widest text-notion-light-muted dark:text-white/40"
+              >
                 Operational Risk Analysis
-              </h3>
+              </Badge>
               {data.projectsAtRisk > 0 && (
-                <span className="px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-600 dark:text-rose-400 text-[8px] font-black uppercase">
+                <Badge
+                  variant="error"
+                  size="xs"
+                  className="!text-[8px] font-black uppercase"
+                >
                   Attention Required
-                </span>
+                </Badge>
               )}
             </div>
 
@@ -305,9 +403,13 @@ export const EmpirePulseReport: React.FC<EmpirePulseReportProps> = React.memo(
                     <p className="text-sm font-bold text-notion-light-text dark:text-rose-100">
                       {data.projectsAtRisk} Theater(s) Stagnant
                     </p>
-                    <p className="text-[10px] text-rose-600 dark:text-rose-400/60 uppercase font-bold tracking-tight">
+                    <Badge
+                      variant="ghost"
+                      size="xs"
+                      className="!p-0 text-rose-600 dark:text-rose-400/60 uppercase font-bold tracking-tight border-none bg-transparent"
+                    >
                       Immediate tactical engagement recommended
-                    </p>
+                    </Badge>
                   </div>
                 </div>
               ) : (
@@ -319,21 +421,33 @@ export const EmpirePulseReport: React.FC<EmpirePulseReportProps> = React.memo(
                     <p className="text-sm font-bold text-notion-light-text dark:text-emerald-100">
                       All Theaters Operational
                     </p>
-                    <p className="text-[10px] text-emerald-600 dark:text-emerald-400/60 uppercase font-bold tracking-tight">
+                    <Badge
+                      variant="ghost"
+                      size="xs"
+                      className="!p-0 text-emerald-600 dark:text-emerald-400/60 uppercase font-bold tracking-tight border-none bg-transparent"
+                    >
                       Zero stagnation detected in active sectors
-                    </p>
+                    </Badge>
                   </div>
                 </div>
               )}
 
               <div className="pt-2 border-t border-notion-light-border dark:border-white/5">
                 <div className="flex justify-between items-center mb-2">
-                  <span className="text-[9px] font-black text-notion-light-muted/40 dark:text-white/20 uppercase">
+                  <Badge
+                    variant="ghost"
+                    size="xs"
+                    className="!p-0 font-black text-notion-light-muted/40 dark:text-white/20 uppercase border-none bg-transparent"
+                  >
                     Mental State Impact
-                  </span>
-                  <span className="text-[9px] font-black text-notion-light-muted dark:text-white/40 uppercase">
+                  </Badge>
+                  <Badge
+                    variant="ghost"
+                    size="xs"
+                    className="!p-0 font-black text-notion-light-muted dark:text-white/40 uppercase border-none bg-transparent"
+                  >
                     Stable
-                  </span>
+                  </Badge>
                 </div>
                 <p className="text-[10px] text-notion-light-muted dark:text-white/40 leading-relaxed">
                   Risk factors are currently dominated by{" "}
@@ -384,9 +498,13 @@ const MetricCard: React.FC<MetricCardProps> = ({
         )}
       </div>
       <div>
-        <p className="text-[9px] font-black text-notion-light-muted dark:text-notion-dark-muted uppercase tracking-widest mb-1">
+        <Badge
+          variant="ghost"
+          size="xs"
+          className="!p-0 font-black text-notion-light-muted dark:text-notion-dark-muted uppercase tracking-widest mb-1"
+        >
           {label}
-        </p>
+        </Badge>
         <h3 className="text-2xl font-black text-notion-light-text dark:text-notion-dark-text">
           {value}
         </h3>

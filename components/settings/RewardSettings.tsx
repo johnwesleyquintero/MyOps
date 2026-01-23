@@ -1,9 +1,84 @@
-import React, { useContext } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import { PersonalReward, MilestoneType } from "../../types";
 import { Icon } from "../Icons";
 import { Button } from "../ui";
 import { DataContext } from "../../contexts/DataContext";
 import { toast } from "sonner";
+
+const RewardNameInput: React.FC<{
+  reward: PersonalReward;
+  onUpdate: (id: string, updates: Partial<PersonalReward>) => Promise<void>;
+}> = ({ reward, onUpdate }) => {
+  const [localName, setLocalName] = useState(reward.name);
+  const [prevName, setPrevName] = useState(reward.name);
+
+  if (reward.name !== prevName) {
+    setPrevName(reward.name);
+    setLocalName(reward.name);
+  }
+
+  useEffect(() => {
+    if (localName === reward.name) return;
+
+    const timer = setTimeout(() => {
+      onUpdate(reward.id, { name: localName });
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [localName, reward.id, reward.name, onUpdate]);
+
+  return (
+    <input
+      type="text"
+      value={localName}
+      onChange={(e) => setLocalName(e.target.value)}
+      className="w-full bg-transparent border-none p-0 text-sm font-bold text-notion-light-text dark:text-notion-dark-text focus:ring-0 placeholder:opacity-30"
+      placeholder="Reward name (e.g. 15-Min Coffee Break)"
+    />
+  );
+};
+
+const RewardThresholdInput: React.FC<{
+  reward: PersonalReward;
+  onUpdate: (id: string, updates: Partial<PersonalReward>) => Promise<void>;
+}> = ({ reward, onUpdate }) => {
+  const [localValue, setLocalValue] = useState(
+    reward.milestone.threshold.toString(),
+  );
+  const [prevThreshold, setPrevThreshold] = useState(
+    reward.milestone.threshold,
+  );
+
+  if (reward.milestone.threshold !== prevThreshold) {
+    setPrevThreshold(reward.milestone.threshold);
+    setLocalValue(reward.milestone.threshold.toString());
+  }
+
+  useEffect(() => {
+    const numericValue = parseInt(localValue) || 0;
+    if (numericValue === reward.milestone.threshold) return;
+
+    const timer = setTimeout(() => {
+      onUpdate(reward.id, {
+        milestone: {
+          ...reward.milestone,
+          threshold: numericValue,
+        },
+      });
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [localValue, reward.id, reward.milestone, onUpdate]);
+
+  return (
+    <input
+      type="number"
+      value={localValue}
+      onChange={(e) => setLocalValue(e.target.value)}
+      className="w-16 text-[11px] font-bold bg-notion-light-sidebar dark:bg-notion-dark-sidebar border border-notion-light-border dark:border-notion-dark-border rounded px-2 py-1 focus:outline-none"
+    />
+  );
+};
 
 export const RewardSettings: React.FC = () => {
   const data = useContext(DataContext);
@@ -21,6 +96,7 @@ export const RewardSettings: React.FC = () => {
   const handleUpdateReward = async (
     id: string,
     updates: Partial<PersonalReward>,
+    silent = false,
   ) => {
     const reward = rewards.find((r) => r.id === id);
     if (reward && rewardsContext) {
@@ -28,7 +104,7 @@ export const RewardSettings: React.FC = () => {
         ...reward,
         ...updates,
       });
-      if (success) {
+      if (success && !silent) {
         toast.success("Reward updated");
       }
     }
@@ -98,14 +174,11 @@ export const RewardSettings: React.FC = () => {
             >
               <div className="flex items-start justify-between gap-4 mb-3">
                 <div className="flex-1">
-                  <input
-                    type="text"
-                    value={reward.name}
-                    onChange={(e) =>
-                      handleUpdateReward(reward.id, { name: e.target.value })
+                  <RewardNameInput
+                    reward={reward}
+                    onUpdate={(id, updates) =>
+                      handleUpdateReward(id, updates, true)
                     }
-                    className="w-full bg-transparent border-none p-0 text-sm font-bold text-notion-light-text dark:text-notion-dark-text focus:ring-0 placeholder:opacity-30"
-                    placeholder="Reward name (e.g. 15-Min Coffee Break)"
                   />
                 </div>
                 <div className="flex items-center gap-2">
@@ -165,18 +238,11 @@ export const RewardSettings: React.FC = () => {
                   <span className="text-[10px] font-black uppercase tracking-widest text-notion-light-muted dark:text-notion-dark-muted">
                     Hits
                   </span>
-                  <input
-                    type="number"
-                    value={reward.milestone.threshold}
-                    onChange={(e) =>
-                      handleUpdateReward(reward.id, {
-                        milestone: {
-                          ...reward.milestone,
-                          threshold: parseInt(e.target.value) || 0,
-                        },
-                      })
+                  <RewardThresholdInput
+                    reward={reward}
+                    onUpdate={(id, updates) =>
+                      handleUpdateReward(id, updates, true)
                     }
-                    className="w-16 text-[11px] font-bold bg-notion-light-sidebar dark:bg-notion-dark-sidebar border border-notion-light-border dark:border-notion-dark-border rounded px-2 py-1 focus:outline-none"
                   />
                 </div>
 

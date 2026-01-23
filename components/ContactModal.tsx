@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Contact } from "../types";
 import { Icon as Icons } from "./Icons";
 import { MODULE_COLORS } from "../constants/ui";
@@ -33,7 +33,12 @@ export const ContactModal: React.FC<ContactModalProps> = ({
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  useEffect(() => {
+  const [prevInitialData, setPrevInitialData] = useState(initialData);
+  const [prevIsOpen, setPrevIsOpen] = useState(isOpen);
+
+  if (initialData !== prevInitialData || isOpen !== prevIsOpen) {
+    setPrevInitialData(initialData);
+    setPrevIsOpen(isOpen);
     if (initialData) {
       setFormData(initialData);
     } else {
@@ -48,7 +53,7 @@ export const ContactModal: React.FC<ContactModalProps> = ({
         notes: "",
       });
     }
-  }, [initialData, isOpen]);
+  }
 
   if (!isOpen) return null;
 

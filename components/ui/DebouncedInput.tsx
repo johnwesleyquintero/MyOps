@@ -21,20 +21,37 @@ export const DebouncedInput: React.FC<DebouncedInputProps> = ({
   ...props
 }) => {
   const [value, setValue] = useState(initialValue);
+  const onChangeRef = React.useRef(onChange);
+  const isFirstRender = React.useRef(true);
 
+  // Update ref when onChange changes
+  useEffect(() => {
+    onChangeRef.current = onChange;
+  }, [onChange]);
+
+  // Sync with initialValue only when it changes externally
   useEffect(() => {
     setValue(initialValue);
   }, [initialValue]);
 
+  // Handle debounced onChange
   useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+
     const timeout = setTimeout(() => {
-      if (value !== initialValue) {
-        onChange(value);
-      }
+      onChangeRef.current(value);
     }, debounce);
 
     return () => clearTimeout(timeout);
-  }, [value, debounce, onChange, initialValue]);
+  }, [value, debounce]);
+
+  const handleClear = () => {
+    setValue("");
+    onChangeRef.current("");
+  };
 
   return (
     <div className={`relative group ${className}`}>
@@ -57,9 +74,7 @@ export const DebouncedInput: React.FC<DebouncedInputProps> = ({
       {value && (
         <Button
           variant="custom"
-          onClick={() => {
-            setValue("");
-          }}
+          onClick={handleClear}
           className="absolute inset-y-0 right-0 pr-2 flex items-center text-notion-light-muted hover:text-notion-light-text dark:hover:text-notion-dark-text bg-transparent"
         >
           <Icon.Close {...iconProps(12)} />

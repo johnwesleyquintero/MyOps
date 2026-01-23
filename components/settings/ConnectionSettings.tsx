@@ -1,7 +1,41 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { AppConfig } from "../../types";
 import { Icon } from "../Icons";
 import { Button } from "../ui";
+
+const DebouncedSettingInput: React.FC<{
+  value: string;
+  onChange: (value: string) => void;
+  placeholder?: string;
+  type?: string;
+  className?: string;
+}> = ({ value, onChange, placeholder, type = "text", className = "" }) => {
+  const [localValue, setLocalValue] = useState(value);
+  const [prevValue, setPrevValue] = useState(value);
+
+  if (value !== prevValue) {
+    setPrevValue(value);
+    setLocalValue(value);
+  }
+
+  useEffect(() => {
+    if (localValue === value) return;
+    const timer = setTimeout(() => {
+      onChange(localValue);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [localValue, value, onChange]);
+
+  return (
+    <input
+      type={type}
+      placeholder={placeholder}
+      className={`w-full border border-notion-light-border dark:border-notion-dark-border rounded px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500/30 bg-notion-light-bg dark:bg-notion-dark-bg text-notion-light-text dark:text-notion-dark-text ${className}`}
+      value={localValue}
+      onChange={(e) => setLocalValue(e.target.value)}
+    />
+  );
+};
 
 interface ConnectionSettingsProps {
   config: AppConfig;
@@ -88,14 +122,10 @@ export const ConnectionSettings: React.FC<ConnectionSettingsProps> = ({
             <label className="block text-xs font-semibold text-notion-light-text dark:text-notion-dark-text mb-1">
               GAS Web App URL
             </label>
-            <input
-              type="text"
+            <DebouncedSettingInput
               placeholder="https://script.google.com/macros/s/..."
-              className="w-full border border-notion-light-border dark:border-notion-dark-border rounded px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500/30 bg-notion-light-bg dark:bg-notion-dark-bg text-notion-light-text dark:text-notion-dark-text"
               value={config.gasDeploymentUrl}
-              onChange={(e) =>
-                onChange({ ...config, gasDeploymentUrl: e.target.value })
-              }
+              onChange={(val) => onChange({ ...config, gasDeploymentUrl: val })}
             />
           </div>
 
@@ -103,14 +133,12 @@ export const ConnectionSettings: React.FC<ConnectionSettingsProps> = ({
             <label className="block text-xs font-semibold text-notion-light-text dark:text-notion-dark-text mb-1">
               API Secret Token
             </label>
-            <input
+            <DebouncedSettingInput
               type="password"
               placeholder="e.g. secret-key-123"
-              className="w-full border border-notion-light-border dark:border-notion-dark-border rounded px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500/30 font-mono bg-notion-light-bg dark:bg-notion-dark-bg text-notion-light-text dark:text-notion-dark-text"
+              className="font-mono"
               value={config.apiToken || ""}
-              onChange={(e) =>
-                onChange({ ...config, apiToken: e.target.value })
-              }
+              onChange={(val) => onChange({ ...config, apiToken: val })}
             />
             <p className="text-[10px] text-notion-light-muted dark:text-notion-dark-muted mt-1 italic">
               Must match the{" "}
@@ -133,14 +161,12 @@ export const ConnectionSettings: React.FC<ConnectionSettingsProps> = ({
             <label className="block text-xs font-semibold text-notion-light-text dark:text-notion-dark-text mb-1">
               Gemini API Key
             </label>
-            <input
+            <DebouncedSettingInput
               type="password"
               placeholder="AIzaSy..."
-              className="w-full border border-notion-light-border dark:border-notion-dark-border rounded px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500/30 font-mono bg-notion-light-bg dark:bg-notion-dark-bg text-notion-light-text dark:text-notion-dark-text"
+              className="font-mono"
               value={config.geminiApiKey || ""}
-              onChange={(e) =>
-                onChange({ ...config, geminiApiKey: e.target.value })
-              }
+              onChange={(val) => onChange({ ...config, geminiApiKey: val })}
             />
             <p className="text-xs text-notion-light-muted dark:text-notion-dark-muted mt-2">
               Required for WesAI functionality. Your key is stored locally in

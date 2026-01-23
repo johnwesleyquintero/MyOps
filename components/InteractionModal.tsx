@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Interaction } from "../types";
 import { Icon as Icons } from "./Icons";
 import { MODULE_COLORS } from "../constants/ui";
@@ -28,7 +28,12 @@ export const InteractionModal: React.FC<InteractionModalProps> = ({
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  useEffect(() => {
+  const [prevInitialData, setPrevInitialData] = useState(initialData);
+  const [prevIsOpen, setPrevIsOpen] = useState(isOpen);
+
+  if (initialData !== prevInitialData || isOpen !== prevIsOpen) {
+    setPrevInitialData(initialData);
+    setPrevIsOpen(isOpen);
     if (initialData) {
       setFormData({
         type: initialData.type,
@@ -42,7 +47,7 @@ export const InteractionModal: React.FC<InteractionModalProps> = ({
         date: new Date().toISOString().split("T")[0],
       });
     }
-  }, [initialData, isOpen]);
+  }
 
   if (!isOpen) return null;
 

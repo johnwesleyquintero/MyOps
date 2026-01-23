@@ -1,6 +1,6 @@
 import React from "react";
 import { Contact, Interaction } from "../../types";
-import { Icon } from "../Icons";
+import { Icon, iconProps } from "../Icons";
 import { Button, Spinner, DebouncedInput, Card, Badge } from "../ui";
 import { ContactModal } from "../ContactModal";
 import { InteractionModal } from "../InteractionModal";
@@ -54,6 +54,8 @@ export const CrmView: React.FC<CrmViewProps> = React.memo(
       handleDelete,
       handleSave,
       getInteractionIcon,
+      copiedMd,
+      handleCopyMarkdown,
     } = useCrmViewLogic({
       contacts,
       onSaveContact,
@@ -71,19 +73,36 @@ export const CrmView: React.FC<CrmViewProps> = React.memo(
           title="CRM & Contacts"
           subTitle="Manage your network and interaction logs"
         >
-          <Button
-            variant="custom"
-            onClick={handleAdd}
-            className={`w-full md:w-auto px-6 py-3 ${crmColors.solidBg} text-white border ${crmColors.border} rounded-2xl font-black text-sm uppercase tracking-widest shadow-sm hover:opacity-90 group transition-all active:scale-95`}
-            leftIcon={
-              <Icon.Add
-                size={16}
-                className="group-hover:rotate-90 transition-transform duration-300"
-              />
-            }
-          >
-            New Contact
-          </Button>
+          <div className="flex flex-wrap items-center gap-2 mt-2 md:mt-0">
+            {filteredContacts.length > 0 && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleCopyMarkdown}
+                className={`${prefixToHover(crmColors.text)} ${prefixToHover(crmColors.bg)} transition-colors`}
+                title="Copy as Markdown Table"
+              >
+                {copiedMd ? (
+                  <Icon.Check {...iconProps(16, "text-green-500")} />
+                ) : (
+                  <Icon.Copy {...iconProps(16)} />
+                )}
+              </Button>
+            )}
+            <Button
+              variant="custom"
+              onClick={handleAdd}
+              className={`w-full md:w-auto px-6 py-3 ${crmColors.solidBg} text-white border ${crmColors.border} rounded-2xl font-black text-sm uppercase tracking-widest shadow-sm hover:opacity-90 group transition-all active:scale-95`}
+              leftIcon={
+                <Icon.Add
+                  size={16}
+                  className="group-hover:rotate-90 transition-transform duration-300"
+                />
+              }
+            >
+              New Contact
+            </Button>
+          </div>
         </ViewHeader>
 
         <div className="flex items-center gap-1 bg-notion-light-sidebar/50 dark:bg-notion-dark-sidebar/30 p-1 rounded-lg w-fit">

@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { Contact, Interaction } from "../types";
 import { Icon } from "../components/Icons";
+import { toast } from "sonner";
+import { generateContactMarkdownTable } from "@/utils/exportUtils";
 
 interface UseCrmViewLogicProps {
   contacts: Contact[];
@@ -38,6 +40,37 @@ export const useCrmViewLogic = ({
     useState<Interaction | null>(null);
   const [interactions, setInteractions] = useState<Interaction[]>([]);
   const [isInteractionsLoading, setIsInteractionsLoading] = useState(false);
+  const [copiedMd, setCopiedMd] = useState(false);
+
+  const filteredContacts = useMemo(() => {
+    const query = searchQuery.toLowerCase().trim();
+    if (!query) return contacts;
+
+    return contacts.filter((c) => {
+      const nameMatch = c.name.toLowerCase().includes(query);
+      const companyMatch = c.company?.toLowerCase().includes(query);
+      const emailMatch = c.email?.toLowerCase().includes(query);
+      return nameMatch || companyMatch || emailMatch;
+    });
+  }, [contacts, searchQuery]);
+
+  const handleCopyMarkdown = useCallback(async () => {
+    if (filteredContacts.length === 0) {
+      toast.error("No contacts to copy");
+      return;
+    }
+
+    const mdTable = generateContactMarkdownTable(filteredContacts);
+    try {
+      await navigator.clipboard.writeText(mdTable);
+      setCopiedMd(true);
+      toast.success("Contacts copied to clipboard as Markdown table");
+      setTimeout(() => setCopiedMd(false), 2000);
+    } catch (err) {
+      console.error("Failed to copy:", err);
+      toast.error("Failed to copy to clipboard");
+    }
+  }, [filteredContacts]);
 
   const loadInteractions = useCallback(
     async (contactId: string) => {
@@ -85,18 +118,6 @@ export const useCrmViewLogic = ({
     setEditingInteraction(interaction);
     setIsInteractionModalOpen(true);
   }, []);
-
-  const filteredContacts = useMemo(() => {
-    const query = searchQuery.toLowerCase().trim();
-    if (!query) return contacts;
-
-    return contacts.filter((c) => {
-      const nameMatch = c.name.toLowerCase().includes(query);
-      const companyMatch = c.company?.toLowerCase().includes(query);
-      const emailMatch = c.email?.toLowerCase().includes(query);
-      return nameMatch || companyMatch || emailMatch;
-    });
-  }, [contacts, searchQuery]);
 
   const handleAdd = useCallback(() => {
     setEditingContact(null);
@@ -179,6 +200,8 @@ export const useCrmViewLogic = ({
       handleSave,
       handleDelete,
       getInteractionIcon,
+      copiedMd,
+      handleCopyMarkdown,
     }),
     [
       viewMode,
@@ -199,6 +222,8 @@ export const useCrmViewLogic = ({
       handleSave,
       handleDelete,
       getInteractionIcon,
+      copiedMd,
+      handleCopyMarkdown,
     ],
   );
 };

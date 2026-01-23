@@ -1,4 +1,4 @@
-import { TaskEntry, OperatorMetrics } from "../types";
+import { TaskEntry, OperatorMetrics, Contact } from "../types";
 
 export const generateAndDownloadCSV = (entries: TaskEntry[]) => {
   if (entries.length === 0) return false;
@@ -60,6 +60,31 @@ export const generateMarkdownTable = (entries: TaskEntry[]) => {
     escapeMarkdown(row.project),
     row.priority,
     row.status,
+  ]);
+
+  const headerRow = `| ${headers.join(" | ")} |`;
+  const separatorRow = `| ${headers.map(() => "---").join(" | ")} |`;
+  const dataRows = rows.map((row) => `| ${row.join(" | ")} |`).join("\n");
+
+  return `${headerRow}\n${separatorRow}\n${dataRows}`;
+};
+
+export const generateContactMarkdownTable = (contacts: Contact[]) => {
+  if (contacts.length === 0) return "";
+
+  const headers = ["Contact", "Company", "Type", "Status", "Email"];
+
+  const escapeMarkdown = (text: string | undefined) => {
+    if (!text) return "";
+    return text.replace(/[|]/g, "\\|");
+  };
+
+  const rows = contacts.map((contact) => [
+    escapeMarkdown(contact.name),
+    escapeMarkdown(contact.company),
+    contact.type,
+    contact.status,
+    contact.email || "N/A",
   ]);
 
   const headerRow = `| ${headers.join(" | ")} |`;

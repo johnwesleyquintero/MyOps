@@ -21,14 +21,14 @@ export const ViewHeader: React.FC<ViewHeaderProps> = ({
         <h1 className="text-4xl md:text-5xl font-black tracking-tighter text-notion-light-text dark:text-notion-dark-text uppercase leading-none flex items-baseline gap-3">
           {firstWord}
           {remainingWords && (
-            <span className="opacity-10 uppercase tracking-[0.3em] text-xl md:text-2xl font-black">
+            <span className="text-notion-light-text/35 dark:text-white/30 uppercase tracking-[0.3em] text-xl md:text-2xl font-black">
               {remainingWords}
             </span>
           )}
         </h1>
         <div className="flex items-center gap-3">
-          <div className="w-12 h-1 bg-gradient-to-r from-indigo-500 to-transparent rounded-full opacity-40" />
-          <p className="text-notion-light-muted dark:text-notion-dark-muted text-[10px] font-black uppercase tracking-[0.3em] opacity-60">
+          <div className="w-12 h-1 bg-gradient-to-r from-indigo-500 to-transparent rounded-full opacity-60" />
+          <p className="text-notion-light-text/70 dark:text-white/60 text-[10px] font-black uppercase tracking-[0.3em]">
             {subTitle}
           </p>
         </div>

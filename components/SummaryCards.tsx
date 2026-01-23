@@ -27,7 +27,7 @@ export const SummaryCards: React.FC<SummaryCardsProps> = React.memo(
               <Badge
                 variant="ghost"
                 size="xs"
-                className="font-black uppercase tracking-[0.2em] opacity-50 !p-0"
+                className="font-black uppercase tracking-[0.2em] text-notion-light-text/50 dark:text-white/40 !p-0"
               >
                 Backlog
               </Badge>
@@ -49,7 +49,7 @@ export const SummaryCards: React.FC<SummaryCardsProps> = React.memo(
               <Badge
                 variant="ghost"
                 size="xs"
-                className="font-black uppercase tracking-[0.2em] opacity-50 !p-0"
+                className="font-black uppercase tracking-[0.2em] text-notion-light-text/50 dark:text-white/40 !p-0"
               >
                 Active
               </Badge>
@@ -71,7 +71,7 @@ export const SummaryCards: React.FC<SummaryCardsProps> = React.memo(
               <Badge
                 variant="ghost"
                 size="xs"
-                className="font-black uppercase tracking-[0.2em] opacity-50 !p-0"
+                className="font-black uppercase tracking-[0.2em] text-notion-light-text/50 dark:text-white/40 !p-0"
               >
                 Completed
               </Badge>
@@ -91,7 +91,7 @@ export const SummaryCards: React.FC<SummaryCardsProps> = React.memo(
             <Badge
               variant="ghost"
               size="xs"
-              className="font-black uppercase tracking-[0.2em] opacity-50 !p-0 mb-1.5"
+              className="font-black uppercase tracking-[0.2em] text-notion-light-text/50 dark:text-white/40 !p-0 mb-1.5"
             >
               Success Rate
             </Badge>

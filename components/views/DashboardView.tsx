@@ -161,7 +161,7 @@ export const DashboardView: React.FC<DashboardViewProps> = React.memo(
                 <Badge
                   variant="ghost"
                   size="xs"
-                  className="!p-0 font-black uppercase tracking-[0.25em] text-notion-light-text/40 dark:text-white/40 border-none bg-transparent"
+                  className="!p-0 font-black uppercase tracking-[0.25em] text-notion-light-text/60 dark:text-white/60 border-none bg-transparent"
                 >
                   <span className="flex items-center gap-2">
                     <div className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse" />
@@ -181,7 +181,7 @@ export const DashboardView: React.FC<DashboardViewProps> = React.memo(
                     <Badge
                       variant="ghost"
                       size="xs"
-                      className="!p-0 text-notion-light-text/30 dark:text-white/30 uppercase font-black tracking-wider border-none bg-transparent"
+                      className="!p-0 text-notion-light-text/50 dark:text-white/40 uppercase font-black tracking-wider border-none bg-transparent"
                     >
                       Est. Session XP
                     </Badge>
@@ -196,7 +196,7 @@ export const DashboardView: React.FC<DashboardViewProps> = React.memo(
                     <Badge
                       variant="ghost"
                       size="xs"
-                      className="!p-0 text-notion-light-text/30 dark:text-white/30 uppercase font-black tracking-wider border-none bg-transparent"
+                      className="!p-0 text-notion-light-text/50 dark:text-white/40 uppercase font-black tracking-wider border-none bg-transparent"
                     >
                       Next Lvl
                     </Badge>
@@ -227,7 +227,7 @@ export const DashboardView: React.FC<DashboardViewProps> = React.memo(
                     <Badge
                       variant="ghost"
                       size="xs"
-                      className="!p-0 text-notion-light-text/30 dark:text-white/30 uppercase font-black tracking-wider border-none bg-transparent"
+                      className="!p-0 text-notion-light-text/50 dark:text-white/40 uppercase font-black tracking-wider border-none bg-transparent"
                     >
                       Momentum
                     </Badge>
@@ -253,7 +253,7 @@ export const DashboardView: React.FC<DashboardViewProps> = React.memo(
                     <Badge
                       variant="ghost"
                       size="xs"
-                      className="!p-0 text-notion-light-text/30 dark:text-white/30 uppercase font-black tracking-wider border-none bg-transparent"
+                      className="!p-0 text-notion-light-text/50 dark:text-white/40 uppercase font-black tracking-wider border-none bg-transparent"
                     >
                       Forecast
                     </Badge>
@@ -270,7 +270,7 @@ export const DashboardView: React.FC<DashboardViewProps> = React.memo(
                     <Badge
                       variant="ghost"
                       size="xs"
-                      className="!p-0 text-notion-light-text/30 dark:text-white/30 uppercase font-black tracking-wider border-none bg-transparent"
+                      className="!p-0 text-notion-light-text/50 dark:text-white/40 uppercase font-black tracking-wider border-none bg-transparent"
                     >
                       Calibration
                     </Badge>
@@ -307,7 +307,7 @@ export const DashboardView: React.FC<DashboardViewProps> = React.memo(
                     <Badge
                       variant="ghost"
                       size="xs"
-                      className="!p-0 text-notion-light-text/30 dark:text-white/30 uppercase font-black tracking-widest leading-none border-none bg-transparent"
+                      className="!p-0 text-notion-light-text/50 dark:text-white/40 uppercase font-black tracking-widest leading-none border-none bg-transparent"
                     >
                       Impact Accuracy
                     </Badge>
@@ -320,7 +320,7 @@ export const DashboardView: React.FC<DashboardViewProps> = React.memo(
                     <Badge
                       variant="ghost"
                       size="xs"
-                      className="!p-0 text-notion-light-text/30 dark:text-white/30 uppercase font-black tracking-wider border-none bg-transparent"
+                      className="!p-0 text-notion-light-text/50 dark:text-white/40 uppercase font-black tracking-wider border-none bg-transparent"
                     >
                       State Accuracy
                     </Badge>
@@ -369,7 +369,7 @@ export const DashboardView: React.FC<DashboardViewProps> = React.memo(
                 <Badge
                   variant="ghost"
                   size="xs"
-                  className="!p-0 font-black uppercase tracking-[0.25em] text-notion-light-text/40 dark:text-white/40 border-none bg-transparent"
+                  className="!p-0 font-black uppercase tracking-[0.25em] text-notion-light-text/60 dark:text-white/60 border-none bg-transparent"
                 >
                   Confidence Dial
                 </Badge>
@@ -432,7 +432,7 @@ export const DashboardView: React.FC<DashboardViewProps> = React.memo(
                   <Badge
                     variant="ghost"
                     size="xs"
-                    className="!p-0 font-black uppercase tracking-widest text-notion-light-text/60 dark:text-white/60 border-none bg-transparent"
+                    className="!p-0 font-black uppercase tracking-widest text-notion-light-text/70 dark:text-white/60 border-none bg-transparent"
                   >
                     PROJECT MOMENTUM
                   </Badge>

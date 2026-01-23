@@ -91,15 +91,17 @@ export const Sidebar: React.FC = React.memo(() => {
         <div
           className={`h-16 flex items-center transition-all duration-500 ${isCollapsed ? "px-0 justify-center" : "px-5 justify-between"}`}
         >
-          <div
-            className={`flex items-center gap-3 overflow-hidden ${isCollapsed ? "justify-center" : ""}`}
+          <button
+            onClick={toggleCollapse}
+            className={`flex items-center gap-3 overflow-hidden transition-all duration-300 group ${isCollapsed ? "justify-center w-full" : ""}`}
+            title={isCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
           >
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-600 to-violet-700 flex items-center justify-center text-white shadow-lg shadow-indigo-500/30 flex-shrink-0 animate-pulse-slow">
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-600 to-violet-700 flex items-center justify-center text-white shadow-lg shadow-indigo-500/30 flex-shrink-0 animate-pulse-slow group-hover:scale-110 transition-transform duration-300 relative">
               <Icon.Logo size={20} className="drop-shadow-sm" />
             </div>
             {!isCollapsed && (
-              <div className="flex flex-col">
-                <span className="font-black text-sm tracking-tighter whitespace-nowrap text-notion-light-text dark:text-notion-dark-text uppercase leading-none">
+              <div className="flex flex-col items-start text-left">
+                <span className="font-black text-sm tracking-tighter whitespace-nowrap text-notion-light-text dark:text-notion-dark-text uppercase leading-none group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
                   MyOps
                 </span>
                 <span className="text-[9px] font-black text-indigo-500 dark:text-indigo-400 tracking-[0.2em] uppercase mt-0.5 opacity-80">
@@ -107,19 +109,7 @@ export const Sidebar: React.FC = React.memo(() => {
                 </span>
               </div>
             )}
-          </div>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={toggleCollapse}
-            className={`hidden lg:flex h-8 w-8 text-notion-light-muted dark:text-notion-dark-muted hover:text-notion-light-text dark:hover:text-notion-dark-text hover:bg-notion-light-hover/80 dark:hover:bg-notion-dark-hover/80 rounded-lg transition-all duration-300 ${isCollapsed ? "absolute -right-4 top-4 bg-white dark:bg-notion-dark-sidebar border border-notion-light-border dark:border-notion-dark-border shadow-md z-[60]" : ""}`}
-            leftIcon={
-              <Icon.ChevronLeft
-                size={14}
-                className={`transition-transform duration-500 ${isCollapsed ? "rotate-180" : ""}`}
-              />
-            }
-          />
+          </button>
         </div>
 
         <nav className="px-3 py-6 flex flex-col gap-1 overflow-y-auto h-[calc(100vh-140px)] scrollbar-hide">
